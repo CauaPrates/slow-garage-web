@@ -12,4 +12,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
   );
 }
 
-export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey);
+export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    // Ambos já são o default do client — explícitos porque o app depende
+    // ativamente desse comportamento (sessão sobrevive ao reload, e o
+    // link de confirmação/recuperação de e-mail é processado sozinho).
+    persistSession: true,
+    detectSessionInUrl: true,
+  },
+});

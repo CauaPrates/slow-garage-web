@@ -123,3 +123,72 @@ objeto. Contornado registrando o plugin manualmente
 (`plugins: { "react-hooks": reactHooks }`) e espalhando só
 `configs['recommended-latest'].rules`. Sem impacto no conjunto de regras
 aplicado, só na forma de declarar.
+
+## ADR-012 — Cadastro com e-mail já existente não revela isso (Fase 1)
+
+Descoberto testando AC-2 contra o Supabase real: `signUp()` com um
+e-mail que já existe retorna HTTP 200 com `identities: []` — não um
+erro. É proteção anti-enumeração do próprio GoTrue (impede alguém de
+descobrir quais e-mails têm conta testando cadastro). A spec original
+(AC-2) presumia um erro explícito "e-mail já cadastrado", que este
+backend não dá. **Decisão: não contornar isso.** Simular a detecção
+olhando `identities: []` reabriria exatamente o furo de enumeração que
+o Supabase fechou de propósito. `AC-2` foi reescrito em `spec.md` pra
+descrever o comportamento seguro real: mesma tela de "confirme seu
+e-mail" para e-mail novo ou já existente, sem duplicar conta e sem
+mandar e-mail de verdade pro caso duplicado. Consistente com RN-4/RN-5,
+que já pediam o mesmo princípio pro fluxo de recuperação de senha e
+login.
+
+## ADR-013 — `GuestRoute` precisa ler o mesmo `?redirect=` que o `SignInForm`
+
+Bug real encontrado no `ui:check`/teste manual: depois de logar vindo
+de uma rota protegida (`/configuracoes` → `/entrar?redirect=%2Fconfiguracoes`),
+o usuário caía na Home, não em `/configuracoes`. Causa: `SignInForm`
+navegava explicitamente pro redirect certo, mas `GuestRoute` (que
+envolve `/entrar`) também reage à mesma mudança de status pra
+"authenticated" e tinha seu próprio redirect **fixo** pra Home — os
+dois competiam pela navegação, e o da `GuestRoute` vencia. Corrigido
+extraindo `safeRedirectTarget()` pra `lib/routes.ts` e usando a mesma
+função nos dois lugares, garantindo que sempre concordem no destino.
+
+## ADR-014 — Link dentro de frase de texto precisa de sublinhado sempre visível, não só no hover
+
+`ui:check`/axe pegou `link-in-text-block` (serious) em "Não tem conta?
+Criar conta" e "Já tem conta? Entrar" — a cor (`text-accent`) sozinha
+não é suficiente pra diferenciar link de texto normal (falha pra quem
+não distingue cor). Trocado `hover:underline` por `underline` fixo em
+todo link inline de auth. Vale como padrão pra qualquer link futuro
+dentro de frase corrida (não se aplica a botão nem a link isolado tipo
+item de lista).
+
+## ADR-015 — CLI do shadcn (`add`) escreve em `./@/components/...` literal no Windows, não resolve o alias
+
+Extensão do achado do ADR-007 (a Fase 0 já tinha visto `init` falhar).
+Nesta fase, `npx shadcn@latest add input label -y` **rodou sem erro**,
+mas escreveu os arquivos em `./@/components/ui/*.tsx` (uma pasta
+literal chamada `@` na raiz do projeto) em vez de resolver o alias
+`@/*` pra `src/*` como `components.json` configura. Os arquivos gerados
+também usam a paleta de nomes genérica do shadcn
+(`border-input`, `text-foreground`, `bg-input`, variantes `dark:`) que
+não existe nos nossos tokens — precisariam ser reescritos de qualquer
+forma. Movidos manualmente pra `src/components/ui/`, reescritos com os
+nomes de token da Fase 0 (`border-border`, `bg-surface`,
+`text-text-primary` etc.), pasta `./@` apagada. `Label` foi
+simplificado pra um `<label>` puro (sem `radix-ui`/`@radix-ui/react-label`)
+já que não há controle customizado nesta fase que precise do
+comportamento de clique especial do primitive.
+
+## ADR-016 — Limite de envio de e-mail do Supabase (sem SMTP customizado) bloqueou parte da verificação
+
+O remetente de e-mail padrão de um projeto Supabase sem SMTP próprio
+tem limite de envio bem baixo (a documentação não fixa um número exato,
+mas na prática foram poucas chamadas de `signUp`/`resetPasswordForEmail`
+em sequência até `429 over_email_send_rate_limit`). Isso bloqueou
+testar AC-1 (cadastro com e-mail nunca usado) e AC-6 (login com e-mail
+não confirmado) com uma conta 100% fresca nesta sessão de verificação —
+ambos foram cobertos por caminho de código equivalente (ver
+`verification.md`), não por teste direto de e-mail novo → confirmação →
+login. Não é algo que este frontend resolve; ou se espera o limite
+resetar, ou configura-se SMTP próprio no projeto (fora do escopo deste
+repositório).

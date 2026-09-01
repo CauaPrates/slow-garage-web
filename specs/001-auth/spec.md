@@ -57,7 +57,7 @@ Uma pessoa consegue criar conta com e-mail e senha, confirmar o e-mail, entrar, 
 ## 5. Critérios de aceite
 
 - **AC-1**: Dado um e-mail não cadastrado e uma senha com 6+ caracteres, quando o usuário envia o cadastro, então a conta é criada e a tela "confirme seu e-mail" aparece — nenhuma sessão ativa.
-- **AC-2 (negativo)**: Dado um e-mail já cadastrado, quando o usuário tenta se cadastrar de novo com ele, então o sistema recusa com "Este e-mail já está cadastrado" (ou equivalente), sem duplicar.
+- **AC-2 (negativo) — revisado na implementação, ver Seção 11**: Dado um e-mail já cadastrado, quando o usuário tenta se cadastrar de novo com ele, então o sistema **não revela** que o e-mail já existe (proteção anti-enumeração do próprio Supabase Auth) — mostra a mesma tela "confirme seu e-mail" de um cadastro novo, sem duplicar a conta e sem enviar e-mail de confirmação de verdade pra ela. Isso substitui a redação original ("mostra 'Este e-mail já está cadastrado'"), que presumia um comportamento que o backend não tem.
 - **AC-3 (negativo)**: Dado uma senha com menos de 6 caracteres, quando o usuário tenta enviar o cadastro, então o formulário recusa antes de chamar o servidor, indicando o campo.
 - **AC-4**: Dado um e-mail confirmado e credenciais corretas, quando o usuário envia o login, então uma sessão é criada e ele vai pra Home.
 - **AC-5 (negativo)**: Dado credenciais erradas (e-mail ou senha), quando o usuário tenta logar, então o sistema recusa com "E-mail ou senha incorretos" — sem revelar qual dos dois está errado.
@@ -79,6 +79,7 @@ Uma pessoa consegue criar conta com e-mail e senha, confirmar o e-mail, entrar, 
 - **RN-3**: A energia visual "hero" (Permanent Marker) aparece em `/entrar` e `/cadastro` — dois dos quatro pontos combinados na Fase 0. As demais telas desta fase usam a tipografia de corpo.
 - **RN-4**: Mensagem de recuperação de senha é idêntica exista ou não o e-mail informado.
 - **RN-5**: Erro de login por credencial errada nunca distingue "e-mail não existe" de "senha errada".
+- **RN-6 (descoberta na implementação)**: Cadastro com e-mail já existente também nunca revela isso — mesma tela de sucesso do e-mail novo (ver AC-2). Consistente com RN-4/RN-5: em nenhum ponto do fluxo de auth o frontend distingue "e-mail existe" de "e-mail não existe".
 
 ## 7. Dados
 
@@ -127,6 +128,7 @@ Nenhuma outra transição é válida — não existe "autenticado" sem confirmar
 - **Depende de**: Site URL e Redirect URLs corretos no dashboard de Auth. Hoje estão errados (Site URL em `:3000`, Redirect URLs vazio) — não bloqueia escrever spec/plano, mas bloqueia o teste de ponta a ponta de confirmação de e-mail e redefinição de senha até alguém com acesso ajustar para `http://localhost:5173` / `http://localhost:5173/**`.
 - **Risco**: o comportamento exato do link de confirmação de e-mail (autentica direto ou só marca confirmado) depende de configuração do Supabase que não vejo de fora. O plano cobre os dois casos; a verificação confirma qual é o real.
 - **Risco**: tamanho mínimo de senha do servidor pode divergir do zod do cliente se a configuração do dashboard mudar depois — mitigação: erro do servidor sempre traduzido, mesmo com validação de 6 caracteres no cliente.
+- **Descoberto na implementação**: o remetente de e-mail padrão do Supabase (sem SMTP customizado) tem limite de envio bem baixo — bati nele durante a própria verificação desta fase, testando cadastro e recuperação de senha em sequência. Isso bloqueou testar AC-1 (cadastro com e-mail nunca usado) e AC-6 (login com e-mail não confirmado) com uma conta 100% fresca nesta sessão; ambos foram verificados por caminho de código equivalente (ver `verification.md`), não por teste direto de ponta a ponta. Fica como pendência pra confirmar manualmente depois que o limite resetar, ou permanentemente resolvido se um SMTP próprio for configurado (fora do escopo deste frontend).
 
 ## 12. Perguntas abertas
 

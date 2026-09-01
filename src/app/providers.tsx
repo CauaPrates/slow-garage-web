@@ -7,6 +7,7 @@ import {
 } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { applyTheme, getStoredTheme, storeTheme, type Theme } from "@/lib/theme";
+import { AuthProvider } from "@/features/auth/AuthProvider";
 
 type ThemeContextValue = {
   theme: Theme;
@@ -41,7 +42,7 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeContext.Provider value={{ theme, setTheme, toggleTheme }}>
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </ThemeContext.Provider>
     </QueryClientProvider>
   );
