@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "types": "supabase gen types typescript --project-id ${SUPABASE_PROJECT_ID:?defina SUPABASE_PROJECT_ID antes de rodar} > src/types/database.types.ts",
-    "icons": "node scripts/generate-icons.mjs"
+    "icons": "node scripts/generate-icons.mjs",
+    "ui:check": "node scripts/ui-check.mjs"
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.13.0",

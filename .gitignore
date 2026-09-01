@@ -15,3 +15,4 @@ node_modules/.tmp/
 
 # gerado por `npm run types`, mas commitado — ver docs/DECISIONS.md
 # (mantido fora do gitignore de propósito: precisa ficar versionado)
+.ui-check*/

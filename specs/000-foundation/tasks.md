@@ -29,8 +29,8 @@
 | 20 | Configurar `vite-plugin-pwa` e `public/manifest.webmanifest` | `vite.config.ts`, `public/manifest.webmanifest`, `index.html` | AC-6 | 19 | ☑ |
 | 21 | Escrever `docs/DESIGN.md` (tokens finais, papéis tipográficos, o que foi recusado e por quê) | `docs/DESIGN.md` | entrega documental da fase | 5, 6 | ☑ |
 | 22 | Escrever `docs/DECISIONS.md` (ADRs: fontsource, sharp, Context para tema, React Router em modo biblioteca) | `docs/DECISIONS.md` | entrega documental da fase | 6, 10, 18 | ☑ (9 ADRs — mais que o previsto no plano, ver arquivo) |
-| 23 | Verificação manual: 320px sem overflow, contraste AA, foco de teclado, snippet descartável para AC-4, remoção temporária de `.env` para AC-8, Lighthouse instalável, grep de AC-9/AC-10 | — | AC-2, AC-4, AC-6, AC-7, AC-8, AC-9, AC-10 | 17, 20, 21 | ☐ |
-| 24 | Rodar `npm run build`, `npx tsc --noEmit` e lint; escrever `specs/000-foundation/verification.md` com saída literal colada | `specs/000-foundation/verification.md` | AC-3 (+ consolida todos) | 23 | ☐ |
+| 23 | Verificação manual: 320px sem overflow, contraste AA, foco de teclado, snippet descartável para AC-4, remoção temporária de `.env` para AC-8, instalabilidade PWA, grep de AC-9/AC-10 | — | AC-2, AC-4, AC-6, AC-7, AC-8, AC-9, AC-10 | 17, 20, 21 | ☑ (AC-4 e AC-6 parciais — ver verification.md) |
+| 24 | Rodar `npm run build`, `npx tsc --noEmit` e lint; escrever `specs/000-foundation/verification.md` com saída literal colada | `specs/000-foundation/verification.md` | AC-3 (+ consolida todos) | 23 | ☑ |
 
 Status: ☐ pendente · ◐ em andamento · ☑ feita · ✖ bloqueada
 
