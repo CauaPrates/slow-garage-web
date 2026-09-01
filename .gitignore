@@ -1,0 +1,17 @@
+node_modules/
+dist/
+dist-ssr/
+*.local
+
+.env
+.env.*
+!.env.example
+
+.DS_Store
+Thumbs.db
+
+*.tsbuildinfo
+node_modules/.tmp/
+
+# gerado por `npm run types`, mas commitado — ver docs/DECISIONS.md
+# (mantido fora do gitignore de propósito: precisa ficar versionado)
