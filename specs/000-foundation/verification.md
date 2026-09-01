@@ -4,7 +4,7 @@
 |---|---|
 | **Spec** | ./spec.md |
 | **Verificado em** | 2026-09-01 |
-| **Resultado** | aprovado, com uma pendência conhecida e aceita (AC-4 parcial) |
+| **Resultado** | aprovado, com uma limitação de biblioteca conhecida e documentada (AC-4 — `.select()`) |
 
 ## Critérios de aceite
 
@@ -13,7 +13,7 @@
 | AC-1 | ✅ | `npm run dev` sobe, `npm run ui:check` sem erro de console em 5 viewports; screenshot `. ui-check/1440-root.png` mostra shell com fundo `#16140F` e header "Slow Garage" |
 | AC-2 | ✅ | Script Playwright: `bg antes do toggle: rgb(22, 20, 15)` (`#16140F`) → clique no switch → `bg depois do toggle: rgb(247, 242, 232)` (`#F7F2E8`), `classe light: true` → **reload** → `bg depois do reload: rgb(247, 242, 232)` `classe light: true` `localStorage: light`. Contraste AA: `#F5F1E8` sobre `#16140F` e `#1E1B15` sobre `#F7F2E8` — ambos folgadamente acima de 4.5:1 (checagem manual, não medida por ferramenta) |
 | AC-3 | ✅ | `npx tsc -b --noEmit` — saída vazia, sem erro (colado abaixo) |
-| AC-4 | ⚠️ parcial | Snippet descartável `supabase.from("vehicles").select("nonexistent_column")` contra o `Database` placeholder produziu `TS2769: Argument of type '"vehicles"' is not assignable to parameter of type 'never'` — comportamento correto verificado. Descartado depois (não fica no repo). **Só cobre o placeholder** — não prova que o tipo real (pós `npm run types`) vai se comportar igual; isso só é verificável quando as credenciais chegarem |
+| AC-4 | ⚠️ parcial, com achado importante | Credenciais chegaram — `npm run types` já roda contra o schema real (`docs/API_CONTRACT.md` recebido, `SUPABASE_PROJECT_ID=uglmnuppixsyzlhpftrh`). Testei 4 casos com snippet descartável contra o `Database` real: (1) `.from("nonexistent_table")` → erro de tipo ✅; (2) `.from("vehicles").select("*").eq("nonexistent_column", 1)` → erro de tipo ✅; (3) `.from("vehicles").insert({ nonexistent_field: 1, ... })` → erro de tipo ✅; (4) `.from("vehicles").select("nonexistent_column")` → **sem erro** ❌ — a string de `select()` não é validada contra as colunas reais nesta versão do `@supabase/supabase-js` (é uma mini-DSL que aceita embedding de relação, alias, agregação — a tipagem cobre o que consegue parsear e degrada pra permissivo no resto). AC-4 fecha para `.eq()`/`.insert()`/`.update()`/nome de tabela, mas **não** para o argumento de `.select()`. Isso é uma limitação real da lib, não algo que eu deixei de implementar — registrado em `docs/DECISIONS.md` (ADR-010) como aviso pras fases que forem escrever queries de verdade |
 | AC-5 | ✅ | Ver "Casos de formatação" abaixo — todos batem com o formato esperado |
 | AC-6 | ⚠️ parcial | Verificado via `npm run build && npm run preview`: manifest servido em `/manifest.webmanifest` com `name`, `icons` (192/512/maskable), `start_url`, `display: standalone`; service worker registra e fica `active: true` (`scope: http://localhost:4173/`); `icon-192.png` responde 200 `image/png`. **Não rodei o Lighthouse literalmente** — o que está acima cobre os critérios centrais do audit de instalabilidade, mas não é o mesmo que o score do Lighthouse. Ver "Para o humano testar na mão" |
 | AC-7 | ✅ | `npm run ui:check` em 320/390/768/1440/390-com-teclado-reduzido: `overflow` sempre `scrollWidth <= innerWidth` nos 5 casos (ver `.ui-check/report.json`) |
@@ -118,10 +118,11 @@ Rodado duas vezes: sem `.env` (screenshots em `.ui-check-noenv-final/`) e com `.
 
 ## Pendências
 
-- **AC-4 parcial**: o placeholder de `Database` prova que a mecânica de erro-de-tipo-em-coluna-inexistente funciona, mas não prova nada sobre o schema real. Só fecha de verdade depois que `SUPABASE_PROJECT_ID` chegar, eu rodar `npm run types`, e repetir a checagem contra tabela real.
+- **AC-4 — limitação real, não corrigível nesta fase**: `.select("coluna_inexistente")` não é pego em tempo de compilação (ver linha do AC-4 acima e ADR-010). Toda fase que escrever `.select(...)` precisa saber disso e não confiar cegamente no `tsc` pra pegar typo de nome de coluna dentro da string de select — só `.eq()`, `.insert()`, `.update()` e nome de tabela são cobertos.
 - **AC-6 parcial**: instalabilidade verificada por manifest + service worker ativo + ícones servindo, não pelo Lighthouse literal. Ver item 3 em "Para o humano testar na mão".
 - **Elemento de marca em katakana** (decisão do clarify de identidade visual): adiado para a fase que construir o primeiro ponto hero real — ver ADR-004 em `docs/DECISIONS.md`. Não é uma pendência desta fase, é decisão explícita de escopo.
-- **`.env`**: removido depois dos testes (era só um valor fake para smoke test, nunca foi commitado — `.gitignore` já cobria). Você vai precisar criar o seu com os valores reais do projeto Supabase de desenvolvimento.
+- **`.env` local**: criado com as credenciais reais que você mandou, pra rodar `npm run types` e os testes. Continua fora do commit (`.gitignore`). Você vai precisar recriá-lo localmente (copiar de `.env.example` e preencher) em qualquer outra máquina/clone.
+- **`docs/API_CONTRACT.md`**: recebido e salvo no repo — deixa de ser dependência bloqueante para a Fase 1.
 
 ## Para o humano testar na mão
 

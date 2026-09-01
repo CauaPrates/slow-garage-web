@@ -85,6 +85,35 @@ valendo à medida que fases futuras importarem `supabase.ts` de dentro da
 importa `Providers`/`router` (via `import()` dinâmico) quando elas
 existem; caso contrário importa só `ConfigMissingScreen`.
 
+## ADR-010 — `.select("coluna")` do supabase-js não valida nome de coluna em tempo de compilação
+
+Descoberto testando AC-4 contra o schema real (depois que as credenciais e
+`docs/API_CONTRACT.md` chegaram): `supabase.from("vehicles").select("nonexistent_column")`
+**não** produz erro de tipo, enquanto `.eq("nonexistent_column", 1)`,
+`.insert({ nonexistent_field: 1, ... })` e nome de tabela inválido
+(`.from("nonexistent_table")`) todos produzem erro corretamente. A string
+de `select()` é uma mini-DSL (suporta embedding de relação, alias,
+agregação) que o `@supabase/supabase-js` só valida quando consegue
+parsear por completo — o resto degrada pra permissivo em vez de errar.
+Não é algo corrigível no nosso código; é limitação da versão atual da
+lib. **Toda fase que escrever `.select(...)` precisa saber disso** — não
+dá pra confiar só no `tsc` pra pegar typo de coluna dentro do argumento
+de select; revisão de código/teste manual continuam necessários ali.
+`.eq()`, `.insert()`, `.update()` e nome de tabela continuam cobertos
+normalmente.
+
+## ADR-011 — `npm run types` via script Node (`scripts/gen-types.mjs`), não shell direto no `package.json`
+
+A primeira versão do script (`supabase gen types ... --project-id
+${SUPABASE_PROJECT_ID:?msg} > arquivo`) usava sintaxe de parâmetro POSIX
+(`${VAR:?msg}`), que não existe no `cmd.exe` — o shell que `npm run`
+usa por padrão no Windows, independente de qual shell chamou o `npm
+run`. O script falhava silenciosamente (virava um dump de `--help` do
+CLI). Trocado por `scripts/gen-types.mjs`, que lê `process.env.SUPABASE_PROJECT_ID`
+em JS puro e chama `npx supabase gen types` via `spawnSync` — funciona
+igual em qualquer shell. Também ganhou o flag `--schema public`, que
+uma versão mais nova do CLI do Supabase (2.116.0) passou a exigir.
+
 ## ADR-009 — `eslint-plugin-react-hooks` v7: usar `.rules`, não o config pronto, no `eslint.config.js`
 
 O export `configs['recommended-latest']` do plugin declara

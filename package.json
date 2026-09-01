@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint .",
-    "types": "supabase gen types typescript --project-id ${SUPABASE_PROJECT_ID:?defina SUPABASE_PROJECT_ID antes de rodar} > src/types/database.types.ts",
+    "types": "node scripts/gen-types.mjs",
     "icons": "node scripts/generate-icons.mjs",
     "ui:check": "node scripts/ui-check.mjs"
   },

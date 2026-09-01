@@ -36,7 +36,7 @@ Status: ☐ pendente · ◐ em andamento · ☑ feita · ✖ bloqueada
 
 ## Bloqueios
 
-- Task 14 (client Supabase tipado): `Database` fica com placeholder documentado até `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` e o project ref chegarem. Não bloqueia a task em si, mas AC-4 só é totalmente verificável depois.
+- ~~Task 14 (client Supabase tipado): `Database` fica com placeholder documentado até `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` e o project ref chegarem.~~ **Resolvido** — credenciais e `docs/API_CONTRACT.md` recebidos, `npm run types` gera o `Database` real. Ver ADR-010 em `docs/DECISIONS.md` para uma limitação de biblioteca descoberta nesse processo (não é bloqueio, é comportamento a saber).
 - Nenhum outro bloqueio conhecido no momento.
 
 ## Escopo recusado durante a implementação
