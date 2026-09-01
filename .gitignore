@@ -13,6 +13,10 @@ Thumbs.db
 *.tsbuildinfo
 node_modules/.tmp/
 
+# cache/estado local do supabase CLI (gerado por `npm run types`) — migration
+# e schema vivem no repo do backend, não aqui
+supabase/
+
 # gerado por `npm run types`, mas commitado — ver docs/DECISIONS.md
 # (mantido fora do gitignore de propósito: precisa ficar versionado)
 .ui-check*/
