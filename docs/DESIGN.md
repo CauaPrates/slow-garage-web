@@ -57,16 +57,18 @@ atrapalhar a leitura de número e data repetidos cem vezes por semana.
 
 ## Densidade
 
-Ainda não há lista nem formulário nesta fase para validar a escala por
-inteiro — o que existe hoje é o cabeçalho do shell. Convenção que as fases
-seguintes devem seguir, usando a escala padrão do Tailwind (já apoiada em
-`--spacing`, portanto já é CSS variable):
+Convenção usando a escala padrão do Tailwind (já apoiada em `--spacing`,
+portanto já é CSS variable):
 
-- Alvo de toque mínimo: `h-11`/`w-11` (44px) — usado no botão e no rótulo
-  que envolve o toggle de tema
+- Alvo de toque mínimo: `h-11`/`w-11` (44px) — botão, campo de input, e o
+  rótulo que envolve o toggle de tema
 - Cabeçalho/barra: `px-4 py-3`
-- Conteúdo de tela: `p-6` como ponto de partida; ajustar por tela quando a
-  Fase 2 em diante criar listas e formulários reais
+- Conteúdo de tela: `p-6` como ponto de partida
+- Formulário (Fase 1 em diante): campos empilhados com `gap-4`, label e
+  campo com `gap-1.5`, mensagem de erro logo abaixo do campo que ela
+  descreve — nunca um bloco de erro genérico separado do campo
+- Card de formulário de auth (`AuthLayout`): `max-w-sm`, `p-6`, `rounded-lg`,
+  centralizado vertical e horizontalmente
 
 ## Hierarquia
 
@@ -82,6 +84,15 @@ quatro pontos combinados. Todo o resto — cromo do shell, botão, campo —
 usa Space Grotesk e é deliberadamente quieto. Regra de interação: confirma,
 nunca celebra (nenhuma animação de comemoração; o brilho da logo é um
 elemento estático de marca, não uma animação de sucesso).
+
+**Primeira aplicação real (Fase 1)**: `/entrar` e `/cadastro` são os dois
+primeiros pontos hero implementados de fato. O wordmark "Slow Garage" em
+Permanent Marker fica centralizado acima do card de formulário, sozinho —
+nenhum outro elemento da tela usa a fonte hero, nem o cabeçalho (que nem
+existe nessas telas: `AuthLayout` não usa o `AppShell`, de propósito, pra
+não competir com o wordmark). Card do formulário em `surface`, sem
+sombra — só borda de 1px, mantendo o fundo escuro como protagonista atrás
+do wordmark.
 
 ## Ícones do PWA
 
