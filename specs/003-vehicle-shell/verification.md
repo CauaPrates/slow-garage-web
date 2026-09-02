@@ -127,14 +127,20 @@ casos.
 ## Pendências
 
 - A foto principal do Chevrolet Opala (seed de `bob@dev.local`, upload
-  original da verificação da Fase 2) renderiza como um retângulo preto
-  em vez de mostrar o carro — mas isso já acontecia identicamente antes
-  desta fase (mesmo `photoUrl`, mesmo comportamento no card da Fase 2).
-  Não é uma regressão da Fase 3 e não foi investigado aqui, porque
-  mexer no arquivo de imagem armazenado no Storage de outra conta de
-  teste está fora do escopo desta fase. Se for um problema real, é
-  candidato a olhar quando a Fase 8 (galeria/documentos) mexer de novo
-  em foto.
+  original da verificação da Fase 2) renderizava como um retângulo
+  preto. **Investigado e corrigido após o merge**: era um PNG de 68
+  bytes (1×1 pixel) — resíduo do meu próprio upload de teste na
+  verificação da Fase 2, nunca limpo. Removida a linha em
+  `vehicle_photos`, o arquivo correspondente no Storage e zerado
+  `primary_photo_id` do veículo (com aprovação explícita do usuário
+  antes de tocar no banco de dev). O veículo agora renderiza o mesmo
+  placeholder de ícone usado por qualquer veículo sem foto — confirmado
+  visualmente após a correção. Uma segunda linha órfã em
+  `vehicle_photos` (categoria "antes/depois", arquivo ausente no
+  Storage) foi encontrada na mesma investigação, mas **não foi tocada**:
+  o `created_at` dela é anterior a qualquer teste desta sessão, indicando
+  dado de seed original do backend — fora da minha autoridade para
+  apagar por conta própria. Reportado ao usuário; segue sem ação.
 - AC-2 foi verificado no caminho "tem foto" (Opala) e no caminho "sem
   foto" apenas por leitura de código (o mesmo componente `<Car
   aria-hidden>` já usado e testado visualmente no `VehicleCard` da Fase
