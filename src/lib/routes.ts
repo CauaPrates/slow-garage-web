@@ -11,6 +11,7 @@ export const ROUTES = {
   recuperarSenha: "/recuperar-senha",
   redefinirSenha: "/redefinir-senha",
   configuracoes: "/configuracoes",
+  vehicle: (vehicleId: string) => `/v/${vehicleId}`,
 } as const;
 
 /**

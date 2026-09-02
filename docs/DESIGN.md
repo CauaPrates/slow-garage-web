@@ -79,6 +79,21 @@ portanto já é CSS variable):
 - Diálogo (`Dialog`/`AlertDialog`): `max-w-md`/`max-w-sm`, `max-h-[85vh]`
   com `overflow-y-auto` — formulário mais longo que a tela rola dentro
   do diálogo, nunca estoura pra fora
+- Sidebar desktop (Fase 3): `w-56`, item `px-3 py-2`, ícone `h-4 w-4`,
+  visível só a partir de `lg` (1024px)
+- Bottom nav mobile (Fase 3): fixa na base, item `min-h-[44px] flex-1`,
+  ícone `h-5 w-5`, rótulo `text-[10px]` com `truncate` (ver ADR-023),
+  botão "Adicionar" central destacado (`h-14 w-14`, círculo `bg-accent`,
+  elevado com `-translate-y-3` acima da linha dos outros itens);
+  some a partir de `lg`
+- Folha "Adicionar" (Fase 3): ancorada na base (`inset-x-0 bottom-0`),
+  cantos superiores arredondados, grid `grid-cols-3` de itens
+  `min-h-[64px]`, mesmo `max-h-[85vh] overflow-y-auto` de qualquer
+  diálogo do projeto
+- Item de navegação sem tela construída ainda ("Em breve" — ver
+  ADR-022): opacidade reduzida, `cursor-not-allowed`, rótulo textual
+  sempre visível (nunca só cor) — continua focável por Tab
+  (`aria-disabled`, nunca `disabled` nativo)
 
 ## Hierarquia
 

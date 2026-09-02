@@ -235,3 +235,52 @@ nenhum. Movido pro componente `DialogContent`/`AlertDialogContent`
 compartilhado (`components/ui/dialog.tsx`/`alert-dialog.tsx`), então
 todo diálogo futuro já nasce com esse comportamento sem precisar
 lembrar de adicionar.
+
+## ADR-021 — Folha "Adicionar" construída sobre `@radix-ui/react-dialog` direto, não via `DialogContent` compartilhado nem lib de bottom-sheet (Fase 3)
+
+`DialogContent` (ADR-020) é estilizado como modal centralizado
+(`top-1/2 left-1/2`, `max-w-md`) — reaproveitar essa classe via `cn()`
+para virar uma folha ancorada na base da tela exigiria sobrepor várias
+propriedades de posicionamento conflitantes, arriscando depender de
+ordem de merge do `tailwind-merge` para classes com modificador
+(`data-[state=...]`) versus sem modificador. Mais simples e mais
+previsível: `AddActionSheet.tsx` usa `DialogPrimitive` (Radix) direto,
+com sua própria folha de classes construída do zero pra ancorar em
+`inset-x-0 bottom-0`. Reaproveita a mesma dependência já instalada
+(nenhuma lib de bottom-sheet nova, ex.: `vaul`) — só não reaproveita o
+wrapper estilizado, porque o visual é genuinamente outro.
+
+## ADR-022 — Item de navegação sem tela construída aparece desde já, desabilitado com "Em breve" (Fase 3)
+
+Decisão de produto tomada no clarify da Fase 3: a sidebar (10 itens),
+a bottom nav (5 itens) e a folha "Adicionar" (6 itens) mostram a forma
+final da navegação do produto desde a Fase 3, mesmo que 7 dos 10 itens
+da sidebar, 2 dos 5 da bottom nav e todos os 6 da folha só ganhem tela
+de verdade nas Fases 4 a 9. A alternativa (esconder cada item até sua
+fase chegar) foi descartada porque escondia a forma final do produto
+até a Fase 9 — ver "Alternativas descartadas" em
+`specs/003-vehicle-shell/plan.md`.
+
+Implementação: `lib/navigation.ts` é a fonte única — cada item tem
+`to: string | null`, onde `null` significa "sem tela ainda". O
+componente que consome a lista decide entre `NavLink` (rota real) e um
+`<button aria-disabled="true">` (sem `disabled` nativo — precisa
+continuar alcançável por Tab, só marcado indisponível pra leitor de
+tela). Rótulo textual "Em breve" sempre visível, nunca só cor/opacidade
+— o mesmo princípio de acessibilidade do ADR-014. Qualquer fase futura
+que construir uma dessas telas só precisa trocar `to: null` por
+`to: "/rota-real"` em `navigation.ts`; nenhum componente de navegação
+muda.
+
+## ADR-023 — Rótulo de item da bottom nav trunca com reticências em vez de tocar a borda em 320px (Fase 3)
+
+Achado no `ui:check`/revisão visual: "Configurações" em item
+`flex-1` sem `min-width: 0` não encolhe (comportamento padrão do
+Flexbox — `min-width: auto` respeita o conteúdo), então o texto ficava
+colado na borda direita da tela em 320px sem contar como overflow de
+página (o item em si não estourava o container, só sobrava sem
+respiro visual). Corrigido com `min-w-0` no item + `truncate` no
+`<span>` do rótulo + `px-1` na `<nav>`/`px-0.5` por item — abaixo de
+~340px "Configurações" vira "Configura…" em vez de tocar a borda.
+Mesmo padrão do ADR-019 (achado real de 320px, não hipotético) — vale
+para qualquer rótulo futuro de bottom nav.
