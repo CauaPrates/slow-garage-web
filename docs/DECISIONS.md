@@ -192,3 +192,46 @@ ambos foram cobertos por caminho de código equivalente (ver
 login. Não é algo que este frontend resolve; ou se espera o limite
 resetar, ou configura-se SMTP próprio no projeto (fora do escopo deste
 repositório).
+
+## ADR-017 — CRUD de veículo vive em `/` via diálogo, sem rota `/v/:id` ainda
+
+A Fase 2 não introduz `/v/:vehicleId` como rota de verdade. Criar,
+editar e excluir veículo acontecem via `Dialog`/`AlertDialog` em cima
+da própria "Minha Garagem" (`/`). A rota `/v/:vehicleId` com shell,
+sidebar, bottom-nav e header do veículo é entrega explícita da Fase 3
+(`003-vehicle-shell`) — construir essa rota agora, sem o resto do
+contexto dela, significaria decidir estrutura de navegação pela metade
+e refazer na Fase 3. Quando a Fase 3 chegar, o conteúdo de detalhe de
+veículo (hoje dentro do `EditVehicleDialog`) pode migrar pra dentro da
+rota nova; a lógica de dados (`useVehicles.ts`) já está isolada da UI e
+não precisa mudar.
+
+## ADR-018 — `Select`/`Textarea` sobre elemento nativo, sem Radix
+
+Diferente de `Dialog`/`AlertDialog` (onde foco, overlay e Esc justificam
+a dependência Radix), `<select>` e `<textarea>` nativos já são
+acessíveis por padrão e cobrem o que a Fase 2 precisa (enums fixos:
+combustível, câmbio, status; texto livre: notas). Escritos como
+wrappers finos com os tokens da Fase 0, sem `@radix-ui/react-select`.
+Evita mais uma dependência e mais um componente pra manter sincronizado
+com os tokens.
+
+## ADR-019 — Par de campo lado a lado empilha abaixo de `sm` (640px)
+
+Achado no `ui:check` a 320px: dois campos por linha (ex: Combustível +
+Câmbio) deixava o `<select>` estreito demais, truncando "Selecione"
+pra "Selecior". Trocado `grid-cols-2` fixo por `grid-cols-1 sm:grid-cols-2`
+em todo par de campo do `VehicleForm` — abaixo de 640px cada campo
+ocupa a largura toda; a partir daí, pareia. Vale como padrão pra
+qualquer formulário futuro com campos pareados.
+
+## ADR-020 — `Dialog`/`AlertDialog` sempre com `max-h-[85vh]` + scroll interno
+
+Descoberto ao corrigir o ADR-019: fazer os campos empilharem em coluna
+única deixa o formulário mais alto, e nada garantia que ele coubesse em
+tela pequena antes disso — o `EditVehicleDialog` já tinha um
+`overflow-y-auto` ad-hoc só nele, o `CreateVehicleDialog` não tinha
+nenhum. Movido pro componente `DialogContent`/`AlertDialogContent`
+compartilhado (`components/ui/dialog.tsx`/`alert-dialog.tsx`), então
+todo diálogo futuro já nasce com esse comportamento sem precisar
+lembrar de adicionar.

@@ -69,6 +69,16 @@ portanto já é CSS variable):
   descreve — nunca um bloco de erro genérico separado do campo
 - Card de formulário de auth (`AuthLayout`): `max-w-sm`, `p-6`, `rounded-lg`,
   centralizado vertical e horizontalmente
+- Card de item de lista (Fase 2 em diante): foto/placeholder `h-40`,
+  corpo `p-4`, grid de dados `gap-2`, ações (editar/excluir) alinhadas à
+  direita no rodapé do card
+- Par de campo lado a lado no formulário (marca/modelo, ano/km etc.):
+  empilha em coluna única abaixo de `sm` (640px) — testado e corrigido
+  na Fase 2, texto de `<select>` truncava ("Selecior" em vez de
+  "Selecione") em 320px com duas colunas
+- Diálogo (`Dialog`/`AlertDialog`): `max-w-md`/`max-w-sm`, `max-h-[85vh]`
+  com `overflow-y-auto` — formulário mais longo que a tela rola dentro
+  do diálogo, nunca estoura pra fora
 
 ## Hierarquia
 

@@ -9,6 +9,7 @@ import { ConfirmEmailPendingPage } from "@/features/auth/ConfirmEmailPendingPage
 import { RequestPasswordResetPage } from "@/features/auth/RequestPasswordResetPage";
 import { UpdatePasswordPage } from "@/features/auth/UpdatePasswordPage";
 import { SettingsPage } from "@/features/auth/SettingsPage";
+import { VehicleListPage } from "@/features/vehicle/VehicleListPage";
 
 export const router = createBrowserRouter([
   {
@@ -20,11 +21,7 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: (
-              <p className="p-6 text-sm text-text-secondary">
-                Fundação da Fase 0 — nenhuma tela de domínio ainda.
-              </p>
-            ),
+            element: <VehicleListPage />,
           },
           {
             path: "configuracoes",
