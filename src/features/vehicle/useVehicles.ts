@@ -87,6 +87,18 @@ export function useVehicles() {
   });
 }
 
+/**
+ * Deriva um veículo específico do cache de `useVehicles` — sem query nova.
+ * RLS já garante que a lista só contém veículos do usuário logado, então
+ * "não está na lista" cobre tanto "não existe" quanto "é de outro usuário"
+ * (RN-4 de specs/003-vehicle-shell/spec.md).
+ */
+export function useVehicle(vehicleId: string) {
+  const query = useVehicles();
+  const vehicle = query.data?.find((v) => v.id === vehicleId) ?? null;
+  return { ...query, vehicle };
+}
+
 export function useCreateVehicle() {
   const { user } = useAuth();
   const queryClient = useQueryClient();
