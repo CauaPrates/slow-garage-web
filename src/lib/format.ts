@@ -40,6 +40,22 @@ export function formatDateOnly(isoDate: string): string {
   return formatDateFns(parseISO(isoDate), "dd/MM/yyyy", { locale: ptBR });
 }
 
+/**
+ * "Hoje" em `yyyy-MM-dd` (formato de coluna `date` do Postgres e de
+ * `<input type="date">`), usando o calendário **local**. `new
+ * Date().toISOString()` usa UTC — em fuso negativo (Brasil, UTC-3),
+ * depois que a meia-noite UTC já passou mas o dia local ainda não
+ * virou, isso devolve a data de amanhã em vez de hoje. Usar sempre esta
+ * função para pré-preencher campo de data com "hoje" em formulário.
+ */
+export function todayDateOnly(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 /** `87400` -> `"87.400 km"` */
 export function formatKm(value: number): string {
   return `${integerFormatter.format(value)} km`;

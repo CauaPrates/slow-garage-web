@@ -12,6 +12,7 @@ import { SettingsPage } from "@/features/auth/SettingsPage";
 import { VehicleListPage } from "@/features/vehicle/VehicleListPage";
 import { VehiclePage } from "@/features/vehicle/VehiclePage";
 import { ExpensesPage } from "@/features/expense/ExpensesPage";
+import { FuelLogsPage } from "@/features/fuel/FuelLogsPage";
 
 export const router = createBrowserRouter([
   {
@@ -36,6 +37,10 @@ export const router = createBrowserRouter([
           {
             path: "v/:vehicleId/gastos",
             element: <ExpensesPage />,
+          },
+          {
+            path: "v/:vehicleId/abastecimentos",
+            element: <FuelLogsPage />,
           },
         ],
       },

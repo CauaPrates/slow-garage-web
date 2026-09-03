@@ -345,3 +345,57 @@ arquivo e linha órfãos — exatamente o tipo de resíduo corrigido à mão na
 Fase 3. Corrigido buscando o anexo atual direto do banco
 (`entity_type='expense'`, `entity_id=<gasto>`) dentro da própria mutação
 de exclusão, em vez de confiar no dado em cache do momento do clique.
+
+## ADR-028 — `<select>` de "Tanque cheio"/toggles precisa de `Switch` no `controlComponents` do jsx-a11y (Fase 5)
+
+`FuelLogForm` envolve `<Switch>` (Radix) num `<label>` nativo, igual o
+`ThemeToggle` já fazia desde a Fase 0. A regra
+`jsx-a11y/label-has-associated-control` acusou erro nesse padrão — mas
+não no `ThemeToggle`, que por acaso "passava" porque seu primeiro filho
+é uma expressão condicional (ternário do ícone Sol/Lua), o que faz a
+análise estática da regra desistir de checar a associação em vez de
+confirmá-la de verdade. Ou seja: o `ThemeToggle` nunca esteve
+corretamente coberto por essa regra, só escapou por acidente de forma.
+Corrigido de raiz adicionando `"Switch"` a `controlComponents` na
+configuração do plugin (`eslint.config.js`) — agora `Switch` é
+reconhecido como controle de verdade, tanto no `ThemeToggle` quanto em
+qualquer uso futuro, sem depender de estrutura condicional para escapar
+do lint.
+
+## ADR-029 — `todayDateOnly()` substitui `new Date().toISOString().slice(0, 10)` como default de data "hoje" em formulário (Fase 5)
+
+Achado real durante a verificação: `toISOString()` usa UTC. Em fuso
+negativo (Brasil, UTC-3), depois que a meia-noite UTC já passou mas o
+dia local ainda não virou, `new Date().toISOString().slice(0, 10)`
+devolve a data de **amanhã**, não a de hoje — o abastecimento aparecia
+registrado com data errada sem nenhum erro visível. O mesmo bug já
+existia em `ExpenseForm.tsx` desde a Fase 4 (idêntico padrão), só não
+tinha sido pego porque a verificação daquela fase não caiu numa janela
+de horário onde UTC e o calendário local divergem. Corrigido nos dois
+formulários com `todayDateOnly()` (novo helper em `lib/format.ts`, ao
+lado de `formatDateOnly`), que monta a string a partir dos getters
+**locais** de `Date` (`getFullYear`/`getMonth`/`getDate`), nunca de
+`toISOString()`. Vale como padrão pra qualquer formulário futuro que
+precise pré-preencher "hoje".
+
+## ADR-030 — `cost_per_km` de `fuel_log_metrics` continua calculado sem tanque cheio; só `km_per_liter` fica nulo (Fase 5)
+
+O contrato (`docs/API_CONTRACT.md`) diz que "`km_per_liter` e
+`cost_per_km` vêm `null` quando o banco não tem confiança no cálculo
+(tanque não cheio, ou abastecimento perdido no meio)" — a spec desta
+fase (AC-7) presumiu que os dois ficavam nulos juntos nesse caso.
+Testando contra o banco de dev real: um abastecimento com tanque não
+cheio mostrou `km_per_liter = null`, mas `cost_per_km` com um valor
+calculado de verdade. Faz sentido: `cost_per_km` só depende da
+quilometragem percorrida desde o registro anterior e do valor pago —
+nenhum dos dois fica incerto por o tanque não ter enchido; a incerteza
+de "quanto combustível foi realmente consumido" só afeta `km_per_liter`.
+A leitura mais provável é que a frase do contrato descreve a regra geral
+de "quando o banco não confia" pensando sobretudo em `km_per_liter`, e
+`cost_per_km` seguindo uma condição de confiança mais restrita (provável
+candidata: `missed_previous_fill`, não testado nesta fase). AC-7 foi
+reescrito em `spec.md` para descrever o comportamento real observado.
+Não é um bug do frontend — é o comportamento correto de exibir
+exatamente o que a view devolve (RN-1), e ilustra por que specs vindas
+do contrato precisam ser confirmadas contra o banco real antes de virar
+critério de aceite fechado.
