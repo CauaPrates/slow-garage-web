@@ -18,6 +18,7 @@ import { IssuesPage } from "@/features/issue/IssuesPage";
 import { ProjectsPage } from "@/features/project/ProjectsPage";
 import { ProjectDetailPage } from "@/features/project/ProjectDetailPage";
 import { DocumentsPage } from "@/features/document/DocumentsPage";
+import { TimelinePage } from "@/features/timeline/TimelinePage";
 
 export const router = createBrowserRouter([
   {
@@ -66,6 +67,10 @@ export const router = createBrowserRouter([
           {
             path: "v/:vehicleId/documentos",
             element: <DocumentsPage />,
+          },
+          {
+            path: "v/:vehicleId/historico",
+            element: <TimelinePage />,
           },
         ],
       },

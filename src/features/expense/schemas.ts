@@ -37,15 +37,6 @@ export const PAYMENT_METHOD_LABELS: Record<(typeof PAYMENT_METHODS)[number], str
   other: "Outro",
 };
 
-export const PERIODS = ["all", "this-month", "last-month", "this-year"] as const;
-
-export const PERIOD_LABELS: Record<(typeof PERIODS)[number], string> = {
-  all: "Tudo",
-  "this-month": "Este mês",
-  "last-month": "Mês passado",
-  "this-year": "Este ano",
-};
-
 /**
  * `expense_categories.icon` não vem preenchido pelo backend para as 12
  * categorias de sistema (confirmado direto no banco de dev) — o ícone é

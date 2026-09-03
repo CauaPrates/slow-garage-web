@@ -537,3 +537,67 @@ projeto: nunca recalcular no cliente o que o banco já decide). Um selo
 obrigações é cálculo trivial de data (comparar com hoje), não o mesmo
 tipo de decisão — esse sim é feito no cliente, como já acontecia em
 outras telas.
+
+## ADR-039 — Gráficos do dashboard escritos à mão (HTML/CSS), sem biblioteca de gráfico (Fase 9)
+
+Dois gráficos simples — coluna de série única (gasto por mês) e barra
+horizontal categórica (gasto por categoria), com no máximo ~12 pontos
+cada. Rodada a skill `dataviz` do projeto antes de implementar (etapa
+"cor por último" do método): forma primeiro (coluna pra tendência
+temporal, barra horizontal pra comparar categorias com nome longo em
+português), paleta depois. A paleta categórica de 8 slots é a
+referência já validada da skill, **revalidada** com
+`validate_palette.js` contra as superfícies reais do app (`#201c15`
+dark / `#fbf7ee` light, não os defaults `#1a1a19`/`#fcfcfb` da skill) —
+passou os 6 checks nos dois modos sem precisar reordenar ou trocar hue.
+Gráfico de mês usa hue único (`--color-accent`, o dourado do app) por
+ser série única (job de magnitude, não identidade) — a paleta
+categórica de 8 slots não se aplica aí. Nenhuma biblioteca nova
+(recharts, visx etc.) — mesma lógica da ADR-007/021: componente escrito
+à mão quando o caso é simples o bastante. Todo valor é rotulado direto
+na barra (sem eixo/gridline), porque com poucos pontos o rótulo direto
+já é suficiente e a paleta categórica tem um WARN de contraste no modo
+claro pra 4 dos 8 slots que exige exatamente esse rótulo visível como
+"relief" (regra da skill — WARN de contraste não é dispensável).
+
+## ADR-040 — Timeline lê `vehicle_timeline` inteira por veículo, filtra tipo/período no cliente (Fase 9)
+
+A view já vem pequena por veículo (um punhado de eventos — confirmado
+contra o veículo seed, 7 linhas de 7 fontes diferentes). Trocar de
+filtro não teria custo perceptível fazendo round-trip novo a cada troca,
+mas também não ganha nada — filtrar em memória evita rede repetida e
+mantém a UI instantânea. Busca (`search_vehicle`) é a exceção: cada
+termo é uma RPC nova (debounce de 300ms), porque relevância textual só
+o banco calcula. Decisão do usuário: busca embutida na própria tela de
+Histórico, substituindo a lista normal enquanto há termo digitado, em
+vez de rota própria — o resultado de busca tem a mesma forma de um item
+de timeline (`source_table`/`title`/`occurred_on`), então o mesmo
+padrão de card é reaproveitado (`SearchResultItem`, irmão de
+`TimelineItem`, não duplicata).
+
+## ADR-041 — Nota é a única fonte da timeline editável/excluível ali mesmo (Fase 9)
+
+Todo outro tipo de evento (gasto, abastecimento, manutenção, problema,
+item de projeto, documento) já tem tela própria com formulário e regra
+de negócio específica — "Ver" na timeline leva pra lá. Nota nunca teve
+tela própria (chegou nesta fase, fechando o item "Nota" da folha
+"Adicionar" que estava `to: null` desde a Fase 3) e não tem outro lugar
+pra viver, então edita/exclui direto no card da timeline. Os diálogos
+(`EditNoteDialog`/`DeleteNoteDialog`) recebem um tipo `NoteLike`
+(`id`/`title`/`body`/`occurred_on`/`odometer_km`) em vez do `NoteRow`
+completo do banco — permite montar a partir de `vehicle_timeline`
+(que não tem `created_at`/`updated_at`/`vehicle_id`) sem inventar
+valor nenhum pros campos que faltam.
+
+## ADR-042 — "Dashboard"/"Home" (sidebar/bottom nav) apontam pra `/v/:vehicleId`; "Histórico"/"Dados" pra `/v/:vehicleId/historico` (Fase 9)
+
+`VehiclePage.tsx` já carregava o aviso literal "Dashboard completo
+chega na Fase 9" — a intenção sempre foi que o dashboard vivesse na
+mesma rota já usada desde a Fase 2/3, não uma rota nova. Os itens de
+navegação "Dashboard" (sidebar) e "Home" (bottom nav mobile) estavam
+`to: null` só porque a tela ainda não tinha o conteúdo que os
+justificasse — nesta fase passam a apontar pra `ROUTES.vehicle`, mesmo
+destino, sem rota nova. Mesmo raciocínio pra "Histórico"/"Dados": os
+dois eram o mesmo conceito com rótulo diferente por espaço (sidebar
+tem largura pra "Histórico", bottom nav não), então os dois passam a
+apontar pra `ROUTES.vehicleTimeline`.
