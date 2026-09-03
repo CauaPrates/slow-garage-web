@@ -122,6 +122,22 @@ portanto já é CSS variable):
   custo/km na terceira — cada métrica mostra "—" quando a view não tem
   confiança, nunca um valor estimado (ver ADR-030 sobre o que fica nulo
   em cada caso)
+- Banner de alerta (Fase 6, `AlertBanner`): um bloco por alerta,
+  `border`/`bg`/`text` na cor de severidade com opacidade reduzida
+  (`border-error/40 bg-error/10 text-error` pro crítico,
+  equivalente com `warning` pro aviso) — nunca só ícone ou só cor,
+  sempre com `title` da própria view como texto
+- Badge de status de manutenção (Fase 6, `MaintenanceItemCard`):
+  mesmo padrão de badge com borda + texto (nunca só cor) já usado no
+  status do veículo (Fase 2) — vencido/próximo/em dia/planejado cada
+  um com sua cor (error/warning/success/neutro) e o texto sempre
+  presente
+- Duas ações de criação na mesma tela (Fase 6, `MaintenancePage`):
+  "Novo item do plano" (`ghost`, ação secundária) e "Registrar
+  execução" (`primary`, ação mais repetida) lado a lado no cabeçalho,
+  empilhando em coluna abaixo de `sm` — mesma lição do ADR-025
+  aplicada preventivamente aqui (dois botões de texto variável cabendo
+  em 320px)
 
 ## Hierarquia
 
