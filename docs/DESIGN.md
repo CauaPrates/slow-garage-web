@@ -138,6 +138,25 @@ portanto já é CSS variable):
   empilhando em coluna abaixo de `sm` — mesma lição do ADR-025
   aplicada preventivamente aqui (dois botões de texto variável cabendo
   em 320px)
+- Progresso de projeto (Fase 7, `ProjectProgress`): `dl` de 2 colunas,
+  mesmo cartão `rounded-lg border border-border bg-surface p-4` do
+  resumo de consumo (Fase 5) — "Itens concluídos" e "Orçamento usado"
+  mostram "—" quando a view não tem dado (projeto sem item, ou sem
+  orçamento), nunca "0%" (RN-1)
+- Badge de status de problema (Fase 7, `IssueListItem`): mesmo padrão
+  borda+texto de sempre; os 4 estados "em aberto" (aberto/investigando/
+  aguardando peça/em reparo) compartilham a cor de aviso — a
+  distinção entre eles é só o texto, não uma cor por estado, porque
+  todos têm a mesma urgência visual (precisam de atenção); resolvido
+  usa a cor de sucesso, descartado fica neutro
+- Card de projeto navegável (Fase 7, `ProjectCard`): mesmo padrão do
+  `VehicleCard`/`ProjectCard`-like da Fase 2 — foto/conteúdo dentro de
+  um `Link`, botões de editar/excluir fora dele, nunca aninhando
+  interativo dentro de interativo
+- Seletor de "Projeto" sempre visível no formulário de item, mesmo
+  quando só há uma opção fixa (Fase 7, `ProjectItemForm`) — reaproveita
+  o padrão do seletor de veículo único da `VehiclePage` (Fase 3):
+  `<select disabled>` com uma opção em vez de esconder o campo
 
 ## Hierarquia
 

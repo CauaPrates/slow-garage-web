@@ -59,8 +59,8 @@ export const SIDEBAR_NAV_ITEMS: NavItem[] = [
   { label: "Gastos", icon: Receipt, to: (vehicleId) => ROUTES.vehicleExpenses(vehicleId) },
   { label: "Abastecimentos", icon: Fuel, to: (vehicleId) => ROUTES.vehicleFuelLogs(vehicleId) },
   { label: "Manutenção", icon: Wrench, to: (vehicleId) => ROUTES.vehicleMaintenance(vehicleId) },
-  { label: "Problemas", icon: AlertTriangle, to: null },
-  { label: "Projetos", icon: ClipboardList, to: null },
+  { label: "Problemas", icon: AlertTriangle, to: (vehicleId) => ROUTES.vehicleIssues(vehicleId) },
+  { label: "Projetos", icon: ClipboardList, to: (vehicleId) => ROUTES.vehicleProjects(vehicleId) },
   { label: "Histórico", icon: History, to: null },
   { label: "Documentos", icon: FileText, to: null },
   { label: "Configurações", icon: Settings, to: ROUTES.configuracoes },
@@ -86,7 +86,11 @@ export const ADD_SHEET_ITEMS: NavItem[] = [
     icon: Wrench,
     to: (vehicleId) => `${ROUTES.vehicleMaintenance(vehicleId)}?novo=1`,
   },
-  { label: "Upgrade", icon: TrendingUp, to: null },
+  {
+    label: "Upgrade",
+    icon: TrendingUp,
+    to: (vehicleId) => `${ROUTES.vehicleProjects(vehicleId)}?novo=1`,
+  },
   { label: "Foto", icon: Camera, to: null },
   { label: "Nota", icon: StickyNote, to: null },
 ];

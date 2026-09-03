@@ -430,3 +430,30 @@ armadilha de quem escreve verificação comparando texto literal com
 `R$` na string. Registrado aqui porque toda fase futura com dinheiro na
 tela vai tropeçar nisso se comparar string inteira; o jeito seguro é
 checar só o valor numérico (`"150,00"`) ou usar uma regex com `\s`.
+
+## ADR-033 — Excluir projeto apaga seus itens em cascata (confirmado contra o banco real, Fase 7)
+
+Diferente de `maintenance_items`/`maintenance_records` (vínculo
+opcional, ADR-031), `project_items.project_id` é `not null` — um item
+não existe sem projeto. Não havia como saber pelo tipo gerado se o
+banco recusa apagar um projeto com itens (FK `RESTRICT`) ou apaga tudo
+junto (`CASCADE`) sem testar de verdade. Testado na verificação desta
+fase: criar um projeto com 2 itens e excluí-lo remove o projeto **e**
+os itens, sem erro — é `CASCADE`. O texto de confirmação do diálogo
+("Todos os itens deste projeto também são apagados") já foi escrito
+prevendo esse comportamento; a verificação confirmou que a frase é
+verdade, não só uma suposição razoável.
+
+## ADR-034 — Formulário de item de projeto sempre mostra o seletor de "Projeto", mesmo quando fixo (Fase 7)
+
+`project_items.project_id` é obrigatório (RN-3) — diferente do vínculo
+opcional de manutenção. Na tela de detalhe do projeto, o projeto já é
+conhecido pela própria rota; no atalho "Upgrade" (folha "Adicionar"),
+o usuário escolhe qual projeto no próprio formulário. Em vez de dois
+formulários diferentes (um com campo de projeto, outro sem), o mesmo
+`ProjectItemForm` sempre renderiza o `<select>` de projeto — na tela de
+detalhe ele vem `disabled` com uma única opção (o projeto atual), no
+atalho vem habilitado com a lista completa. Mesmo padrão já usado no
+seletor de veículo único da `VehiclePage` (Fase 3): um controle
+desabilitado com uma opção só é mais simples de manter do que dois
+formulários quase iguais.
