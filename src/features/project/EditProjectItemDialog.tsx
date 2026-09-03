@@ -6,6 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FieldError } from "@/components/ui/field-error";
+import { AttachmentField } from "@/features/attachment/AttachmentField";
 import { translatePostgresError } from "@/lib/postgresErrors";
 import { ProjectItemForm } from "./ProjectItemForm";
 import { useUpdateProjectItem } from "./useProjectItems";
@@ -80,7 +81,15 @@ export function EditProjectItemDialog({
           defaultValues={toFormDefaults(item)}
           onSubmit={handleSubmit}
           submitLabel="Salvar alterações"
-        />
+        >
+          <AttachmentField
+            vehicleId={item.vehicle_id}
+            entityType="project_item"
+            entityId={item.id}
+            attachment={item.attachment}
+            extraInvalidateKeys={[["project-items", item.project_id]]}
+          />
+        </ProjectItemForm>
         <FieldError>{error}</FieldError>
       </DialogContent>
     </Dialog>

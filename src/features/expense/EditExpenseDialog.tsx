@@ -7,8 +7,8 @@ import {
 } from "@/components/ui/dialog";
 import { FieldError } from "@/components/ui/field-error";
 import { translatePostgresError } from "@/lib/postgresErrors";
+import { AttachmentField } from "@/features/attachment/AttachmentField";
 import { ExpenseForm } from "./ExpenseForm";
-import { ExpenseAttachmentField } from "./ExpenseAttachmentField";
 import { useUpdateExpense } from "./useExpenses";
 import type { useExpenseCategories } from "./useExpenseCategories";
 import type { ExpenseFormInput, ExpenseFormOutput } from "./schemas";
@@ -78,7 +78,12 @@ export function EditExpenseDialog({
           onSubmit={handleSubmit}
           submitLabel="Salvar alterações"
         >
-          <ExpenseAttachmentField vehicleId={vehicleId} expense={expense} />
+          <AttachmentField
+            vehicleId={vehicleId}
+            entityType="expense"
+            entityId={expense.id}
+            attachment={expense.attachment}
+          />
         </ExpenseForm>
         <FieldError>{error}</FieldError>
       </DialogContent>

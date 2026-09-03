@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -21,9 +22,16 @@ type IssueFormProps = {
   defaultValues?: Partial<IssueFormInput>;
   onSubmit: (values: IssueFormOutput) => Promise<void>;
   submitLabel: string;
+  children?: ReactNode;
 };
 
-export function IssueForm({ mode, defaultValues, onSubmit, submitLabel }: IssueFormProps) {
+export function IssueForm({
+  mode,
+  defaultValues,
+  onSubmit,
+  submitLabel,
+  children,
+}: IssueFormProps) {
   const {
     register,
     handleSubmit,
@@ -132,6 +140,8 @@ export function IssueForm({ mode, defaultValues, onSubmit, submitLabel }: IssueF
             <Label htmlFor="resolution">Resolução</Label>
             <Textarea id="resolution" {...register("resolution")} />
           </div>
+
+          {children}
         </div>
       </details>
 

@@ -1,20 +1,36 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { deleteAttachmentIfExists, fetchAttachmentsByEntity } from "@/features/attachment/useAttachment";
 import type { Database } from "@/types/database.types";
+import type { AttachmentRow } from "@/features/attachment/useAttachment";
 
-export type MaintenanceRecordRow = Database["public"]["Tables"]["maintenance_records"]["Row"];
+type MaintenanceRecordRowBase = Database["public"]["Tables"]["maintenance_records"]["Row"];
 type MaintenanceRecordInsert = Database["public"]["Tables"]["maintenance_records"]["Insert"];
 type MaintenanceRecordUpdate = Database["public"]["Tables"]["maintenance_records"]["Update"];
 
+export type MaintenanceRecordRow = MaintenanceRecordRowBase & {
+  attachment: AttachmentRow | null;
+};
+
 async function fetchMaintenanceRecords(vehicleId: string): Promise<MaintenanceRecordRow[]> {
-  const { data, error } = await supabase
+  const { data: records, error } = await supabase
     .from("maintenance_records")
     .select("*")
     .eq("vehicle_id", vehicleId)
     .order("performed_on", { ascending: false })
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return data;
+  if (!records.length) return [];
+
+  const attachmentByRecordId = await fetchAttachmentsByEntity(
+    "maintenance_record",
+    records.map((r) => r.id),
+  );
+
+  return records.map((record) => ({
+    ...record,
+    attachment: attachmentByRecordId.get(record.id) ?? null,
+  }));
 }
 
 export function useMaintenanceRecords(vehicleId: string) {
@@ -63,11 +79,14 @@ export function useUpdateMaintenanceRecord(vehicleId: string) {
   });
 }
 
+/** RN-4: apaga o anexo antes da execução, mesma regra de Gasto (Fase 4/ADR-027). */
 export function useDeleteMaintenanceRecord(vehicleId: string) {
   const invalidateVehicles = useInvalidateVehicles();
 
   return useMutation({
     mutationFn: async (id: string) => {
+      await deleteAttachmentIfExists("maintenance_record", id);
+
       const { error } = await supabase
         .from("maintenance_records")
         .delete()

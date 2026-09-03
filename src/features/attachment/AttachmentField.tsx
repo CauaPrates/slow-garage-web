@@ -1,4 +1,5 @@
 import { useRef, useState, type ChangeEvent, type MouseEvent } from "react";
+import type { QueryKey } from "@tanstack/react-query";
 import { Paperclip } from "lucide-react";
 import {
   AlertDialog,
@@ -12,34 +13,45 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field-error";
+import { fileAttachmentSchema } from "@/lib/attachmentSchema";
 import { translatePostgresError } from "@/lib/postgresErrors";
-import { expenseAttachmentSchema } from "./schemas";
 import {
-  getExpenseAttachmentSignedUrl,
-  useRemoveExpenseAttachment,
-  useUploadExpenseAttachment,
-} from "./useExpenseAttachment";
-import type { ExpenseWithAttachment } from "./useExpenses";
+  getAttachmentSignedUrl,
+  useRemoveAttachment,
+  useUploadAttachment,
+  type AttachmentEntityType,
+  type AttachmentRow,
+} from "./useAttachment";
 
-type ExpenseAttachmentFieldProps = {
+type AttachmentFieldProps = {
   vehicleId: string;
-  expense: ExpenseWithAttachment;
+  entityType: AttachmentEntityType;
+  entityId: string;
+  attachment: AttachmentRow | null;
+  /** Query keys extras a invalidar além de `['vehicles']` — ex.: `['project-items', projectId]`. */
+  extraInvalidateKeys?: QueryKey[];
 };
 
-/** Só existe no editar (RN-1) — o gasto precisa já ter id pra montar o path do anexo. */
-export function ExpenseAttachmentField({ vehicleId, expense }: ExpenseAttachmentFieldProps) {
+/** Genérico — usado por Gasto, Problema, Item de projeto e Execução de manutenção. Só existe no editar: a entidade precisa já ter id pra montar o path do anexo. */
+export function AttachmentField({
+  vehicleId,
+  entityType,
+  entityId,
+  attachment,
+  extraInvalidateKeys,
+}: AttachmentFieldProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string | null>(null);
   const [removeOpen, setRemoveOpen] = useState(false);
   const [viewing, setViewing] = useState(false);
-  const upload = useUploadExpenseAttachment(vehicleId, expense.id);
-  const remove = useRemoveExpenseAttachment();
+  const upload = useUploadAttachment({ entityType, vehicleId, entityId, extraInvalidateKeys });
+  const remove = useRemoveAttachment(extraInvalidateKeys);
 
   async function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    const result = expenseAttachmentSchema.safeParse(file);
+    const result = fileAttachmentSchema.safeParse(file);
     if (!result.success) {
       setError(result.error.issues[0]?.message ?? "Arquivo inválido.");
       event.target.value = "";
@@ -48,7 +60,7 @@ export function ExpenseAttachmentField({ vehicleId, expense }: ExpenseAttachment
 
     setError(null);
     try {
-      await upload.mutateAsync({ file, existing: expense.attachment });
+      await upload.mutateAsync({ file, existing: attachment });
     } catch (mutationError) {
       setError(translatePostgresError(mutationError));
     } finally {
@@ -57,10 +69,10 @@ export function ExpenseAttachmentField({ vehicleId, expense }: ExpenseAttachment
   }
 
   async function handleView() {
-    if (!expense.attachment) return;
+    if (!attachment) return;
     setViewing(true);
     try {
-      const url = await getExpenseAttachmentSignedUrl(expense.attachment.storage_path);
+      const url = await getAttachmentSignedUrl(attachment.storage_path);
       window.open(url, "_blank", "noopener,noreferrer");
     } catch {
       setError("Não foi possível abrir o anexo. Tente de novo.");
@@ -71,10 +83,10 @@ export function ExpenseAttachmentField({ vehicleId, expense }: ExpenseAttachment
 
   async function handleConfirmRemove(event: MouseEvent) {
     event.preventDefault();
-    if (!expense.attachment) return;
+    if (!attachment) return;
     setError(null);
     try {
-      await remove.mutateAsync(expense.attachment);
+      await remove.mutateAsync(attachment);
       setRemoveOpen(false);
     } catch (mutationError) {
       setError(translatePostgresError(mutationError));
@@ -87,11 +99,11 @@ export function ExpenseAttachmentField({ vehicleId, expense }: ExpenseAttachment
     <div className="flex flex-col gap-2">
       <span className="text-sm font-medium text-text-primary">Anexo</span>
 
-      {expense.attachment ? (
+      {attachment ? (
         <div className="flex flex-wrap items-center gap-2">
           <span className="flex items-center gap-1 text-sm text-text-secondary">
             <Paperclip className="h-4 w-4" aria-hidden="true" />
-            {expense.attachment.original_filename}
+            {attachment.original_filename}
           </span>
           <Button type="button" variant="ghost" disabled={viewing} onClick={handleView}>
             {viewing ? "Abrindo…" : "Ver anexo"}
@@ -141,8 +153,8 @@ export function ExpenseAttachmentField({ vehicleId, expense }: ExpenseAttachment
           <AlertDialogHeader>
             <AlertDialogTitle>Remover anexo?</AlertDialogTitle>
             <AlertDialogDescription>
-              O arquivo {expense.attachment?.original_filename} será apagado. Essa ação não
-              pode ser desfeita.
+              O arquivo {attachment?.original_filename} será apagado. Essa ação não pode ser
+              desfeita.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

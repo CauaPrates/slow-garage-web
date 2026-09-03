@@ -1,20 +1,34 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { deleteAttachmentIfExists, fetchAttachmentsByEntity } from "@/features/attachment/useAttachment";
 import type { Database } from "@/types/database.types";
+import type { AttachmentRow } from "@/features/attachment/useAttachment";
 
-export type ProjectItemRow = Database["public"]["Tables"]["project_items"]["Row"];
+type ProjectItemRowBase = Database["public"]["Tables"]["project_items"]["Row"];
 type ProjectItemInsert = Database["public"]["Tables"]["project_items"]["Insert"];
 type ProjectItemUpdate = Database["public"]["Tables"]["project_items"]["Update"];
 
+export type ProjectItemRow = ProjectItemRowBase & { attachment: AttachmentRow | null };
+
 async function fetchProjectItems(projectId: string): Promise<ProjectItemRow[]> {
-  const { data, error } = await supabase
+  const { data: items, error } = await supabase
     .from("project_items")
     .select("*")
     .eq("project_id", projectId)
     .order("sort_order")
     .order("created_at");
   if (error) throw error;
-  return data;
+  if (!items.length) return [];
+
+  const attachmentByItemId = await fetchAttachmentsByEntity(
+    "project_item",
+    items.map((i) => i.id),
+  );
+
+  return items.map((item) => ({
+    ...item,
+    attachment: attachmentByItemId.get(item.id) ?? null,
+  }));
 }
 
 export function useProjectItems(projectId: string) {
@@ -78,11 +92,14 @@ export function useUpdateProjectItem() {
   });
 }
 
+/** RN-4: apaga o anexo antes do item, mesma regra de Gasto (Fase 4/ADR-027). */
 export function useDeleteProjectItem() {
   const invalidate = useInvalidateProjectItems();
 
   return useMutation({
     mutationFn: async ({ id, projectId }: { id: string; projectId: string }) => {
+      await deleteAttachmentIfExists("project_item", id);
+
       const { error } = await supabase
         .from("project_items")
         .delete()

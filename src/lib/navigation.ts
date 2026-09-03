@@ -62,7 +62,7 @@ export const SIDEBAR_NAV_ITEMS: NavItem[] = [
   { label: "Problemas", icon: AlertTriangle, to: (vehicleId) => ROUTES.vehicleIssues(vehicleId) },
   { label: "Projetos", icon: ClipboardList, to: (vehicleId) => ROUTES.vehicleProjects(vehicleId) },
   { label: "Histórico", icon: History, to: null },
-  { label: "Documentos", icon: FileText, to: null },
+  { label: "Documentos", icon: FileText, to: (vehicleId) => ROUTES.vehicleDocuments(vehicleId) },
   { label: "Configurações", icon: Settings, to: ROUTES.configuracoes },
 ];
 
@@ -91,6 +91,10 @@ export const ADD_SHEET_ITEMS: NavItem[] = [
     icon: TrendingUp,
     to: (vehicleId) => `${ROUTES.vehicleProjects(vehicleId)}?novo=1`,
   },
-  { label: "Foto", icon: Camera, to: null },
+  {
+    label: "Foto",
+    icon: Camera,
+    to: (vehicleId) => `${ROUTES.vehicleDocuments(vehicleId)}?aba=fotos&novo=1`,
+  },
   { label: "Nota", icon: StickyNote, to: null },
 ];

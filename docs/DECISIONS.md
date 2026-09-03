@@ -457,3 +457,83 @@ atalho vem habilitado com a lista completa. Mesmo padrão já usado no
 seletor de veículo único da `VehiclePage` (Fase 3): um controle
 desabilitado com uma opção só é mais simples de manter do que dois
 formulários quase iguais.
+
+## ADR-035 — Anexo generalizado num módulo `features/attachment/` compartilhado, não duplicado por entidade (Fase 8)
+
+A Fase 7 deixou explicitamente em aberto "quem decide o modelo geral de
+anexo por entidade" — o enum `attachment_entity_type` já suportava
+`issue`/`project_item`/`maintenance_record`/`note` desde antes, mas só
+`expense` tinha UI (Fase 4). Em vez de copiar `useExpenseAttachment`/
+`ExpenseAttachmentField` três vezes (uma por entidade nova), os dois
+viraram `features/attachment/useAttachment.ts` (fetch por entidade,
+upload, remoção, signed URL) e `AttachmentField.tsx`, parametrizados por
+`entityType`/`entityId`. Gasto foi migrado para o módulo genérico junto
+(não ficou uma versão "antiga" e três "novas" divergindo) e revalidado
+com o mesmo roteiro de teste de anexo da Fase 4, pra garantir que a
+refatoração não mudou o comportamento observável.
+
+`useUploadAttachment`/`useRemoveAttachment` aceitam `extraInvalidateKeys`
+porque nem toda lista que embute anexo usa uma key prefixada por
+`['vehicles']` — item de projeto usa `['project-items', projectId]`
+(ver Fase 7). Sem esse parâmetro, anexar um arquivo num item de projeto
+invalidaria `vehicles` (efeito nenhum na tela) e a lista de itens do
+projeto ficaria com o anexo desatualizado até a próxima navegação.
+
+Manutenção (`maintenance_record`) entrou no escopo desta fase mesmo sem
+estar no texto literal do roadmap para a Fase 8, porque o enum já
+previa essa entidade e a nota da Fase 7 pedia para esta fase decidir o
+modelo *geral* — decisão confirmada com o usuário antes de implementar
+(ver `specs/008-files/spec.md`), não inventada.
+
+## ADR-036 — Financiamento: botão "+1 parcela paga" e edição manual de `installments_paid` coexistem (Fase 8)
+
+`financings.vehicle_id` é único no banco (relacionamento 1:1 confirmado
+no `database.types.ts` gerado, `isOneToOne: true`) — a UI nunca mostra
+"cadastrar financiamento" quando já existe um, só editar/excluir. Para
+`installments_paid`, em vez de só um botão de incremento (rápido mas
+sem como corrigir erro) ou só edição manual (correto mas repetitivo pro
+caso comum, mensal), as duas vias coexistem: `useAddPaidInstallment`
+soma 1 direto (`financing.installments_paid + 1`, sem recalcular nada
+que o banco já gera) para o uso recorrente, e o campo `installmentsPaid`
+no formulário de editar cobre a correção pontual. `installments_remaining`
+e `outstanding_balance` nunca são calculados no cliente — só lidos de
+volta depois do `update`, mesma regra já aplicada a `km_per_liter`
+(Fase 5) e `project_progress` (Fase 7).
+
+## ADR-037 — Página "Documentos" com abas internas, não quatro itens de sidebar (Fase 8)
+
+O roadmap reservava um único slot de navegação (`to: null` em
+"Documentos") para Documentos + Obrigações + Financiamento + Fotos —
+decisão confirmada com o usuário: uma página só (`/v/:vehicleId/documentos`,
+`?aba=documentos|obrigacoes|financiamento|fotos`) com abas internas
+(`role="tablist"`/`tab`/`tabpanel` escritos à mão, sem
+`@radix-ui/react-tabs` — mesma lógica da ADR-007/ADR-021 de não trazer
+biblioteca nova pra um caso que um `<button>` com estado resolve),
+em vez de expandir a sidebar. O item "Foto" da folha "Adicionar" (Fase
+3, `to: null` até aqui) aponta pra `?aba=fotos&novo=1`.
+
+Em 320/390px as quatro abas não cabem inteiras lado a lado sem
+abreviar — o container rola horizontalmente (`overflow-x-auto`) e o
+texto do rótulo seguinte aparece parcialmente cortado na borda, sinal
+reconhecível de "tem mais pra rolar" (mesmo princípio de affordance de
+outras listas horizontais do app, como o filtro de categoria da
+galeria de fotos). Ajustado `px-3`→`px-2`/`gap-2`→`gap-1` depois da
+primeira verificação visual mostrar a aba "Fotos" 100% fora da tela em
+390px sem nenhum pedaço visível — depois do ajuste, todo breakpoint
+testado mostra pelo menos um pedaço da próxima aba.
+
+## ADR-038 — `AlertBanner`/`vehicle_alerts` reaproveitados sem mudança para obrigação e documento (Fase 8)
+
+O comentário do `AlertBanner.tsx` desde a Fase 6 já previa isso ("quando
+Documentos/Obrigações passarem a gerar `alert_type` próprio, este
+banner já funciona sem mudança"). `DocumentsPage` chama
+`useVehicleAlerts` (mesmo hook da Fase 6) e filtra pelos 4 tipos
+relevantes (`obligation_overdue`/`obligation_due_soon`/
+`document_expired`/`document_expiring`) antes de passar pro banner —
+sem duplicar a lógica de "o que conta como vencido/próximo do
+vencimento", que continua inteiramente do lado do banco (RN geral do
+projeto: nunca recalcular no cliente o que o banco já decide). Um selo
+"Vencido em"/"Vence em" no próprio item da lista de documentos/
+obrigações é cálculo trivial de data (comparar com hoje), não o mesmo
+tipo de decisão — esse sim é feito no cliente, como já acontecia em
+outras telas.

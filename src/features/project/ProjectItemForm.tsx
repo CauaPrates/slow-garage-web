@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ type ProjectItemFormProps = {
   defaultValues?: Partial<ProjectItemFormInput>;
   onSubmit: (values: ProjectItemFormOutput) => Promise<void>;
   submitLabel: string;
+  children?: ReactNode;
 };
 
 export function ProjectItemForm({
@@ -33,6 +35,7 @@ export function ProjectItemForm({
   defaultValues,
   onSubmit,
   submitLabel,
+  children,
 }: ProjectItemFormProps) {
   const {
     register,
@@ -164,6 +167,8 @@ export function ProjectItemForm({
             <Label htmlFor="notes">Notas</Label>
             <Textarea id="notes" {...register("notes")} />
           </div>
+
+          {children}
         </div>
       </details>
 

@@ -6,6 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FieldError } from "@/components/ui/field-error";
+import { AttachmentField } from "@/features/attachment/AttachmentField";
 import { translatePostgresError } from "@/lib/postgresErrors";
 import { MaintenanceRecordForm } from "./MaintenanceRecordForm";
 import { useUpdateMaintenanceRecord } from "./useMaintenanceRecords";
@@ -74,7 +75,14 @@ export function EditMaintenanceRecordDialog({
           defaultValues={toFormDefaults(record)}
           onSubmit={handleSubmit}
           submitLabel="Salvar alterações"
-        />
+        >
+          <AttachmentField
+            vehicleId={vehicleId}
+            entityType="maintenance_record"
+            entityId={record.id}
+            attachment={record.attachment}
+          />
+        </MaintenanceRecordForm>
         <FieldError>{error}</FieldError>
       </DialogContent>
     </Dialog>

@@ -17,6 +17,7 @@ import { MaintenancePage } from "@/features/maintenance/MaintenancePage";
 import { IssuesPage } from "@/features/issue/IssuesPage";
 import { ProjectsPage } from "@/features/project/ProjectsPage";
 import { ProjectDetailPage } from "@/features/project/ProjectDetailPage";
+import { DocumentsPage } from "@/features/document/DocumentsPage";
 
 export const router = createBrowserRouter([
   {
@@ -61,6 +62,10 @@ export const router = createBrowserRouter([
           {
             path: "v/:vehicleId/projetos/:projectId",
             element: <ProjectDetailPage />,
+          },
+          {
+            path: "v/:vehicleId/documentos",
+            element: <DocumentsPage />,
           },
         ],
       },
