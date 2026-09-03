@@ -284,3 +284,64 @@ respiro visual). Corrigido com `min-w-0` no item + `truncate` no
 ~340px "Configurações" vira "Configura…" em vez de tocar a borda.
 Mesmo padrão do ADR-019 (achado real de 320px, não hipotético) — vale
 para qualquer rótulo futuro de bottom nav.
+
+## ADR-024 — `NavItem.to` generalizado para função de `vehicleId`; dois motivos de item desabilitado (Fase 4)
+
+A Fase 3 só previa `to: string | null` ("tem tela" / "não tem tela
+ainda"). "Gastos" (sidebar) e "Gasto" (folha "Adicionar") são os
+primeiros itens cuja tela **existe**, mas depende de qual veículo está
+aberto — não dá pra escrever uma rota fixa em `navigation.ts`. Extensão:
+`to` aceita `string | null | ((vehicleId: string) => string)`, resolvida
+por `resolveNavItem(item, vehicleId)` em `lib/navigation.ts`. `vehicleId`
+vem de `useCurrentVehicleId()` (`src/hooks/useCurrentVehicleId.ts`), que
+lê `useMatch("/v/:vehicleId/*")` — direto da URL, nunca de contexto
+React (RN-1 da Fase 3 continua valendo). Item cuja função não pode
+resolver por falta de veículo fica desabilitado por um motivo **diferente**
+de "Em breve": "Selecione um veículo" (`DISABLED_REASON_LABEL`). As duas
+telas de navegação (`Sidebar`, `BottomNav`, `AddActionSheet`) foram
+migradas pro resolver comum; nenhum item que já funcionava (`Minha
+garagem`, `Configurações`) mudou de comportamento.
+
+## ADR-025 — `<main>` precisa de `min-w-0` explícito no `AppShell` (Fase 4)
+
+Achado real de 320px na tela de Gastos: nenhum elemento sozinho excedia
+a viewport (confirmado varrendo toda a árvore), mas o container da
+página media 341px de largura. Causa: `<main>` é item de um flex row
+(`AppShell`) ao lado da `Sidebar` — que em mobile é `display:none`,
+então sobra um único item, mas ele ainda herda `min-width: auto` por
+padrão. Um `<select>` nativo (`ExpenseFilters`, categoria) com opção
+longa ("Financiamento", "Documentação") contribui pro cálculo de
+min-content do ramo mesmo estilizado com `w-full` — é um comportamento
+conhecido de `<select>` em contêiner flex, independente do CSS aplicado
+ao próprio elemento. Corrigido com `min-w-0` direto em `<main>`
+(`components/layout/AppShell.tsx`), resolvendo de uma vez pra qualquer
+tela atual e futura que tenha um `<select>` — não só a de Gastos.
+
+## ADR-026 — Helpers de validação numérica promovidos para `lib/schemaHelpers.ts`; `optionalEnum` novo (Fase 4)
+
+`requiredNonNegativeInt`, `requiredNonNegativeNumber`,
+`optionalNonNegativeNumber` e `optionalText` eram privados de
+`features/vehicle/schemas.ts`. Gastos precisava dos mesmos (valor,
+quilometragem opcional) — segundo uso, gatilho que o próprio projeto
+define pra promover algo a compartilhado. Ganho no processo: um bug real
+foi pego pelo Playwright, não por revisão manual — `paymentMethod:
+z.enum(PAYMENT_METHODS).optional()` rejeitava `""` (valor que o
+`<select>` nativo manda quando a opção "Não informado" está selecionada,
+já que `""` não é `undefined` nem um membro do enum), travando o submit
+**sem nenhum `FieldError` visível** pra explicar por quê — o campo nunca
+teve um `<FieldError>` próprio renderizado. Corrigido com o novo helper
+`optionalEnum(values)`, que trata `""` como "nada selecionado" antes de
+validar contra o enum. Vale como padrão pra qualquer `<select>` futuro
+com opção "não informado"/"selecione" de valor vazio.
+
+## ADR-027 — `useDeleteExpense` busca o anexo direto do servidor no momento da exclusão (Fase 4)
+
+RN-2 exige apagar o anexo antes do gasto. A primeira versão confiava no
+campo `expense.attachment` já carregado pela lista — mas se o usuário
+anexa um arquivo e apaga o gasto em seguida, antes do cache invalidado
+pela Fase de upload terminar de recarregar, a lista ainda mostraria a
+versão antiga (sem anexo) e a exclusão pularia a limpeza, deixando
+arquivo e linha órfãos — exatamente o tipo de resíduo corrigido à mão na
+Fase 3. Corrigido buscando o anexo atual direto do banco
+(`entity_type='expense'`, `entity_id=<gasto>`) dentro da própria mutação
+de exclusão, em vez de confiar no dado em cache do momento do clique.

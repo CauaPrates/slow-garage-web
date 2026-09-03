@@ -1,8 +1,15 @@
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { SIDEBAR_NAV_ITEMS } from "@/lib/navigation";
+import { useCurrentVehicleId } from "@/hooks/useCurrentVehicleId";
+import {
+  DISABLED_REASON_LABEL,
+  SIDEBAR_NAV_ITEMS,
+  resolveNavItem,
+} from "@/lib/navigation";
 
 export function Sidebar() {
+  const vehicleId = useCurrentVehicleId();
+
   return (
     <nav
       aria-label="Navegação principal"
@@ -10,8 +17,9 @@ export function Sidebar() {
     >
       {SIDEBAR_NAV_ITEMS.map((item) => {
         const Icon = item.icon;
+        const resolved = resolveNavItem(item, vehicleId);
 
-        if (item.to === null) {
+        if (!resolved.enabled) {
           return (
             <button
               key={item.label}
@@ -24,7 +32,7 @@ export function Sidebar() {
                 <Icon className="h-4 w-4" aria-hidden="true" />
                 {item.label}
               </span>
-              <span className="text-xs">Em breve</span>
+              <span className="text-xs">{DISABLED_REASON_LABEL[resolved.reason]}</span>
             </button>
           );
         }
@@ -32,8 +40,8 @@ export function Sidebar() {
         return (
           <NavLink
             key={item.label}
-            to={item.to}
-            end={item.to === "/"}
+            to={resolved.href}
+            end={resolved.href === "/"}
             className={({ isActive }) =>
               cn(
                 "flex items-center gap-2 rounded-md px-3 py-2 text-sm text-text-primary transition-colors duration-150 hover:bg-bg",

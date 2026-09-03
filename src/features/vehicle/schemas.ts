@@ -1,4 +1,10 @@
 import { z } from "zod";
+import {
+  optionalNonNegativeNumber,
+  optionalText,
+  requiredNonNegativeInt,
+  requiredNonNegativeNumber,
+} from "@/lib/schemaHelpers";
 
 export const FUEL_TYPES = [
   "gasoline",
@@ -37,39 +43,6 @@ export const VEHICLE_STATUS_LABELS: Record<(typeof VEHICLE_STATUSES)[number], st
   stored: "Guardado",
   sold: "Vendido",
 };
-
-const requiredNonNegativeInt = (label: string) =>
-  z
-    .string()
-    .min(1, `Informe ${label}.`)
-    .transform((val) => Number(val))
-    .refine(
-      (val) => Number.isInteger(val) && val >= 0,
-      `${label} inválido.`,
-    );
-
-const requiredNonNegativeNumber = (label: string) =>
-  z
-    .string()
-    .min(1, `Informe ${label}.`)
-    .transform((val) => Number(val))
-    .refine((val) => !Number.isNaN(val) && val >= 0, `${label} inválido.`);
-
-const optionalNonNegativeNumber = (label: string) =>
-  z
-    .string()
-    .optional()
-    .transform((val) => (val === undefined || val.trim() === "" ? undefined : Number(val)))
-    .refine(
-      (val) => val === undefined || (!Number.isNaN(val) && val >= 0),
-      `${label} inválido.`,
-    );
-
-const optionalText = z
-  .string()
-  .trim()
-  .optional()
-  .transform((val) => (val === undefined || val === "" ? undefined : val));
 
 export const vehicleSchema = z.object({
   // Obrigatórios

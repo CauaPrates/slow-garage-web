@@ -93,7 +93,20 @@ portanto já é CSS variable):
 - Item de navegação sem tela construída ainda ("Em breve" — ver
   ADR-022): opacidade reduzida, `cursor-not-allowed`, rótulo textual
   sempre visível (nunca só cor) — continua focável por Tab
-  (`aria-disabled`, nunca `disabled` nativo)
+  (`aria-disabled`, nunca `disabled` nativo). "Selecione um veículo"
+  (ADR-024) usa o mesmo tratamento visual, só troca o texto
+- Linha de lista de gasto (Fase 4): ícone de categoria + descrição/
+  metadado à esquerda (`min-w-0`, trunca a descrição numa linha),
+  valor + ações à direita (`shrink-0`); indicador de anexo (clipe +
+  nome do arquivo) como terceira linha discreta quando existe
+- Filtro (categoria + período): mesmo par `grid-cols-1 sm:grid-cols-2`
+  do `VehicleForm` (ADR-019) — o mesmo risco de truncar em 320px já
+  vale pra qualquer par de `<select>` lado a lado
+- Cabeçalho de tela com título+ação (Fase 4, `ExpensesPage`): empilha
+  em coluna abaixo de `sm`, vira linha com `justify-between` a partir
+  daí — o botão de ação (`whitespace-nowrap` por padrão em todo
+  `Button`) ao lado de um título de duas linhas é exatamente o tipo de
+  par que estoura 320px se ficar sempre em linha (ver ADR-025)
 
 ## Hierarquia
 
