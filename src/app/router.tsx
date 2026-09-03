@@ -13,6 +13,7 @@ import { VehicleListPage } from "@/features/vehicle/VehicleListPage";
 import { VehiclePage } from "@/features/vehicle/VehiclePage";
 import { ExpensesPage } from "@/features/expense/ExpensesPage";
 import { FuelLogsPage } from "@/features/fuel/FuelLogsPage";
+import { MaintenancePage } from "@/features/maintenance/MaintenancePage";
 
 export const router = createBrowserRouter([
   {
@@ -41,6 +42,10 @@ export const router = createBrowserRouter([
           {
             path: "v/:vehicleId/abastecimentos",
             element: <FuelLogsPage />,
+          },
+          {
+            path: "v/:vehicleId/manutencao",
+            element: <MaintenancePage />,
           },
         ],
       },

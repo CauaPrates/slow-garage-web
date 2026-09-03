@@ -399,3 +399,34 @@ Não é um bug do frontend — é o comportamento correto de exibir
 exatamente o que a view devolve (RN-1), e ilustra por que specs vindas
 do contrato precisam ser confirmadas contra o banco real antes de virar
 critério de aceite fechado.
+
+## ADR-031 — Excluir item do plano de manutenção é exclusão de verdade, não "desativar" (Fase 6)
+
+`maintenance_items` tem uma coluna `is_active` e
+`maintenance_records.maintenance_item_id` é opcional (nullable) — dois
+sinais de que apagar um item não precisa (e não deve) apagar o
+histórico de execução vinculado a ele. Decisão: "Excluir" no diálogo é
+uma exclusão de verdade da linha em `maintenance_items` (mesmo padrão
+de todo `DeleteXDialog` do projeto); como o vínculo em
+`maintenance_records.maintenance_item_id` é opcional, o banco
+simplesmente desvincula (não apaga) os registros de execução antigos.
+"Ativo"/"Inativo" (`is_active`) é só mais um campo do formulário de
+editar — não um fluxo de "arquivar" separado, porque a tela de plano já
+filtra por `is_active = true` e nenhum requisito pediu uma segunda tela
+de itens inativos (ver spec.md, "Fora de escopo"). Se isso mudar
+(ex.: precisar reativar um item desativado sem recriar do zero), a
+solução é expor o filtro de inativos na mesma tela, não duplicar a
+exclusão em dois conceitos.
+
+## ADR-032 — `Intl.NumberFormat('pt-BR', {style:'currency'})` separa "R$" do valor com espaço não-quebrável (U+00A0), não espaço comum
+
+Descoberto verificando a Fase 6: um teste comparando a string literal
+`"R$ 150,00"` (espaço comum, U+0020) contra o texto renderizado por
+`formatMoney` falhou mesmo com o valor certo na tela — `formatMoney`
+usa `Intl.NumberFormat`, que no locale `pt-BR` insere U+00A0 entre o
+símbolo e o número, não um espaço normal. Não é um bug do app (o
+`formatMoney` sempre se comportou assim, desde a Fase 0) — é uma
+armadilha de quem escreve verificação comparando texto literal com
+`R$` na string. Registrado aqui porque toda fase futura com dinheiro na
+tela vai tropeçar nisso se comparar string inteira; o jeito seguro é
+checar só o valor numérico (`"150,00"`) ou usar uma regex com `\s`.
