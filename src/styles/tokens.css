@@ -24,6 +24,23 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
+
+  /*
+   * Paleta categórica de gráfico (Fase 9) — 8 slots, ordem fixa, nunca
+   * ciclada nem reordenada por tela. É a paleta de referência da skill
+   * `dataviz` do projeto, revalidada com `validate_palette.js` contra as
+   * superfícies reais do app (`--color-surface` acima) em vez dos
+   * defaults da skill — passou sem ajuste nos dois modos. Ver
+   * docs/DECISIONS.md (ADR sobre os gráficos do dashboard).
+   */
+  --chart-series-1: #3987e5; /* azul */
+  --chart-series-2: #d95926; /* laranja */
+  --chart-series-3: #199e70; /* água */
+  --chart-series-4: #c98500; /* amarelo */
+  --chart-series-5: #d55181; /* magenta */
+  --chart-series-6: #008300; /* verde */
+  --chart-series-7: #9085e9; /* violeta */
+  --chart-series-8: #e66767; /* vermelho */
 }
 
 .light {
@@ -37,4 +54,13 @@
   --color-success: #4f7a3a;
   --color-error: #9b3c2c;
   --color-warning: #a3591e;
+
+  --chart-series-1: #2a78d6;
+  --chart-series-2: #eb6834;
+  --chart-series-3: #1baf7a;
+  --chart-series-4: #eda100;
+  --chart-series-5: #e87ba4;
+  --chart-series-6: #008300;
+  --chart-series-7: #4a3aa7;
+  --chart-series-8: #e34948;
 }

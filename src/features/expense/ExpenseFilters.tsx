@@ -1,6 +1,6 @@
 import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
-import { PERIODS, PERIOD_LABELS } from "./schemas";
+import { PERIODS, PERIOD_LABELS } from "@/lib/period";
 import type { useExpenseCategories } from "./useExpenseCategories";
 import type { ExpenseFilters as ExpenseFiltersValue } from "./useExpenses";
 

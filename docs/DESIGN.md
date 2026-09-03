@@ -178,6 +178,28 @@ portanto já é CSS variable):
   object-cover`; filtro de categoria é a mesma fileira horizontal
   rolável (com o mesmo corte parcial de affordance) da aba de
   Documentos, reaproveitando o padrão em vez de inventar um segundo
+- Gráfico de coluna (Fase 9, `ExpensesByMonthChart`): barra `w-8`,
+  `rounded-t-[4px]`, hue único `bg-accent`, altura proporcional ao
+  máximo da série (mínimo 4% pra nunca sumir num valor pequeno), valor
+  rotulado acima da barra, mês abaixo — sem eixo Y, porque todo ponto
+  já está rotulado
+- Gráfico de barra horizontal categórica (Fase 9,
+  `ExpensesByCategoryChart`): track `h-3 rounded-full bg-bg`, barra
+  preenchida na cor do slot categórico (`--chart-series-1`..`8` em
+  `tokens.css`, validados pela skill `dataviz` — ver ADR-039), nome da
+  categoria + valor sempre em texto ao lado (nunca só a cor
+  identificando), além do 8º slot dobra em "Outras" (cor neutra
+  `text-secondary`)
+- Card de item da timeline (Fase 9, `TimelineItem`): ícone do tipo à
+  esquerda (`h-5 w-5 text-secondary`), título + rótulo de tipo na
+  mesma linha, data/km na linha seguinte, descrição truncada em 2
+  linhas (`line-clamp-2`); valor (quando existe) e ação (editar/excluir
+  pra nota, "Ver" pra tudo mais) alinhados à direita — mesmo esqueleto
+  visual de todo card de lista do projeto desde a Fase 2
+- Busca embutida (Fase 9, `TimelinePage`): campo único com ícone de
+  lupa à esquerda e "limpar" à direita quando há texto; enquanto ativa,
+  substitui a lista inteira (filtro incluso) em vez de conviver ao lado
+  — evita a pergunta "o resultado já está filtrado ou não?"
 
 ## Hierarquia
 

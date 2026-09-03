@@ -1,16 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { endOfMonth, format, startOfMonth, startOfYear, subMonths } from "date-fns";
 import { supabase } from "@/lib/supabase";
 import { deleteAttachmentIfExists, fetchAttachmentsByEntity } from "@/features/attachment/useAttachment";
+import { periodRange, type Period } from "@/lib/period";
 import type { Database } from "@/types/database.types";
-import type { PERIODS } from "./schemas";
 
 type ExpenseRow = Database["public"]["Tables"]["expenses"]["Row"];
 type ExpenseInsert = Database["public"]["Tables"]["expenses"]["Insert"];
 type ExpenseUpdate = Database["public"]["Tables"]["expenses"]["Update"];
 type AttachmentRow = Database["public"]["Tables"]["attachments"]["Row"];
-
-export type Period = (typeof PERIODS)[number];
 
 export type ExpenseFilters = {
   categoryId: string | "all";
@@ -20,24 +17,6 @@ export type ExpenseFilters = {
 export type ExpenseWithAttachment = ExpenseRow & {
   attachment: AttachmentRow | null;
 };
-
-const toDateOnly = (date: Date) => format(date, "yyyy-MM-dd");
-
-function periodRange(period: Period): { gte?: string; lte?: string } {
-  const now = new Date();
-  switch (period) {
-    case "this-month":
-      return { gte: toDateOnly(startOfMonth(now)) };
-    case "last-month": {
-      const lastMonth = subMonths(now, 1);
-      return { gte: toDateOnly(startOfMonth(lastMonth)), lte: toDateOnly(endOfMonth(lastMonth)) };
-    }
-    case "this-year":
-      return { gte: toDateOnly(startOfYear(now)) };
-    default:
-      return {};
-  }
-}
 
 async function fetchExpenses(
   vehicleId: string,

@@ -54,22 +54,28 @@ export const DISABLED_REASON_LABEL: Record<DisabledReason, string> = {
 };
 
 export const SIDEBAR_NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", icon: LayoutDashboard, to: null },
+  { label: "Dashboard", icon: LayoutDashboard, to: (vehicleId) => ROUTES.vehicle(vehicleId) },
   { label: "Minha garagem", icon: Car, to: ROUTES.home },
   { label: "Gastos", icon: Receipt, to: (vehicleId) => ROUTES.vehicleExpenses(vehicleId) },
   { label: "Abastecimentos", icon: Fuel, to: (vehicleId) => ROUTES.vehicleFuelLogs(vehicleId) },
   { label: "Manutenção", icon: Wrench, to: (vehicleId) => ROUTES.vehicleMaintenance(vehicleId) },
   { label: "Problemas", icon: AlertTriangle, to: (vehicleId) => ROUTES.vehicleIssues(vehicleId) },
   { label: "Projetos", icon: ClipboardList, to: (vehicleId) => ROUTES.vehicleProjects(vehicleId) },
-  { label: "Histórico", icon: History, to: null },
+  { label: "Histórico", icon: History, to: (vehicleId) => ROUTES.vehicleTimeline(vehicleId) },
   { label: "Documentos", icon: FileText, to: (vehicleId) => ROUTES.vehicleDocuments(vehicleId) },
   { label: "Configurações", icon: Settings, to: ROUTES.configuracoes },
 ];
 
+/**
+ * "Home" e "Dados" espelham "Dashboard"/"Histórico" da sidebar — rótulo
+ * mais curto pro espaço apertado da bottom nav, mesmo destino (Fase 9,
+ * mesma lógica de "ativar item cujo destino passou a existir" já usada
+ * em toda fase anterior).
+ */
 export const BOTTOM_NAV_ITEMS: NavItem[] = [
-  { label: "Home", icon: Home, to: null },
+  { label: "Home", icon: Home, to: (vehicleId) => ROUTES.vehicle(vehicleId) },
   { label: "Carros", icon: Car, to: ROUTES.home },
-  { label: "Dados", icon: History, to: null },
+  { label: "Dados", icon: History, to: (vehicleId) => ROUTES.vehicleTimeline(vehicleId) },
   { label: "Configurações", icon: Settings, to: ROUTES.configuracoes },
 ];
 
@@ -96,5 +102,9 @@ export const ADD_SHEET_ITEMS: NavItem[] = [
     icon: Camera,
     to: (vehicleId) => `${ROUTES.vehicleDocuments(vehicleId)}?aba=fotos&novo=1`,
   },
-  { label: "Nota", icon: StickyNote, to: null },
+  {
+    label: "Nota",
+    icon: StickyNote,
+    to: (vehicleId) => `${ROUTES.vehicleTimeline(vehicleId)}?novo=1`,
+  },
 ];

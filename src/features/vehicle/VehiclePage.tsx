@@ -1,8 +1,15 @@
 import { AlertCircle, Car } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { formatKm, formatMoney } from "@/lib/format";
+import { formatKm } from "@/lib/format";
 import { ROUTES } from "@/lib/routes";
+import { AlertBanner } from "@/features/maintenance/AlertBanner";
+import { ActivityCountTiles } from "@/features/dashboard/ActivityCountTiles";
+import { ExpensesByCategoryChart } from "@/features/dashboard/ExpensesByCategoryChart";
+import { ExpensesByMonthChart } from "@/features/dashboard/ExpensesByMonthChart";
+import { FinancialSummaryCard } from "@/features/dashboard/FinancialSummaryCard";
+import { FuelSummarySection } from "@/features/dashboard/FuelSummarySection";
+import { useVehicleDashboard } from "@/features/dashboard/useVehicleDashboard";
 import { VEHICLE_STATUS_LABELS } from "./schemas";
 import { useVehicle, useVehicles } from "./useVehicles";
 
@@ -11,6 +18,7 @@ export function VehiclePage() {
   const navigate = useNavigate();
   const { vehicle, isLoading, isError, refetch } = useVehicle(vehicleId ?? "");
   const { data: allVehicles } = useVehicles();
+  const dashboardQuery = useVehicleDashboard(vehicleId ?? "");
 
   if (isLoading) {
     return (
@@ -46,8 +54,8 @@ export function VehiclePage() {
     );
   }
 
-  const totalInvested = vehicle.financialSummary?.total_invested;
   const otherVehicles = allVehicles ?? [];
+  const dashboard = dashboardQuery.data;
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -72,7 +80,7 @@ export function VehiclePage() {
               </h1>
               <p className="text-sm text-text-secondary">
                 {vehicle.model_year}
-                {vehicle.trim ? ` · ${vehicle.trim}` : ""}
+                {vehicle.trim ? ` · ${vehicle.trim}` : ""} · {formatKm(vehicle.current_odometer_km)}
               </p>
             </div>
             <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-xs text-text-secondary">
@@ -98,22 +106,42 @@ export function VehiclePage() {
         </div>
       </div>
 
-      <dl className="grid grid-cols-2 gap-4 rounded-lg border border-border bg-surface p-4 text-sm sm:max-w-sm">
-        <div>
-          <dt className="text-text-secondary">Km atual</dt>
-          <dd className="text-text-primary">{formatKm(vehicle.current_odometer_km)}</dd>
+      {dashboardQuery.isLoading && (
+        <div className="flex flex-col gap-4">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="h-24 animate-pulse rounded-lg border border-border bg-surface" />
+          ))}
         </div>
-        <div>
-          <dt className="text-text-secondary">Total investido</dt>
-          <dd className="text-text-primary">
-            {totalInvested != null ? formatMoney(totalInvested) : "—"}
-          </dd>
-        </div>
-      </dl>
+      )}
 
-      <p className="text-sm text-text-secondary">
-        Dashboard completo chega na Fase 9.
-      </p>
+      {dashboardQuery.isError && (
+        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-surface p-8 text-center">
+          <AlertCircle className="h-6 w-6 text-error" aria-hidden="true" />
+          <p className="text-sm text-text-secondary">Não foi possível carregar o painel do veículo.</p>
+          <Button variant="ghost" onClick={() => dashboardQuery.refetch()}>
+            Tentar de novo
+          </Button>
+        </div>
+      )}
+
+      {dashboard && (
+        <>
+          {dashboard.alerts.length > 0 && <AlertBanner alerts={dashboard.alerts} />}
+
+          <FinancialSummaryCard summary={dashboard.financial_summary} />
+          <FuelSummarySection summary={dashboard.fuel_summary} />
+          <ActivityCountTiles
+            vehicleId={vehicle.id}
+            openIssuesCount={dashboard.open_issues_count}
+            activeProjectsCount={dashboard.active_projects_count}
+          />
+
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <ExpensesByMonthChart data={dashboard.expenses_by_month} />
+            <ExpensesByCategoryChart data={dashboard.expenses_by_category} />
+          </div>
+        </>
+      )}
     </div>
   );
 }
