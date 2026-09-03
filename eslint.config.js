@@ -24,7 +24,11 @@ export default tseslint.config(
       ...reactHooks.configs["recommended-latest"].rules,
       "jsx-a11y/label-has-associated-control": [
         "error",
-        { labelComponents: ["Label"], labelAttributes: ["htmlFor"], controlComponents: ["Input"] },
+        {
+          labelComponents: ["Label"],
+          labelAttributes: ["htmlFor"],
+          controlComponents: ["Input", "Switch"],
+        },
       ],
     },
   },

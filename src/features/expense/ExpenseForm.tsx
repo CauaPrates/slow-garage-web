@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { FieldError } from "@/components/ui/field-error";
+import { todayDateOnly } from "@/lib/format";
 import {
   expenseSchema,
   PAYMENT_METHODS,
@@ -43,7 +44,7 @@ export function ExpenseForm({
       categoryId: "",
       amount: "",
       description: "",
-      occurredOn: new Date().toISOString().slice(0, 10),
+      occurredOn: todayDateOnly(),
       ...defaultValues,
     },
   });

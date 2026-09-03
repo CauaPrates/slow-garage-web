@@ -57,7 +57,7 @@ export const SIDEBAR_NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, to: null },
   { label: "Minha garagem", icon: Car, to: ROUTES.home },
   { label: "Gastos", icon: Receipt, to: (vehicleId) => ROUTES.vehicleExpenses(vehicleId) },
-  { label: "Abastecimentos", icon: Fuel, to: null },
+  { label: "Abastecimentos", icon: Fuel, to: (vehicleId) => ROUTES.vehicleFuelLogs(vehicleId) },
   { label: "Manutenção", icon: Wrench, to: null },
   { label: "Problemas", icon: AlertTriangle, to: null },
   { label: "Projetos", icon: ClipboardList, to: null },
@@ -76,7 +76,11 @@ export const BOTTOM_NAV_ITEMS: NavItem[] = [
 /** Itens da folha "Adicionar" — mesma forma de `NavItem`; "Gasto" é o primeiro a sair de `to: null` (Fase 4). */
 export const ADD_SHEET_ITEMS: NavItem[] = [
   { label: "Gasto", icon: Receipt, to: (vehicleId) => `${ROUTES.vehicleExpenses(vehicleId)}?novo=1` },
-  { label: "Abastecimento", icon: Fuel, to: null },
+  {
+    label: "Abastecimento",
+    icon: Fuel,
+    to: (vehicleId) => `${ROUTES.vehicleFuelLogs(vehicleId)}?novo=1`,
+  },
   { label: "Manutenção", icon: Wrench, to: null },
   { label: "Upgrade", icon: TrendingUp, to: null },
   { label: "Foto", icon: Camera, to: null },

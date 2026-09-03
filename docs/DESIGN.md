@@ -107,6 +107,21 @@ portanto já é CSS variable):
   daí — o botão de ação (`whitespace-nowrap` por padrão em todo
   `Button`) ao lado de um título de duas linhas é exatamente o tipo de
   par que estoura 320px se ficar sempre em linha (ver ADR-025)
+- Resumo de consumo (Fase 5, `FuelSummaryCard`): `dl` com
+  `grid-cols-2 sm:grid-cols-4`, mesmos tokens de card
+  (`rounded-lg border border-border bg-surface p-4`) do resumo de
+  km/total investido já usado em `VehiclePage`. Só renderiza quando há
+  pelo menos 1 abastecimento — nunca mostra 4 traços de uma vez
+- Toggle "Tanque cheio"/"Perdi o abastecimento anterior" (Fase 5):
+  `<Switch>` envolvido num `<label>` nativo com o texto como `<span>`
+  antes do controle — mesmo padrão do `ThemeToggle`, agora com o
+  componente `Switch` reconhecido de verdade pelo lint (ADR-028), não
+  só "passando" por acidente de estrutura
+- Linha de lista de abastecimento (Fase 5): data + litros na primeira
+  linha, valor (+posto, +aviso de tanque não cheio) na segunda, km/L e
+  custo/km na terceira — cada métrica mostra "—" quando a view não tem
+  confiança, nunca um valor estimado (ver ADR-030 sobre o que fica nulo
+  em cada caso)
 
 ## Hierarquia
 
