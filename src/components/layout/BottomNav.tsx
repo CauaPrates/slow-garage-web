@@ -2,18 +2,25 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { BOTTOM_NAV_ITEMS, type NavItem } from "@/lib/navigation";
+import { useCurrentVehicleId } from "@/hooks/useCurrentVehicleId";
+import {
+  BOTTOM_NAV_ITEMS,
+  DISABLED_REASON_LABEL,
+  resolveNavItem,
+  type NavItem,
+} from "@/lib/navigation";
 import { AddActionSheet } from "./AddActionSheet";
 
-function BottomNavLink({ item }: { item: NavItem }) {
+function BottomNavLink({ item, vehicleId }: { item: NavItem; vehicleId: string | null }) {
   const Icon = item.icon;
+  const resolved = resolveNavItem(item, vehicleId);
 
-  if (item.to === null) {
+  if (!resolved.enabled) {
     return (
       <button
         type="button"
         aria-disabled="true"
-        aria-label={`${item.label} — Em breve`}
+        aria-label={`${item.label} — ${DISABLED_REASON_LABEL[resolved.reason]}`}
         onClick={(event) => event.preventDefault()}
         className="flex min-h-[44px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-0.5 opacity-50 cursor-not-allowed"
       >
@@ -22,7 +29,7 @@ function BottomNavLink({ item }: { item: NavItem }) {
           className="max-w-full truncate text-[10px] text-text-secondary"
           aria-hidden="true"
         >
-          Em breve
+          {DISABLED_REASON_LABEL[resolved.reason]}
         </span>
       </button>
     );
@@ -30,8 +37,8 @@ function BottomNavLink({ item }: { item: NavItem }) {
 
   return (
     <NavLink
-      to={item.to}
-      end={item.to === "/"}
+      to={resolved.href}
+      end={resolved.href === "/"}
       className={({ isActive }) =>
         cn(
           "flex min-h-[44px] min-w-0 flex-1 flex-col items-center justify-center gap-0.5 px-0.5 text-text-secondary transition-colors duration-150",
@@ -47,6 +54,7 @@ function BottomNavLink({ item }: { item: NavItem }) {
 
 export function BottomNav() {
   const [addOpen, setAddOpen] = useState(false);
+  const vehicleId = useCurrentVehicleId();
   const [before, after] = [BOTTOM_NAV_ITEMS.slice(0, 2), BOTTOM_NAV_ITEMS.slice(2)];
 
   return (
@@ -56,7 +64,7 @@ export function BottomNav() {
         className="fixed inset-x-0 bottom-0 z-30 flex items-stretch border-t border-border bg-surface px-1 pb-[env(safe-area-inset-bottom)] lg:hidden"
       >
         {before.map((item) => (
-          <BottomNavLink key={item.label} item={item} />
+          <BottomNavLink key={item.label} item={item} vehicleId={vehicleId} />
         ))}
 
         <div className="flex flex-1 items-center justify-center">
@@ -71,7 +79,7 @@ export function BottomNav() {
         </div>
 
         {after.map((item) => (
-          <BottomNavLink key={item.label} item={item} />
+          <BottomNavLink key={item.label} item={item} vehicleId={vehicleId} />
         ))}
       </nav>
 

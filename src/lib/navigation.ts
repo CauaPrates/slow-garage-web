@@ -22,17 +22,41 @@ import { ROUTES } from "./routes";
  * ver tabela de fases do doc mestre) — o item aparece na navegação desde
  * já, desabilitado com "Em breve", em vez de sumir e reaparecer fase a
  * fase (RN-2 de specs/003-vehicle-shell/spec.md).
+ *
+ * `to` como função significa "a tela existe, mas depende do veículo
+ * atual" — resolvida via `resolveNavItem` a partir do `vehicleId` lido
+ * da URL (Fase 4, ADR-024): sem veículo selecionado, o item também
+ * fica desabilitado, mas por um motivo diferente ("Selecione um
+ * veículo", não "Em breve").
  */
 export type NavItem = {
   label: string;
   icon: LucideIcon;
-  to: string | null;
+  to: string | null | ((vehicleId: string) => string);
+};
+
+export type DisabledReason = "not-built" | "no-vehicle";
+
+export type ResolvedNavItem =
+  | { enabled: true; href: string }
+  | { enabled: false; reason: DisabledReason };
+
+export function resolveNavItem(item: NavItem, vehicleId: string | null): ResolvedNavItem {
+  if (item.to === null) return { enabled: false, reason: "not-built" };
+  if (typeof item.to === "string") return { enabled: true, href: item.to };
+  if (vehicleId) return { enabled: true, href: item.to(vehicleId) };
+  return { enabled: false, reason: "no-vehicle" };
+}
+
+export const DISABLED_REASON_LABEL: Record<DisabledReason, string> = {
+  "not-built": "Em breve",
+  "no-vehicle": "Selecione um veículo",
 };
 
 export const SIDEBAR_NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, to: null },
   { label: "Minha garagem", icon: Car, to: ROUTES.home },
-  { label: "Gastos", icon: Receipt, to: null },
+  { label: "Gastos", icon: Receipt, to: (vehicleId) => ROUTES.vehicleExpenses(vehicleId) },
   { label: "Abastecimentos", icon: Fuel, to: null },
   { label: "Manutenção", icon: Wrench, to: null },
   { label: "Problemas", icon: AlertTriangle, to: null },
@@ -49,15 +73,9 @@ export const BOTTOM_NAV_ITEMS: NavItem[] = [
   { label: "Configurações", icon: Settings, to: ROUTES.configuracoes },
 ];
 
-export type AddSheetItem = {
-  label: string;
-  icon: LucideIcon;
-  to: null;
-};
-
-/** Nenhum fluxo de registro existe até a Fase 4 — todos desabilitados por ora. */
-export const ADD_SHEET_ITEMS: AddSheetItem[] = [
-  { label: "Gasto", icon: Receipt, to: null },
+/** Itens da folha "Adicionar" — mesma forma de `NavItem`; "Gasto" é o primeiro a sair de `to: null` (Fase 4). */
+export const ADD_SHEET_ITEMS: NavItem[] = [
+  { label: "Gasto", icon: Receipt, to: (vehicleId) => `${ROUTES.vehicleExpenses(vehicleId)}?novo=1` },
   { label: "Abastecimento", icon: Fuel, to: null },
   { label: "Manutenção", icon: Wrench, to: null },
   { label: "Upgrade", icon: TrendingUp, to: null },

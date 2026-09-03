@@ -11,6 +11,7 @@ import { UpdatePasswordPage } from "@/features/auth/UpdatePasswordPage";
 import { SettingsPage } from "@/features/auth/SettingsPage";
 import { VehicleListPage } from "@/features/vehicle/VehicleListPage";
 import { VehiclePage } from "@/features/vehicle/VehiclePage";
+import { ExpensesPage } from "@/features/expense/ExpensesPage";
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +32,10 @@ export const router = createBrowserRouter([
           {
             path: "v/:vehicleId",
             element: <VehiclePage />,
+          },
+          {
+            path: "v/:vehicleId/gastos",
+            element: <ExpensesPage />,
           },
         ],
       },

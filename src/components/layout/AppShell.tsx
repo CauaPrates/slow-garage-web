@@ -12,7 +12,7 @@ export function AppShell() {
       </header>
       <div className="flex flex-1">
         <Sidebar />
-        <main className="flex-1 pb-20 lg:pb-0">
+        <main className="min-w-0 flex-1 pb-20 lg:pb-0">
           <Outlet />
         </main>
       </div>

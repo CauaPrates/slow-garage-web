@@ -1,4 +1,4 @@
-import { format as formatDateFns, parse as parseDateFns } from "date-fns";
+import { format as formatDateFns, parse as parseDateFns, parseISO } from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
@@ -27,6 +27,17 @@ export function formatDate(date: Date): string {
 export function parseDate(value: string): Date | null {
   const parsed = parseDateFns(value, "dd/MM/yyyy", new Date());
   return Number.isNaN(parsed.getTime()) ? null : parsed;
+}
+
+/**
+ * `"2026-01-15"` (coluna `date` do Postgres, mesmo formato do
+ * `<input type="date">`) -> `"15/01/2026"`. Usa `parseISO` (não
+ * `new Date(...)`) de propósito — o construtor nativo trata data sem
+ * horário como meia-noite UTC, o que exibe o dia anterior em fuso
+ * negativo (Brasil); `parseISO` trata como meia-noite local.
+ */
+export function formatDateOnly(isoDate: string): string {
+  return formatDateFns(parseISO(isoDate), "dd/MM/yyyy", { locale: ptBR });
 }
 
 /** `87400` -> `"87.400 km"` */
