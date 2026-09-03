@@ -157,6 +157,27 @@ portanto já é CSS variable):
   quando só há uma opção fixa (Fase 7, `ProjectItemForm`) — reaproveita
   o padrão do seletor de veículo único da `VehiclePage` (Fase 3):
   `<select disabled>` com uma opção em vez de esconder o campo
+- Abas internas da página "Documentos" (Fase 8, `DocumentsPage`):
+  `role="tablist"` com `overflow-x-auto`, `px-2 py-2 text-sm`, indicador
+  `border-b-2` na cor de destaque só na aba ativa. Em 320/390px as 4
+  abas não cabem inteiras — a última visível fica parcialmente cortada
+  de propósito (affordance de "tem mais pra rolar"), ajustado depois de
+  uma primeira verificação mostrar a aba "Fotos" 100% invisível em
+  390px sem nenhum indício de que existia (ver ADR-037)
+- Selo de vencimento (Fase 8, `DocumentListItem`/`ObligationListItem`):
+  mesmo padrão borda+texto sempre visível de todo badge de status do
+  projeto — "Vencido em"/"Vence em" em `text-error` só quando já
+  passou, `text-text-secondary` caso contrário; nunca cor sozinha
+- Card de financiamento (Fase 8, `FinancingCard`): `dl` de 2 colunas
+  com os mesmos tokens de card das Fases 5/7, `installments_remaining`/
+  `outstanding_balance` sempre com "—" quando `null` (nunca "0" ou
+  "R$ NaN") — mesma disciplina de "não estimar o que a view não
+  calculou" desde a Fase 5
+- Galeria de fotos (Fase 8, `PhotoGallery`): grid `grid-cols-2
+  sm:grid-cols-3 lg:grid-cols-4`, thumbnail `aspect-square
+  object-cover`; filtro de categoria é a mesma fileira horizontal
+  rolável (com o mesmo corte parcial de affordance) da aba de
+  Documentos, reaproveitando o padrão em vez de inventar um segundo
 
 ## Hierarquia
 

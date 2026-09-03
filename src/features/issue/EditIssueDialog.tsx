@@ -6,6 +6,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { FieldError } from "@/components/ui/field-error";
+import { AttachmentField } from "@/features/attachment/AttachmentField";
 import { translatePostgresError } from "@/lib/postgresErrors";
 import { IssueForm } from "./IssueForm";
 import { useUpdateIssue } from "./useIssues";
@@ -71,7 +72,14 @@ export function EditIssueDialog({ vehicleId, issue, open, onOpenChange }: EditIs
           defaultValues={toFormDefaults(issue)}
           onSubmit={handleSubmit}
           submitLabel="Salvar alterações"
-        />
+        >
+          <AttachmentField
+            vehicleId={vehicleId}
+            entityType="issue"
+            entityId={issue.id}
+            attachment={issue.attachment}
+          />
+        </IssueForm>
         <FieldError>{error}</FieldError>
       </DialogContent>
     </Dialog>

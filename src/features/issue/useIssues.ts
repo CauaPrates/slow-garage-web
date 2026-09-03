@@ -1,19 +1,33 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/lib/supabase";
+import { deleteAttachmentIfExists, fetchAttachmentsByEntity } from "@/features/attachment/useAttachment";
 import type { Database } from "@/types/database.types";
+import type { AttachmentRow } from "@/features/attachment/useAttachment";
 
-export type IssueRow = Database["public"]["Tables"]["issues"]["Row"];
+type IssueRowBase = Database["public"]["Tables"]["issues"]["Row"];
 type IssueInsert = Database["public"]["Tables"]["issues"]["Insert"];
 type IssueUpdate = Database["public"]["Tables"]["issues"]["Update"];
 
+export type IssueRow = IssueRowBase & { attachment: AttachmentRow | null };
+
 async function fetchIssues(vehicleId: string): Promise<IssueRow[]> {
-  const { data, error } = await supabase
+  const { data: issues, error } = await supabase
     .from("issues")
     .select("*")
     .eq("vehicle_id", vehicleId)
     .order("reported_on", { ascending: false });
   if (error) throw error;
-  return data;
+  if (!issues.length) return [];
+
+  const attachmentByIssueId = await fetchAttachmentsByEntity(
+    "issue",
+    issues.map((i) => i.id),
+  );
+
+  return issues.map((issue) => ({
+    ...issue,
+    attachment: attachmentByIssueId.get(issue.id) ?? null,
+  }));
 }
 
 export function useIssues(vehicleId: string) {
@@ -61,11 +75,14 @@ export function useUpdateIssue(vehicleId: string) {
   });
 }
 
+/** RN-4: apaga o anexo antes do problema, mesma regra de Gasto (Fase 4/ADR-027). */
 export function useDeleteIssue(vehicleId: string) {
   const invalidateVehicles = useInvalidateVehicles();
 
   return useMutation({
     mutationFn: async (id: string) => {
+      await deleteAttachmentIfExists("issue", id);
+
       const { error } = await supabase
         .from("issues")
         .delete()

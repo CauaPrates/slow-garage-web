@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -20,6 +21,7 @@ type MaintenanceRecordFormProps = {
   defaultValues?: Partial<MaintenanceRecordFormInput>;
   onSubmit: (values: MaintenanceRecordFormOutput) => Promise<void>;
   submitLabel: string;
+  children?: ReactNode;
 };
 
 /** RN-4: vínculo com item do plano é opcional — deixar em branco registra um reparo pontual não planejado. */
@@ -29,6 +31,7 @@ export function MaintenanceRecordForm({
   defaultValues,
   onSubmit,
   submitLabel,
+  children,
 }: MaintenanceRecordFormProps) {
   const {
     register,
@@ -132,6 +135,8 @@ export function MaintenanceRecordForm({
             <Label htmlFor="notes">Notas</Label>
             <Textarea id="notes" {...register("notes")} />
           </div>
+
+          {children}
         </div>
       </details>
 

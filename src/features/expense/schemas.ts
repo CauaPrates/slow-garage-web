@@ -81,20 +81,3 @@ export const expenseSchema = z.object({
 
 export type ExpenseFormInput = z.input<typeof expenseSchema>;
 export type ExpenseFormOutput = z.output<typeof expenseSchema>;
-
-const MAX_ATTACHMENT_SIZE_BYTES = 10 * 1024 * 1024;
-const ACCEPTED_ATTACHMENT_TYPES = [
-  "image/jpeg",
-  "image/png",
-  "image/webp",
-  "application/pdf",
-];
-
-export const expenseAttachmentSchema = z
-  .instanceof(File)
-  .refine((file) => ACCEPTED_ATTACHMENT_TYPES.includes(file.type), {
-    message: "Envie uma imagem (JPEG, PNG, WebP) ou um PDF.",
-  })
-  .refine((file) => file.size <= MAX_ATTACHMENT_SIZE_BYTES, {
-    message: "O arquivo precisa ter até 10MB.",
-  });
