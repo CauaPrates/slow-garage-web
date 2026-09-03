@@ -15,6 +15,10 @@ export const ROUTES = {
   vehicleExpenses: (vehicleId: string) => `/v/${vehicleId}/gastos`,
   vehicleFuelLogs: (vehicleId: string) => `/v/${vehicleId}/abastecimentos`,
   vehicleMaintenance: (vehicleId: string) => `/v/${vehicleId}/manutencao`,
+  vehicleIssues: (vehicleId: string) => `/v/${vehicleId}/problemas`,
+  vehicleProjects: (vehicleId: string) => `/v/${vehicleId}/projetos`,
+  vehicleProject: (vehicleId: string, projectId: string) =>
+    `/v/${vehicleId}/projetos/${projectId}`,
 } as const;
 
 /**

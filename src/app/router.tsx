@@ -14,6 +14,9 @@ import { VehiclePage } from "@/features/vehicle/VehiclePage";
 import { ExpensesPage } from "@/features/expense/ExpensesPage";
 import { FuelLogsPage } from "@/features/fuel/FuelLogsPage";
 import { MaintenancePage } from "@/features/maintenance/MaintenancePage";
+import { IssuesPage } from "@/features/issue/IssuesPage";
+import { ProjectsPage } from "@/features/project/ProjectsPage";
+import { ProjectDetailPage } from "@/features/project/ProjectDetailPage";
 
 export const router = createBrowserRouter([
   {
@@ -46,6 +49,18 @@ export const router = createBrowserRouter([
           {
             path: "v/:vehicleId/manutencao",
             element: <MaintenancePage />,
+          },
+          {
+            path: "v/:vehicleId/problemas",
+            element: <IssuesPage />,
+          },
+          {
+            path: "v/:vehicleId/projetos",
+            element: <ProjectsPage />,
+          },
+          {
+            path: "v/:vehicleId/projetos/:projectId",
+            element: <ProjectDetailPage />,
           },
         ],
       },
