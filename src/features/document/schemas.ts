@@ -1,9 +1,5 @@
 import { z } from "zod";
-import {
-  optionalNonNegativeNumber,
-  optionalText,
-  requiredNonNegativeNumber,
-} from "@/lib/schemaHelpers";
+import { optionalEnum, optionalNonNegativeNumber, optionalText } from "@/lib/schemaHelpers";
 
 export const DOCUMENT_TYPES = [
   "invoice",
@@ -59,7 +55,7 @@ export const VEHICLE_PHOTO_CATEGORY_LABELS: Record<
 };
 
 export const documentSchema = z.object({
-  docType: z.enum(DOCUMENT_TYPES),
+  docType: optionalEnum(DOCUMENT_TYPES),
   title: z.string().trim().min(1, "Informe o título."),
   expiresOn: optionalText,
   issuedOn: optionalText,
@@ -71,9 +67,9 @@ export type DocumentFormInput = z.input<typeof documentSchema>;
 export type DocumentFormOutput = z.output<typeof documentSchema>;
 
 export const obligationSchema = z.object({
-  kind: z.enum(OBLIGATION_KINDS),
+  kind: optionalEnum(OBLIGATION_KINDS),
   label: z.string().trim().min(1, "Informe o rótulo."),
-  dueOn: z.string().min(1, "Informe o vencimento."),
+  dueOn: optionalText,
   amount: optionalNonNegativeNumber("o valor"),
   provider: optionalText,
   notes: optionalText,
@@ -86,31 +82,37 @@ export type ObligationFormOutput = z.output<typeof obligationSchema>;
 
 export const financingSchema = z
   .object({
-    financedAmount: requiredNonNegativeNumber("o valor financiado"),
-    installmentAmount: requiredNonNegativeNumber("o valor da parcela"),
+    financedAmount: optionalNonNegativeNumber("o valor financiado"),
+    installmentAmount: optionalNonNegativeNumber("o valor da parcela"),
     installmentCount: z
       .string()
-      .min(1, "Informe a quantidade de parcelas.")
-      .transform((val) => Number(val))
-      .refine((val) => Number.isInteger(val) && val > 0, "Quantidade de parcelas inválida."),
+      .optional()
+      .transform((val) => (val === undefined || val.trim() === "" ? undefined : Number(val)))
+      .refine(
+        (val) => val === undefined || (Number.isInteger(val) && val > 0),
+        "Quantidade de parcelas inválida.",
+      ),
     installmentsPaid: z
       .string()
       .optional()
       .transform((val) => (val === undefined || val.trim() === "" ? 0 : Number(val)))
       .refine((val) => Number.isInteger(val) && val >= 0, "Parcelas pagas inválido."),
-    startedOn: z.string().min(1, "Informe a data de início."),
+    startedOn: optionalText,
     interestRateMonthly: optionalNonNegativeNumber("a taxa de juros"),
   })
-  .refine((data) => data.installmentsPaid <= data.installmentCount, {
-    message: "Parcelas pagas não pode passar da quantidade total de parcelas.",
-    path: ["installmentsPaid"],
-  });
+  .refine(
+    (data) => data.installmentCount === undefined || data.installmentsPaid <= data.installmentCount,
+    {
+      message: "Parcelas pagas não pode passar da quantidade total de parcelas.",
+      path: ["installmentsPaid"],
+    },
+  );
 
 export type FinancingFormInput = z.input<typeof financingSchema>;
 export type FinancingFormOutput = z.output<typeof financingSchema>;
 
 export const photoUploadSchema = z.object({
-  category: z.enum(VEHICLE_PHOTO_CATEGORIES),
+  category: optionalEnum(VEHICLE_PHOTO_CATEGORIES),
   caption: optionalText,
 });
 

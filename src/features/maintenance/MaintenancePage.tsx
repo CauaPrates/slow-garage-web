@@ -213,7 +213,7 @@ export function MaintenancePage() {
       <CreateMaintenanceRecordDialog
         vehicleId={vehicle.id}
         items={allItems}
-        defaultOdometerKm={vehicle.current_odometer_km}
+        defaultOdometerKm={vehicle.current_odometer_km ?? undefined}
         preselectedItemId={preselectedItemId}
         open={createRecordOpen}
         onOpenChange={setCreateRecordOpen}

@@ -26,9 +26,9 @@ export function CreateFinancingDialog({ vehicleId, open, onOpenChange }: CreateF
     setError(null);
     try {
       await createFinancing.mutateAsync({
-        financed_amount: values.financedAmount,
-        installment_amount: values.installmentAmount,
-        installment_count: values.installmentCount,
+        financed_amount: values.financedAmount ?? null,
+        installment_amount: values.installmentAmount ?? null,
+        installment_count: values.installmentCount ?? null,
         installments_paid: values.installmentsPaid,
         started_on: values.startedOn,
         interest_rate_monthly: values.interestRateMonthly ?? null,

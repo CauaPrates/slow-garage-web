@@ -56,7 +56,7 @@ export function ObligationForm({ mode, defaultValues, onSubmit, submitLabel }: O
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="dueOn">Vencimento</Label>
+        <Label htmlFor="dueOn">Vencimento (opcional)</Label>
         <Input
           id="dueOn"
           type="date"

@@ -20,9 +20,9 @@ type EditNoteDialogProps = {
 
 function toFormDefaults(note: NoteLike): Partial<NoteFormInput> {
   return {
-    title: note.title,
+    title: note.title ?? undefined,
     body: note.body ?? undefined,
-    occurredOn: note.occurred_on,
+    occurredOn: note.occurred_on ?? undefined,
     odometerKm: note.odometer_km != null ? String(note.odometer_km) : undefined,
   };
 }
@@ -36,7 +36,7 @@ export function EditNoteDialog({ vehicleId, note, open, onOpenChange }: EditNote
     try {
       await updateNote.mutateAsync({
         id: note.id,
-        title: values.title,
+        title: values.title ?? null,
         body: values.body ?? null,
         occurred_on: values.occurredOn,
         odometer_km: values.odometerKm ?? null,

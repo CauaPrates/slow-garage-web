@@ -41,9 +41,9 @@ export function CreateExpenseDialog({
     setError(null);
     try {
       await createExpense.mutateAsync({
-        category_id: values.categoryId,
+        category_id: values.categoryId ?? null,
         amount: values.amount,
-        description: values.description,
+        description: values.description ?? null,
         occurred_on: values.occurredOn,
         odometer_km: values.odometerKm ?? null,
         vendor: values.vendor ?? null,

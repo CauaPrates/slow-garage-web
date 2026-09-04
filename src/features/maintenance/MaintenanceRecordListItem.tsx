@@ -26,7 +26,8 @@ export function MaintenanceRecordListItem({
       <div className="min-w-0">
         <p className="font-medium text-text-primary">{record.name}</p>
         <p className="text-sm text-text-secondary">
-          {formatDateOnly(record.performed_on)} · {formatKm(record.odometer_km)}
+          {formatDateOnly(record.performed_on)} ·{" "}
+          {record.odometer_km != null ? formatKm(record.odometer_km) : "—"}
           {record.vendor ? ` · ${record.vendor}` : ""}
         </p>
       </div>

@@ -34,7 +34,7 @@ export function FinancingForm({ mode, defaultValues, onSubmit, submitLabel }: Fi
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="financedAmount">Valor financiado</Label>
+          <Label htmlFor="financedAmount">Valor financiado (opcional)</Label>
           <Input
             id="financedAmount"
             type="number"
@@ -46,7 +46,7 @@ export function FinancingForm({ mode, defaultValues, onSubmit, submitLabel }: Fi
           <FieldError>{errors.financedAmount?.message}</FieldError>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="installmentAmount">Valor da parcela</Label>
+          <Label htmlFor="installmentAmount">Valor da parcela (opcional)</Label>
           <Input
             id="installmentAmount"
             type="number"
@@ -61,7 +61,7 @@ export function FinancingForm({ mode, defaultValues, onSubmit, submitLabel }: Fi
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="installmentCount">Quantidade de parcelas</Label>
+          <Label htmlFor="installmentCount">Quantidade de parcelas (opcional)</Label>
           <Input
             id="installmentCount"
             type="number"

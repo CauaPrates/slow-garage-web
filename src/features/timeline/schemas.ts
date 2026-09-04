@@ -73,9 +73,9 @@ export const SOURCE_TABLE_TO_EVENT_TYPE: Record<string, TimelineEventType> = {
 };
 
 export const noteSchema = z.object({
-  title: z.string().trim().min(1, "Informe o título."),
+  title: optionalText,
   body: optionalText,
-  occurredOn: z.string().min(1, "Informe a data."),
+  occurredOn: optionalText,
   odometerKm: optionalNonNegativeInt("a quilometragem"),
 });
 

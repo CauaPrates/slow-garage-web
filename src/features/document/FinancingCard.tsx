@@ -17,14 +17,15 @@ export function FinancingCard({ vehicleId, financing }: FinancingCardProps) {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const addInstallment = useAddPaidInstallment(vehicleId);
 
-  const isPaidOff = financing.installments_paid >= financing.installment_count;
+  const isPaidOff =
+    financing.installment_count != null && financing.installments_paid >= financing.installment_count;
 
   return (
     <div className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-4">
       <div>
         <p className="text-sm text-text-secondary">Financiado</p>
         <p className="text-lg font-medium text-text-primary">
-          {formatMoney(financing.financed_amount)}
+          {financing.financed_amount != null ? formatMoney(financing.financed_amount) : "—"}
         </p>
       </div>
 
@@ -32,12 +33,14 @@ export function FinancingCard({ vehicleId, financing }: FinancingCardProps) {
         <div>
           <p className="text-sm text-text-secondary">Parcelas</p>
           <p className="font-medium text-text-primary">
-            {financing.installments_paid} de {financing.installment_count} pagas
+            {financing.installments_paid} de {financing.installment_count ?? "—"} pagas
           </p>
         </div>
         <div>
           <p className="text-sm text-text-secondary">Valor da parcela</p>
-          <p className="font-medium text-text-primary">{formatMoney(financing.installment_amount)}</p>
+          <p className="font-medium text-text-primary">
+            {financing.installment_amount != null ? formatMoney(financing.installment_amount) : "—"}
+          </p>
         </div>
         <div>
           <p className="text-sm text-text-secondary">Saldo devedor</p>

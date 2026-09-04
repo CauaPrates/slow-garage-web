@@ -53,16 +53,14 @@ export function ExpenseForm({
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="categoryId">Categoria</Label>
+          <Label htmlFor="categoryId">Categoria (opcional)</Label>
           <Select
             id="categoryId"
             defaultValue=""
             aria-invalid={!!errors.categoryId}
             {...register("categoryId")}
           >
-            <option value="" disabled>
-              Selecione
-            </option>
+            <option value="">Sem categoria</option>
             {categories.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.label}
@@ -97,7 +95,7 @@ export function ExpenseForm({
           <FieldError>{errors.amount?.message}</FieldError>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="description">Descrição</Label>
+          <Label htmlFor="description">Descrição (opcional)</Label>
           <Input
             id="description"
             aria-invalid={!!errors.description}
