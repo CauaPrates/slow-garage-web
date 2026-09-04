@@ -30,14 +30,15 @@
 | 21 | Rodar `npm run build` e `npm run lint`, corrigir o que quebrar | repo inteiro | todos | 1-19 | ☑ |
 | 21a | Regenerar `database.types.ts` contra o Supabase real (achado: precisava de `db push` do backend, aplicado durante esta fase — ver plan.md §3) | `src/types/database.types.ts` | todos | — | ☑ |
 | 21b | Corrigir 8 pontos de leitura direta de coluna agora nullable que `tsc -b` acusou (fora dos 3 campos calculados já auditados) | `useDocuments.ts`, `FinancingCard.tsx`, `ObligationListItem.tsx`, `ExpensesPage.tsx`, `MaintenancePage.tsx`, `MaintenanceRecordListItem.tsx`, `VehicleCard.tsx`, `VehiclePage.tsx` | AC-19 | 21a | ☑ |
-| 22 | Verificação manual dos fluxos críticos contra o app rodando | — | AC-1,2,3,4,6,7,9,10,11,12,13,14,15,16,17,18,19 | 21 | ✖ |
+| 22 | Verificação end-to-end dos fluxos críticos contra o app rodando (Playwright, credencial `e2e-test@dev.local` fornecida pelo usuário) | — | AC-1,2,3,4,6,7,9,10,11,12,13,14,15,16,17,18,19 | 21 | ☑ |
+| 22a | Corrigir 2 bugs reais encontrados na verificação E2E (não pegos por `tsc`/`eslint`) | `src/features/expense/ExpenseListItem.tsx`, `src/features/document/EditObligationDialog.tsx` | AC-3, AC-11 | 22 | ☑ |
 | 23 | Incorporar `CHANGES_FOR_FRONTEND.md` a esta spec/verification e apagar o arquivo da raiz | `CHANGES_FOR_FRONTEND.md` | — | 22 | ☑ |
 
 Status: ☐ pendente · ◐ em andamento · ☑ feita · ✖ bloqueada
 
 ## Bloqueios
 
-**Task 22 bloqueada**: não há credencial de login para este projeto Supabase disponível nesta sessão, e o próprio app exige confirmação de e-mail antes do primeiro login (ADR-012/ADR-016) — não é possível criar uma conta de teste nova e confirmá-la sem acesso a uma caixa de e-mail real. Todos os 19 ACs que dependem de fluxo manual ficam `⬜ não verificado` em `verification.md`, com o passo a passo exato para o humano rodar. A verificação automática (`tsc -b`, `eslint`) cobre a parte estrutural — não substitui o teste funcional.
+Nenhum. **Task 22 estava bloqueada** por falta de credencial de login (ver histórico — o app exige confirmação de e-mail antes do primeiro login, ADR-012/ADR-016, e não havia como criar conta de teste sem caixa de e-mail real). O usuário forneceu uma credencial de teste já confirmada (`e2e-test@dev.local`) depois do primeiro relatório de verificação; com ela, 18/19 ACs foram confirmados por execução real e 2 bugs reais foram encontrados e corrigidos (task 22a). AC-18 ficou inconclusivo por um motivo específico registrado em `verification.md` (não é falha desta fase — `maintenance_items`/`maintenance_status` estão fora do escopo, spec.md §4).
 
 ## Escopo recusado durante a implementação
 
@@ -47,3 +48,5 @@ Status: ☐ pendente · ◐ em andamento · ☑ feita · ✖ bloqueada
 | 4 arquivos com `String(valor)` sem guarda de `null` em `toFormDefaults`, que quebrariam com `"null"` literal assim que o backend devolvesse `null` de verdade | Encontrado por auditoria de código durante o plano, não estava listado no documento do backend (que descreve schema de banco, não código de front) | Incorporado ao escopo (parte das tasks 12, 14, 17, 19) — é consequência direta e inevitável da mudança pedida, não escopo novo |
 | `database.types.ts` local não refletia a migration do backend na primeira checagem — a migration ainda não tinha sido aplicada no projeto Supabase que o `.env` deste repo aponta | Só descoberto ao regenerar os tipos contra o banco real antes de editar qualquer schema Zod | Pausado, reportado ao usuário via pergunta direta; usuário rodou `db push`; regeneração confirmada e implementação retomada — ver plan.md §3 |
 | 8 pontos de leitura direta de coluna (fora dos 3 campos calculados já auditados) que `tsc -b` acusou como quebrados com a coluna agora nullable | `tsc -b` com `strict: true` pegou automaticamente — não fazia parte do documento do backend nem da auditoria manual inicial | Incorporado ao escopo (task 21b) — mesma lógica: consequência inevitável da mudança, não escopo novo |
+| `ExpenseListItem.tsx` mostrava `expense.description` cru como título (vira linha em branco com descrição vazia) — `tsc` não pega porque JSX aceita `null` como filho válido, sem erro de tipo | Só apareceu testando de verdade contra o Supabase real (task 22), depois que o usuário forneceu credencial | Incorporado ao escopo (task 22a) — mesma lógica: consequência inevitável da mudança |
+| `EditObligationDialog.tsx` não enviava `due_on: null` na edição — bug de implementação (assumi, sem conferir, que o payload já tinha `?? null` porque tinha visto isso no Create) | Só apareceu comparando o corpo real da requisição PATCH contra o esperado, durante a verificação E2E | Corrigido (task 22a) — erro meu de auditoria, registrado pra não repetir: nunca assumir payload de Edit sem ler linha a linha |

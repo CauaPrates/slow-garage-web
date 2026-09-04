@@ -768,3 +768,56 @@ recusado (azul/roxo elétrico como acento, por ser o default mais comum).
 **Ícones do PWA** regerados (`npm run icons`) com o novo fundo
 (`scripts/generate-icons.mjs`, `BG`); `manifest.webmanifest` e o
 `<meta name="theme-color">` de `index.html` atualizados pro mesmo hex.
+
+## ADR-047 — `maintenance_status` não computou linha pra um item mesmo com histórico e veículo com km (Fase 11)
+
+Descoberto verificando AC-18 da Fase 11 (schema-freedom) contra o Supabase
+real, com um item de manutenção de teste (intervalo 5000km): o badge exibido
+foi `"Planejado"` (fallback do cliente pra "sem linha na view",
+`item.status?.status ?? "planned"` em `useMaintenanceItems.ts`, Fase 6) em
+**três** cenários diferentes — (1) item recém-criado, veículo com km; (2)
+mesmo item com uma execução registrada (`last_service_odometer_km`
+preenchido), veículo ainda com km; (3) mesmo item com histórico, veículo sem
+`current_odometer_km` (removido de propósito, é o cenário que o AC-18
+queria testar). O status não mudou entre os três passos — a view nunca
+computou uma linha pra esse item em nenhum dos casos testados.
+
+Não investigado a fundo (fora do escopo da Fase 11 — `maintenance_items`/
+`maintenance_status` não foram tocados nesta fase, ver `specs/011-schema-freedom/spec.md`
+§4). A propriedade de segurança que a Fase 11 precisava confirmar segue
+válida — nenhum status alarmante (`overdue`/`due_soon`) apareceu sem dado
+suficiente em nenhum dos três passos, então o veículo sem `current_odometer_km`
+não passou a "inventar" alarme. Mas o rótulo específico do AC-18 (cair em
+`"ok"`) não foi observado, porque a view não chegou a computar nada pra este
+item em nenhuma das três tentativas — condição exata pra a view retornar uma
+linha fica como pendência de investigação futura, registrada em
+`specs/011-schema-freedom/verification.md`.
+
+## ADR-048 — Dois bugs reais só apareceram testando contra o Supabase de verdade, não em `tsc`/`eslint` (Fase 11)
+
+A Fase 11 chegou a declarar (numa primeira versão de `verification.md`)
+todos os ACs funcionais como "não verificado" por falta de credencial de
+login — o usuário forneceu uma conta de teste já confirmada
+(`e2e-test@dev.local`) depois desse relatório. Rodando o roteiro de verdade
+com Playwright contra o app + banco reais, dois bugs surgiram que nenhuma
+ferramenta estática pegou:
+
+1. `ExpenseListItem.tsx` renderizava `{expense.description}` cru como
+   título do card — com `description` agora opcional (Fase 11), um gasto
+   sem descrição virava uma linha em branco. `tsc` não acusa porque JSX
+   aceita `null`/`undefined` como filho válido (não é erro de tipo, é gap
+   de UX). Corrigido com fallback `{expense.description || "Gasto"}`.
+2. `EditObligationDialog.tsx` não enviava `due_on: null` no payload de
+   edição — o autor da mudança (eu, executando a Fase 11) tinha conferido
+   esse padrão em `CreateObligationDialog.tsx` e assumido, sem reconferir
+   linha a linha, que o `Edit` já seguia o mesmo padrão. Resultado real:
+   limpar o vencimento de uma obrigação já salva e clicar "Salvar" não
+   apagava o valor — a chave `due_on` nem saía no corpo do PATCH.
+   Descoberto comparando o corpo real da requisição (capturado via
+   `page.waitForResponse` no script de verificação) contra o esperado.
+
+Vale como lição de processo pra qualquer fase futura que mexer em payload
+de mutação "Create" e "Edit" em paralelo assumindo que os dois seguem o
+mesmo padrão: **conferir os dois arquivos, nunca só um**. Ver também
+`specs/011-schema-freedom/verification.md` pro roteiro completo de
+verificação e a lista de ACs confirmados.

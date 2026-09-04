@@ -32,9 +32,11 @@ export function ExpenseListItem({ vehicleId, expense, categories }: ExpenseListI
       <div className="flex min-w-0 items-start gap-3">
         <Icon className="mt-0.5 h-5 w-5 shrink-0 text-text-secondary" aria-hidden="true" />
         <div className="min-w-0">
-          <p className="truncate font-medium text-text-primary">{expense.description}</p>
+          <p className="truncate font-medium text-text-primary">
+            {expense.description || "Gasto"}
+          </p>
           <p className="text-sm text-text-secondary">
-            {category?.label ?? "Categoria"} · {formatDateOnly(expense.occurred_on)}
+            {category?.label ?? "Sem categoria"} · {formatDateOnly(expense.occurred_on)}
             {expense.vendor ? ` · ${expense.vendor}` : ""}
             {expense.payment_method ? ` · ${PAYMENT_METHOD_LABELS[expense.payment_method]}` : ""}
           </p>

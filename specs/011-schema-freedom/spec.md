@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | implementada — verificação manual pendente (ver verification.md) |
+| **Status** | implementada e verificada — 18/19 ACs confirmados por execução real (ver verification.md); AC-18 inconclusivo por motivo documentado, fora do escopo desta fase |
 | **Tamanho** | G |
 | **Criada em** | 2026-09-04 |
 | **Depende de** | Mudança já aplicada no backend (ver `CHANGES_FOR_FRONTEND.md`, ADR-010 do backend, `docs/DECISIONS.md` deste repo) |
