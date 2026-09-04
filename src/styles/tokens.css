@@ -13,8 +13,8 @@
   --color-accent: #d9a441;
   --color-accent-foreground: #16140f;
   --color-success: #7fa05c;
-  --color-error: #c1503c;
-  --color-warning: #cb6b2c;
+  --color-error: #cf7666;
+  --color-warning: #d47538;
 
   --font-hero: "Permanent Marker", cursive;
   --font-sans:
@@ -51,9 +51,9 @@
   --color-text-secondary: #6b6252;
   --color-accent: #a97a1f;
   --color-accent-foreground: #f7f2e8;
-  --color-success: #4f7a3a;
+  --color-success: #4b7337;
   --color-error: #9b3c2c;
-  --color-warning: #a3591e;
+  --color-warning: #9d551d;
 
   --chart-series-1: #2a78d6;
   --chart-series-2: #eb6834;

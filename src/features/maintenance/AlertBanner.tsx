@@ -37,7 +37,7 @@ export function AlertBanner({ alerts }: AlertBannerProps) {
             <div>
               <p className="font-medium">{alert.title}</p>
               {(alert.due_on ?? alert.due_odometer_km != null) && (
-                <p className="text-xs opacity-90">
+                <p className="text-xs">
                   {alert.due_on ? `Venceu em ${formatDateOnly(alert.due_on)}` : ""}
                   {alert.due_on && alert.due_odometer_km != null ? " · " : ""}
                   {alert.due_odometer_km != null ? formatKm(alert.due_odometer_km) : ""}

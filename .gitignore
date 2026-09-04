@@ -13,6 +13,9 @@ Thumbs.db
 *.tsbuildinfo
 node_modules/.tmp/
 
+# gerado pelo CLI da Vercel ao rodar `vercel`/`vercel link` localmente
+.vercel/
+
 # cache/estado local do supabase CLI (gerado por `npm run types`) — migration
 # e schema vivem no repo do backend, não aqui
 supabase/
