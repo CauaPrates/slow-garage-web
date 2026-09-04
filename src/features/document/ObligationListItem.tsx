@@ -20,7 +20,7 @@ export function ObligationListItem({ vehicleId, obligation }: ObligationListItem
   const [markPaidOpen, setMarkPaidOpen] = useState(false);
 
   const isPaid = obligation.paid_on != null;
-  const isOverdue = !isPaid && obligation.due_on < todayDateOnly();
+  const isOverdue = !isPaid && obligation.due_on != null && obligation.due_on < todayDateOnly();
 
   return (
     <div className="flex items-start justify-between gap-3 rounded-lg border border-border bg-surface p-4">
@@ -39,7 +39,9 @@ export function ObligationListItem({ vehicleId, obligation }: ObligationListItem
           {isPaid && <CheckCircle2 className="h-3 w-3" aria-hidden="true" />}
           {isPaid
             ? `Paga em ${formatDateOnly(obligation.paid_on as string)}`
-            : `${isOverdue ? "Vencida em " : "Vence em "}${formatDateOnly(obligation.due_on)}`}
+            : obligation.due_on != null
+              ? `${isOverdue ? "Vencida em " : "Vence em "}${formatDateOnly(obligation.due_on)}`
+              : "Sem vencimento"}
         </p>
       </div>
 

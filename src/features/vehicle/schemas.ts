@@ -1,9 +1,9 @@
 import { z } from "zod";
 import {
+  optionalEnum,
+  optionalNonNegativeInt,
   optionalNonNegativeNumber,
   optionalText,
-  requiredNonNegativeInt,
-  requiredNonNegativeNumber,
 } from "@/lib/schemaHelpers";
 
 export const FUEL_TYPES = [
@@ -48,19 +48,23 @@ export const vehicleSchema = z.object({
   // Obrigatórios
   make: z.string().trim().min(1, "Informe a marca."),
   model: z.string().trim().min(1, "Informe o modelo."),
+
+  // Opcionais — RN-1 da Fase 011: só marca/modelo definem o veículo numa lista.
   modelYear: z
     .string()
-    .min(1, "Informe o ano.")
-    .transform((val) => Number(val))
+    .optional()
+    .transform((val) => (val === undefined || val.trim() === "" ? undefined : Number(val)))
     .refine(
-      (val) => Number.isInteger(val) && val >= 1900 && val <= new Date().getFullYear() + 1,
+      (val) =>
+        val === undefined ||
+        (Number.isInteger(val) && val >= 1900 && val <= new Date().getFullYear() + 1),
       "Ano inválido.",
     ),
-  currentOdometerKm: requiredNonNegativeInt("a quilometragem atual"),
-  fuelType: z.enum(FUEL_TYPES, { message: "Selecione o combustível." }),
-  transmission: z.enum(TRANSMISSIONS, { message: "Selecione o câmbio." }),
-  purchaseDate: z.string().min(1, "Informe a data de compra."),
-  purchasePrice: requiredNonNegativeNumber("o valor de compra"),
+  currentOdometerKm: optionalNonNegativeInt("a quilometragem atual"),
+  fuelType: optionalEnum(FUEL_TYPES),
+  transmission: optionalEnum(TRANSMISSIONS),
+  purchaseDate: optionalText,
+  purchasePrice: optionalNonNegativeNumber("o valor de compra"),
 
   // "Mais detalhes" — opcionais
   trim: optionalText,

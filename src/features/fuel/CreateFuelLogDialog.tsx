@@ -35,7 +35,7 @@ export function CreateFuelLogDialog({
     setError(null);
     try {
       await createFuelLog.mutateAsync({
-        odometer_km: values.odometerKm,
+        odometer_km: values.odometerKm ?? null,
         liters: values.liters,
         total_amount: values.totalAmount,
         is_full_tank: values.isFullTank,

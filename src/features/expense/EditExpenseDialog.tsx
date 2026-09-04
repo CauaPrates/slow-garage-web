@@ -24,10 +24,10 @@ type EditExpenseDialogProps = {
 
 function toFormDefaults(expense: ExpenseWithAttachment): Partial<ExpenseFormInput> {
   return {
-    categoryId: expense.category_id,
+    categoryId: expense.category_id ?? undefined,
     amount: String(expense.amount),
-    description: expense.description,
-    occurredOn: expense.occurred_on,
+    description: expense.description ?? undefined,
+    occurredOn: expense.occurred_on ?? undefined,
     odometerKm: expense.odometer_km != null ? String(expense.odometer_km) : undefined,
     vendor: expense.vendor ?? undefined,
     paymentMethod: expense.payment_method ?? undefined,
@@ -50,9 +50,9 @@ export function EditExpenseDialog({
     try {
       await updateExpense.mutateAsync({
         id: expense.id,
-        category_id: values.categoryId,
+        category_id: values.categoryId ?? null,
         amount: values.amount,
-        description: values.description,
+        description: values.description ?? null,
         occurred_on: values.occurredOn,
         odometer_km: values.odometerKm ?? null,
         vendor: values.vendor ?? null,

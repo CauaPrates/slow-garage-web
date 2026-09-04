@@ -20,11 +20,14 @@ type EditFinancingDialogProps = {
 
 function toFormDefaults(financing: FinancingRow): Partial<FinancingFormInput> {
   return {
-    financedAmount: String(financing.financed_amount),
-    installmentAmount: String(financing.installment_amount),
-    installmentCount: String(financing.installment_count),
+    financedAmount:
+      financing.financed_amount != null ? String(financing.financed_amount) : undefined,
+    installmentAmount:
+      financing.installment_amount != null ? String(financing.installment_amount) : undefined,
+    installmentCount:
+      financing.installment_count != null ? String(financing.installment_count) : undefined,
     installmentsPaid: String(financing.installments_paid),
-    startedOn: financing.started_on,
+    startedOn: financing.started_on ?? undefined,
     interestRateMonthly:
       financing.interest_rate_monthly != null ? String(financing.interest_rate_monthly) : undefined,
   };
@@ -45,9 +48,9 @@ export function EditFinancingDialog({
     try {
       await updateFinancing.mutateAsync({
         id: financing.id,
-        financed_amount: values.financedAmount,
-        installment_amount: values.installmentAmount,
-        installment_count: values.installmentCount,
+        financed_amount: values.financedAmount ?? null,
+        installment_amount: values.installmentAmount ?? null,
+        installment_count: values.installmentCount ?? null,
         installments_paid: values.installmentsPaid,
         started_on: values.startedOn,
         interest_rate_monthly: values.interestRateMonthly ?? null,

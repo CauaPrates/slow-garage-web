@@ -1,10 +1,5 @@
 import { z } from "zod";
-import {
-  optionalNonNegativeInt,
-  optionalNonNegativeNumber,
-  optionalText,
-  requiredNonNegativeInt,
-} from "@/lib/schemaHelpers";
+import { optionalNonNegativeInt, optionalNonNegativeNumber, optionalText } from "@/lib/schemaHelpers";
 
 export const PRIORITY_LEVELS = ["low", "medium", "high"] as const;
 
@@ -39,8 +34,8 @@ export type MaintenanceItemFormOutput = z.output<typeof maintenanceItemSchema>;
 export const maintenanceRecordSchema = z.object({
   maintenanceItemId: optionalText,
   name: z.string().trim().min(1, "Informe o nome."),
-  odometerKm: requiredNonNegativeInt("a quilometragem"),
-  performedOn: z.string().min(1, "Informe a data."),
+  odometerKm: optionalNonNegativeInt("a quilometragem"),
+  performedOn: optionalText,
   cost: optionalNonNegativeNumber("o custo"),
   vendor: optionalText,
   notes: optionalText,

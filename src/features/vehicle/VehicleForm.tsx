@@ -73,7 +73,7 @@ export function VehicleForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="modelYear">Ano</Label>
+          <Label htmlFor="modelYear">Ano (opcional)</Label>
           <Input
             id="modelYear"
             type="number"
@@ -84,7 +84,7 @@ export function VehicleForm({
           <FieldError>{errors.modelYear?.message}</FieldError>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="currentOdometerKm">Km atual</Label>
+          <Label htmlFor="currentOdometerKm">Km atual (opcional)</Label>
           <Input
             id="currentOdometerKm"
             type="number"
@@ -98,7 +98,7 @@ export function VehicleForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="fuelType">Combustível</Label>
+          <Label htmlFor="fuelType">Combustível (opcional)</Label>
           <Select
             id="fuelType"
             defaultValue=""
@@ -117,7 +117,7 @@ export function VehicleForm({
           <FieldError>{errors.fuelType?.message}</FieldError>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="transmission">Câmbio</Label>
+          <Label htmlFor="transmission">Câmbio (opcional)</Label>
           <Select
             id="transmission"
             defaultValue=""
@@ -139,7 +139,7 @@ export function VehicleForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="purchaseDate">Data de compra</Label>
+          <Label htmlFor="purchaseDate">Data de compra (opcional)</Label>
           <Input
             id="purchaseDate"
             type="date"
@@ -149,7 +149,7 @@ export function VehicleForm({
           <FieldError>{errors.purchaseDate?.message}</FieldError>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="purchasePrice">Valor de compra</Label>
+          <Label htmlFor="purchasePrice">Valor de compra (opcional)</Label>
           <Input
             id="purchasePrice"
             type="number"

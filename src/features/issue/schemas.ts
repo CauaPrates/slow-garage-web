@@ -34,7 +34,7 @@ export const OPEN_ISSUE_STATUSES: readonly string[] = [
 
 export const issueSchema = z.object({
   title: z.string().trim().min(1, "Informe o título."),
-  reportedOn: z.string().min(1, "Informe a data do relato."),
+  reportedOn: optionalText,
   priority: z.enum(PRIORITY_LEVELS),
   status: z.enum(ISSUE_STATUSES),
   description: optionalText,

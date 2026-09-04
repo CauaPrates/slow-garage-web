@@ -21,7 +21,7 @@ type EditFuelLogDialogProps = {
 
 function toFormDefaults(log: FuelLogMetric): Partial<FuelLogFormInput> {
   return {
-    odometerKm: String(log.odometer_km),
+    odometerKm: log.odometer_km != null ? String(log.odometer_km) : undefined,
     liters: String(log.liters),
     totalAmount: String(log.total_amount),
     isFullTank: log.is_full_tank ?? true,
@@ -47,7 +47,7 @@ export function EditFuelLogDialog({
     try {
       await updateFuelLog.mutateAsync({
         id: log.id!,
-        odometer_km: values.odometerKm,
+        odometer_km: values.odometerKm ?? null,
         liters: values.liters,
         total_amount: values.totalAmount,
         is_full_tank: values.isFullTank,

@@ -25,7 +25,7 @@ export function CreateNoteDialog({ vehicleId, open, onOpenChange }: CreateNoteDi
     setError(null);
     try {
       await createNote.mutateAsync({
-        title: values.title,
+        title: values.title ?? null,
         body: values.body ?? null,
         occurred_on: values.occurredOn,
         odometer_km: values.odometerKm ?? null,

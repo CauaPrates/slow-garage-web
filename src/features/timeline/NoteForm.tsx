@@ -32,7 +32,7 @@ export function NoteForm({ defaultValues, onSubmit, submitLabel }: NoteFormProps
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
       <div className="flex flex-col gap-1.5">
-        <Label htmlFor="title">Título</Label>
+        <Label htmlFor="title">Título (opcional)</Label>
         <Input id="title" aria-invalid={!!errors.title} {...register("title")} />
         <FieldError>{errors.title?.message}</FieldError>
       </div>

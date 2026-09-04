@@ -31,7 +31,7 @@ function useInvalidateVehicles() {
 }
 
 type CreateDocumentInput = {
-  docType: DocumentRow["doc_type"];
+  docType: DocumentRow["doc_type"] | undefined;
   title: string;
   expiresOn: string | null;
   issuedOn: string | null;

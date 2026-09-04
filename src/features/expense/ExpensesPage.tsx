@@ -132,7 +132,7 @@ export function ExpensesPage() {
       <CreateExpenseDialog
         vehicleId={vehicle.id}
         categories={categories}
-        defaultOdometerKm={vehicle.current_odometer_km}
+        defaultOdometerKm={vehicle.current_odometer_km ?? undefined}
         open={createOpen}
         onOpenChange={setCreateOpen}
       />

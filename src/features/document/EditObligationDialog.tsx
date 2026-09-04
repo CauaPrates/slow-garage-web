@@ -22,7 +22,7 @@ function toFormDefaults(obligation: ObligationRow): Partial<ObligationFormInput>
   return {
     kind: obligation.kind,
     label: obligation.label,
-    dueOn: obligation.due_on,
+    dueOn: obligation.due_on ?? undefined,
     amount: obligation.amount != null ? String(obligation.amount) : undefined,
     provider: obligation.provider ?? undefined,
     notes: obligation.notes ?? undefined,

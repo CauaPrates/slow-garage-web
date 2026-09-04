@@ -1,21 +1,22 @@
 import { z } from "zod";
 import {
+  optionalEnum,
+  optionalNonNegativeInt,
   optionalText,
-  requiredNonNegativeInt,
   requiredNonNegativeNumber,
 } from "@/lib/schemaHelpers";
 import { FUEL_TYPES } from "@/features/vehicle/schemas";
 
 export const fuelLogSchema = z.object({
   // Obrigatórios visíveis
-  odometerKm: requiredNonNegativeInt("a quilometragem"),
+  odometerKm: optionalNonNegativeInt("a quilometragem"),
   liters: requiredNonNegativeNumber("os litros"),
   totalAmount: requiredNonNegativeNumber("o valor total"),
   isFullTank: z.boolean(),
 
   // "Mais detalhes" — pré-preenchidos, editáveis
-  occurredOn: z.string().min(1, "Informe a data."),
-  fuelType: z.enum(FUEL_TYPES, { message: "Selecione o combustível." }),
+  occurredOn: optionalText,
+  fuelType: optionalEnum(FUEL_TYPES),
   station: optionalText,
   missedPreviousFill: z.boolean(),
   notes: optionalText,

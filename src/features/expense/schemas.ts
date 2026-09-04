@@ -59,10 +59,10 @@ export const EXPENSE_CATEGORY_ICON_BY_SLUG: Record<string, LucideIcon> = {
 export const EXPENSE_CATEGORY_ICON_FALLBACK: LucideIcon = Tag;
 
 export const expenseSchema = z.object({
-  categoryId: z.string().min(1, "Selecione a categoria."),
+  categoryId: optionalText,
   amount: requiredNonNegativeNumber("o valor"),
-  description: z.string().trim().min(1, "Informe a descrição."),
-  occurredOn: z.string().min(1, "Informe a data."),
+  description: optionalText,
+  occurredOn: optionalText,
 
   odometerKm: optionalNonNegativeInt("a quilometragem"),
   vendor: optionalText,

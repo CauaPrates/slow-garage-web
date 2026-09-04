@@ -87,7 +87,7 @@ export type Database = {
         Insert: {
           amount?: number | null
           created_at?: string
-          doc_type: Database["public"]["Enums"]["document_type"]
+          doc_type?: Database["public"]["Enums"]["document_type"]
           expires_on?: string | null
           file_size_bytes: number
           id?: string
@@ -173,9 +173,9 @@ export type Database = {
       expenses: {
         Row: {
           amount: number
-          category_id: string
+          category_id: string | null
           created_at: string
-          description: string
+          description: string | null
           id: string
           notes: string | null
           occurred_on: string
@@ -187,12 +187,12 @@ export type Database = {
         }
         Insert: {
           amount: number
-          category_id: string
+          category_id?: string | null
           created_at?: string
-          description: string
+          description?: string | null
           id?: string
           notes?: string | null
-          occurred_on: string
+          occurred_on?: string
           odometer_km?: number | null
           payment_method?: Database["public"]["Enums"]["payment_method"] | null
           updated_at?: string
@@ -201,9 +201,9 @@ export type Database = {
         }
         Update: {
           amount?: number
-          category_id?: string
+          category_id?: string | null
           created_at?: string
-          description?: string
+          description?: string | null
           id?: string
           notes?: string | null
           occurred_on?: string
@@ -240,10 +240,10 @@ export type Database = {
       financings: {
         Row: {
           created_at: string
-          financed_amount: number
+          financed_amount: number | null
           id: string
-          installment_amount: number
-          installment_count: number
+          installment_amount: number | null
+          installment_count: number | null
           installments_paid: number
           installments_remaining: number | null
           interest_rate_monthly: number | null
@@ -254,24 +254,24 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          financed_amount: number
+          financed_amount?: number | null
           id?: string
-          installment_amount: number
-          installment_count: number
+          installment_amount?: number | null
+          installment_count?: number | null
           installments_paid?: number
           installments_remaining?: number | null
           interest_rate_monthly?: number | null
           outstanding_balance?: number | null
-          started_on: string
+          started_on?: string
           updated_at?: string
           vehicle_id: string
         }
         Update: {
           created_at?: string
-          financed_amount?: number
+          financed_amount?: number | null
           id?: string
-          installment_amount?: number
-          installment_count?: number
+          installment_amount?: number | null
+          installment_count?: number | null
           installments_paid?: number
           installments_remaining?: number | null
           interest_rate_monthly?: number | null
@@ -307,7 +307,7 @@ export type Database = {
           missed_previous_fill: boolean
           notes: string | null
           occurred_on: string
-          odometer_km: number
+          odometer_km: number | null
           price_per_liter: number | null
           station: string | null
           total_amount: number
@@ -316,14 +316,14 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          fuel_type: Database["public"]["Enums"]["fuel_type"]
+          fuel_type?: Database["public"]["Enums"]["fuel_type"]
           id?: string
           is_full_tank?: boolean
           liters: number
           missed_previous_fill?: boolean
           notes?: string | null
-          occurred_on: string
-          odometer_km: number
+          occurred_on?: string
+          odometer_km?: number | null
           price_per_liter?: number | null
           station?: string | null
           total_amount: number
@@ -339,7 +339,7 @@ export type Database = {
           missed_previous_fill?: boolean
           notes?: string | null
           occurred_on?: string
-          odometer_km?: number
+          odometer_km?: number | null
           price_per_liter?: number | null
           station?: string | null
           total_amount?: number
@@ -388,7 +388,7 @@ export type Database = {
           id?: string
           odometer_km?: number | null
           priority?: Database["public"]["Enums"]["priority_level"]
-          reported_on: string
+          reported_on?: string
           resolution?: string | null
           resolved_on?: string | null
           status?: Database["public"]["Enums"]["issue_status"]
@@ -506,7 +506,7 @@ export type Database = {
           maintenance_item_id: string | null
           name: string
           notes: string | null
-          odometer_km: number
+          odometer_km: number | null
           performed_on: string
           updated_at: string
           vehicle_id: string
@@ -519,8 +519,8 @@ export type Database = {
           maintenance_item_id?: string | null
           name: string
           notes?: string | null
-          odometer_km: number
-          performed_on: string
+          odometer_km?: number | null
+          performed_on?: string
           updated_at?: string
           vehicle_id: string
           vendor?: string | null
@@ -532,7 +532,7 @@ export type Database = {
           maintenance_item_id?: string | null
           name?: string
           notes?: string | null
-          odometer_km?: number
+          odometer_km?: number | null
           performed_on?: string
           updated_at?: string
           vehicle_id?: string
@@ -576,7 +576,7 @@ export type Database = {
           id: string
           occurred_on: string
           odometer_km: number | null
-          title: string
+          title: string | null
           updated_at: string
           vehicle_id: string
         }
@@ -584,9 +584,9 @@ export type Database = {
           body?: string | null
           created_at?: string
           id?: string
-          occurred_on: string
+          occurred_on?: string
           odometer_km?: number | null
-          title: string
+          title?: string | null
           updated_at?: string
           vehicle_id: string
         }
@@ -596,7 +596,7 @@ export type Database = {
           id?: string
           occurred_on?: string
           odometer_km?: number | null
-          title?: string
+          title?: string | null
           updated_at?: string
           vehicle_id?: string
         }
@@ -621,7 +621,7 @@ export type Database = {
         Row: {
           amount: number | null
           created_at: string
-          due_on: string
+          due_on: string | null
           id: string
           kind: Database["public"]["Enums"]["obligation_kind"]
           label: string
@@ -634,9 +634,9 @@ export type Database = {
         Insert: {
           amount?: number | null
           created_at?: string
-          due_on: string
+          due_on?: string | null
           id?: string
-          kind: Database["public"]["Enums"]["obligation_kind"]
+          kind?: Database["public"]["Enums"]["obligation_kind"]
           label: string
           notes?: string | null
           paid_on?: string | null
@@ -647,7 +647,7 @@ export type Database = {
         Update: {
           amount?: number | null
           created_at?: string
-          due_on?: string
+          due_on?: string | null
           id?: string
           kind?: Database["public"]["Enums"]["obligation_kind"]
           label?: string
@@ -864,7 +864,7 @@ export type Database = {
         }
         Insert: {
           caption?: string | null
-          category: Database["public"]["Enums"]["vehicle_photo_category"]
+          category?: Database["public"]["Enums"]["vehicle_photo_category"]
           created_at?: string
           id?: string
           sort_order?: number
@@ -906,7 +906,7 @@ export type Database = {
           archived_at: string | null
           color: string | null
           created_at: string
-          current_odometer_km: number
+          current_odometer_km: number | null
           engine_description: string | null
           engine_displacement_cc: number | null
           estimated_current_value: number | null
@@ -915,12 +915,12 @@ export type Database = {
           id: string
           make: string
           model: string
-          model_year: number
+          model_year: number | null
           notes: string | null
           plate: string | null
           primary_photo_id: string | null
-          purchase_date: string
-          purchase_price: number
+          purchase_date: string | null
+          purchase_price: number | null
           status: Database["public"]["Enums"]["vehicle_status"]
           torque_nm: number | null
           transmission: Database["public"]["Enums"]["transmission"]
@@ -932,24 +932,24 @@ export type Database = {
           archived_at?: string | null
           color?: string | null
           created_at?: string
-          current_odometer_km: number
+          current_odometer_km?: number | null
           engine_description?: string | null
           engine_displacement_cc?: number | null
           estimated_current_value?: number | null
-          fuel_type: Database["public"]["Enums"]["fuel_type"]
+          fuel_type?: Database["public"]["Enums"]["fuel_type"]
           horsepower?: number | null
           id?: string
           make: string
           model: string
-          model_year: number
+          model_year?: number | null
           notes?: string | null
           plate?: string | null
           primary_photo_id?: string | null
-          purchase_date: string
-          purchase_price: number
+          purchase_date?: string | null
+          purchase_price?: number | null
           status?: Database["public"]["Enums"]["vehicle_status"]
           torque_nm?: number | null
-          transmission: Database["public"]["Enums"]["transmission"]
+          transmission?: Database["public"]["Enums"]["transmission"]
           trim?: string | null
           updated_at?: string
           user_id: string
@@ -958,7 +958,7 @@ export type Database = {
           archived_at?: string | null
           color?: string | null
           created_at?: string
-          current_odometer_km?: number
+          current_odometer_km?: number | null
           engine_description?: string | null
           engine_displacement_cc?: number | null
           estimated_current_value?: number | null
@@ -967,12 +967,12 @@ export type Database = {
           id?: string
           make?: string
           model?: string
-          model_year?: number
+          model_year?: number | null
           notes?: string | null
           plate?: string | null
           primary_photo_id?: string | null
-          purchase_date?: string
-          purchase_price?: number
+          purchase_date?: string | null
+          purchase_price?: number | null
           status?: Database["public"]["Enums"]["vehicle_status"]
           torque_nm?: number | null
           transmission?: Database["public"]["Enums"]["transmission"]
@@ -1292,12 +1292,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1321,11 +1321,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1346,11 +1346,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1371,11 +1371,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1388,11 +1388,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }

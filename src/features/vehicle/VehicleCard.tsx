@@ -56,7 +56,7 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
             <div>
               <dt className="text-text-secondary">Km</dt>
               <dd className="text-text-primary">
-                {formatKm(vehicle.current_odometer_km)}
+                {vehicle.current_odometer_km != null ? formatKm(vehicle.current_odometer_km) : "—"}
               </dd>
             </div>
             <div>

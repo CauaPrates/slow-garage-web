@@ -42,7 +42,7 @@ export function CreateMaintenanceRecordDialog({
       await createRecord.mutateAsync({
         maintenance_item_id: values.maintenanceItemId ?? null,
         name: values.name,
-        odometer_km: values.odometerKm,
+        odometer_km: values.odometerKm ?? null,
         performed_on: values.performedOn,
         cost: values.cost ?? null,
         vendor: values.vendor ?? null,
