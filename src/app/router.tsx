@@ -1,24 +1,27 @@
+import { lazy, Suspense, type ComponentType } from "react";
 import { createBrowserRouter } from "react-router-dom";
 import { AppShell } from "@/components/layout/AppShell";
 import { ProtectedRoute } from "@/components/shared/ProtectedRoute";
 import { GuestRoute } from "@/components/shared/GuestRoute";
+import { RouteFallback } from "@/components/shared/RouteFallback";
 import { ROUTES } from "@/lib/routes";
-import { SignUpPage } from "@/features/auth/SignUpPage";
-import { SignInPage } from "@/features/auth/SignInPage";
-import { ConfirmEmailPendingPage } from "@/features/auth/ConfirmEmailPendingPage";
-import { RequestPasswordResetPage } from "@/features/auth/RequestPasswordResetPage";
-import { UpdatePasswordPage } from "@/features/auth/UpdatePasswordPage";
-import { SettingsPage } from "@/features/auth/SettingsPage";
-import { VehicleListPage } from "@/features/vehicle/VehicleListPage";
-import { VehiclePage } from "@/features/vehicle/VehiclePage";
-import { ExpensesPage } from "@/features/expense/ExpensesPage";
-import { FuelLogsPage } from "@/features/fuel/FuelLogsPage";
-import { MaintenancePage } from "@/features/maintenance/MaintenancePage";
-import { IssuesPage } from "@/features/issue/IssuesPage";
-import { ProjectsPage } from "@/features/project/ProjectsPage";
-import { ProjectDetailPage } from "@/features/project/ProjectDetailPage";
-import { DocumentsPage } from "@/features/document/DocumentsPage";
-import { TimelinePage } from "@/features/timeline/TimelinePage";
+
+/**
+ * Cada página vira o próprio chunk JS, baixado só quando a rota é
+ * visitada — antes desta fase, tudo (login, timeline, gráficos,
+ * documentos...) ia num punhado de chunks grandes carregados de uma vez
+ * só, mesmo pra quem só queria fazer login (Fase 10, medido com
+ * Lighthouse: ~198KiB de JS sem uso na tela de login, a maior parte do
+ * atraso de LCP era tempo de execução desse JS que a tela nem usa).
+ */
+function lazyPage(loader: () => Promise<Record<string, ComponentType>>, name: string) {
+  const Component = lazy(async () => ({ default: (await loader())[name] }));
+  return (
+    <Suspense fallback={<RouteFallback />}>
+      <Component />
+    </Suspense>
+  );
+}
 
 export const router = createBrowserRouter([
   {
@@ -30,47 +33,47 @@ export const router = createBrowserRouter([
         children: [
           {
             index: true,
-            element: <VehicleListPage />,
+            element: lazyPage(() => import("@/features/vehicle/VehicleListPage"), "VehicleListPage"),
           },
           {
             path: "configuracoes",
-            element: <SettingsPage />,
+            element: lazyPage(() => import("@/features/auth/SettingsPage"), "SettingsPage"),
           },
           {
             path: "v/:vehicleId",
-            element: <VehiclePage />,
+            element: lazyPage(() => import("@/features/vehicle/VehiclePage"), "VehiclePage"),
           },
           {
             path: "v/:vehicleId/gastos",
-            element: <ExpensesPage />,
+            element: lazyPage(() => import("@/features/expense/ExpensesPage"), "ExpensesPage"),
           },
           {
             path: "v/:vehicleId/abastecimentos",
-            element: <FuelLogsPage />,
+            element: lazyPage(() => import("@/features/fuel/FuelLogsPage"), "FuelLogsPage"),
           },
           {
             path: "v/:vehicleId/manutencao",
-            element: <MaintenancePage />,
+            element: lazyPage(() => import("@/features/maintenance/MaintenancePage"), "MaintenancePage"),
           },
           {
             path: "v/:vehicleId/problemas",
-            element: <IssuesPage />,
+            element: lazyPage(() => import("@/features/issue/IssuesPage"), "IssuesPage"),
           },
           {
             path: "v/:vehicleId/projetos",
-            element: <ProjectsPage />,
+            element: lazyPage(() => import("@/features/project/ProjectsPage"), "ProjectsPage"),
           },
           {
             path: "v/:vehicleId/projetos/:projectId",
-            element: <ProjectDetailPage />,
+            element: lazyPage(() => import("@/features/project/ProjectDetailPage"), "ProjectDetailPage"),
           },
           {
             path: "v/:vehicleId/documentos",
-            element: <DocumentsPage />,
+            element: lazyPage(() => import("@/features/document/DocumentsPage"), "DocumentsPage"),
           },
           {
             path: "v/:vehicleId/historico",
-            element: <TimelinePage />,
+            element: lazyPage(() => import("@/features/timeline/TimelinePage"), "TimelinePage"),
           },
         ],
       },
@@ -79,11 +82,23 @@ export const router = createBrowserRouter([
   {
     element: <GuestRoute />,
     children: [
-      { path: ROUTES.entrar, element: <SignInPage /> },
-      { path: ROUTES.cadastro, element: <SignUpPage /> },
-      { path: ROUTES.recuperarSenha, element: <RequestPasswordResetPage /> },
+      { path: ROUTES.entrar, element: lazyPage(() => import("@/features/auth/SignInPage"), "SignInPage") },
+      { path: ROUTES.cadastro, element: lazyPage(() => import("@/features/auth/SignUpPage"), "SignUpPage") },
+      {
+        path: ROUTES.recuperarSenha,
+        element: lazyPage(
+          () => import("@/features/auth/RequestPasswordResetPage"),
+          "RequestPasswordResetPage",
+        ),
+      },
     ],
   },
-  { path: ROUTES.confirmeEmail, element: <ConfirmEmailPendingPage /> },
-  { path: ROUTES.redefinirSenha, element: <UpdatePasswordPage /> },
+  {
+    path: ROUTES.confirmeEmail,
+    element: lazyPage(() => import("@/features/auth/ConfirmEmailPendingPage"), "ConfirmEmailPendingPage"),
+  },
+  {
+    path: ROUTES.redefinirSenha,
+    element: lazyPage(() => import("@/features/auth/UpdatePasswordPage"), "UpdatePasswordPage"),
+  },
 ]);

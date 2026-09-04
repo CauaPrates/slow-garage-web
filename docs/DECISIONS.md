@@ -601,3 +601,97 @@ destino, sem rota nova. Mesmo raciocínio pra "Histórico"/"Dados": os
 dois eram o mesmo conceito com rótulo diferente por espaço (sidebar
 tem largura pra "Histórico", bottom nav não), então os dois passam a
 apontar pra `ROUTES.vehicleTimeline`.
+
+## ADR-043 — `--color-error`/`--color-warning` (e `--color-success` no modo claro) reajustados em lightness pra fechar contraste 4.5:1 (Fase 10)
+
+A varredura de acessibilidade desta fase (`scripts/audit-all-routes.mjs`,
+axe-core em toda rota × 4 breakpoints) achou `color-contrast` `serious`
+em badges de status (`border-X/40 bg-X/10 text-X` — usado em
+`IssueListItem`, `MaintenanceItemCard`, `AlertBanner`,
+`ProjectsPage`). O texto sozinho já vinha marginal contra a superfície
+pura, e a mistura de 10% da própria cor no fundo do badge empurrava
+pra baixo de 4.5:1 nos dois temas — não era um problema de um
+componente só, era o valor do token.
+
+Calculado (não estimado) quanto cada cor precisava mudar em
+*lightness* (HSL, mantendo matiz e saturação) pra passar 4.5:1 **tanto**
+contra a superfície pura **quanto** contra o próprio fundo `/10` tintado,
+nos dois modos:
+
+| Token | Antes | Depois | Contraste antes (puro / tint 10%) | Depois |
+|---|---|---|---|---|
+| `--color-error` (dark) | `#c1503c` | `#cf7666` | 3.62 / 3.29 | 5.19 / 4.54 |
+| `--color-warning` (dark) | `#cb6b2c` | `#d47538` | 4.59 / 4.07 | 5.18 / 4.54 |
+| `--color-warning` (light) | `#a3591e` | `#9d551d` | 4.90 / 4.30 | 5.23 / 4.57 |
+| `--color-success` (light) | `#4f7a3a` | `#4b7337` | 4.70 / 4.15 | 5.16 / 4.53 |
+
+`--color-success` (dark) e `--color-error` (light) já passavam (5.72/4.94
+e 6.38/5.49 respectivamente) — não tocados. Reverificado com o mesmo
+script de varredura depois do ajuste: 72/72 rota×viewport sem nenhuma
+violação `serious`/`critical`, screenshot conferido visualmente pra
+confirmar que a mudança (4-11% de lightness) não descaracteriza a
+identidade visual "Slow Car Club" — continua lendo como o mesmo laranja-
+avermelhado quente, só um pouco mais claro/escuro conforme o modo.
+
+`--color-error` também é usado no variant `destructive` de `Button`
+(`bg-error text-accent-foreground`), mas esse variant nunca é
+efetivamente usado em nenhuma tela do app (confirmado por busca) — o
+ajuste não tem efeito visual observável ali.
+
+Também removido `opacity-90` da legenda de data do `AlertBanner`
+(`Venceu em ...`), que empilhava uma segunda redução de contraste em
+cima da cor já ajustada, sem nenhum ganho visual documentado — só
+reduzia legibilidade.
+
+## ADR-044 — Rotas de página convertidas para `React.lazy` (Fase 10)
+
+Lighthouse (mobile, throttled) contra o build de produção apontou
+"Reduce unused JavaScript — Est. savings of 198 KiB" na tela de login,
+que antes desta fase importava estaticamente todas as ~13 páginas do
+app (`router.tsx` importava `VehicleListPage`, `TimelinePage`,
+`DocumentsPage` etc. todas no topo) — o bundler agrupava tudo isso nos
+mesmos poucos chunks grandes (`router-*.js` chegava a 430KB/106KB
+gzip), mesmo pra quem só ia fazer login.
+
+Cada rota agora é `React.lazy(() => import(...))`, envolvida no próprio
+`<Suspense fallback={<RouteFallback />}>` — `router.tsx` ganhou o
+helper `lazyPage()` pra não repetir o par lazy+Suspense 13 vezes.
+Resultado medido: bundle de login caiu de ~430KB (chunk compartilhado)
+pra ~2KB de chunk próprio; "unused JavaScript" da tela de login caiu de
+198KiB pra 95KiB; Total Blocking Time caiu de 60ms pra 0ms. A pontuação
+de Performance do Lighthouse (mobile, throttled) não mudou (88, antes e
+depois) e o LCP continua ~3.5s nesse cenário — medido e confirmado que
+o gargalo restante é outra coisa (ver próximo ADR), não o tamanho do
+bundle, que já foi endereçado.
+
+`AppShell`, `ProtectedRoute` e `GuestRoute` continuam com import
+estático — são pequenos, usados por toda rota autenticada, e carregá-
+los sob demanda só adicionaria uma segunda camada de Suspense sem
+ganho real.
+
+## ADR-045 — LCP de ~3.5s em rede móvel simulada é dominado pela checagem de sessão, não pelo bundle — registrado, não "corrigido" (Fase 10)
+
+Depois do code-splitting da ADR-044, o Lighthouse (mobile, throttled)
+continuou reportando LCP ~3.5s pra tela de login, com 87% desse tempo
+na fase "Render Delay" (tempo entre recurso pronto e o elemento LCP
+pintar). Investigado: `AuthProvider` mantém `status: "loading"` até
+`supabase.auth.getSession()` resolver, e `GuestRoute` só renderiza a
+tela de login depois disso — então o wordmark "Slow Garage" (elemento
+de LCP) só pinta depois de: JS do provider carregar → efeito do
+`AuthProvider` disparar → `getSession()` resolver → `GuestRoute`
+trocar pra `<Outlet />` → chunk da `SignInPage` baixar e renderizar.
+Em rede lenta simulada (4G lento + CPU 4x mais devagar, o preset padrão
+do Lighthouse), essa cadeia sequencial de passos assíncronos é o que
+domina o tempo, não o peso do JavaScript.
+
+Não "corrigido" nesta fase porque a correção óbvia (renderizar o
+formulário de login otimisticamente antes de saber se o usuário já
+está autenticado) troca um problema de performance por um problema de
+UX pior: um usuário já logado veria a tela de login piscar antes do
+redirecionamento — pior do que esperar meio segundo a mais. É uma
+troca de arquitetura (SSR resolveria, mas está fora do escopo de uma
+SPA estática hospedada na Vercel), não um bug de implementação.
+Registrado aqui pra não fingir um número perfeito: 88/100 Performance
+(mobile, throttled) e 100/100 no preset desktop são os números reais
+medidos contra o build de produção local — não estimados, e o
+gargalo restante está nomeado, não escondido.
