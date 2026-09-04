@@ -227,6 +227,21 @@ portanto já é CSS variable):
   lupa à esquerda e "limpar" à direita quando há texto; enquanto ativa,
   substitui a lista inteira (filtro incluso) em vez de conviver ao lado
   — evita a pergunta "o resultado já está filtrado ou não?"
+- Rótulo de campo opcional (Fase 11, `schema-freedom`): sufixo textual
+  `"(opcional)"` direto no `<Label>` (ex.: "Ano (opcional)",
+  "Vencimento (opcional)") — continua sendo o único sinalizador de
+  opcionalidade do app (nenhum formulário usa `required` nativo nem
+  asterisco, convenção desde a Fase 2); a diferença desta fase é
+  aplicar o mesmo texto, já usado isoladamente em 2 campos antes, de
+  forma sistemática em todo campo que deixou de ser obrigatório
+- `<select>` com opção "nada selecionado" reselecionável (Fase 11,
+  `ExpenseForm`): quando o valor vazio é um estado final válido (ex.:
+  gasto sem categoria), a opção correspondente do `<select>` fica
+  **habilitada** e com rótulo explícito ("Sem categoria" em vez de um
+  placeholder tipo "Selecione") — diferente do padrão de campo com
+  *default* no banco (combustível, câmbio, tipo de documento), onde a
+  opção vazia pode continuar `disabled` porque o campo nunca fica
+  genuinamente vazio pro usuário
 
 ## Hierarquia
 
