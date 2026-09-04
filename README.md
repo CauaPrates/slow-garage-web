@@ -113,7 +113,7 @@ src/
 ├── lib/                   # supabase client, format.ts, period.ts, navigation.ts, routes.ts...
 ├── types/
 │   └── database.types.ts  # generated — never hand-written, never allowed to drift
-└── styles/                # tokens.css (Slow Car Club palette), globals.css (Tailwind v4 @theme)
+└── styles/                # tokens.css (paleta "Rolê Noturno"), globals.css (Tailwind v4 @theme)
 ```
 
 Each `features/<area>/` folder mixes data hooks, zod schemas, and the page/dialog components for that area — there is no separate `routes/` tree; routing lives entirely in `src/app/router.tsx` and `src/lib/routes.ts`.
@@ -145,7 +145,7 @@ The **Adicionar** button is visually prominent and opens a quick-action sheet: G
 
 ## Design
 
-Dark-first ("Slow Car Club": warm near-black `#16140F` + gold accent `#D9A441`), light mode fully supported and equally maintained. Full rationale, token values, and every rejected alternative are in `docs/DESIGN.md`; every non-obvious technical or product decision is in `docs/DECISIONS.md` (ADR-001 through the latest).
+Dark-first, JDM/tuner-at-night ("Rolê Noturno": asphalt near-black `#121316` + street-light amber accent `#FF8A1E`), light mode fully supported and equally maintained. Full rationale, token values, and every rejected alternative are in `docs/DESIGN.md`; every non-obvious technical or product decision is in `docs/DECISIONS.md` (ADR-001 through the latest).
 
 - No admin-dashboard look — cards, badges, hand-built charts, timeline, icons
 - No horizontal overflow at any width, verified down to 320px on every screen

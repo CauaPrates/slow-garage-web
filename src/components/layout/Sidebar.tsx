@@ -5,19 +5,28 @@ import {
   DISABLED_REASON_LABEL,
   SIDEBAR_NAV_ITEMS,
   resolveNavItem,
+  type DisabledReason,
 } from "@/lib/navigation";
 
 export function Sidebar() {
   const vehicleId = useCurrentVehicleId();
+  const resolvedItems = SIDEBAR_NAV_ITEMS.map((item) => ({
+    item,
+    resolved: resolveNavItem(item, vehicleId),
+  }));
+  const disabledReasons = new Set(
+    resolvedItems
+      .map(({ resolved }) => (resolved.enabled ? null : resolved.reason))
+      .filter((reason): reason is DisabledReason => reason !== null),
+  );
 
   return (
     <nav
       aria-label="Navegação principal"
       className="hidden w-56 shrink-0 flex-col gap-1 border-r border-border bg-surface p-3 lg:flex"
     >
-      {SIDEBAR_NAV_ITEMS.map((item) => {
+      {resolvedItems.map(({ item, resolved }) => {
         const Icon = item.icon;
-        const resolved = resolveNavItem(item, vehicleId);
 
         if (!resolved.enabled) {
           return (
@@ -25,14 +34,12 @@ export function Sidebar() {
               key={item.label}
               type="button"
               aria-disabled="true"
+              aria-label={`${item.label} — ${DISABLED_REASON_LABEL[resolved.reason]}`}
               onClick={(event) => event.preventDefault()}
-              className="flex items-center justify-between gap-2 rounded-md px-3 py-2 text-sm text-text-secondary opacity-50 cursor-not-allowed"
+              className="flex items-center gap-2 rounded-md px-3 py-2 text-sm text-text-secondary opacity-50 cursor-not-allowed"
             >
-              <span className="flex items-center gap-2">
-                <Icon className="h-4 w-4" aria-hidden="true" />
-                {item.label}
-              </span>
-              <span className="text-xs">{DISABLED_REASON_LABEL[resolved.reason]}</span>
+              <Icon className="h-4 w-4" aria-hidden="true" />
+              {item.label}
             </button>
           );
         }
@@ -54,6 +61,13 @@ export function Sidebar() {
           </NavLink>
         );
       })}
+
+      {/* Motivo mostrado uma vez só, não repetido por item desabilitado — ver ADR sobre a correção do menu. */}
+      {disabledReasons.size > 0 && (
+        <p className="mt-2 border-t border-border px-3 pt-3 text-xs text-text-secondary">
+          {[...disabledReasons].map((reason) => DISABLED_REASON_LABEL[reason]).join(" · ")}
+        </p>
+      )}
     </nav>
   );
 }
