@@ -46,7 +46,7 @@ export function EditObligationDialog({
         id: obligation.id,
         kind: values.kind,
         label: values.label,
-        due_on: values.dueOn,
+        due_on: values.dueOn ?? null,
         amount: values.amount ?? null,
         provider: values.provider ?? null,
         notes: values.notes ?? null,
