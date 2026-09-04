@@ -695,3 +695,76 @@ Registrado aqui pra não fingir um número perfeito: 88/100 Performance
 (mobile, throttled) e 100/100 no preset desktop são os números reais
 medidos contra o build de produção local — não estimados, e o
 gargalo restante está nomeado, não escondido.
+
+## ADR-046 — Revisão de identidade visual: "Slow Car Club" (dourado) substituída por "Rolê Noturno" (âmbar/asfalto, JDM)
+
+Depois do roadmap de 10 fases fechado, o usuário viu o produto construído
+de ponta a ponta e rejeitou a identidade visual da Fase 0: "não gostei de
+praticamente nada... n ta nada gearhead", junto com um bug real apontado
+na mesma mensagem — a sidebar repetia "Selecione um veículo" 8 vezes,
+quebrando em 3 linhas por item, sempre que nenhum veículo estava
+selecionado (o estado mais comum de entrada no app: `/` antes de escolher
+um carro).
+
+**Bug corrigido primeiro, independente da decisão de cor** —
+`src/components/layout/Sidebar.tsx`: motivo de item desabilitado deixou
+de aparecer repetido por linha (`aria-hidden`, cada botão ganhou
+`aria-label` completo pra leitor de tela) e passou a aparecer uma vez só,
+como nota de rodapé da navegação, listando os motivos distintos presentes
+(hoje só existe um: `no-vehicle` — `not-built`/"Em breve" é código morto,
+nenhum item usa `to: null` desde a Fase 9, mas o suporte ficou porque
+remover o tipo é um refactor separado, não pedido).
+
+**Processo da mudança de cor** — usada a skill `frontend-design` do
+projeto, que exige propor o sistema em duas rodadas de pergunta antes de
+tocar em token (decisão mais irreversível do projeto). Perguntado, em
+ordem: (1) qual das 4 referências de cultura automotiva — subúrbio
+rebaixado brasileiro, hot-rod americano clássico, JDM/tuner noturno, ou
+oficina utilitária raiz — o usuário escolheu **JDM/tuner noturno**; (2)
+dentro disso, qual cor de acento — âmbar de poste de rua, vermelho de
+lanterna, azul/roxo elétrico (o default mais comum de UI gerada por IA
+hoje), ou branco de ponteiro — o usuário escolheu **âmbar**, explicitamente
+pra fugir do default azul/ciano.
+
+Ao revisar `5348.png` (a logo, nunca trocada) de perto pra fazer a
+composição dos ícones, confirmado que ela já era um adesivo de carro
+japonês genuíno desde a Fase 0 — "SLOW" em lettering de decalque
+desgastado, katakana "カークラブ" (car club), bandeira quadriculada,
+brilho. A Fase 0 tinha a logo certa e vestiu ela com dourado clássico
+americano em vez do idioma visual que a própria logo já falava — a
+revisão realinha a paleta com o que o adesivo sempre foi, sem redesenhar
+a marca.
+
+**Tokens finais** (`src/styles/tokens.css`) — todo par calculado contra
+`--color-bg` **e** `--color-surface` simultaneamente (não só um dos dois,
+lição da Fase 10) com margem de segurança acima do mínimo 4.5:1, porque a
+primeira rodada de valores (calculados só contra `surface`) passou no meu
+cálculo mas falhou no axe-core real pra `--color-error` nos dois temas —
+o contexto real (`AlertBanner` sobre `--color-bg`, badge sobre
+`--color-surface`) exige os dois:
+
+| Token | Dark | Light |
+|---|---|---|
+| `--color-bg` | `#121316` | `#EDEBE6` |
+| `--color-surface` | `#1B1D21` | `#F5F3EF` |
+| `--color-accent` | `#FF8A1E` | `#974D00` |
+| `--color-error` | `#EA665A` | `#AA372A` |
+| `--color-warning` | `#E0B238` | `#7C5B10` |
+| `--color-success` | `#5FAE6B` | `#386B41` |
+
+Reverificado com varredura completa (axe-core + overflow) em 16 rotas × 2
+temas × 2 breakpoints = 64 combinações: **64/64 sem achado** na versão
+final. Paleta categórica de gráfico (8 slots, Fase 9/ADR-039) revalidada
+contra as novas superfícies com `validate_palette.js` — passou sem ajuste,
+não precisou mudar.
+
+**Tipografia hero** trocada de `Permanent Marker` (cursiva, estilo
+graffiti) pra `Rajdhani` 700 (condensada, geométrica, maiúscula com
+tracking largo — mais "decalque de painel" que "sticker de skate"),
+continua restrita ao wordmark de `/entrar`/`/cadastro`, único ponto —
+`docs/DESIGN.md` tem o racional completo, incluindo o que foi cotado e
+recusado (azul/roxo elétrico como acento, por ser o default mais comum).
+
+**Ícones do PWA** regerados (`npm run icons`) com o novo fundo
+(`scripts/generate-icons.mjs`, `BG`); `manifest.webmanifest` e o
+`<meta name="theme-color">` de `index.html` atualizados pro mesmo hex.

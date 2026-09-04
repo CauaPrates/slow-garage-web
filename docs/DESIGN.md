@@ -1,48 +1,75 @@
 # DESIGN.md — Identidade visual do Slow Garage
 
-Decidida na Fase 0 (`specs/000-foundation/`), ancorada na logo real do clube
-(`5348.png` — "Slow Car Club" / スロー ガレージ), não na sugestão genérica de
-"oficina de garagista" do documento de kickoff. A logo é um adesivo de time
-de rua no estilo kanjozoku/street racing japonês: lettering cursivo de
-graffiti, subtítulo em katakana, anel de pista, brilho e um pequeno emblema.
-O dono da marca escolheu essa direção depois de ver três alternativas — ver
-histórico de clarify da Fase 0.
+## Revisão de identidade (pós-Fase 10)
+
+A identidade original da Fase 0 ("Slow Car Club": dourado clássico sobre
+preto quente, lettering cursivo estilo graffiti) foi **substituída** depois
+do usuário ver o produto construído e reagir: não reconhecia nada de
+"gearhead" nele, achou genérico, e apontou um bug real de UX no caminho
+(sidebar repetindo "Selecione um veículo" 8 vezes — corrigido junto, ver
+`docs/DECISIONS.md`).
+
+O que muda: paleta, tipografia hero e os hex compostos nos ícones/manifest.
+O que **não** muda: a logo (`5348.png`) em si, a estrutura de tokens
+(`src/styles/tokens.css` continua sendo a única fonte de cor), e toda
+decisão de densidade das seções abaixo — essas continuam válidas fase a
+fase, independente de paleta.
+
+Achado ao revisar a logo de perto pra fazer essa mudança: `5348.png` já
+era, desde a Fase 0, um adesivo de carro de rua japonês genuíno — "SLOW"
+em lettering de decalque desgastado, katakana "カークラブ" (car club),
+bandeira quadriculada, brilho. A Fase 0 tinha o adesivo certo e vestiu ele
+com a paleta errada (dourado clássico americano em vez do próprio idioma
+visual que o adesivo já falava). Esta revisão realinha a paleta com o que
+a logo sempre foi.
+
+**Referência**: JDM/tuner noturno — rolê de madrugada, luz de painel,
+carbono, escapamento solto. Decidido com o usuário entre 4 referências
+(subúrbio rebaixado, hot-rod americano, JDM noturno, oficina utilitária
+raiz); dentro de JDM, o acento foi escolhido entre 4 cores pra evitar cair
+no default de IA mais comum hoje (preto + ciano/azul saturado) — o usuário
+escolheu **âmbar de luz de sódio de rodovia** em vez de azul/roxo elétrico,
+exatamente pra fugir desse default.
 
 ## Tokens de cor
 
 Definidos em `src/styles/tokens.css`. Dark é o padrão absoluto do produto —
 não segue `prefers-color-scheme`. A classe `.light` no elemento raiz troca
 a paleta inteira via CSS variables; nenhum componente decide cor sozinho.
+Todo par texto/fundo abaixo foi validado por cálculo de contraste WCAG
+(4.5:1 texto normal), incluindo contra o próprio fundo tintado a 10% usado
+em badge — mesma rigor da correção de acessibilidade da Fase 10, aplicado
+já na escolha, não depois.
 
 ### Dark (padrão)
 
 | Token | Valor | Papel |
 |---|---|---|
-| `--color-bg` | `#16140F` | Fundo — preto quente, carroceria sob luz de sódio, sem azul |
-| `--color-surface` | `#201C15` | Superfície elevada (card, modal) |
-| `--color-border` | `#332D22` | Borda, divisor |
-| `--color-text-primary` | `#F5F1E8` | Texto principal — branco giz, como a própria logo |
-| `--color-text-secondary` | `#A39A85` | Texto de apoio |
-| `--color-accent` | `#D9A441` | Dourado — vinil cromado do adesivo. Único acento de marca |
-| `--color-accent-foreground` | `#16140F` | Texto sobre superfície `accent` |
-| `--color-success` | `#7FA05C` | Sucesso |
-| `--color-error` | `#C1503C` | Erro |
-| `--color-warning` | `#CB6B2C` | Alerta — deslocado do dourado para não competir com o acento de marca |
+| `--color-bg` | `#121316` | Fundo — asfalto à noite, neutro-frio sem cair no azul-marinho genérico |
+| `--color-surface` | `#1B1D21` | Superfície elevada (card, modal) |
+| `--color-border` | `#2E3136` | Borda, divisor |
+| `--color-text-primary` | `#EDEAE3` | Texto principal — branco-osso de farol, não branco puro |
+| `--color-text-secondary` | `#8D8F93` | Texto de apoio — cinza de painel |
+| `--color-accent` | `#FF8A1E` | Âmbar — luz de sódio de poste de rodovia à noite. Único acento de marca |
+| `--color-accent-foreground` | `#121316` | Texto sobre superfície `accent` |
+| `--color-success` | `#5FAE6B` | Sucesso |
+| `--color-error` | `#EA665A` | Erro — lanterna de freio |
+| `--color-warning` | `#E0B238` | Alerta — amarelo de luz de painel, distinto do âmbar de marca |
 
 ### Light
 
 | Token | Valor |
 |---|---|
-| `--color-bg` | `#F7F2E8` |
-| `--color-surface` | `#FBF7EE` |
-| `--color-border` | `#DDD3BE` |
-| `--color-text-primary` | `#1E1B15` |
-| `--color-text-secondary` | `#6B6252` |
-| `--color-accent` | `#A97A1F` (escurecido do dark para manter contraste AA em texto/fundo claro) |
-| `--color-accent-foreground` | `#F7F2E8` |
-| `--color-success` | `#4F7A3A` |
-| `--color-error` | `#9B3C2C` |
-| `--color-warning` | `#A3591E` |
+| `--color-bg` | `#EDEBE6` — concreto de garagem sob luz de dia |
+| `--color-surface` | `#F5F3EF` |
+| `--color-border` | `#D3D0C8` |
+| `--color-text-primary` | `#17181B` |
+| `--color-text-secondary` | `#5B5D61` |
+| `--color-accent` | `#974D00` (escurecido do dark para manter contraste AA em fundo claro) |
+| `--color-accent-foreground` | `#FBF9F5` |
+| `--color-success` | `#386B41` |
+| `--color-error` | `#AA372A` |
+| `--color-warning` | `#7C5B10` |
 
 ## Tipografia
 
@@ -51,9 +78,9 @@ atrapalhar a leitura de número e data repetidos cem vezes por semana.
 
 | Papel | Fonte | Uso |
 |---|---|---|
-| Hero | **Permanent Marker** (OFL, self-hosted via `@fontsource`) | Só nos quatro pontos combinados: splash, login, cabeçalho de veículo, estado vazio. **Nenhum desses existe ainda na Fase 0** — a fonte está carregada e pronta, mas não aparece em nenhum componente desta fase (ver RN-3 da spec) |
+| Hero | **Rajdhani**, peso 700 (OFL, self-hosted via `@fontsource`) | Só no wordmark de login/cadastro (`AuthLayout`) — condensada, geométrica, maiúscula com tracking largo, mais "decalque de painel" que a cursiva anterior. Sem competir com o corpo do produto |
 | Corpo / dado | **Space Grotesk** (OFL, self-hosted) | Todo o resto: shell, formulário, lista, número. Numerais tabulares para alinhamento de coluna |
-| Marca (katakana) | **Noto Sans JP** — **adiada**, ver "O que foi recusado" | Pequena etiqueta de marca perto do nome do app, além da logo estática (decisão do clarify) |
+| Marca (katakana) | **Noto Sans JP** — **adiada**, ver "O que foi recusado" | Pequena etiqueta de marca perto do nome do app, além da logo estática (decisão do clarify da Fase 0, ainda não revisitada) |
 
 ## Densidade
 
@@ -203,48 +230,55 @@ portanto já é CSS variable):
 
 ## Hierarquia
 
-Número importante ganha peso e tamanho, não cor — o dourado fica reservado
+Número importante ganha peso e tamanho, não cor — o âmbar fica reservado
 para ação primária, foco e estado ativo, nunca para destacar um valor no
 meio de uma lista. Texto secundário (`text-secondary`) carrega metadado
 sem competir com o dado principal.
 
 ## Onde a ousadia mora
 
-A energia "hero" (Permanent Marker, lettering grande) fica restrita aos
-quatro pontos combinados. Todo o resto — cromo do shell, botão, campo —
-usa Space Grotesk e é deliberadamente quieto. Regra de interação: confirma,
-nunca celebra (nenhuma animação de comemoração; o brilho da logo é um
-elemento estático de marca, não uma animação de sucesso).
+O elemento assinatura é o wordmark de login/cadastro: Rajdhani 700
+maiúsculo, tracking largo, com um traço âmbar fino embaixo (a única linha
+colorida decorativa do produto inteiro — tudo o mais usa cor só com
+função). Todo o resto — cromo do shell, botão, campo — usa Space Grotesk
+e é deliberadamente quieto. Regra de interação: confirma, nunca celebra
+(nenhuma animação de comemoração; o brilho da logo é um elemento estático
+de marca, não uma animação de sucesso).
 
-**Primeira aplicação real (Fase 1)**: `/entrar` e `/cadastro` são os dois
-primeiros pontos hero implementados de fato. O wordmark "Slow Garage" em
-Permanent Marker fica centralizado acima do card de formulário, sozinho —
-nenhum outro elemento da tela usa a fonte hero, nem o cabeçalho (que nem
-existe nessas telas: `AuthLayout` não usa o `AppShell`, de propósito, pra
-não competir com o wordmark). Card do formulário em `surface`, sem
-sombra — só borda de 1px, mantendo o fundo escuro como protagonista atrás
-do wordmark.
+`/entrar` e `/cadastro` continuam os dois únicos pontos hero implementados
+(`AuthLayout` não usa o `AppShell`, de propósito, pra não competir com o
+wordmark). Card do formulário em `surface`, sem sombra — só borda de 1px,
+mantendo o fundo escuro como protagonista atrás do wordmark.
 
 ## Ícones do PWA
 
 Gerados por `scripts/generate-icons.mjs` a partir de `5348.png`, compostos
-sobre `#16140F`. Em tamanho grande (192px+) a logo é legível por inteiro;
+sobre `#121316`. Em tamanho grande (192px+) a logo é legível por inteiro;
 em favicon (32px) só a forma geral do adesivo é reconhecível, o lettering
 não — comportamento esperado para qualquer logo detalhada nesse tamanho,
 não é um defeito a corrigir agora.
 
 ## O que foi recusado, com o motivo
 
-- **Vermelho como acento principal** — puxaria energia de pista de corrida
-  para telas de uso diário (lista, formulário), contrariando o objetivo de
-  "confirma, não celebra". O dourado carrega a mesma herança de adesivo
-  cromado sem essa competição.
-- **`Permanent Marker` fora dos quatro pontos combinados** — ilegível em
-  densidade de lista/formulário. Testado e descartado por design, não por
-  limitação técnica.
-- **Fundo azulado ou verde-ácido** — default de geração automática de UI;
-  a logo real não pede isso e o requisito de "dark quente" continua valendo
-  mesmo com a mudança de direção para o estilo kanjo.
+- **Dourado clássico / hot-rod americano (paleta original da Fase 0)** —
+  o usuário viu o produto construído e não reconheceu "gearhead" nele;
+  pediu explicitamente mais JDM/subúrbio, menos clássico americano.
+  Substituído pela paleta âmbar/asfalto desta revisão. Mantido aqui como
+  registro: a lição não é "dourado é ruim", é "decisão visual valida
+  contra reação real ao produto construído, não só contra o briefing
+  escrito" — o briefing da Fase 0 já falava em adesivo japonês e mesmo
+  assim a paleta escolhida foi americana.
+- **Azul/roxo elétrico como acento JDM** — cotado explicitamente e
+  descartado: é o par preto+ciano/azul saturado, o default mais comum de
+  interface gerada por IA hoje, mesmo dentro de uma referência JDM
+  genuína. Âmbar de luz de sódio entrega a mesma "noite de rolê" sem cair
+  nesse padrão.
+- **Vermelho como acento principal** — puxaria energia de alerta/perigo
+  pra ação primária cotidiana (registrar gasto, salvar formulário).
+  Vermelho fica reservado pra semântica de erro.
+- **Rajdhani (ou qualquer fonte condensada) fora do wordmark de login** —
+  ilegível em densidade de lista/formulário, mesmo motivo que já valia
+  pra Permanent Marker antes dela. Continua restrita a um único ponto.
 - **`tailwind.config.ts` (Tailwind v3)** — o plano original previa v3. A
   versão estável no momento da implementação é a v4, que dispensa config
   JS e define tokens direto em CSS via `@theme` — ajuste de "como", não de

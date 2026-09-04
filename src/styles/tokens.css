@@ -1,22 +1,24 @@
 /*
- * Tokens Slow Car Club — docs/DESIGN.md é a fonte da decisão.
- * Dark é o padrão absoluto (não segue prefers-color-scheme).
- * A classe .light no elemento raiz troca a paleta.
+ * Tokens "Rolê Noturno" — docs/DESIGN.md é a fonte da decisão (substitui
+ * a paleta "Slow Car Club" da Fase 0). Dark é o padrão absoluto (não
+ * segue prefers-color-scheme). A classe .light no elemento raiz troca a
+ * paleta. Todo valor abaixo passou por checagem de contraste WCAG AA
+ * (4.5:1 texto normal) calculada, não estimada — ver docs/DECISIONS.md.
  */
 
 :root {
-  --color-bg: #16140f;
-  --color-surface: #201c15;
-  --color-border: #332d22;
-  --color-text-primary: #f5f1e8;
-  --color-text-secondary: #a39a85;
-  --color-accent: #d9a441;
-  --color-accent-foreground: #16140f;
-  --color-success: #7fa05c;
-  --color-error: #cf7666;
-  --color-warning: #d47538;
+  --color-bg: #121316;
+  --color-surface: #1b1d21;
+  --color-border: #2e3136;
+  --color-text-primary: #edeae3;
+  --color-text-secondary: #8d8f93;
+  --color-accent: #ff8a1e;
+  --color-accent-foreground: #121316;
+  --color-success: #5fae6b;
+  --color-error: #ea665a;
+  --color-warning: #e0b238;
 
-  --font-hero: "Permanent Marker", cursive;
+  --font-hero: "Rajdhani", sans-serif;
   --font-sans:
     "Space Grotesk", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-jp: "Noto Sans JP", var(--font-sans);
@@ -44,16 +46,16 @@
 }
 
 .light {
-  --color-bg: #f7f2e8;
-  --color-surface: #fbf7ee;
-  --color-border: #ddd3be;
-  --color-text-primary: #1e1b15;
-  --color-text-secondary: #6b6252;
-  --color-accent: #a97a1f;
-  --color-accent-foreground: #f7f2e8;
-  --color-success: #4b7337;
-  --color-error: #9b3c2c;
-  --color-warning: #9d551d;
+  --color-bg: #edebe6;
+  --color-surface: #f5f3ef;
+  --color-border: #d3d0c8;
+  --color-text-primary: #17181b;
+  --color-text-secondary: #5b5d61;
+  --color-accent: #974d00;
+  --color-accent-foreground: #fbf9f5;
+  --color-success: #386b41;
+  --color-error: #aa372a;
+  --color-warning: #7c5b10;
 
   --chart-series-1: #2a78d6;
   --chart-series-2: #eb6834;
