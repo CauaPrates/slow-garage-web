@@ -431,6 +431,15 @@ portanto já é CSS variable):
   espaço com o cluster novo; avatar do `HeaderUserMenu` corrigido pra
   44px (era 36px, abaixo do alvo de toque mínimo do resto do app) —
   ver ADR-068
+- Tema sincroniza entre dispositivos via `profiles.theme` (achado do
+  ADR-067, resolvido em seguida): a Fase 14k guardava a preferência só
+  em `localStorage`, sem saber que a coluna já existia no banco.
+  `ThemePreferenceSelect` agora grava local **e** remoto
+  (`useUpdateThemePreference`); `ThemeProfileSync` (novo, sem UI, só
+  efeito) puxa `profiles.theme` de volta quando o perfil carrega ou
+  muda em outro dispositivo. `localStorage` continua existindo — é o
+  que aplica o tema antes do primeiro paint e antes do perfil carregar,
+  só deixou de ser a única fonte (ver ADR-069)
 
 ## Sistema de resposta (motion)
 

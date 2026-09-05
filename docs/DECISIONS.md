@@ -1449,3 +1449,40 @@ acessibilidade do produto, mobile ou não.
 
 Verificado sem overflow horizontal em 390px, 700px e 1280px (medido
 via `scrollWidth`/`clientWidth`, não só o olho).
+
+## ADR-069 — Tema passa a sincronizar via `profiles.theme` (achado do ADR-067)
+
+O ADR-067 registrou um achado fora de escopo: `profiles.theme` (enum
+`dark`/`light`/`system`) já existe no banco, mas a Fase 14k (ADR-058)
+implementou a preferência de tema inteiramente em
+`localStorage`/`sessionStorage`, sem saber disso — tema não
+sincronizava entre dispositivos. Usuário pediu pra verificar se
+precisava de alguma mudança de backend antes de implementar; a
+resposta foi não — a coluna e a permissão de escrita (mesma política
+de RLS que `display_name` já usa com sucesso) já existiam. Implementado
+só no frontend.
+
+**Push:** `useUpdateThemePreference` (novo, mesmo padrão de
+`useUpdateDisplayName`) — `ThemePreferenceSelect.handleChange` chama
+`setPreference` (aplica local na hora) **e** a mutation (grava no
+banco), nessa ordem.
+
+**Pull:** `ThemeProfileSync` (novo, componente que só roda efeito,
+`return null`) — monta dentro de `AuthProvider` (children do
+`Providers`), lê `useProfile()` e chama `setPreference` quando
+`profile.theme` chega ou muda e difere do estado local. Só puxa,
+nunca empurra de volta — evita round-trip redundante quando o pull é
+consequência do próprio push do mesmo dispositivo.
+
+`localStorage` continua existindo (`getStoredPreference`/
+`storePreference`, `lib/theme.ts`) — é o que aplica o tema instantâneo
+antes do primeiro paint e antes do perfil carregar (login, ou qualquer
+tela pré-autenticação), e o fallback quando não há sessão. Não foi
+removido, só deixou de ser a única fonte.
+
+Testado com 2 contextos de navegador isolados (sem
+`localStorage` compartilhado, simulando 2 dispositivos) com o mesmo
+login: mudar pra "Claro" no primeiro e abrir uma sessão nova do zero
+no segundo aplicou "Claro" imediatamente, sem nunca ter passado por
+esse `localStorage` — confirma que o pull vem mesmo do banco, não de
+storage compartilhado por acidente (mesmo host de dev).
