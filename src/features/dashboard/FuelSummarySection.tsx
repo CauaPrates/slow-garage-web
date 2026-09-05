@@ -12,31 +12,31 @@ export function FuelSummarySection({ summary }: FuelSummarySectionProps) {
       <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-5">
         <div>
           <dt className="text-text-secondary">Médio</dt>
-          <dd className="text-text-primary">
+          <dd className="font-mono text-text-primary">
             {summary?.avg_km_per_liter != null ? formatConsumption(summary.avg_km_per_liter) : "—"}
           </dd>
         </div>
         <div>
           <dt className="text-text-secondary">Melhor</dt>
-          <dd className="text-text-primary">
+          <dd className="font-mono text-text-primary">
             {summary?.best_km_per_liter != null ? formatConsumption(summary.best_km_per_liter) : "—"}
           </dd>
         </div>
         <div>
           <dt className="text-text-secondary">Pior</dt>
-          <dd className="text-text-primary">
+          <dd className="font-mono text-text-primary">
             {summary?.worst_km_per_liter != null ? formatConsumption(summary.worst_km_per_liter) : "—"}
           </dd>
         </div>
         <div>
           <dt className="text-text-secondary">Preço médio</dt>
-          <dd className="text-text-primary">
+          <dd className="font-mono text-text-primary">
             {summary?.avg_price_per_liter != null ? `${formatMoney(summary.avg_price_per_liter)}/L` : "—"}
           </dd>
         </div>
         <div>
           <dt className="text-text-secondary">Litros no total</dt>
-          <dd className="text-text-primary">
+          <dd className="font-mono text-text-primary">
             {summary?.total_liters != null ? `${summary.total_liters} L` : "—"}
           </dd>
         </div>
