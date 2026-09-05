@@ -3,9 +3,9 @@
 #
 # Não há suíte de teste automatizada no projeto: a verificação de
 # comportamento é feita com Playwright contra o app real, na mão, no gate de
-# verificação de cada fase (ver specs/*/verification.md e a skill `ui-verify`).
-# Este workflow cobre o que dá pra cobrir sem browser e sem segredo: lint e
-# build (que inclui `tsc -b`, então é checagem de tipo também).
+# verificação de cada fase (ver specs/*/verification.md). Este workflow cobre
+# o que dá pra cobrir sem browser e sem segredo: lint e build (que inclui
+# `tsc -b`, então é checagem de tipo também).
 name: CI
 
 on:
