@@ -23,3 +23,8 @@ supabase/
 # gerado por `npm run types`, mas commitado — ver docs/DECISIONS.md
 # (mantido fora do gitignore de propósito: precisa ficar versionado)
 .ui-check*/
+
+# Ferramental local de quem desenvolve (configuração de editor/assistente e
+# notas de bootstrap do projeto) — não faz parte do produto.
+.claude/
+prompt-*.md

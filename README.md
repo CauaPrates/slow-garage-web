@@ -2,6 +2,8 @@
 
 > **Your car. Your story. All in one place.**
 
+**Live app: [slow-garage-web.vercel.app](https://slow-garage-web.vercel.app)**
+
 Frontend for **Slow Garage**: a responsive web app and PWA for tracking everything about your cars — expenses, fill-ups, maintenance, issues, build projects, documents, and photos — replacing the spreadsheet you've been maintaining.
 
 Talks directly to Supabase via `supabase-js`. There is no custom API layer; all authorization is enforced by Row Level Security on the backend. `docs/API_CONTRACT.md` and `src/types/database.types.ts` (generated, never hand-edited) are the only coupling to that backend.
@@ -166,12 +168,26 @@ Supported widths: 320, 390, 768, 1440px+ (screenshotted every phase).
 
 ## Deploy
 
-The app is a static SPA (Vite build output in `dist/`) — no server-side code. To deploy on Vercel:
+The app is a static SPA (Vite build output in `dist/`) — no server-side code.
 
-1. `npm run build` must pass locally first.
-2. On [vercel.com](https://vercel.com), **Add New Project** → import this Git repository. Vercel auto-detects the Vite framework preset.
-3. Add the two environment variables in the Vercel project settings: `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY` (same values as your local `.env`).
-4. Deploy. `vercel.json` at the repo root already configures the SPA rewrite (`/(.*) → /index.html`) so deep links (e.g. `/v/:id/historico`) work on a hard refresh, not just client-side navigation.
+**Pipeline.** GitHub Actions verifies, Vercel publishes. They are deliberately separate: the workflow holds no deploy credentials, and the deploy holds no test logic.
+
+| Trigger | What happens |
+|---|---|
+| Push to any branch, and every PR | `.github/workflows/ci.yml` runs `npm run lint` and `npm run build` (which is `tsc -b && vite build`, so type-checking is included) |
+| Push to `dev` | Vercel builds a **preview** deployment |
+| Merge to `main` | Vercel builds **production** |
+
+`main` is protected by a repository ruleset: no direct pushes, no force-pushes, no deletion, and a merge requires the `Lint + build` check to be green.
+
+The CI build runs **without** the Supabase environment variables on purpose — `vite build` only substitutes `import.meta.env.*` into the bundle, so it proves the code compiles without needing a working artifact. Only Vercel gets the real values.
+
+**Vercel configuration.** Framework preset is auto-detected (Vite). Two environment variables are set in the project: `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY`. `vercel.json` handles the two things the defaults get wrong for this app:
+
+- an SPA rewrite (`/(.*) → /index.html`) so deep links like `/v/:id/historico` survive a hard refresh;
+- `Cache-Control: max-age=0` on `sw.js` and `manifest.webmanifest` — the two files `vite-plugin-pwa` emits without a content hash. A cached service worker pins users to an old build.
+
+**Supabase.** Email confirmation and password-reset links are built from `window.location.origin`, so the deployed origin must be listed under Authentication → URL Configuration, or those links break in production.
 
 Before merging any change to `dev`/`main`:
 
