@@ -11,10 +11,16 @@
     <title>Slow Garage</title>
     <script>
       // Aplica o tema salvo antes do primeiro paint, para não piscar dark
-      // e depois trocar pra light quando a pessoa já escolheu light antes.
+      // e depois trocar pra light quando a pessoa já escolheu light (ou
+      // "seguir o sistema" e o SO estiver em modo claro) antes.
       (function () {
         try {
-          if (window.localStorage.getItem("slow-garage-theme") === "light") {
+          var stored = window.localStorage.getItem("slow-garage-theme");
+          var isLight =
+            stored === "light" ||
+            (stored === "system" &&
+              window.matchMedia("(prefers-color-scheme: light)").matches);
+          if (isLight) {
             document.documentElement.classList.add("light");
           }
         } catch (e) {

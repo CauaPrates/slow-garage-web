@@ -1,23 +1,23 @@
 export type Theme = "dark" | "light";
+export type ThemePreference = Theme | "system";
 
 const STORAGE_KEY = "slow-garage-theme";
 
-/** Dark é o padrão absoluto — não consulta prefers-color-scheme (decisão do produto). */
-export function getStoredTheme(): Theme {
+/** Dark é o padrão absoluto quando não há preferência salva (decisão do produto) — "system" só entra quando a pessoa escolhe isso explicitamente em Configurações. */
+export function getStoredPreference(): ThemePreference {
   try {
-    return window.localStorage.getItem(STORAGE_KEY) === "light"
-      ? "light"
-      : "dark";
+    const stored = window.localStorage.getItem(STORAGE_KEY);
+    return stored === "light" || stored === "system" ? stored : "dark";
   } catch {
     return "dark";
   }
 }
 
-export function storeTheme(theme: Theme): void {
+export function storePreference(preference: ThemePreference): void {
   try {
-    window.localStorage.setItem(STORAGE_KEY, theme);
+    window.localStorage.setItem(STORAGE_KEY, preference);
   } catch {
-    // localStorage indisponível (modo privado etc.) — tema não persiste, mas não quebra o app
+    // localStorage indisponível (modo privado etc.) — preferência não persiste, mas não quebra o app
   }
 }
 

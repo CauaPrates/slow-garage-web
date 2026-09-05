@@ -33,8 +33,10 @@ exatamente pra fugir desse default.
 
 ## Tokens de cor
 
-Definidos em `src/styles/tokens.css`. Dark é o padrão absoluto do produto —
-não segue `prefers-color-scheme`. A classe `.light` no elemento raiz troca
+Definidos em `src/styles/tokens.css`. Dark é o padrão pra quem nunca
+escolheu nada — Configurações oferece Claro/Escuro/Seguir o sistema
+(Fase 14k, ver ADR-058; revoga o "não segue `prefers-color-scheme`"
+que valia até então). A classe `.light` no elemento raiz troca
 a paleta inteira via CSS variables; nenhum componente decide cor sozinho.
 Todo par texto/fundo abaixo foi validado por cálculo de contraste WCAG
 (4.5:1 texto normal), incluindo contra o próprio fundo tintado a 10% usado
@@ -365,6 +367,19 @@ portanto já é CSS variable):
   FAB; e a aba do painel de 1 veículo, antes chamada "Home", virou
   "Dashboard" (mesmo rótulo/ícone da sidebar) — "home" do app é a
   garagem ("Carros"), não o painel de um veículo (ver ADR-055)
+- Configurações deixa de ser genérica (Fase 14k/l): 3 seções em card
+  (Conta, Aparência, Segurança — `SettingsSection`) em vez de um card
+  solto só com e-mail/nome. Aparência ganha as 3 opções de tema
+  (Claro/Escuro/Seguir o sistema, reverte o "não segue
+  `prefers-color-scheme`" — ver ADR-058); Segurança ganha alterar senha
+  reaproveitando o mesmo fluxo da recuperação por e-mail (ver ADR-057).
+  Layout vira `grid grid-cols-1 lg:grid-cols-2` (mesmo padrão de toda
+  outra tela) em vez de `mx-auto max-w-md` — a faixa estreita e
+  centralizada parecia mobile mesmo em tela larga. Ganhou link "Voltar"
+  (`navigate(-1)`, volta pro histórico real, não pra uma rota fixa) —
+  antes, sair de Configurações forçava renavegar do zero pela
+  sidebar/bottom nav (ver ADR-059). Logo/nome do cabeçalho (`AppShell`)
+  também virou link pra home — não tinha nenhum antes
 
 ## Sistema de resposta (motion)
 

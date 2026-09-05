@@ -1,5 +1,6 @@
-import { Outlet } from "react-router-dom";
+import { Link, Outlet } from "react-router-dom";
 import { ThemeToggle } from "@/components/shared/ThemeToggle";
+import { ROUTES } from "@/lib/routes";
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
 
@@ -7,10 +8,10 @@ export function AppShell() {
   return (
     <div className="flex min-h-dvh flex-col bg-bg text-text-primary">
       <header className="flex items-center justify-between border-b border-border px-4 py-3">
-        <div className="flex items-center gap-2">
+        <Link to={ROUTES.home} className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
           <img src="/icons/icon-192.png" alt="" aria-hidden="true" className="h-7 w-7 rounded-md" />
           <span className="text-sm text-text-secondary">Slow Garage</span>
-        </div>
+        </Link>
         <ThemeToggle />
       </header>
       <div className="flex flex-1">
