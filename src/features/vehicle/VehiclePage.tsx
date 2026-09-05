@@ -112,7 +112,8 @@ export function VehiclePage() {
             >
               {otherVehicles.map((v) => (
                 <option key={v.id} value={v.id}>
-                  {v.make} {v.model} ({v.model_year})
+                  {v.make} {v.model}
+                  {v.model_year != null ? ` (${v.model_year})` : ""}
                 </option>
               ))}
             </select>
@@ -145,6 +146,7 @@ export function VehiclePage() {
             costPerKm={dashboard.financial_summary?.cost_per_km ?? null}
             totalInvested={dashboard.financial_summary?.total_invested ?? null}
             activeAlertsCount={dashboard.alerts.length}
+            expensesByMonth={dashboard.expenses_by_month}
           />
 
           <QuickActionsRow

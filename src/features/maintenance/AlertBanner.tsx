@@ -27,7 +27,7 @@ export function AlertBanner({ alerts }: AlertBannerProps) {
           <div
             key={`${alert.source_table}-${alert.source_id}`}
             className={cn(
-              "flex items-start gap-3 rounded-lg border p-3 text-sm",
+              "flex items-start gap-3 rounded-lg border p-3 text-sm motion-safe:animate-alert-in",
               isCritical
                 ? "border-error/40 bg-error/10 text-error"
                 : "border-warning/40 bg-warning/10 text-warning",

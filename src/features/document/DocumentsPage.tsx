@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { ROUTES } from "@/lib/routes";
@@ -116,12 +117,8 @@ export function DocumentsPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-lg font-medium text-text-primary">Documentos</h1>
-        <p className="text-sm text-text-secondary">
-          {vehicle.make} {vehicle.model}
-        </p>
-      </div>
+      <Breadcrumb items={[{ label: "Documentos" }]} />
+      <h1 className="text-lg font-medium text-text-primary">Documentos</h1>
 
       {relevantAlerts.length > 0 && <AlertBanner alerts={relevantAlerts} />}
 

@@ -30,6 +30,30 @@
   --radius-sm: var(--radius-sm);
   --radius-md: var(--radius-md);
   --radius-lg: var(--radius-lg);
+
+  /* Fase 14 — sistema de resposta. Ver docs/DESIGN.md, "Sistema de resposta". */
+  --animate-value-flash: value-flash 400ms ease-out;
+  --animate-alert-in: alert-in 200ms ease-out;
+}
+
+@keyframes value-flash {
+  from {
+    background-color: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  }
+  to {
+    background-color: transparent;
+  }
+}
+
+@keyframes alert-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @layer base {

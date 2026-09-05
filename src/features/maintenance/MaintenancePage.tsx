@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/routes";
 import { useVehicle } from "@/features/vehicle/useVehicles";
@@ -89,13 +90,9 @@ export function MaintenancePage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
+      <Breadcrumb items={[{ label: "Manutenção" }]} />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-lg font-medium text-text-primary">Manutenção</h1>
-          <p className="text-sm text-text-secondary">
-            {vehicle.make} {vehicle.model}
-          </p>
-        </div>
+        <h1 className="text-lg font-medium text-text-primary">Manutenção</h1>
         <div className="flex flex-col gap-2 sm:flex-row">
           <Button variant="ghost" onClick={() => setCreateItemOpen(true)}>
             Novo item do plano

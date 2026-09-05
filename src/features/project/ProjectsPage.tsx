@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/routes";
 import { useVehicle } from "@/features/vehicle/useVehicles";
@@ -78,13 +79,9 @@ export function ProjectsPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
+      <Breadcrumb items={[{ label: "Projetos" }]} />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-lg font-medium text-text-primary">Projetos</h1>
-          <p className="text-sm text-text-secondary">
-            {vehicle.make} {vehicle.model}
-          </p>
-        </div>
+        <h1 className="text-lg font-medium text-text-primary">Projetos</h1>
         <Button onClick={() => setCreateProjectOpen(true)}>Novo projeto</Button>
       </div>
 

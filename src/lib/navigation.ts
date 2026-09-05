@@ -18,40 +18,31 @@ import {
 import { ROUTES } from "./routes";
 
 /**
- * `to: null` significa "a tela ainda não existe" (chega em fase futura,
- * ver tabela de fases do doc mestre) — o item aparece na navegação desde
- * já, desabilitado com "Em breve", em vez de sumir e reaparecer fase a
- * fase (RN-2 de specs/003-vehicle-shell/spec.md).
- *
  * `to` como função significa "a tela existe, mas depende do veículo
  * atual" — resolvida via `resolveNavItem` a partir do `vehicleId` lido
- * da URL (Fase 4, ADR-024): sem veículo selecionado, o item também
- * fica desabilitado, mas por um motivo diferente ("Selecione um
- * veículo", não "Em breve").
+ * da URL (Fase 4, ADR-024). `to` como string é sempre habilitado, sem
+ * depender de veículo.
+ *
+ * Fase 14: item vehicle-scoped sem veículo selecionado não aparece mais
+ * desabilitado na navegação — só some da lista (ver ADR em
+ * docs/DECISIONS.md). `to: null`/"não construído ainda" foi removido
+ * por ser código morto desde a Fase 9 (ADR-046): todo item da sidebar já
+ * tem tela de verdade.
  */
 export type NavItem = {
   label: string;
   icon: LucideIcon;
-  to: string | null | ((vehicleId: string) => string);
+  to: string | ((vehicleId: string) => string);
 };
 
-export type DisabledReason = "not-built" | "no-vehicle";
-
-export type ResolvedNavItem =
-  | { enabled: true; href: string }
-  | { enabled: false; reason: DisabledReason };
-
-export function resolveNavItem(item: NavItem, vehicleId: string | null): ResolvedNavItem {
-  if (item.to === null) return { enabled: false, reason: "not-built" };
-  if (typeof item.to === "string") return { enabled: true, href: item.to };
-  if (vehicleId) return { enabled: true, href: item.to(vehicleId) };
-  return { enabled: false, reason: "no-vehicle" };
+export function isVehicleScoped(item: NavItem): boolean {
+  return typeof item.to === "function";
 }
 
-export const DISABLED_REASON_LABEL: Record<DisabledReason, string> = {
-  "not-built": "Em breve",
-  "no-vehicle": "Selecione um veículo",
-};
+export function resolveNavItem(item: NavItem, vehicleId: string | null): string | null {
+  if (typeof item.to === "string") return item.to;
+  return vehicleId ? item.to(vehicleId) : null;
+}
 
 export const SIDEBAR_NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, to: (vehicleId) => ROUTES.vehicle(vehicleId) },
@@ -68,9 +59,7 @@ export const SIDEBAR_NAV_ITEMS: NavItem[] = [
 
 /**
  * "Home" e "Dados" espelham "Dashboard"/"Histórico" da sidebar — rótulo
- * mais curto pro espaço apertado da bottom nav, mesmo destino (Fase 9,
- * mesma lógica de "ativar item cujo destino passou a existir" já usada
- * em toda fase anterior).
+ * mais curto pro espaço apertado da bottom nav, mesmo destino (Fase 9).
  */
 export const BOTTOM_NAV_ITEMS: NavItem[] = [
   { label: "Home", icon: Home, to: (vehicleId) => ROUTES.vehicle(vehicleId) },
@@ -79,7 +68,7 @@ export const BOTTOM_NAV_ITEMS: NavItem[] = [
   { label: "Configurações", icon: Settings, to: ROUTES.configuracoes },
 ];
 
-/** Itens da folha "Adicionar" — mesma forma de `NavItem`; "Gasto" é o primeiro a sair de `to: null` (Fase 4). */
+/** Itens da folha "Adicionar" — a folha só abre quando o FAB está habilitado (há veículo), então todo item aqui é sempre resolvível. */
 export const ADD_SHEET_ITEMS: NavItem[] = [
   { label: "Gasto", icon: Receipt, to: (vehicleId) => `${ROUTES.vehicleExpenses(vehicleId)}?novo=1` },
   {

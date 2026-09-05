@@ -821,3 +821,60 @@ de mutação "Create" e "Edit" em paralelo assumindo que os dois seguem o
 mesmo padrão: **conferir os dois arquivos, nunca só um**. Ver também
 `specs/011-schema-freedom/verification.md` pro roteiro completo de
 verificação e a lista de ACs confirmados.
+
+## ADR-049 — Item de navegação sem veículo selecionado some, não aparece cinza (supera ADR-024, Fase 14)
+
+O usuário rejeitou a experiência da sidebar/bottom-nav/folha "Adicionar"
+sem veículo selecionado: 8 dos 10 itens da sidebar (e 2 dos 4 da bottom
+nav, e todos os 6 da folha "Adicionar") apareciam desabilitados com
+"Selecione um veículo" repetido — "bagunçado", nas palavras do usuário.
+
+A Fase 3/4 (ADR-022/024) tinha decidido deliberadamente o oposto: mostrar
+o item desabilitado com motivo, pra não esconder "a forma final do
+produto". Essa decisão fazia sentido quando só 1-2 itens ficavam
+desabilitados de cada vez (ex.: só "Gastos" sem veículo, antes de outras
+telas existirem). Depois que **todas** as 8 telas de veículo passaram a
+existir (Fase 9 em diante), o mesmo padrão virou o oposto do que
+pretendia: em vez de "mostrar a forma final", virou uma parede de item
+cinza toda vez que a garagem tem mais de um carro e nenhum está aberto.
+
+Decisão: item que depende de veículo (`to` como função em `NavItem`)
+**não aparece** na sidebar/bottom-nav quando não há veículo selecionado —
+só os itens sempre disponíveis (Minha garagem, Configurações) ficam.
+Removido de `navigation.ts`/`resolveNavItem` o conceito de "not-built"
+(já morto desde a Fase 9, ADR-046) e a variante `ResolvedNavItem`
+desabilitada — `resolveNavItem` agora só devolve a rota resolvida ou
+`null`. O FAB "Adicionar" da bottom nav continua sempre visível (é um
+ponto de referência espacial fixo), mas fica `aria-disabled` com motivo
+quando não há veículo — evita abrir uma folha inteira cheia de item
+cinza.
+
+Não é regressão do princípio de acessibilidade do ADR-022 (item continua
+alcançável por Tab quando existe, nunca `disabled` nativo escondendo de
+leitor de tela) — é a mesma disciplina aplicada à decisão de **quando**
+um item deveria sequer estar na lista.
+
+## ADR-050 — Mostrador de odômetro (arco SVG) preenche por "progresso até o próximo múltiplo de 10.000km", não por um teto de vida útil (Fase 14)
+
+O usuário achou a home do veículo genérica demais ("cara de SaaS"),
+sem interatividade nem elemento de identidade — processo completo (skill
+`frontend-design`, clarify em 3 rodadas) concluiu que o odômetro deveria
+virar o elemento-assinatura da tela, como o mostrador de um painel de
+carro de verdade, sem repetir a ousadia em todo tile (regra da própria
+skill: "gaste a ousadia em um lugar só").
+
+Problema técnico real: um mostrador de arco precisa de uma proporção
+(quanto do arco preencher), e velocímetro/conta-giros têm um teto natural
+(a velocidade máxima do painel). Odômetro é contagem de vida útil, sem
+teto conhecido — inventar um (ex.: "300.000km = 100%") seria fabricar um
+dado que não existe, o mesmo erro que o projeto proíbe desde sempre pra
+cálculo de negócio. Decisão: o arco preenche o progresso do valor atual
+até o **próximo múltiplo de 10.000km** (`km % 10000 / 10000`) — é uma
+transformação de exibição de um valor 100% real, não uma estimativa, e
+tem analogia direta com o "trip meter" que carros de verdade já têm.
+
+Também descartado nesta fase: sparkline/tendência para "Custo/km" — não
+existe view nem coluna com histórico de custo por km no banco (só
+`expenses_by_month`, usado para "Total investido"). Mostrar uma
+tendência ali seria calcular no cliente o que o banco não decide (regra
+geral do projeto desde a Fase 5/ADR-030).

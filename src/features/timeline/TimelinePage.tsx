@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import { AlertCircle, Search, X } from "lucide-react";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ROUTES } from "@/lib/routes";
@@ -86,13 +87,9 @@ export function TimelinePage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
+      <Breadcrumb items={[{ label: "Histórico" }]} />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h1 className="text-lg font-medium text-text-primary">Histórico</h1>
-          <p className="text-sm text-text-secondary">
-            {vehicle.make} {vehicle.model}
-          </p>
-        </div>
+        <h1 className="text-lg font-medium text-text-primary">Histórico</h1>
         <Button onClick={() => setCreateNoteOpen(true)}>Nova nota</Button>
       </div>
 
