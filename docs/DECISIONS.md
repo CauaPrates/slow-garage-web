@@ -1204,3 +1204,35 @@ passou a conter também o "Sair" no mesmo card, com um divisor
 (`border-t`) entre o formulário de senha e a ação de sair — as duas são
 ações raras/de risco, ficam juntas e separadas do bloco de
 personalização do dia a dia ("Aparência").
+
+## ADR-061 — `Configurações` vira 1 painel com divisores em vez de 3 cards (Fase 14n)
+
+Dois problemas de layout reportados no resultado do ADR-060:
+
+1. **Altura de card esticada.** "Aparência" e "Segurança" viviam num
+   `grid lg:grid-cols-2` sem `items-start` — o `align-items: stretch`
+   padrão do grid forçava as duas colunas na mesma altura da mais alta
+   (Segurança, com formulário de senha + "Sair"), deixando "Aparência"
+   (só o select de tema) com bastante espaço vazio embaixo.
+2. **Vão vazio entre campo e botão em "Conta".** Reportado como o
+   botão "Salvar" parecendo empurrado pro rodapé do card. Medido por
+   `boundingBox()` real (não só o olho): o espaço entre o fim do input
+   e o topo do botão já era exatamente 16px (`gap-4`, igual o resto do
+   app) — não havia stretch nem gap extra de verdade nessa medição
+   específica. Ainda assim, a percepção de "vazio" fazia sentido: o
+   botão pequeno e alinhado à direita (`self-end`), sozinho numa faixa
+   larga, lê como "flutuando" mesmo com espaçamento correto. A
+   reestruturação abaixo (painel único) elimina de vez qualquer dúvida,
+   porque não sobra mais nenhum grid de colunas competindo por altura.
+
+**Reestruturação:** trocado os 3 cards (`border` + `bg-surface`
+próprios, competindo entre si — "grid de admin") por 1 painel só
+(`rounded-lg border border-border bg-surface p-4`) com "Conta",
+"Aparência" e "Segurança" como seções internas separadas por divisor
+fino (`border-t border-border pt-4`), mesmo padrão que
+`FinancialSummaryCard` já usa pra separar seus 2 blocos de `<dl>` — e
+mais perto da identidade de "ficha técnica" do `VehicleCard` que o
+resto do produto já estabeleceu, em vez do estilo genérico de shadcn
+sem override. `items-start` também adicionado no sub-grid de "Conta"
+(e-mail + nome de exibição) por disciplina, mesmo a medição não
+confirmando stretch ali.
