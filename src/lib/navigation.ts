@@ -33,6 +33,8 @@ export type NavItem = {
   label: string;
   icon: LucideIcon;
   to: string | ((vehicleId: string) => string);
+  /** Fase 14b: fica fixo no rodapé da sidebar, fora do agrupamento por nível (só "Configurações" usa isso hoje). */
+  pinBottom?: boolean;
 };
 
 export function isVehicleScoped(item: NavItem): boolean {
@@ -54,7 +56,7 @@ export const SIDEBAR_NAV_ITEMS: NavItem[] = [
   { label: "Projetos", icon: ClipboardList, to: (vehicleId) => ROUTES.vehicleProjects(vehicleId) },
   { label: "Histórico", icon: History, to: (vehicleId) => ROUTES.vehicleTimeline(vehicleId) },
   { label: "Documentos", icon: FileText, to: (vehicleId) => ROUTES.vehicleDocuments(vehicleId) },
-  { label: "Configurações", icon: Settings, to: ROUTES.configuracoes },
+  { label: "Configurações", icon: Settings, to: ROUTES.configuracoes, pinBottom: true },
 ];
 
 /**

@@ -1,5 +1,6 @@
 import { AlertCircle, Car } from "lucide-react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import { formatKm } from "@/lib/format";
 import { ROUTES } from "@/lib/routes";
@@ -70,6 +71,7 @@ export function VehiclePage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
+      <Breadcrumb items={[]} />
       <div className="flex flex-col gap-4 sm:flex-row">
         <div className="flex h-40 w-full items-center justify-center overflow-hidden rounded-lg border border-border bg-surface sm:w-56">
           {vehicle.photoUrl ? (
