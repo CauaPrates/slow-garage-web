@@ -1297,3 +1297,21 @@ redundante depois que Configurações ganhou o controle completo
 login/cadastro, onde não há Configurações pra apontar). Cabeçalho
 autenticado fica só com a marca (ícone + "Slow Garage", já linkando
 pra home desde o ADR-059).
+
+## ADR-065 — Marca do cabeçalho ganha presença (Fase 14r)
+
+Usuário achou o cabeçalho "sem graça, não muito gearhead" — ícone
+pequeno (`h-7`) e "Slow Garage" em `text-sm text-text-secondary`, mesmo
+peso visual de qualquer texto secundário do app. Aumentado: ícone pra
+`h-9`, texto pra `text-base font-bold uppercase tracking-wide
+text-text-primary`.
+
+Verificado que isso **não** abre um terceiro ponto de ousadia (a regra
+"gaste a ousadia em um lugar" documentada em "Onde a ousadia mora"
+continua valendo): sem trocar de família (`font-sans`/Space Grotesk,
+não `font-hero`/Rajdhani — essa continua restrita ao wordmark de
+`/entrar`, recusa já registrada antes), sem cor de marca (`text-primary`
+é hierarquia normal, o mesmo tom que título de qualquer tela usa, não
+`--color-accent`), sem traço/sublinhado decorativo. É volume dentro do
+cromo quieto, não um novo elemento gráfico — mesma disciplina, com mais
+peso.

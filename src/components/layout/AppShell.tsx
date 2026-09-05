@@ -6,10 +6,12 @@ import { BottomNav } from "./BottomNav";
 export function AppShell() {
   return (
     <div className="flex min-h-dvh flex-col bg-bg text-text-primary">
-      <header className="flex items-center border-b border-border px-4 py-3">
-        <Link to={ROUTES.home} className="flex items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
-          <img src="/icons/icon-192.png" alt="" aria-hidden="true" className="h-7 w-7 rounded-md" />
-          <span className="text-sm text-text-secondary">Slow Garage</span>
+      <header className="flex items-center border-b border-border px-4 py-2.5">
+        <Link to={ROUTES.home} className="flex items-center gap-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
+          <img src="/icons/icon-192.png" alt="" aria-hidden="true" className="h-9 w-9 rounded-md" />
+          <span className="text-base font-bold tracking-wide text-text-primary uppercase">
+            Slow Garage
+          </span>
         </Link>
       </header>
       <div className="flex flex-1">
