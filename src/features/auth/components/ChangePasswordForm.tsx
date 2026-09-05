@@ -62,7 +62,7 @@ export function ChangePasswordForm() {
           Senha alterada.
         </p>
       )}
-      <Button type="submit" disabled={isSubmitting}>
+      <Button type="submit" variant="outline" className="self-end" disabled={isSubmitting}>
         {isSubmitting ? "Salvando…" : "Salvar nova senha"}
       </Button>
     </form>

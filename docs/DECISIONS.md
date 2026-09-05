@@ -1157,3 +1157,50 @@ Três atritos reais reportados em sequência, todos na mesma tela:
    dividem a segunda linha). Dentro de "Conta", e-mail e nome de
    exibição também viram 2 colunas no desktop em vez de um campo
    solto esticado pela largura toda.
+
+## ADR-060 — `Configurações` para de contrariar o próprio `DESIGN.md` (Fase 14m)
+
+Revisão de design apontou que a tela nova (ADR-057/059) tinha 2 botões
+grandes full-width preenchidos em `--color-accent` na mesma tela
+("Salvar" e "Salvar nova senha") — contraria a regra já documentada de
+"âmbar é ação primária, nunca decoração repetida". Também apontou:
+inputs/select sem indício de hover (só focus), "Sair" sem nenhum
+tratamento visual (parecia elemento esquecido, sem confirmação), e as
+3 seções com peso visual idêntico apesar de frequência de uso muito
+diferente. Não é decisão de identidade nova — é disciplina de aplicar
+o que já existe, então implementado direto, sem pausar pra pergunta.
+
+**Um só botão cheio de âmbar por tela:** "Salvar" (Conta, ação
+frequente) continua `variant="primary"`; "Salvar nova senha"
+(Segurança, ação rara) virou a nova `variant="outline"` do `Button`
+(`border border-border bg-transparent text-text-primary
+hover:bg-surface`) — primeiro uso de uma variante puramente neutra no
+`buttonVariants`, sem cor de marca nem de erro. Os dois botões também
+pararam de esticar full-width: eram filhos de `flex flex-col` (herdam
+`align-items: stretch` por padrão); ganharam `self-end` pra encolher
+pro tamanho do conteúdo e alinhar à direita do card.
+
+**Hover em `Input`/`Select`/`Textarea`:** as 3 primitivas já tinham
+`focus-visible:border-accent` — só faltava hover. Adicionado
+`hover:border-text-secondary` (neutro, não usa âmbar — hover em campo
+de formulário não é "ação primária") + `disabled:hover:border-border`
+(não indicar hover em campo desabilitado). Corrigido nos 3 componentes
+de uma vez (não só no que aparecia em Configurações), já que são
+primitivas compartilhadas por todo o app.
+
+**"Sair" ganha tratamento + confirmação:** botão com a mesma paleta de
+badge de status usada em `MaintenanceItemCard`/`IssueListItem`
+(border + tom de 10% de fundo + texto sempre na cor semântica, nunca
+preenchido) — aqui com `--color-error`, já que é uma ação sem volta
+fácil. Mantido como `<Button>` de tamanho normal (44px), não o badge
+pequeno (`rounded-full text-xs px-2 py-0.5`) que aquelas telas usam
+pra status — um badge desse tamanho falharia a regra de alvo de toque.
+`SignOutDialog` (novo) segue exatamente o padrão do
+`DeleteVehicleDialog`/`AlertDialog` já usado em todo o app.
+
+**Reagrupamento por frequência de uso:** "Conta" (uso diário) saiu do
+grid e virou seção isolada no topo, sozinha, mais destacada. "Segurança"
+passou a conter também o "Sair" no mesmo card, com um divisor
+(`border-t`) entre o formulário de senha e a ação de sair — as duas são
+ações raras/de risco, ficam juntas e separadas do bloco de
+personalização do dia a dia ("Aparência").

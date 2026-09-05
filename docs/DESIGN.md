@@ -380,6 +380,19 @@ portanto já é CSS variable):
   antes, sair de Configurações forçava renavegar do zero pela
   sidebar/bottom nav (ver ADR-059). Logo/nome do cabeçalho (`AppShell`)
   também virou link pra home — não tinha nenhum antes
+- Configurações corrigida contra o próprio DESIGN.md (Fase 14m): tinha
+  2 botões cheios de âmbar na mesma tela, contrariando "âmbar é ação
+  primária, nunca decoração repetida" (esta seção, "Hierarquia"). Só
+  "Salvar" (ação frequente) continua `primary`; "Salvar nova senha"
+  (ação rara) usa a nova `variant="outline"` do `Button` — primeira
+  variante neutra (sem cor de marca/erro) do componente. Os dois
+  botões também pararam de esticar `full-width` (`self-end`). "Sair"
+  ganha a paleta de badge de status (border + 10% de fundo + texto,
+  nunca preenchido) em `--color-error`, com confirmação
+  (`SignOutDialog`, mesmo padrão do `DeleteVehicleDialog`). "Conta"
+  virou seção isolada no topo (uso diário); "Segurança" passou a
+  incluir o "Sair" no mesmo card (ambos raros/risco), separado de
+  "Aparência" (ver ADR-060)
 
 ## Sistema de resposta (motion)
 
