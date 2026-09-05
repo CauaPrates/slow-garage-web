@@ -1,12 +1,18 @@
 import { Link, Outlet } from "react-router-dom";
 import { ROUTES } from "@/lib/routes";
+import { useVehicles } from "@/features/vehicle/useVehicles";
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
+import { HeaderAlertsMenu } from "./HeaderAlertsMenu";
+import { HeaderVehicleSwitcher } from "./HeaderVehicleSwitcher";
+import { HeaderUserMenu } from "./HeaderUserMenu";
 
 export function AppShell() {
+  const { data: vehicles } = useVehicles();
+
   return (
     <div className="flex min-h-dvh flex-col bg-bg text-text-primary">
-      <header className="flex items-center border-b border-border px-4 py-3">
+      <header className="flex items-center justify-between border-b border-border px-4 py-3">
         <Link to={ROUTES.home} className="flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
           <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-accent/40 bg-accent/5">
             <img src="/icons/icon-192.png" alt="" aria-hidden="true" className="h-7 w-7 rounded-sm" />
@@ -18,6 +24,12 @@ export function AppShell() {
             <span className="h-0.5 w-8 bg-accent" aria-hidden="true" />
           </span>
         </Link>
+
+        <div className="hidden items-center gap-1 lg:flex">
+          <HeaderVehicleSwitcher vehicles={vehicles ?? []} />
+          <HeaderAlertsMenu vehicles={vehicles ?? []} />
+          <HeaderUserMenu />
+        </div>
       </header>
       <div className="flex flex-1">
         <Sidebar />
