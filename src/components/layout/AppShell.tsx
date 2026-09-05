@@ -26,12 +26,28 @@ export function AppShell() {
           to={ROUTES.home}
           className="flex min-w-0 shrink items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:gap-3"
         >
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-accent/40 bg-accent/5 sm:h-11 sm:w-11">
+          {/*
+            Fase 15g: o `icon-192.png` é um lockup largo (arte de 152x88 num
+            canvas de 192x192 — medido, não estimado): 10% de margem morta de
+            cada lado e ~27% em cima e embaixo. Encaixado num quadro quadrado
+            sem zoom, a arte visível ficava em 22x13px dentro de 44px — daí a
+            sensação de logo minúscula por mais que o quadro crescesse. O
+            `scale-[1.1]` come essa margem e o quadro cresceu 36→44 (mobile,
+            sem mexer na altura do cabeçalho, que já é ditada pelos botões de
+            44px) e 44→56 (sm+) — a arte visível sai de 22x13px pra 49x28px.
+            Não vai além de 1.1: a 1.2 a arte encosta na borda e o
+            `rounded-md` come a ponta do "S" e a bandeira quadriculada
+            (conferido em captura ampliada, não no olho). O `bg-accent/5` da
+            moldura (ADR-066) fica coberto pela marca agora — continua ali
+            como estado de carregamento/falha da imagem, não como decoração
+            visível; o âmbar da moldura quem carrega é a borda.
+          */}
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-md border border-accent/40 bg-accent/5 sm:h-14 sm:w-14">
             <img
               src="/icons/icon-192.png"
               alt=""
               aria-hidden="true"
-              className="h-6 w-6 rounded-sm sm:h-7 sm:w-7"
+              className="h-full w-full scale-[1.1]"
             />
           </span>
           <span className="flex min-w-0 flex-col gap-0.5">

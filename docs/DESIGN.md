@@ -481,6 +481,19 @@ portanto já é CSS variable):
   espaço, então "Configurações" fica sempre visível no rodapé dela. Sem
   isso, a sidebar esticava junto com o conteúdo (`align-items: stretch`)
   e o rodapé dela ia parar a 5.000px do topo numa lista longa
+- Emblema do cabeçalho (Fase 15g): o `icon-192.png` **não** é uma marca
+  que preenche o canvas — a arte mede 152x88 num canvas de 192x192
+  (medido pixel a pixel, não estimado): ~10% de margem morta de cada
+  lado e ~27% em cima e embaixo, e a marca é larga (1,7:1), não
+  quadrada. Consequência prática: aumentar só a moldura quadrada quase
+  não aumenta a marca visível — antes, uma moldura de 44px mostrava
+  22x13px de arte. Solução: `overflow-hidden` na moldura +
+  `scale-[1.1]` na imagem em `h-full w-full` (come a margem morta),
+  moldura em `h-11 w-11 sm:h-14 sm:w-14` → arte visível de 49x28px. Não
+  passar de `1.1`: a partir daí o `rounded-md` da moldura corta a ponta
+  do "S" e a bandeira quadriculada. Quem quiser mexer nisso de novo:
+  meça a caixa da arte antes (dá pra fazer com canvas +
+  `getImageData`), não vá no olho
 - Acordeão (Fase 15f, primeiro uso no projeto): padrão WAI-ARIA
   `heading > button`, com `aria-expanded` no botão e `aria-controls`
   apontando pro corpo (`useId`), chevron `ChevronDown` girando 180° em
