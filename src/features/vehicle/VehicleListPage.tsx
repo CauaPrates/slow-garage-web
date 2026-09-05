@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { useVehicles } from "./useVehicles";
 import { VehicleCard } from "./VehicleCard";
 import { CreateVehicleDialog } from "./CreateVehicleDialog";
+import { GarageSummary } from "./GarageSummary";
 
 export function VehicleListPage() {
   const { data: vehicles, isLoading, isError, refetch } = useVehicles();
@@ -44,6 +45,10 @@ export function VehicleListPage() {
           <p className="text-text-primary">Nenhum veículo cadastrado ainda.</p>
           <CreateVehicleDialog triggerLabel="Cadastrar meu primeiro veículo" />
         </div>
+      )}
+
+      {!isLoading && !isError && vehicles && vehicles.length >= 2 && (
+        <GarageSummary vehicles={vehicles} />
       )}
 
       {!isLoading && !isError && vehicles && vehicles.length > 0 && (

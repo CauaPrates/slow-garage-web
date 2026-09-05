@@ -321,6 +321,15 @@ portanto já é CSS variable):
   2) em vez de só um `<dl>` de 2 campos soltos. Badge de status
   continua a "plaquinha" da Fase 14. Mesma disciplina de sempre: mais
   densidade de dado real, nenhuma decoração nova sem função
+- `GarageSummary` — resumo de todos os veículos juntos (Fase 14d,
+  `VehicleListPage`): usuário pediu ver informação agregada (ex.:
+  "quanto já gastei de upgrade em todos os carros"). Card de referência
+  (mesma casca `rounded-lg border border-border bg-surface p-4`, sem
+  hover — não é métrica "viva" como `VehicleMetricsRow`) com os 5
+  totais em `font-mono` (mesma regra de hero number monetário da Fase
+  12) e os 2 gráficos já existentes (`ExpensesByMonthChart`/
+  `ExpensesByCategoryChart`), agora com dado somado de todos os
+  veículos em vez de um só. Só aparece com 2+ veículos (ver ADR-051)
 
 ## Sistema de resposta (motion)
 
