@@ -1267,3 +1267,23 @@ e bottom nav idênticos antes/depois de entrar em Configurações, com o
 FAB e a aba "Mais" continuando habilitados pro veículo certo; "Minha
 garagem" continua colapsando a navegação como sempre (comportamento
 intencional do ADR-049, não afetado por esta mudança).
+
+## ADR-063 — Corrige o ADR-062: "Minha garagem" limpa o veículo lembrado (Fase 14p)
+
+O fallback do ADR-062 criou o efeito colateral oposto: `sessionStorage`
+guarda o último `vehicleId` **pra sempre**, então o caminho Veículo →
+Minha garagem → Configurações reaparecia com o veículo antigo — mesmo
+a pessoa tendo saído dele de propósito pra ver a garagem inteira (não
+por engano). Reportado pelo usuário como "ficou ao contrário": agora
+Configurações mostra nav de veículo bem quando ele estava explicitamente
+numa tela sem veículo nenhum.
+
+Corrigido no mesmo hook: `ROUTES.home` (a própria "Minha garagem") agora
+**limpa** o `vehicleId` guardado, além de nunca usá-lo como fallback
+(já era assim). Resultado: Configurações só herda o veículo de quem
+veio de **dentro** de um veículo — quem veio da garagem (ou de uma aba
+nova, sessão fresca) vê Configurações com a navegação de conta só,
+igual a garagem que acabou de deixar. Testado as 2 sequências de novo:
+Veículo → Configurações (mantém nav do veículo) e Veículo → Garagem →
+Configurações (nav volta a ser só conta) — as duas batem com o
+comportamento esperado agora.

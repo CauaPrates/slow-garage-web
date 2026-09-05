@@ -401,7 +401,11 @@ portanto já é CSS variable):
   com a vizinha (ver ADR-061). Fase 14o: entrar em Configurações não
   "reseta" mais a sidebar/bottom nav pro estado sem veículo — ela é
   tela de conta sobreposta, não troca de contexto; `useCurrentVehicleId`
-  ganha fallback pro último veículo visto só nessa rota (ver ADR-062)
+  ganha fallback pro último veículo visto só nessa rota (ver ADR-062).
+  Fase 14p corrigiu o efeito colateral: o veículo lembrado ficava pra
+  sempre, então voltar pra "Minha garagem" de propósito e depois abrir
+  Configurações reaparecia com o veículo antigo — "Minha garagem" agora
+  limpa o veículo lembrado (ver ADR-063)
 
 ## Sistema de resposta (motion)
 
