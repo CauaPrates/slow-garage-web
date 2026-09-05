@@ -20,6 +20,10 @@
 | 11 | **(015b)** Passar `vehicles` para `Sidebar` e restringir `HeaderActivityMenu` a abaixo de `lg` | `src/components/layout/AppShell.tsx` | AC-1b, AC-1c, RN-4 | 10 | ☑ |
 | 12 | **(015b)** `tsc --noEmit` + `eslint` limpos | — | — | 9-11 | ☑ |
 | 13 | **(015b)** Verificação visual real (Playwright): sidebar mostra atividade sem clique em 1440px e ícone do cabeçalho some; popover do cabeçalho continua funcionando em 390px e sidebar não existe nesse tamanho; sem overflow | — | AC-1, AC-1b, AC-1c | 12 | ☑ |
+| 14 | **(015c)** Mudar gate do painel comparativo de `vehicles.length >= 2` para `vehicles.length > 0` | `src/features/vehicle/VehicleListPage.tsx` | AC-5 | — | ☑ |
+| 15 | **(015c)** Esconder o painel comparativo no mobile (`hidden lg:block`) | `src/features/vehicle/VehicleListPage.tsx` | AC-6, RN-5 | 14 | ☑ |
+| 16 | **(015c)** `tsc --noEmit` + `eslint` limpos | — | — | 14-15 | ☑ |
+| 17 | **(015c)** Verificação visual real (Playwright, conta de teste com 18 veículos): painel comparativo visível em 1440px, ausente em 390px, sem overflow | — | AC-5, AC-6 | 16 | ☑ |
 
 Status: ☐ pendente · ◐ em andamento · ☑ feita · ✖ bloqueada
 

@@ -56,14 +56,28 @@ frota e um gráfico de investimento por veículo.
 3. Um popover abre mostrando os mesmos eventos, agrupados por veículo.
 
 **Alternativos**
-- Usuário com 1 veículo só: o painel comparativo não aparece (nada pra
-  comparar), igual já acontece hoje com `GarageSummary`; a seção de
-  atividade na sidebar/popover continua aparecendo normalmente (ela não
-  depende de ter 2+ veículos).
+- Usuário com 1 veículo só: o painel comparativo aparece do mesmo jeito
+  (revisão 015c — ver nota abaixo), mesmo repetindo algum número que já
+  está no card daquele veículo; a seção de atividade na sidebar/popover
+  continua aparecendo normalmente.
 - Usuário sem nenhuma atividade registrada em nenhum veículo: a
   sidebar/popover mostra o mesmo estado vazio que o card antigo mostrava.
 - Usuário sem nenhum veículo cadastrado: a seção de atividade não aparece
-  nem na sidebar nem no cabeçalho.
+  nem na sidebar nem no cabeçalho; o painel comparativo também não
+  aparece (não há o que agregar).
+- Usuário no mobile (abaixo de `lg`): o painel comparativo não aparece
+  (revisão 015c) — informação demais pra tela pequena; ele é recurso de
+  desktop.
+
+> **Nota de revisão (015c)**: a v1 só mostrava o painel comparativo com
+> 2+ veículos, espelhando a regra do `GarageSummary`. O usuário testou
+> com 1 veículo só (conta real, não a de teste) e viu a área vazia,
+> achando que a entrega não tinha acontecido — o exemplo original dele
+> ("um carro que gastei 20 mil, outro que gastei 10 mil, total 30 mil")
+> descrevia o caso de 2+ veículos, mas ele confirmou que quer o painel
+> visível mesmo com 1 veículo só. Na mesma rodada, pediu pra esconder o
+> painel inteiro no mobile — informação demais pra tela pequena. RN-1 e
+> os ACs 5/6 abaixo refletem essa correção.
 
 ## 4. Escopo
 
@@ -74,7 +88,9 @@ frota e um gráfico de investimento por veículo.
 - Ícone + popover no cabeçalho com o mesmo conteúdo, visível só abaixo de
   `lg` (mobile, onde não há sidebar).
 - Remoção do card "Atividade recente" da tela "Minha Garagem".
-- Novo painel na tela "Minha Garagem", visível só com 2+ veículos:
+- Novo painel na tela "Minha Garagem", visível com 1+ veículo cadastrado
+  e só em telas `lg` ou maiores (desktop — escondido no mobile,
+  revisão 015c):
   - quantidade de veículos cadastrados e quantos estão ativos;
   - km total rodado somando todos os veículos;
   - custo por km médio da garagem;
@@ -114,13 +130,14 @@ frota e um gráfico de investimento por veículo.
   seção de atividade não aparece nem na sidebar nem no cabeçalho.
 - **AC-4**: Dado qualquer estado da garagem, quando o usuário abre "Minha
   Garagem", então o card "Atividade recente" não existe mais nessa tela.
-- **AC-5**: Dado 2 ou mais veículos cadastrados, quando o usuário abre
-  "Minha Garagem", então aparece o painel comparativo com: contagem de
-  veículos (total e ativos), km total da garagem, custo/km médio da
-  garagem, gasto do mês atual somado, e o gráfico de investimento por
-  veículo.
-- **AC-6**: Dado exatamente 1 veículo cadastrado, quando o usuário abre
-  "Minha Garagem", então o painel comparativo não aparece.
+- **AC-5**: Dado 1 ou mais veículos cadastrados, quando o usuário abre
+  "Minha Garagem" em tela `lg` ou maior, então aparece o painel
+  comparativo com: contagem de veículos (total e ativos), km total da
+  garagem, custo/km médio da garagem, gasto do mês atual somado, e o
+  gráfico de investimento por veículo — mesmo com 1 veículo só.
+- **AC-6**: Dado 1 ou mais veículos cadastrados, quando o usuário abre
+  "Minha Garagem" em tela abaixo de `lg` (mobile), então o painel
+  comparativo não aparece.
 - **AC-7**: Dado um veículo com `current_odometer_km` nulo, quando o
   painel calcula o km total da garagem, então esse veículo é ignorado na
   soma (não conta como 0 km).
@@ -135,9 +152,11 @@ frota e um gráfico de investimento por veículo.
 
 ## 6. Regras de negócio
 
-- **RN-1**: O painel comparativo só aparece com 2+ veículos — mesma regra
-  já aplicada em `GarageSummary` (nunca duplicar um número que já é
-  idêntico ao de exibir um único veículo).
+- **RN-1** *(revisada em 015c)*: O painel comparativo aparece com
+  qualquer quantidade de veículos (1+), diferente de `GarageSummary`
+  (que continua exigindo 2+) — o usuário confirmou que prefere ver o
+  painel mesmo repetindo número já visível no card do único veículo, em
+  vez de a área ficar vazia. Só não aparece no mobile (RN-5).
 - **RN-2**: Toda métrica de média (custo/km) ignora veículos sem o dado
   em vez de tratá-los como zero, pra não distorcer a média pra baixo.
 - **RN-3**: A seção de atividade (sidebar no desktop, popover no mobile)
@@ -147,6 +166,10 @@ frota e um gráfico de investimento por veículo.
 - **RN-4**: A leitura da atividade recente é mutuamente exclusiva por
   breakpoint (`lg`): sidebar substitui o popover no desktop, popover
   substitui a sidebar no mobile — nunca os dois ao mesmo tempo.
+- **RN-5** *(nova em 015c)*: O painel comparativo é recurso exclusivo de
+  desktop (`lg`+) — não aparece no mobile, pra não empilhar informação
+  demais numa tela pequena que já mostra `GarageSummary` e a lista de
+  veículos.
 
 ## 7. Dados
 

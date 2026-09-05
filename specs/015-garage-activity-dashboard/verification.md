@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Spec** | ./spec.md |
-| **Verificado em** | 2026-09-05 |
+| **Verificado em** | 2026-09-05 (revisado 015b e 015c no mesmo dia) |
 | **Resultado** | aprovado |
 
 ## Critérios de aceite
@@ -14,8 +14,8 @@
 | AC-2 | ⬜ | Não verificado com conta real (a conta de teste tem eventos registrados). Coberto por leitura de código: `HeaderActivityMenu.tsx` renderiza a mesma string de estado vazio que `GarageActivityFeed` usava quando `feedQuery.data.length === 0`. |
 | AC-3 | ⬜ | Não verificado com conta sem veículos (a conta de teste tem 18). Coberto por leitura de código: `HeaderActivityMenu` tem `if (vehicles.length === 0) return null;`, mesmo padrão de guarda que `HeaderVehicleSwitcher`/`HeaderAlertsMenu` já usam. |
 | AC-4 | ✅ | Script Playwright: `[390] Card antigo "Atividade recente" ainda na tela (deve ser false): false` e idem em 1440px. Screenshot de página inteira `.ui-check/390-garage-dashboard.png` / `.ui-check/1440-garage-dashboard.png` — sem o card antigo. |
-| AC-5 | ✅ | Conta de teste tem 18 veículos (2+). Script: `[390] Painel "Comparativo da garagem" visível: true` (idem 1440). Screenshot `.ui-check/390-dashboard-zoom.png` / `.ui-check/1440-dashboard-zoom.png` mostram os 4 indicadores (Veículos na garagem, Km total rodado, Custo/km médio, Gasto no mês) e o gráfico de investimento por veículo. |
-| AC-6 | ⬜ | Não verificado com conta de 1 veículo só (a conta de teste tem 18). Coberto por leitura de código: o gate `vehicles.length >= 2` em `VehicleListPage.tsx` é o único ponto que monta `GarageComparisonDashboard` — mesma condição já usada e comprovada para `GarageSummary`. |
+| AC-5 | ⚠️ superado | Redefinido na revisão 015c abaixo (painel passou a exigir 1+ veículo, não 2+). Ver seção "Revisão 015c". |
+| AC-6 | ⚠️ superado | Redefinido na revisão 015c abaixo (painel escondido no mobile, não mais "com 1 veículo só"). Ver seção "Revisão 015c". |
 | AC-7 | ⚠️ parcial | Não há veículo com `current_odometer_km` nulo na conta de teste pra provar o caso isoladamente. Verificado por leitura de código: `GarageComparisonDashboard.tsx` filtra `km != null` antes de somar (`odometers`), e mostra "—" quando `odometers.length === 0`. |
 | AC-8 | ⚠️ parcial | Mesma limitação do AC-7: nenhum veículo da conta de teste está sem `cost_per_km`. Verificado por leitura de código: `costsPerKm` filtra `cost != null` antes de calcular a média; retorna `null` (exibido como "—") se a lista ficar vazia. |
 | AC-9 | ✅ | Conta de teste tem 18 veículos. Screenshot `.ui-check/1440-dashboard-zoom.png` mostra 8 barras individuais coloridas + 1 barra "Outros" (R$ 85,00, soma dos 10 restantes). |
@@ -95,20 +95,68 @@ $ npm run lint
 (sem saída — passou)
 ```
 
+## Revisão 015c — painel comparativo com 1 veículo + escondido no mobile
+
+O usuário testou com a própria conta (1 veículo só, "Peugeot 308") e viu
+a área vazia — a v1 exigia 2+ veículos pra mostrar o painel, mesma regra
+do `GarageSummary`. Ele confirmou explicitamente que quer o painel visível
+mesmo com 1 veículo (mesmo repetindo número já visível no card daquele
+veículo). Na mesma rodada, pediu pra esconder o painel inteiro no
+mobile, pra não empilhar informação demais numa tela pequena.
+
+| AC | Resultado | Evidência |
+|---|---|---|
+| AC-5 (revisado) | ✅ | `VehicleListPage.tsx` mudou o gate de `vehicles.length >= 2` para `vehicles.length > 0`. Login real, 1440px, conta de teste (18 veículos, satisfaz `> 0`): `[1440] "Comparativo da garagem" visível: true`. `GarageComparisonDashboard` não tem gate interno de quantidade (todo `reduce`/`filter` do componente já era seguro com array de 1 elemento, sem mudança de lógica necessária). |
+| AC-6 (revisado) | ✅ | `VehicleListPage.tsx` envolve `GarageComparisonDashboard` num `<div className="hidden lg:block">`. Script: `[390] "Comparativo da garagem" visível: false`, `[390] overflow: ok`. Screenshot `.ui-check/390-comparison-mobile-hidden.png` mostra a tela indo direto de "Resumo de todos os veículos" pra lista de veículos, sem o painel comparativo. |
+| RN-1 (revisada) | ✅ | Mesma evidência do AC-5 — o painel não depende mais de quantidade de veículos. |
+| RN-5 (nova) | ✅ | Mesma evidência do AC-6 — painel é exclusivo de `lg`+. |
+
+### Saída do comando (015c)
+```
+[1440] "Comparativo da garagem" visível: true
+[1440] overflow: scrollWidth=1440 innerWidth=1440 ok
+[1440] console errors: nenhum
+[390] "Comparativo da garagem" visível: false
+[390] overflow: scrollWidth=390 innerWidth=390 ok
+[390] console errors: nenhum
+```
+
+### Tipos e lint (015c)
+```
+$ npx tsc --noEmit
+(sem saída — passou)
+
+$ npm run lint
+> slow-garage-web@0.0.0 lint
+> eslint .
+(sem saída — passou)
+```
+
+Não foi possível testar com exatamente 1 veículo usando a conta de teste
+(`e2e-test@dev.local` tem 18) — a evidência acima prova que o gate mudou
+de `>= 2` para `> 0` e que a lógica interna do componente já era segura
+para 1 elemento, mas o humano deve confirmar visualmente na própria conta
+real (1 veículo) que o layout com 1 barra só no gráfico fica legível.
+
 ## Pendências
 
-- AC-2, AC-3, AC-6, AC-7, AC-8 não têm evidência de execução real porque a
+- AC-2, AC-3, AC-7, AC-8 não têm evidência de execução real porque a
   conta de teste disponível (`e2e-test@dev.local`) não tem um cenário de
-  "zero veículos", "1 veículo só" ou "veículo sem km/custo-por-km"
-  configurado. A lógica que cobre esses casos foi lida linha a linha e
-  segue o mesmo padrão já validado em componentes irmãos
-  (`HeaderAlertsMenu`, `GarageSummary`), mas fica registrado como parcial
-  em vez de ✅ por dedução.
+  "zero veículos" ou "veículo sem km/custo-por-km" configurado. A lógica
+  que cobre esses casos foi lida linha a linha e segue o mesmo padrão já
+  validado em componentes irmãos (`HeaderAlertsMenu`, `GarageSummary`),
+  mas fica registrado como parcial em vez de ✅ por dedução.
+- AC-5/AC-6 (revisados em 015c) não foram testados com exatamente 1
+  veículo de verdade — só com a conta de teste (18 veículos, cobre o
+  "1+") e por leitura de código pra confirmar que o cálculo não quebra
+  com array de 1 elemento.
 
 ## Para o humano testar na mão
 
-1. Numa conta com 1 veículo só (ou filtrando visualmente), confirmar que
-   "Comparativo da garagem" não aparece em "Minha Garagem".
+1. Na sua conta real (1 veículo, "Peugeot 308"), confirmar que
+   "Comparativo da garagem" agora aparece em "Minha Garagem" no desktop,
+   e que o gráfico com 1 barra só fica legível (não cortado, não
+   esmagado).
 2. Numa conta sem nenhum veículo, confirmar que o ícone de atividade
    recente não aparece no cabeçalho.
 3. Editar um veículo removendo o odômetro atual (deixando em branco) e
