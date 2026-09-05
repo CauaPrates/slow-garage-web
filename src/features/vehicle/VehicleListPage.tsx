@@ -5,7 +5,7 @@ import { useVehicles } from "./useVehicles";
 import { VehicleCard } from "./VehicleCard";
 import { CreateVehicleDialog } from "./CreateVehicleDialog";
 import { GarageSummary } from "./GarageSummary";
-import { GarageActivityFeed } from "./GarageActivityFeed";
+import { GarageComparisonDashboard } from "./GarageComparisonDashboard";
 
 export function VehicleListPage() {
   const { data: vehicles, isLoading, isError, refetch } = useVehicles();
@@ -14,9 +14,7 @@ export function VehicleListPage() {
   return (
     <div className="flex flex-col gap-6 p-6">
       <div className="flex items-center justify-between gap-4">
-        <h1 className="text-lg font-medium text-text-primary">
-          Minha Garagem
-        </h1>
+        <h1 className="text-lg font-medium text-text-primary">Minha Garagem</h1>
         {vehicles && vehicles.length > 0 && <CreateVehicleDialog />}
       </div>
 
@@ -54,8 +52,8 @@ export function VehicleListPage() {
         <GarageSummary vehicles={vehicles} />
       )}
 
-      {!isLoading && !isError && vehicles && vehicles.length > 0 && (
-        <GarageActivityFeed vehicles={vehicles} />
+      {!isLoading && !isError && vehicles && vehicles.length >= 2 && (
+        <GarageComparisonDashboard vehicles={vehicles} />
       )}
 
       {!isLoading && !isError && vehicles && vehicles.length > 0 && (
