@@ -5,27 +5,43 @@ import { Button } from "@/components/ui/button";
 import { formatKm, formatMoney } from "@/lib/format";
 import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
-import { VEHICLE_STATUS_LABELS } from "./schemas";
+import { FUEL_TYPE_LABELS, VEHICLE_STATUS_LABELS } from "./schemas";
 import { EditVehicleDialog } from "./EditVehicleDialog";
 import { DeleteVehicleDialog } from "./DeleteVehicleDialog";
 import type { VehicleWithSummary } from "./useVehicles";
 
 type VehicleCardProps = {
   vehicle: VehicleWithSummary;
+  /** Número da baia (1-based) — mostrado tipo placa de vaga de oficina, não é um dado do banco. */
+  bayNumber: number;
 };
 
-export function VehicleCard({ vehicle }: VehicleCardProps) {
+function Spec({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <dt className="text-xs text-text-secondary">{label}</dt>
+      <dd className="font-mono text-text-primary">{value}</dd>
+    </div>
+  );
+}
+
+/** Fase 14c: cada veículo é uma "baia de oficina" — linha larga com foto, número da vaga e ficha técnica, não mais um card de admin genérico. */
+export function VehicleCard({ vehicle, bayNumber }: VehicleCardProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const totalInvested = vehicle.financialSummary?.total_invested;
+  const costPerKm = vehicle.financialSummary?.cost_per_km;
 
   return (
-    <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-surface transition-colors duration-150 hover:border-accent">
+    <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-surface transition-colors duration-150 hover:border-accent sm:flex-row">
       <Link
         to={ROUTES.vehicle(vehicle.id)}
-        className="flex flex-1 flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="flex flex-1 flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:flex-row"
       >
-        <div className="flex h-40 items-center justify-center bg-accent/5">
+        <div className="relative flex h-40 shrink-0 items-center justify-center bg-accent/5 sm:h-auto sm:w-56">
+          <span className="absolute top-2 left-2 font-mono text-xs text-accent">
+            {String(bayNumber).padStart(2, "0")}
+          </span>
           {vehicle.photoUrl ? (
             <img
               src={vehicle.photoUrl}
@@ -37,7 +53,7 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
           )}
         </div>
 
-        <div className="flex flex-1 flex-col gap-2 p-4">
+        <div className="flex flex-1 flex-col gap-3 p-4">
           <div className="flex items-start justify-between gap-2">
             <div>
               <p className="font-medium text-text-primary">
@@ -60,24 +76,22 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
             </span>
           </div>
 
-          <dl className="mt-2 grid grid-cols-2 gap-2 text-sm">
-            <div>
-              <dt className="text-text-secondary">Km</dt>
-              <dd className="text-text-primary">
-                {vehicle.current_odometer_km != null ? formatKm(vehicle.current_odometer_km) : "—"}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-text-secondary">Total investido</dt>
-              <dd className="text-text-primary">
-                {totalInvested != null ? formatMoney(totalInvested) : "—"}
-              </dd>
-            </div>
+          <dl className="grid grid-cols-2 gap-3 border-t border-border pt-3 text-sm sm:grid-cols-4">
+            <Spec
+              label="Km"
+              value={vehicle.current_odometer_km != null ? formatKm(vehicle.current_odometer_km) : "—"}
+            />
+            <Spec label="Custo/km" value={costPerKm != null ? `${formatMoney(costPerKm)}/km` : "—"} />
+            <Spec
+              label="Total investido"
+              value={totalInvested != null ? formatMoney(totalInvested) : "—"}
+            />
+            <Spec label="Combustível" value={FUEL_TYPE_LABELS[vehicle.fuel_type]} />
           </dl>
         </div>
       </Link>
 
-      <div className="flex justify-end gap-2 p-4 pt-0">
+      <div className="flex shrink-0 gap-2 p-4 pt-0 sm:flex-col sm:pt-4 sm:pl-0">
         <Button
           variant="ghost"
           size="icon"
