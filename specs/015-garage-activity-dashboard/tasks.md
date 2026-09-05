@@ -31,6 +31,10 @@
 | 22 | **(015d)** Registrar a decisão (ADR-070 + entradas de "Densidade") | `docs/DECISIONS.md`, `docs/DESIGN.md` | AC-11 | 21 | ☑ |
 | 23 | **(015d)** `tsc --noEmit` + `eslint` limpos | — | — | 18-21 | ☑ |
 | 24 | **(015d)** Verificação real (Playwright): ausência do "Km total rodado", os 5 módulos, cor/altura/raio da barra computados, fio de 1px nos módulos, query real HTTP 200 e caminho populado | — | AC-5, AC-10, AC-11, AC-12 | 23 | ☑ |
+| 25 | **(015e)** Shell de altura de viewport em `lg`+, com o `<main>` como contêiner de rolagem | `src/components/layout/AppShell.tsx` | AC-13, AC-14 | — | ☑ |
+| 26 | **(015e)** Sidebar com altura limitada (`min-h-0 overflow-y-auto`) e grupos de link `shrink-0`, pra só a atividade ceder espaço | `src/components/layout/Sidebar.tsx` | AC-13 | 25 | ☑ |
+| 27 | **(015e)** Registrar o modelo de rolagem em DESIGN.md ("Densidade") | `docs/DESIGN.md` | AC-13 | 26 | ☑ |
+| 28 | **(015e)** Verificação real (Playwright) em 1440x900, 1280x620 e 390x844: posição de "Configurações" antes/depois de rolar, scroll interno do feed, documento rolando no mobile | — | AC-13, AC-14 | 27 | ☑ |
 
 Status: ☐ pendente · ◐ em andamento · ☑ feita · ✖ bloqueada
 

@@ -470,6 +470,17 @@ portanto já é CSS variable):
   decoração — mesma regra que o `ExpensesByMonthChart` já seguia.
   Trilho reto e fino (`h-1.5`, sem raio, trilho em `--color-border`),
   não cápsula `rounded-full` grossa
+- Modelo de rolagem do shell (Fase 15e, `AppShell`): a partir de `lg` o
+  shell tem a altura exata da viewport (`lg:h-dvh lg:overflow-hidden`) e
+  **quem rola é o `<main>`** (`lg:overflow-y-auto`); cabeçalho e sidebar
+  ficam fixos. Abaixo de `lg` o documento continua rolando normalmente —
+  é o que deixa a barra de endereço do navegador mobile se esconder, e
+  não há sidebar nesse tamanho pra ficar presa. A sidebar usa
+  `min-h-0 overflow-y-auto` com os grupos de link em `shrink-0`: só a
+  lista de "Atividade recente" (`flex-1 min-h-0` + scroll próprio) cede
+  espaço, então "Configurações" fica sempre visível no rodapé dela. Sem
+  isso, a sidebar esticava junto com o conteúdo (`align-items: stretch`)
+  e o rodapé dela ia parar a 5.000px do topo numa lista longa
 
 ## Sistema de resposta (motion)
 

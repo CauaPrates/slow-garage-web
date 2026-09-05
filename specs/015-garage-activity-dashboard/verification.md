@@ -221,6 +221,47 @@ mesmo assim porque a **regra** de quando usar a paleta categórica não se
 aplicava aqui (ver AC-10/DESIGN.md), não porque a cor fosse de fora do
 sistema.
 
+## Revisão 015e — sidebar fixa, scroll só dentro da atividade
+
+Bug criado pela 015b e relatado pelo usuário: a sidebar acompanhava o
+scroll e a altura da página, então "Configurações" só aparecia rolando
+até o fim de uma página de 5.000px.
+
+| AC | Resultado | Evidência |
+|---|---|---|
+| AC-13 | ✅ | 1440x900, login real, home com 18 veículos. **Antes de rolar:** `configTop=852 configBottom=888 configVisible=true` numa viewport de 900px. **Com o conteúdo rolado até o fim** (`mainScrollTop=4367` de `mainScrollHeight=5198`): `configTop=852 configBottom=888` — número idêntico, a sidebar não se moveu. `docScrollHeight=900` = viewport, ou seja o documento não rola mais no desktop; `mainScrolls=true`. |
+| AC-13 (scroll interno) | ✅ | Em 1280x620 (janela baixa, onde a lista não cabe): `feedScrolls=true` com `feedClientH=397` contra `feedScrollH=518` — a lista de atividade rola dentro dela mesma, e `configVisible=true` continua. Screenshot `.ui-check/15e-1280x620-fim.png` (conteúdo no fim, cabeçalho + sidebar + "Configurações" parados no lugar). |
+| AC-14 | ✅ | 390x844: `documento rola: true (scrollTop 0 → 800, page 7369px vs viewport 844px)` — o modelo de rolagem do mobile ficou intacto. |
+
+### Saída do comando (015e)
+```
+=== 1440x900 — no topo ===
+  {"tag":"topo","viewportH":900,"docScrollTop":0,"docScrollHeight":900,"navHeight":831,"configTop":852,"configBottom":888,"configVisible":true,"mainScrollTop":0,"mainScrollHeight":5198,"mainClientHeight":831,"mainScrolls":true,"feedScrolls":false,"feedClientH":518,"feedScrollH":518}
+=== 1440x900 — conteúdo rolado até o fim ===
+  {"tag":"fim","viewportH":900,"docScrollTop":0,"docScrollHeight":900,"navHeight":831,"configTop":852,"configBottom":888,"configVisible":true,"mainScrollTop":4367,"mainScrollHeight":5198,"mainClientHeight":831,"mainScrolls":true,"feedScrolls":false,"feedClientH":518,"feedScrollH":518}
+  console errors: nenhum
+
+=== 1280x620 (janela baixa) — no topo ===
+  {"tag":"topo","viewportH":620,"docScrollTop":0,"docScrollHeight":620,"navHeight":551,"configTop":572,"configBottom":608,"configVisible":true,"mainScrollTop":0,"mainScrollHeight":5198,"mainClientHeight":551,"mainScrolls":true,"feedScrolls":true,"feedClientH":397,"feedScrollH":518}
+=== 1280x620 (janela baixa) — conteúdo rolado até o fim ===
+  {"tag":"fim","viewportH":620,"docScrollTop":0,"docScrollHeight":620,"navHeight":551,"configTop":572,"configBottom":608,"configVisible":true,"mainScrollTop":4647,"mainScrollHeight":5198,"mainClientHeight":551,"mainScrolls":true,"feedScrolls":true,"feedClientH":397,"feedScrollH":518}
+  console errors: nenhum
+
+=== 390x844 (mobile) ===
+  documento rola: true (scrollTop 0 → 800, page 7369px vs viewport 844px)
+```
+
+### Tipos e lint (015e)
+```
+$ npx tsc --noEmit
+TSC_OK
+
+$ npm run lint
+> slow-garage-web@0.0.0 lint
+> eslint .
+(sem saída — passou)
+```
+
 ## Pendências
 
 - AC-2, AC-3, AC-7, AC-8 não têm evidência de execução real porque a

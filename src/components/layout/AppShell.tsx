@@ -8,12 +8,20 @@ import { HeaderActivityMenu } from "./HeaderActivityMenu";
 import { HeaderVehicleSwitcher } from "./HeaderVehicleSwitcher";
 import { HeaderUserMenu } from "./HeaderUserMenu";
 
+/**
+ * Fase 15e: no desktop (`lg`+) o shell tem a altura exata da viewport e não
+ * rola — quem rola é o `<main>`. Antes a página inteira rolava e a sidebar,
+ * por esticar junto com o conteúdo, empurrava "Configurações" pro fim de uma
+ * página de 10.000px. Abaixo de `lg` nada muda: o documento continua rolando
+ * (é o que faz a barra de endereço do navegador mobile se esconder, e não há
+ * sidebar nesse tamanho pra ficar presa).
+ */
 export function AppShell() {
   const { data: vehicles } = useVehicles();
 
   return (
-    <div className="flex min-h-dvh flex-col bg-bg text-text-primary">
-      <header className="flex items-center justify-between border-b border-border px-3 py-2.5 sm:px-4 sm:py-3">
+    <div className="flex min-h-dvh flex-col bg-bg text-text-primary lg:h-dvh lg:min-h-0 lg:overflow-hidden">
+      <header className="flex shrink-0 items-center justify-between border-b border-border px-3 py-2.5 sm:px-4 sm:py-3">
         <Link
           to={ROUTES.home}
           className="flex min-w-0 shrink items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:gap-3"
@@ -43,9 +51,9 @@ export function AppShell() {
           <HeaderUserMenu />
         </div>
       </header>
-      <div className="flex flex-1">
+      <div className="flex flex-1 lg:min-h-0">
         <Sidebar vehicles={vehicles ?? []} />
-        <main className="min-w-0 flex-1 pb-20 lg:pb-0">
+        <main className="min-w-0 flex-1 pb-20 lg:overflow-y-auto lg:pb-0">
           <Outlet />
         </main>
       </div>
