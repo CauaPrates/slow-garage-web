@@ -4,6 +4,7 @@ import { Car, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { formatKm, formatMoney } from "@/lib/format";
 import { ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 import { VEHICLE_STATUS_LABELS } from "./schemas";
 import { EditVehicleDialog } from "./EditVehicleDialog";
 import { DeleteVehicleDialog } from "./DeleteVehicleDialog";
@@ -24,7 +25,7 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
         to={ROUTES.vehicle(vehicle.id)}
         className="flex flex-1 flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
       >
-        <div className="flex h-40 items-center justify-center bg-bg">
+        <div className="flex h-40 items-center justify-center bg-accent/5">
           {vehicle.photoUrl ? (
             <img
               src={vehicle.photoUrl}
@@ -47,7 +48,14 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
                 {vehicle.trim ? ` · ${vehicle.trim}` : ""}
               </p>
             </div>
-            <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-xs text-text-secondary">
+            <span
+              className={cn(
+                "shrink-0 rounded-sm border px-2 py-0.5 text-[10px] font-medium tracking-wide uppercase",
+                vehicle.status === "active"
+                  ? "border-accent/40 bg-accent/10 text-accent"
+                  : "border-border text-text-secondary",
+              )}
+            >
               {VEHICLE_STATUS_LABELS[vehicle.status]}
             </span>
           </div>
