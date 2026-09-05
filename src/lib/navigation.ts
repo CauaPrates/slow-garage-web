@@ -70,6 +70,22 @@ export const BOTTOM_NAV_ITEMS: NavItem[] = [
   { label: "Configurações", icon: Settings, to: ROUTES.configuracoes },
 ];
 
+/**
+ * Itens da folha "Mais" (aba da bottom nav, Fase 14g): as seções de veículo
+ * que a sidebar mostra mas as 4 abas fixas (Home/Carros/Dados/Configurações)
+ * não cobrem. Mesma ressalva do ADD_SHEET_ITEMS — a aba "Mais" só aparece
+ * com veículo selecionado (ver BottomNav.tsx), então todo item aqui sempre
+ * resolve uma rota.
+ */
+export const MORE_SHEET_ITEMS: NavItem[] = [
+  { label: "Gastos", icon: Receipt, to: (vehicleId) => ROUTES.vehicleExpenses(vehicleId) },
+  { label: "Abastecimentos", icon: Fuel, to: (vehicleId) => ROUTES.vehicleFuelLogs(vehicleId) },
+  { label: "Manutenção", icon: Wrench, to: (vehicleId) => ROUTES.vehicleMaintenance(vehicleId) },
+  { label: "Problemas", icon: AlertTriangle, to: (vehicleId) => ROUTES.vehicleIssues(vehicleId) },
+  { label: "Projetos", icon: ClipboardList, to: (vehicleId) => ROUTES.vehicleProjects(vehicleId) },
+  { label: "Documentos", icon: FileText, to: (vehicleId) => ROUTES.vehicleDocuments(vehicleId) },
+];
+
 /** Itens da folha "Adicionar" — a folha só abre quando o FAB está habilitado (há veículo), então todo item aqui é sempre resolvível. */
 export const ADD_SHEET_ITEMS: NavItem[] = [
   { label: "Gasto", icon: Receipt, to: (vehicleId) => `${ROUTES.vehicleExpenses(vehicleId)}?novo=1` },

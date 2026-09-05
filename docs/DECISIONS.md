@@ -990,3 +990,35 @@ número que duplicaria o resumo de 1 veículo só), a atividade aparece
 com 1 veículo também: o ganho aqui é poupar o clique de navegar, não
 mostrar um dado novo — com 1 carro, é o mesmo conteúdo da timeline
 dele, só que sem sair da "Minha Garagem".
+
+## ADR-054 — Aba "Mais" na bottom nav: as 9 seções da sidebar não cabiam nas 4 abas fixas do mobile (Fase 14g)
+
+Usuário reportou (com print da `VehiclePage` no mobile): a bottom nav
+só tem 4 abas (Home, Carros, Dados, Configurações) + FAB, mas a sidebar
+de desktop tem 9 seções (`SIDEBAR_NAV_ITEMS`) — Gastos, Abastecimentos,
+Manutenção, Problemas, Projetos e Documentos não eram alcançáveis no
+mobile de jeito nenhum (o FAB só *cria* registro, não navega pra ver a
+lista/gerenciar). Bug de paridade, não decisão consciente anterior — a
+bottom nav nunca teve as 9 seções, só um subconjunto fixo pensado pra
+"visão geral" (Fase 9).
+
+Decisão: 5ª aba "Mais" (ícone `LayoutGrid`), entre "Dados" e
+"Configurações" — mesma posição de "Configurações" continua fixa por
+último (`settingsItem` sempre separado do split), consistente com o
+`pinBottom` da sidebar. Abre uma folha (`MoreSheet`) com as 6 seções que
+faltavam, mesmo componente visual do FAB "Adicionar" — a diferença
+óbvia (grade de ícone+rótulo linkando pra tela em vez de abrir diálogo
+de criação) fez valer a pena extrair a base comum: `NavSheet.tsx` (novo)
+carrega o `Dialog` do Radix posicionado na base + a grade; `AddActionSheet`
+e `MoreSheet` viram wrappers finos só com título/lista diferentes. Só
+extraiu no segundo consumidor, não antes (mesma regra de sempre:
+abstração espera o segundo caso real).
+
+"Mais" só aparece com veículo selecionado — todo item da folha é
+vehicle-scoped, então sem veículo ela não teria o que mostrar (mesma
+regra de "item some, não aparece desabilitado" de todo o resto da
+bottom nav, ADR-049). Alternativas descartadas: substituir "Dados" por
+"Mais" (perderia o atalho direto pro histórico, que já tinha uso
+próprio); menu hambúrguer/drawer full-screen no lugar da bottom nav
+inteira (mudança maior, perderia o acesso de 1 toque às abas mais
+usadas que a bottom nav já dá).
