@@ -15,6 +15,7 @@ import {
   type ThemePreference,
 } from "@/lib/theme";
 import { AuthProvider } from "@/features/auth/AuthProvider";
+import { ThemeProfileSync } from "@/features/auth/ThemeProfileSync";
 
 type ThemeContextValue = {
   /** Preferência escolhida — "system" acompanha o SO; "light"/"dark" é escolha explícita. */
@@ -74,7 +75,10 @@ export function Providers({ children }: { children: ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeContext.Provider value={{ preference, resolvedTheme, setPreference, toggleTheme }}>
-        <AuthProvider>{children}</AuthProvider>
+        <AuthProvider>
+          <ThemeProfileSync />
+          {children}
+        </AuthProvider>
       </ThemeContext.Provider>
     </QueryClientProvider>
   );
