@@ -946,3 +946,47 @@ recusadas.
   `design-review` proíbe) e, com muitos veículos, transforma a garagem
   numa lista de mini-dashboards — o oposto de "lista de baias" que a
   Fase 14c decidiu. O clique na linha já leva 1 passo até essas ações.
+
+## ADR-053 — Supera parte do ADR-052: ações rápidas por linha e atividade agregada na "Minha Garagem" (Fase 14f)
+
+O usuário pediu explicitamente as duas coisas que o ADR-052 tinha
+recusado, depois de eu apontar que a recusa original mirava garagem
+com **muitos** veículos (virar "lista de mini-dashboards"). A conta
+real em uso tem 1 carro só — nesse caso a objeção não se sustenta: a
+página realmente morre depois do card, e o clique extra pra fazer a
+ação mais comum é exatamente o atrito que o usuário reclamou. Registrado
+como reversão consciente (mesmo padrão do ADR-049 sobre o ADR-024), não
+descoberta silenciosa.
+
+**Ações rápidas por linha (`VehicleQuickActions`, novo componente):**
+versão compacta do `QuickActionsRow` (4 botões só-ícone, `size="icon"`
+de 44px, mesmo alvo de toque do resto do app) numa faixa `border-t` no
+rodapé do card, fora do `<Link>` que leva pro veículo (bota `<button>`
+dentro de `<a>` seria semântica inválida). Diferença de disciplina
+visual pra não virar "mini-dashboard": nada de rótulo de texto nos
+botões (só ícone + `aria-label`), nada de grid 2x2 chamativo como na
+`VehiclePage` — é uma faixa quieta de utilidade, não uma segunda faixa
+de destaque.
+
+Custo evitado: `CreateMaintenanceRecordDialog` depende de
+`useMaintenanceItems(vehicleId)`, que dispararia uma query por veículo
+da lista só pra deixar o diálogo pronto. `useMaintenanceItems` ganhou
+um `options?.enabled` (default `true`, compatível com todo uso
+existente) e `VehicleQuickActions` só liga a query depois do primeiro
+clique no botão de manutenção — os outros 3 diálogos (gasto,
+abastecimento, foto) não têm esse custo (dados já vêm de
+`useVehicles`/prop), então montam direto.
+
+**Atividade agregada (`useGarageTimeline` + `GarageActivityFeed`):**
+mesmo padrão do `useGarageSummary` (ADR-051) — sem RPC de garagem,
+busca a view `vehicle_timeline` com `vehicle_id IN (...)`. Mais simples
+que `useGarageSummary` porque não soma nada: `order` + `limit` na
+própria query já entrega os N eventos mais recentes prontos, sem merge
+no cliente. Reaproveita o `TimelineItem` que a `VehiclePage` já usa —
+zero componente novo de exibição, só um jeito novo de alimentá-lo.
+
+Diferente do `GarageSummary` (só aparece com 2+ veículos, por ser
+número que duplicaria o resumo de 1 veículo só), a atividade aparece
+com 1 veículo também: o ganho aqui é poupar o clique de navegar, não
+mostrar um dado novo — com 1 carro, é o mesmo conteúdo da timeline
+dele, só que sem sair da "Minha Garagem".
