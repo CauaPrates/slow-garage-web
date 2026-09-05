@@ -406,6 +406,11 @@ portanto já é CSS variable):
   sempre, então voltar pra "Minha garagem" de propósito e depois abrir
   Configurações reaparecia com o veículo antigo — "Minha garagem" agora
   limpa o veículo lembrado (ver ADR-063)
+- `ThemeToggle` sai do cabeçalho autenticado (Fase 14q): virou
+  redundante depois que Configurações ganhou o controle completo de
+  tema — cabeçalho fica só com a marca. `ThemeToggle` continua em
+  `AuthLayout` (login/cadastro), onde não há Configurações pra apontar
+  (ver ADR-064)
 
 ## Sistema de resposta (motion)
 

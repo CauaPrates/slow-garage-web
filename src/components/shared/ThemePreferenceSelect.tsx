@@ -9,7 +9,7 @@ const OPTIONS: { value: ThemePreference; label: string }[] = [
   { value: "system", label: "Seguir o sistema" },
 ];
 
-/** Controle completo de tema (Configurações) — diferente do `ThemeToggle` (atalho binário do cabeçalho/login), aqui inclui "seguir o sistema". */
+/** Controle completo de tema (Configurações) — diferente do `ThemeToggle` (atalho binário só na tela de login), aqui inclui "seguir o sistema". */
 export function ThemePreferenceSelect() {
   const { preference, setPreference } = useTheme();
 

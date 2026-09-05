@@ -1287,3 +1287,13 @@ igual a garagem que acabou de deixar. Testado as 2 sequências de novo:
 Veículo → Configurações (mantém nav do veículo) e Veículo → Garagem →
 Configurações (nav volta a ser só conta) — as duas batem com o
 comportamento esperado agora.
+
+## ADR-064 — `ThemeToggle` sai do cabeçalho autenticado (Fase 14q)
+
+Usuário apontou: o atalho de tema no cabeçalho (`AppShell`) ficou
+redundante depois que Configurações ganhou o controle completo
+(`ThemePreferenceSelect`, ADR-057/058). Removido de `AppShell.tsx` —
+`ThemeToggle` continua existindo e é usado só em `AuthLayout` (tela de
+login/cadastro, onde não há Configurações pra apontar). Cabeçalho
+autenticado fica só com a marca (ícone + "Slow Garage", já linkando
+pra home desde o ADR-059).
