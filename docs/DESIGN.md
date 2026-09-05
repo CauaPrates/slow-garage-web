@@ -398,7 +398,10 @@ portanto já é CSS variable):
   padrão do `FinancialSummaryCard`) — mais perto da "ficha técnica" do
   `VehicleCard` do que do "grid de admin" genérico. `items-start` no
   sub-grid de "Conta" garante que nenhuma coluna esticar pra combinar
-  com a vizinha (ver ADR-061)
+  com a vizinha (ver ADR-061). Fase 14o: entrar em Configurações não
+  "reseta" mais a sidebar/bottom nav pro estado sem veículo — ela é
+  tela de conta sobreposta, não troca de contexto; `useCurrentVehicleId`
+  ganha fallback pro último veículo visto só nessa rota (ver ADR-062)
 
 ## Sistema de resposta (motion)
 

@@ -1236,3 +1236,34 @@ resto do produto já estabeleceu, em vez do estilo genérico de shadcn
 sem override. `items-start` também adicionado no sub-grid de "Conta"
 (e-mail + nome de exibição) por disciplina, mesmo a medição não
 confirmando stretch ali.
+
+## ADR-062 — `useCurrentVehicleId` ganha fallback pra `/configuracoes` (Fase 14o)
+
+Usuário reportou: entrar em Configurações "resetava" a sidebar/bottom
+nav pro estado sem veículo selecionado (só "Minha garagem" +
+"Configurações") — como se tivesse saído do contexto do carro, quando
+na real só queria mexer numa preferência e continuar de onde estava.
+Causa raiz: `useCurrentVehicleId` (`src/hooks/useCurrentVehicleId.ts`)
+lê o veículo **só da URL** (`/v/:vehicleId/*`, RN-1 de
+`specs/003-vehicle-shell/spec.md`) — regra certa pra páginas que são
+"outro contexto" de verdade (a própria "Minha garagem", por exemplo,
+onde não faz sentido nenhum veículo estar "selecionado"), mas errada
+pra `/configuracoes`, que é uma tela de conta sobreposta, não uma
+troca de contexto.
+
+Decisão: guarda o último `vehicleId` lido da URL em `sessionStorage`
+(`useEffect`, não durante o render) e usa como **fallback só quando
+`location.pathname === ROUTES.configuracoes`** — em qualquer outra
+rota sem veículo na URL (inclusive "Minha garagem"), o comportamento
+continua exatamente o mesmo de antes: `null`, sem fallback. Não é uma
+reversão geral do "veículo mora na URL, nunca em contexto React" — é
+uma exceção nomeada, só pra essa rota, guardada como implementação de
+persistência (não como fonte de verdade concorrente): se a pessoa
+trocar de veículo de verdade, a URL manda de novo assim que ela sai de
+`/configuracoes`.
+
+Testado via `sessionStorage`/DOM real (não só lendo o código): sidebar
+e bottom nav idênticos antes/depois de entrar em Configurações, com o
+FAB e a aba "Mais" continuando habilitados pro veículo certo; "Minha
+garagem" continua colapsando a navegação como sempre (comportamento
+intencional do ADR-049, não afetado por esta mudança).
