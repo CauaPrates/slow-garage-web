@@ -1,8 +1,21 @@
 import { NavLink } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { useCurrentVehicleId } from "@/hooks/useCurrentVehicleId";
-import { useVehicle } from "@/features/vehicle/useVehicles";
-import { isVehicleScoped, SIDEBAR_NAV_ITEMS, resolveNavItem, type NavItem } from "@/lib/navigation";
+import {
+  useVehicle,
+  type VehicleWithSummary,
+} from "@/features/vehicle/useVehicles";
+import {
+  isVehicleScoped,
+  SIDEBAR_NAV_ITEMS,
+  resolveNavItem,
+  type NavItem,
+} from "@/lib/navigation";
+import { SidebarActivityFeed } from "./SidebarActivityFeed";
+
+type SidebarProps = {
+  vehicles: VehicleWithSummary[];
+};
 
 function NavItemLink({ item, href }: { item: NavItem; href: string }) {
   const Icon = item.icon;
@@ -31,12 +44,16 @@ function NavItemLink({ item, href }: { item: NavItem; href: string }) {
  * nome dele como rótulo, só quando há um selecionado) separada por
  * divisor, "Configurações" fixo no rodapé.
  */
-export function Sidebar() {
+export function Sidebar({ vehicles }: SidebarProps) {
   const vehicleId = useCurrentVehicleId();
   const { vehicle } = useVehicle(vehicleId ?? "");
 
-  const accountItems = SIDEBAR_NAV_ITEMS.filter((item) => !isVehicleScoped(item) && !item.pinBottom);
-  const vehicleItems = SIDEBAR_NAV_ITEMS.filter((item) => isVehicleScoped(item));
+  const accountItems = SIDEBAR_NAV_ITEMS.filter(
+    (item) => !isVehicleScoped(item) && !item.pinBottom,
+  );
+  const vehicleItems = SIDEBAR_NAV_ITEMS.filter((item) =>
+    isVehicleScoped(item),
+  );
   const bottomItems = SIDEBAR_NAV_ITEMS.filter((item) => item.pinBottom);
 
   return (
@@ -62,6 +79,8 @@ export function Sidebar() {
           })}
         </div>
       )}
+
+      <SidebarActivityFeed vehicles={vehicles} />
 
       <div className="mt-auto flex flex-col gap-1 border-t border-border pt-2">
         {bottomItems.map((item) => {

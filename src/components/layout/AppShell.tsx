@@ -36,13 +36,15 @@ export function AppShell() {
 
         <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
           <HeaderVehicleSwitcher vehicles={vehicles ?? []} />
-          <HeaderActivityMenu vehicles={vehicles ?? []} />
+          <div className="lg:hidden">
+            <HeaderActivityMenu vehicles={vehicles ?? []} />
+          </div>
           <HeaderAlertsMenu vehicles={vehicles ?? []} />
           <HeaderUserMenu />
         </div>
       </header>
       <div className="flex flex-1">
-        <Sidebar />
+        <Sidebar vehicles={vehicles ?? []} />
         <main className="min-w-0 flex-1 pb-20 lg:pb-0">
           <Outlet />
         </main>
