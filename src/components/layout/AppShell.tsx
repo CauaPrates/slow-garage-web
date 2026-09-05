@@ -12,20 +12,23 @@ export function AppShell() {
 
   return (
     <div className="flex min-h-dvh flex-col bg-bg text-text-primary">
-      <header className="flex items-center justify-between border-b border-border px-4 py-3">
-        <Link to={ROUTES.home} className="flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent">
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-accent/40 bg-accent/5">
-            <img src="/icons/icon-192.png" alt="" aria-hidden="true" className="h-7 w-7 rounded-sm" />
+      <header className="flex items-center justify-between border-b border-border px-3 py-2.5 sm:px-4 sm:py-3">
+        <Link
+          to={ROUTES.home}
+          className="flex min-w-0 shrink items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:gap-3"
+        >
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-accent/40 bg-accent/5 sm:h-11 sm:w-11">
+            <img src="/icons/icon-192.png" alt="" aria-hidden="true" className="h-6 w-6 rounded-sm sm:h-7 sm:w-7" />
           </span>
-          <span className="flex flex-col gap-0.5">
-            <span className="text-lg font-bold tracking-wide text-text-primary uppercase">
+          <span className="flex min-w-0 flex-col gap-0.5">
+            <span className="truncate text-base font-bold tracking-wide text-text-primary uppercase sm:text-lg">
               Slow Garage
             </span>
             <span className="h-0.5 w-8 bg-accent" aria-hidden="true" />
           </span>
         </Link>
 
-        <div className="hidden items-center gap-1 lg:flex">
+        <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
           <HeaderVehicleSwitcher vehicles={vehicles ?? []} />
           <HeaderAlertsMenu vehicles={vehicles ?? []} />
           <HeaderUserMenu />

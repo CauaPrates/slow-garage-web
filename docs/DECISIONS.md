@@ -1415,3 +1415,37 @@ inteiramente em `localStorage`/`sessionStorage`, sem saber que a coluna
 já existia (não tinha sido checado o schema na hora). Hoje a preferência
 de tema não sincroniza entre dispositivos, mesmo o banco já suportando
 isso. Fora do pedido desta fase — registrado aqui pra não se perder.
+
+## ADR-068 — Corrige o ADR-067: sino/troca de veículo/menu também no mobile (Fase 14u)
+
+O pedido original (ADR-067) dizia explicitamente pra não colocar esses
+3 elementos no mobile — "já existem via bottom nav/telas próprias".
+Usuário testou e reverteu: os equivalentes de mobile não cobrem o
+mesmo caso (não existe hoje um contador de alertas de **toda a
+garagem** fora do cabeçalho, por exemplo) — pediu pra sempre pensar em
+desktop **e** mobile ao implementar qualquer coisa (memória salva:
+`feedback_always_desktop_and_mobile`).
+
+Removido o `hidden lg:flex` do cluster — os 3 componentes (já
+prontos, sem lógica nova) agora renderizam em qualquer largura. Dois
+ajustes de responsividade pra caber num cabeçalho de ~390px sem
+quebrar linha:
+
+- Nome do veículo no `HeaderVehicleSwitcher` some abaixo de `sm`
+  (`hidden sm:inline`) — só placa + chevron no mobile, com
+  `aria-label` explícito no botão cobrindo o nome que sumiu
+  visualmente (nunca perde o texto pra leitor de tela, só pra quem
+  enxerga).
+- Wordmark (`AppShell`) ganha `truncate` + tamanho responsivo
+  (`text-base sm:text-lg`) e o ícone encolhe (`h-9 sm:h-11`) — sem
+  isso, "SLOW GARAGE" quebrava em 2 linhas assim que o cluster novo
+  disputava espaço na mesma largura de 390px.
+
+De brinde, corrigido um alvo de toque real: o avatar do
+`HeaderUserMenu` estava `h-9 w-9` (36px), abaixo do mínimo de 44px que
+o resto do app usa (`Button` `size="icon"`) — passou pra `h-11 w-11`.
+Não fazia sentido um elemento novo desrespeitar a própria regra de
+acessibilidade do produto, mobile ou não.
+
+Verificado sem overflow horizontal em 390px, 700px e 1280px (medido
+via `scrollWidth`/`clientWidth`, não só o olho).
