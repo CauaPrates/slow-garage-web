@@ -171,6 +171,18 @@ frota e um gráfico de investimento por veículo.
 - **AC-14** *(015e)*: Dado o usuário em tela abaixo de `lg`, então o
   documento continua rolando normalmente (o modelo de rolagem fixa é só
   de desktop).
+- **AC-15** *(015f)*: Dado o usuário em tela abaixo de `lg`, quando ele
+  abre "Minha Garagem", então "Resumo de todos os veículos" aparece
+  fechado, com um gatilho no próprio título que abre e fecha o conteúdo
+  (totais + gráficos). A partir de `lg` o resumo continua sempre aberto e
+  **sem** gatilho.
+- **AC-16** *(015f)*: Dado mais de 4 veículos, quando o usuário vê
+  "Investimento por veículo", então aparecem 4 barras e um gatilho "Ver
+  todos os N veículos"; ao acionar, aparecem todas as N barras e o
+  gatilho vira "Ver menos". Com 4 veículos ou menos, não há gatilho.
+- **AC-17** *(015f)*: Dado qualquer um dos dois acordeões, então o
+  gatilho é um `button` dentro do heading, com `aria-expanded` refletindo
+  o estado e `aria-controls` apontando pro elemento que ele abre.
 
 ## 6. Regras de negócio
 

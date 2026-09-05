@@ -60,6 +60,15 @@ contêiner de rolagem (`lg:overflow-y-auto`); cabeçalho e sidebar ficam
 fixos e só a lista de atividade rola dentro da sidebar. Abaixo de `lg`
 nada muda — o documento continua rolando.
 
+**Revisão 015f**: dois acordeões, sem primitivo novo. (1) `GarageSummary`
+fecha por padrão abaixo de `lg` — dois títulos (`h2 > button` no mobile,
+`h2` puro no desktop) em vez de um botão que vira decorativo acima do
+breakpoint. (2) `VehicleInvestmentChart` mostra 4 barras + gatilho "Ver
+todos os N veículos"; a barra agregada "Outros" sai. Nenhuma dependência
+adicionada: o projeto usa Radix só pra primitivo com foco/portal
+(Dialog/Popover/Switch); um `button` + `aria-expanded` + `useId` resolve
+acordeão sem isso.
+
 ## 2. Alternativas descartadas
 
 | Alternativa | Por que não |
@@ -73,6 +82,9 @@ nada muda — o documento continua rolando.
 | **(015d)** `gap-px` + fundo de borda pra desenhar o fio entre módulos | Funciona, mas deixa bloco de fundo de borda visível quando a contagem de módulos não é múltiplo das colunas do breakpoint. `-mt-px -ml-px` + `border-t border-l` não tem esse caso. |
 | **(015e)** `position: sticky` na sidebar em vez de shell de altura fixa | Precisaria de `top: <altura do cabeçalho>` e `height: calc(100dvh - <altura do cabeçalho>)` — número mágico que quebra na primeira mudança de padding/ícone do cabeçalho. O shell de altura fixa não precisa saber a altura de ninguém. |
 | **(015e)** Aplicar o shell de altura fixa em todos os tamanhos | Trocaria o scroll do documento pelo de um contêiner interno também no mobile, onde isso impede a barra de endereço do navegador de se esconder. Escopado em `lg:` — abaixo disso não há sidebar pra corrigir. |
+| **(015f)** `@radix-ui/react-accordion` / `react-collapsible` | Dependência nova pra dois toggles. O projeto usa Radix só onde há foco/portal/teclado não-trivial (Dialog, Popover, Switch); acordeão é `button` + `aria-expanded` + `aria-controls`. |
+| **(015f)** Hook `useMediaQuery` pra decidir em JS se o resumo é acordeão | Evitaria o título duplicado, mas introduziria decisão de layout em JS num codebase que resolve breakpoint 100% em CSS (`Sidebar`, `BottomNav`, `HeaderActivityMenu`). O custo do título duplicado (uma string, extraída pra const) é menor que o da inconsistência de abordagem. |
+| **(015f)** Manter a barra "Outros" junto do acordeão de 4 | Com um gatilho explícito dizendo quantos veículos faltam, a barra agregada vira ruído — e ela parecia um veículo sem ser. A soma do resto continua disponível em "Total investido" no `GarageSummary`. |
 
 ## 3. Impacto em contratos e dados
 

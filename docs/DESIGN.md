@@ -481,6 +481,23 @@ portanto já é CSS variable):
   espaço, então "Configurações" fica sempre visível no rodapé dela. Sem
   isso, a sidebar esticava junto com o conteúdo (`align-items: stretch`)
   e o rodapé dela ia parar a 5.000px do topo numa lista longa
+- Acordeão (Fase 15f, primeiro uso no projeto): padrão WAI-ARIA
+  `heading > button`, com `aria-expanded` no botão e `aria-controls`
+  apontando pro corpo (`useId`), chevron `ChevronDown` girando 180° em
+  `motion-safe:transition-transform`. Duas regras aprendidas aqui:
+  (1) quando o acordeão só existe em um breakpoint (`GarageSummary`
+  fecha no mobile e fica sempre aberto a partir de `lg`), renderize
+  **dois títulos** — `h2 > button` num, `h2` puro no outro — em vez de um
+  botão que vira decorativo acima do breakpoint: botão com
+  `aria-expanded` que não expande nada mente pro leitor de tela;
+  (2) o gatilho é alvo de toque (`min-h-11`) como qualquer botão
+- Lista longa dentro de painel corta em N com gatilho pro resto (Fase
+  15f, `VehicleInvestmentChart`: 4 barras + "Ver todos os N veículos").
+  A escala do gráfico sai sempre do conjunto **inteiro**, nunca das
+  linhas visíveis — abrir e fechar não pode reescalar barra, senão a
+  mesma quantia muda de tamanho na frente do usuário. Substituiu a barra
+  agregada "Outros", que parecia veículo sem ser (e cuja soma já está em
+  "Total investido" no `GarageSummary`)
 
 ## Sistema de resposta (motion)
 
