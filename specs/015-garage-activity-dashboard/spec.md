@@ -19,41 +19,60 @@ aos outros, quantos veículos e quanto rodaram ao todo).
 
 ## 2. Resultado esperado
 
-A atividade recente vira um popover acessível pelo ícone no cabeçalho, no
-mesmo padrão do sino de alertas (`HeaderAlertsMenu`) — funciona em
-qualquer tela do app, sem precisar navegar até "Minha Garagem". No lugar
-onde o card antigo ficava, a tela "Minha Garagem" passa a mostrar um
-painel comparativo entre os veículos: indicadores agregados da frota e um
-gráfico de investimento por veículo.
+A atividade recente deixa de ser um card fixo em "Minha Garagem" e passa
+a ser lida direto pela navegação principal, sem exigir clique — no
+desktop, a sidebar (nav bar) ganha uma seção "Atividade recente" visível
+o tempo todo, no espaço que sobrava entre os links de navegação e
+"Configurações". Como o mobile não tem sidebar, ele mantém um mecanismo
+próprio: ícone no cabeçalho com popover, no mesmo padrão do sino de
+alertas (`HeaderAlertsMenu`) — só visível abaixo do breakpoint `lg`. No
+lugar onde o card antigo ficava em "Minha Garagem", a tela passa a
+mostrar um painel comparativo entre os veículos: indicadores agregados da
+frota e um gráfico de investimento por veículo.
+
+> **Nota de revisão (015b)**: a primeira implementação desta spec colocou
+> a atividade recente atrás de um ícone com popover no cabeçalho em
+> **todas** as telas, inclusive desktop. O usuário corrigiu: no desktop
+> ele quer ler direto pela sidebar, sem precisar clicar; o popover no
+> cabeçalho deve valer só pro mobile, que não tem sidebar. Os cenários e
+> ACs abaixo já refletem a versão corrigida.
 
 ## 3. Cenários
 
-**Principal**
+**Principal (desktop, `lg` e acima)**
 1. O usuário está em qualquer página do app (não só Minha Garagem).
-2. Ele clica no ícone de atividade recente no cabeçalho.
-3. Um popover abre mostrando os eventos mais recentes de todos os
-   veículos, agrupados por veículo quando há mais de um — mesmo conteúdo
-   que o card antigo mostrava.
-4. Ele fecha o popover e abre "Minha Garagem".
-5. No lugar onde antes ficava "Atividade recente", ele vê um painel com
-   indicadores da frota inteira (contagem de veículos, km total, custo/km
-   médio, gasto do mês) e um gráfico comparando o investimento total de
-   cada veículo.
+2. Ele olha a sidebar à esquerda — sem clicar em nada, a seção
+   "Atividade recente" já mostra os eventos mais recentes de todos os
+   veículos, agrupados por veículo quando há mais de um.
+3. Ele abre "Minha Garagem". No lugar onde antes ficava o card "Atividade
+   recente", ele vê um painel com indicadores da frota inteira (contagem
+   de veículos, km total, custo/km médio, gasto do mês) e um gráfico
+   comparando o investimento total de cada veículo.
+
+**Principal (mobile, abaixo de `lg`)**
+1. O usuário está em qualquer página do app.
+2. Ele clica no ícone de atividade recente no cabeçalho (a sidebar não
+   existe nesse tamanho de tela).
+3. Um popover abre mostrando os mesmos eventos, agrupados por veículo.
 
 **Alternativos**
 - Usuário com 1 veículo só: o painel comparativo não aparece (nada pra
-  comparar), igual já acontece hoje com `GarageSummary`.
-- Usuário sem nenhuma atividade registrada em nenhum veículo: o popover
-  mostra o mesmo estado vazio que o card antigo mostrava.
-- Usuário sem nenhum veículo cadastrado: o ícone de atividade some do
-  cabeçalho, mesmo comportamento do sino de alertas.
+  comparar), igual já acontece hoje com `GarageSummary`; a seção de
+  atividade na sidebar/popover continua aparecendo normalmente (ela não
+  depende de ter 2+ veículos).
+- Usuário sem nenhuma atividade registrada em nenhum veículo: a
+  sidebar/popover mostra o mesmo estado vazio que o card antigo mostrava.
+- Usuário sem nenhum veículo cadastrado: a seção de atividade não aparece
+  nem na sidebar nem no cabeçalho.
 
 ## 4. Escopo
 
 **Dentro**
-- Novo item no cabeçalho (ícone + popover) com o conteúdo que hoje está
-  em `GarageActivityFeed`, reaproveitando `useGarageTimeline` sem
-  mudança de query.
+- Seção "Atividade recente" na sidebar (desktop, `lg`+), sempre visível,
+  com o conteúdo que hoje está em `GarageActivityFeed`, reaproveitando
+  `useGarageTimeline` sem mudança de query.
+- Ícone + popover no cabeçalho com o mesmo conteúdo, visível só abaixo de
+  `lg` (mobile, onde não há sidebar).
 - Remoção do card "Atividade recente" da tela "Minha Garagem".
 - Novo painel na tela "Minha Garagem", visível só com 2+ veículos:
   - quantidade de veículos cadastrados e quantos estão ativos;
@@ -75,16 +94,24 @@ gráfico de investimento por veículo.
 
 ## 5. Critérios de aceite
 
-- **AC-1**: Dado o usuário logado em qualquer página do app, quando ele
-  clica no ícone de atividade recente no cabeçalho, então abre um
-  popover com os eventos mais recentes de todos os veículos, agrupados
-  por veículo quando há mais de um cadastrado (mesmo agrupamento que
-  `GarageActivityFeed` fazia).
-- **AC-2**: Dado que nenhum evento existe em nenhum veículo, quando o
-  popover de atividade abre, então mostra "Nenhuma atividade registrada
-  ainda. Registre um gasto, abastecimento ou manutenção pra começar."
-- **AC-3**: Dado que o usuário não tem nenhum veículo cadastrado, então o
-  ícone de atividade recente não aparece no cabeçalho.
+- **AC-1**: Dado o usuário logado em qualquer página do app em tela
+  `lg` ou maior (desktop), então a sidebar mostra uma seção "Atividade
+  recente" com os eventos mais recentes de todos os veículos, agrupados
+  por veículo quando há mais de um — visível sem precisar clicar em
+  nada.
+- **AC-1b**: Dado o usuário logado em qualquer página do app em tela
+  abaixo de `lg` (mobile), quando ele clica no ícone de atividade recente
+  no cabeçalho, então abre um popover com o mesmo conteúdo (mesmo
+  agrupamento por veículo que `GarageActivityFeed` fazia).
+- **AC-1c**: Dado o usuário em tela `lg` ou maior, então o ícone de
+  atividade recente do cabeçalho não aparece (a leitura é só pela
+  sidebar); dado o usuário abaixo de `lg`, a seção da sidebar não existe
+  (a sidebar inteira já não renderiza nesse tamanho).
+- **AC-2**: Dado que nenhum evento existe em nenhum veículo, quando a
+  seção de atividade (sidebar ou popover, conforme o tamanho de tela)
+  aparece, então mostra o texto de estado vazio correspondente.
+- **AC-3**: Dado que o usuário não tem nenhum veículo cadastrado, então a
+  seção de atividade não aparece nem na sidebar nem no cabeçalho.
 - **AC-4**: Dado qualquer estado da garagem, quando o usuário abre "Minha
   Garagem", então o card "Atividade recente" não existe mais nessa tela.
 - **AC-5**: Dado 2 ou mais veículos cadastrados, quando o usuário abre
@@ -113,9 +140,13 @@ gráfico de investimento por veículo.
   idêntico ao de exibir um único veículo).
 - **RN-2**: Toda métrica de média (custo/km) ignora veículos sem o dado
   em vez de tratá-los como zero, pra não distorcer a média pra baixo.
-- **RN-3**: O ícone de atividade no cabeçalho usa a mesma fonte de dado e
-  o mesmo limite (8 eventos mais recentes) que o card removido — não é
-  uma tela de histórico completo, é o mesmo "resumo rápido" de antes.
+- **RN-3**: A seção de atividade (sidebar no desktop, popover no mobile)
+  usa a mesma fonte de dado e o mesmo limite (8 eventos mais recentes)
+  que o card removido — não é uma tela de histórico completo, é o mesmo
+  "resumo rápido" de antes.
+- **RN-4**: A leitura da atividade recente é mutuamente exclusiva por
+  breakpoint (`lg`): sidebar substitui o popover no desktop, popover
+  substitui a sidebar no mobile — nunca os dois ao mesmo tempo.
 
 ## 7. Dados
 

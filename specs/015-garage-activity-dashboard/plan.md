@@ -17,6 +17,17 @@ carregado) + `VehicleInvestmentChart` (gráfico de barra horizontal,
 mesmo padrão visual do `ExpensesByCategoryChart`), montado só quando
 `vehicles.length >= 2`.
 
+**Revisão 015b**: a primeira entrega deixou `HeaderActivityMenu` visível
+em toda tela, inclusive desktop — o usuário corrigiu, pedindo leitura
+direta pela sidebar no desktop. Ajuste: criar `SidebarActivityFeed`,
+montado dentro de `Sidebar.tsx` (que passa a receber `vehicles` como
+prop) no espaço entre os links de navegação e "Configurações" fixo no
+rodapé; itens compactos (ícone + título + data/valor via `Link` quando
+`resolveTimelineLink` resolve uma rota), porque a coluna tem 224px
+(`w-56`), não a largura de um card de timeline. `HeaderActivityMenu`
+permanece igual, mas só renderiza abaixo de `lg` (`AppShell.tsx` passa a
+envolver seu uso num `<div className="lg:hidden">`).
+
 ## 2. Alternativas descartadas
 
 | Alternativa | Por que não |
@@ -42,6 +53,9 @@ alteração de assinatura ou de query.
 | `src/features/vehicle/VehicleListPage.tsx` | modificar | Remove import/uso de `GarageActivityFeed`; adiciona `GarageComparisonDashboard` no mesmo lugar. |
 | `src/features/vehicle/GarageComparisonDashboard.tsx` | criar | Tiles agregados (contagem de veículos, km total, custo/km médio, gasto do mês) + `VehicleInvestmentChart`, gate `vehicles.length >= 2`. |
 | `src/features/dashboard/VehicleInvestmentChart.tsx` | criar | Barra horizontal comparando `total_invested` por veículo, top 8 + "Outros", mesmo padrão do `ExpensesByCategoryChart`. |
+| `src/components/layout/SidebarActivityFeed.tsx` | criar (015b) | Seção "Atividade recente" inline na sidebar (desktop), itens compactos. |
+| `src/components/layout/Sidebar.tsx` | modificar (015b) | Passa a receber `vehicles` como prop e monta `SidebarActivityFeed` entre a navegação e "Configurações". |
+| `src/components/layout/AppShell.tsx` | modificar (015b) | Passa `vehicles` para `Sidebar`; envolve `HeaderActivityMenu` num `<div className="lg:hidden">` (só mobile). |
 
 ## 5. Ordem de execução
 

@@ -56,6 +56,45 @@ $ npm run lint
 [1440] console errors: nenhum
 ```
 
+## Revisão 015b — atividade recente pela sidebar no desktop
+
+O usuário apontou que a v1 desta fase deixava a atividade recente atrás
+de um ícone/popover em **toda** tela, inclusive desktop — ele queria ler
+direto pela sidebar (nav bar) sem clicar, e só usar outro mecanismo no
+mobile (que não tem sidebar). ACs 1/1b/1c abaixo substituem o AC-1
+original.
+
+| AC | Resultado | Evidência |
+|---|---|---|
+| AC-1 (revisado) | ✅ | Login real, 1440px, home. Script: `[1440] "Atividade recente" visível na sidebar sem clique: true`. Screenshot `.ui-check/1440-sidebar-viewport.png` mostra a seção "ATIVIDADE RECENTE" na sidebar, com os eventos mais recentes agrupados por veículo, sem nenhum clique. |
+| AC-1b | ✅ | Login real, 390px. Script: `[390] Ícone de atividade no cabeçalho visível: true` / `[390] Popover abre normalmente: true`. Screenshot `.ui-check/390-header-popover-still-works.png`. |
+| AC-1c | ✅ | Script: `[1440] Ícone de atividade no cabeçalho (deve estar oculto no desktop): false` e `[390] sidebar visível (deve ser false no mobile): false` — mutuamente exclusivo confirmado nos dois sentidos. |
+| RN-4 | ✅ | Mesma evidência do AC-1c — nunca os dois mecanismos visíveis ao mesmo tempo. |
+
+### Saída do comando (015b)
+```
+[1440] "Atividade recente" visível na sidebar sem clique: true
+[1440] Ícone de atividade no cabeçalho (deve estar oculto no desktop): false
+[1440] overflow: scrollWidth=1440 innerWidth=1440 ok
+[1440] console errors: nenhum
+[390] sidebar visível (deve ser false no mobile): false
+[390] Ícone de atividade no cabeçalho visível: true
+[390] Popover abre normalmente: true
+[390] overflow: scrollWidth=390 innerWidth=390 ok
+[390] console errors: nenhum
+```
+
+### Tipos e lint (015b)
+```
+$ npx tsc --noEmit
+(sem saída — passou)
+
+$ npm run lint
+> slow-garage-web@0.0.0 lint
+> eslint .
+(sem saída — passou)
+```
+
 ## Pendências
 
 - AC-2, AC-3, AC-6, AC-7, AC-8 não têm evidência de execução real porque a
