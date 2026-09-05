@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { formatKm, formatMoney } from "@/lib/format";
+import { formatKm, formatKmValue, formatMoney } from "@/lib/format";
 import { useFlashOnChange } from "@/hooks/useFlashOnChange";
 import type { DashboardExpensesByMonth } from "./types";
 
@@ -64,7 +64,7 @@ function OdometerGauge({ km }: { km: number | null }) {
         )}
       >
         <span className="font-mono text-sm font-medium text-text-primary">
-          {km != null ? formatKm(km) : "—"}
+          {km != null ? formatKmValue(km) : "—"}
         </span>
         <span className="text-[10px] text-text-secondary">km</span>
       </div>
