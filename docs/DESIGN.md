@@ -330,6 +330,15 @@ portanto já é CSS variable):
   12) e os 2 gráficos já existentes (`ExpensesByMonthChart`/
   `ExpensesByCategoryChart`), agora com dado somado de todos os
   veículos em vez de um só. Só aparece com 2+ veículos (ver ADR-051)
+- `VehicleCard` ganha placa e ficha técnica (Fase 14e): placa
+  (`vehicle.plate`) vira tag mono ao lado do nome, só quando cadastrada;
+  chips de `engine_description`/`transmission`/`horsepower` abaixo do
+  nome, só os que têm valor (mesmo princípio de "sem dado suficiente"
+  da Fase 11 — nunca mostrar chip vazio). Número da baia ganha a mesma
+  casca "plaquinha" do badge de status em vez de texto solto no canto.
+  Zebra decorativa no slot da foto e ações rápidas duplicadas por linha
+  foram avaliadas e recusadas (ver ADR-052) — a primeira violaria "gaste
+  a ousadia em um lugar", a segunda duplicaria a própria `VehiclePage`
 
 ## Sistema de resposta (motion)
 
