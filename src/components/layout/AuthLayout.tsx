@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import { ThemeToggle } from "@/components/shared/ThemeToggle";
 
 type AuthLayoutProps = {
   title: string;
@@ -9,14 +8,13 @@ type AuthLayoutProps = {
 /**
  * Layout full-bleed das telas de auth — sem o header do AppShell, de
  * propósito (RN-3 da spec 001): o wordmark hero é o único destaque
- * visual aqui, sem competir com cromo persistente.
+ * visual aqui, sem competir com cromo persistente. Sem controle de tema
+ * também: antes do login o tema segue o sistema operacional, e a escolha
+ * explícita vive só em Configurações (`ThemePreferenceSelect`).
  */
 export function AuthLayout({ title, children }: AuthLayoutProps) {
   return (
     <div className="flex min-h-dvh flex-col bg-bg px-4 py-8">
-      <div className="flex justify-end">
-        <ThemeToggle />
-      </div>
       <div className="flex flex-1 flex-col items-center justify-center gap-8">
         <div className="flex flex-col items-center gap-2">
           <h1 className="font-hero text-center text-5xl font-bold tracking-wide text-text-primary uppercase">

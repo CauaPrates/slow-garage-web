@@ -3,7 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { FieldError } from "@/components/ui/field-error";
 import { ROUTES } from "@/lib/routes";
@@ -37,9 +37,8 @@ export function UpdatePasswordForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="new-password">Nova senha</Label>
-        <Input
+        <PasswordInput
           id="new-password"
-          type="password"
           autoComplete="new-password"
           aria-invalid={!!errors.password}
           {...register("password")}
@@ -48,9 +47,8 @@ export function UpdatePasswordForm() {
       </div>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="confirm-password">Confirmar nova senha</Label>
-        <Input
+        <PasswordInput
           id="confirm-password"
-          type="password"
           autoComplete="new-password"
           aria-invalid={!!errors.confirmPassword}
           {...register("confirmPassword")}

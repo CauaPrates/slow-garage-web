@@ -3,13 +3,13 @@ export type ThemePreference = Theme | "system";
 
 const STORAGE_KEY = "slow-garage-theme";
 
-/** Dark é o padrão absoluto quando não há preferência salva (decisão do produto) — "system" só entra quando a pessoa escolhe isso explicitamente em Configurações. */
+/** Sem preferência salva, o padrão é seguir o sistema operacional — "dark"/"light" só valem quando a pessoa escolhe explicitamente em Configurações. */
 export function getStoredPreference(): ThemePreference {
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY);
-    return stored === "light" || stored === "system" ? stored : "dark";
+    return stored === "light" || stored === "dark" ? stored : "system";
   } catch {
-    return "dark";
+    return "system";
   }
 }
 
