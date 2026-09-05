@@ -4,14 +4,22 @@ import { Button } from "@/components/ui/button";
 import { formatKm } from "@/lib/format";
 import { ROUTES } from "@/lib/routes";
 import { AlertBanner } from "@/features/maintenance/AlertBanner";
+import { useMaintenanceItems } from "@/features/maintenance/useMaintenanceItems";
 import { ActivityCountTiles } from "@/features/dashboard/ActivityCountTiles";
 import { ExpensesByCategoryChart } from "@/features/dashboard/ExpensesByCategoryChart";
 import { ExpensesByMonthChart } from "@/features/dashboard/ExpensesByMonthChart";
 import { FinancialSummaryCard } from "@/features/dashboard/FinancialSummaryCard";
 import { FuelSummarySection } from "@/features/dashboard/FuelSummarySection";
+import { QuickActionsRow } from "@/features/dashboard/QuickActionsRow";
+import { VehicleMetricsRow } from "@/features/dashboard/VehicleMetricsRow";
 import { useVehicleDashboard } from "@/features/dashboard/useVehicleDashboard";
+import { useExpenseCategories } from "@/features/expense/useExpenseCategories";
+import { TimelineItem } from "@/features/timeline/TimelineItem";
+import { useTimeline } from "@/features/timeline/useTimeline";
 import { VEHICLE_STATUS_LABELS } from "./schemas";
 import { useVehicle, useVehicles } from "./useVehicles";
+
+const RECENT_TIMELINE_LIMIT = 5;
 
 export function VehiclePage() {
   const { vehicleId } = useParams<{ vehicleId: string }>();
@@ -19,6 +27,9 @@ export function VehiclePage() {
   const { vehicle, isLoading, isError, refetch } = useVehicle(vehicleId ?? "");
   const { data: allVehicles } = useVehicles();
   const dashboardQuery = useVehicleDashboard(vehicleId ?? "");
+  const { data: categories } = useExpenseCategories();
+  const { data: maintenanceItems } = useMaintenanceItems(vehicleId ?? "");
+  const { data: timelineEvents } = useTimeline(vehicleId ?? "");
 
   if (isLoading) {
     return (
@@ -129,7 +140,53 @@ export function VehiclePage() {
 
       {dashboard && (
         <>
-          {dashboard.alerts.length > 0 && <AlertBanner alerts={dashboard.alerts} />}
+          <VehicleMetricsRow
+            currentOdometerKm={vehicle.current_odometer_km}
+            costPerKm={dashboard.financial_summary?.cost_per_km ?? null}
+            totalInvested={dashboard.financial_summary?.total_invested ?? null}
+            activeAlertsCount={dashboard.alerts.length}
+          />
+
+          <QuickActionsRow
+            vehicleId={vehicle.id}
+            categories={categories ?? []}
+            defaultFuelType={vehicle.fuel_type}
+            maintenanceItems={maintenanceItems ?? []}
+          />
+
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <h2 className="text-sm font-medium text-text-primary">Recente</h2>
+                <Link
+                  to={ROUTES.vehicleTimeline(vehicle.id)}
+                  className="text-sm text-accent underline underline-offset-2"
+                >
+                  Ver histórico completo
+                </Link>
+              </div>
+              {(timelineEvents ?? []).length === 0 ? (
+                <p className="text-sm text-text-secondary">Nenhum evento registrado ainda.</p>
+              ) : (
+                (timelineEvents ?? []).slice(0, RECENT_TIMELINE_LIMIT).map((event) => (
+                  <TimelineItem
+                    key={`${event.source_table}-${event.source_id}`}
+                    vehicleId={vehicle.id}
+                    event={event}
+                  />
+                ))
+              )}
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <h2 className="text-sm font-medium text-text-primary">Pendências</h2>
+              {dashboard.alerts.length > 0 ? (
+                <AlertBanner alerts={dashboard.alerts} />
+              ) : (
+                <p className="text-sm text-text-secondary">Nenhuma pendência no momento.</p>
+              )}
+            </div>
+          </div>
 
           <FinancialSummaryCard summary={dashboard.financial_summary} />
           <FuelSummarySection summary={dashboard.fuel_summary} />
