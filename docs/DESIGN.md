@@ -392,7 +392,13 @@ portanto já é CSS variable):
   (`SignOutDialog`, mesmo padrão do `DeleteVehicleDialog`). "Conta"
   virou seção isolada no topo (uso diário); "Segurança" passou a
   incluir o "Sair" no mesmo card (ambos raros/risco), separado de
-  "Aparência" (ver ADR-060)
+  "Aparência" (ver ADR-060). Fase 14n: os 3 cards competindo entre si
+  (cada um com borda/fundo próprios) viraram 1 painel só com as seções
+  separadas por divisor fino (`border-t border-border pt-4`, mesmo
+  padrão do `FinancialSummaryCard`) — mais perto da "ficha técnica" do
+  `VehicleCard` do que do "grid de admin" genérico. `items-start` no
+  sub-grid de "Conta" garante que nenhuma coluna esticar pra combinar
+  com a vizinha (ver ADR-061)
 
 ## Sistema de resposta (motion)
 

@@ -10,22 +10,18 @@ import { ChangePasswordForm } from "./components/ChangePasswordForm";
 import { DisplayNameForm } from "./components/DisplayNameForm";
 import { SignOutDialog } from "./components/SignOutDialog";
 
+/** Divisor fino entre blocos (mesmo padrão de `FinancialSummaryCard`) em vez de 3 cards com borda/fundo próprios competindo entre si — um painel só, ficha-técnica. */
 function SettingsSection({
   title,
   children,
-  className,
+  divider = true,
 }: {
   title: string;
   children: ReactNode;
-  className?: string;
+  divider?: boolean;
 }) {
   return (
-    <section
-      className={cn(
-        "flex flex-col gap-4 rounded-lg border border-border bg-surface p-4",
-        className,
-      )}
-    >
+    <section className={cn("flex flex-col gap-4", divider && "border-t border-border pt-4")}>
       <h2 className="text-sm font-medium text-text-primary">{title}</h2>
       {children}
     </section>
@@ -55,23 +51,23 @@ export function SettingsPage() {
 
       <h1 className="text-lg font-medium text-text-primary">Configurações</h1>
 
-      {/* Conta: seção de uso diário, fica sozinha no topo com mais destaque. */}
-      <SettingsSection title="Conta">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="flex flex-col gap-1.5">
-            <p className="text-sm text-text-secondary">E-mail</p>
-            <p className="text-text-primary">{user?.email}</p>
+      <div className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-4">
+        {/* Conta: uso diário, primeiro bloco, sem divisor acima. */}
+        <SettingsSection title="Conta" divider={false}>
+          <div className="grid grid-cols-1 items-start gap-4 sm:grid-cols-2">
+            <div className="flex flex-col gap-1.5">
+              <p className="text-sm text-text-secondary">E-mail</p>
+              <p className="text-text-primary">{user?.email}</p>
+            </div>
+            <DisplayNameForm />
           </div>
-          <DisplayNameForm />
-        </div>
-      </SettingsSection>
+        </SettingsSection>
 
-      {/* Aparência (dia a dia) e Segurança+Sair (raras/risco) — blocos separados por frequência de uso, não pelo mesmo peso visual. */}
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <SettingsSection title="Aparência">
           <ThemePreferenceSelect />
         </SettingsSection>
 
+        {/* Segurança + Sair: ações raras/de risco, agrupadas no mesmo bloco. */}
         <SettingsSection title="Segurança">
           <ChangePasswordForm />
           <div className="flex flex-col gap-2 border-t border-border pt-4">
