@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { AlertCircle } from "lucide-react";
+import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/routes";
 import { useVehicle } from "@/features/vehicle/useVehicles";
@@ -60,12 +61,16 @@ export function ProjectDetailPage() {
 
   return (
     <div className="flex flex-col gap-6 p-6">
+      <Breadcrumb
+        items={[
+          { label: "Projetos", href: ROUTES.vehicleProjects(vehicle.id) },
+          { label: project.name },
+        ]}
+      />
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-lg font-medium text-text-primary">{project.name}</h1>
-          <p className="text-sm text-text-secondary">
-            {vehicle.make} {vehicle.model} · {PROJECT_STATUS_LABELS[project.status]}
-          </p>
+          <p className="text-sm text-text-secondary">{PROJECT_STATUS_LABELS[project.status]}</p>
         </div>
         <Button onClick={() => setCreateItemOpen(true)}>Adicionar item</Button>
       </div>

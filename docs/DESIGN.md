@@ -261,6 +261,45 @@ portanto já é CSS variable):
   duplicar total investido/custo-km, `FuelSummarySection`,
   `ActivityCountTiles`, gráficos) continua abaixo, sem mudança de
   conteúdo — só de posição relativa
+- Navegação sem item desabilitado (Fase 14): item de sidebar/bottom-nav
+  que depende de veículo só aparece na lista quando há um selecionado —
+  não mostra mais cinza com "Selecione um veículo" (ver ADR-049,
+  supera ADR-024). O FAB "Adicionar" continua sempre visível (ponto de
+  referência espacial fixo), só fica `aria-disabled` sem veículo
+- Breadcrumb temático (Fase 14, `Breadcrumb`): em toda subtela de
+  veículo (Gastos, Abastecimentos, Manutenção, Problemas, Projetos,
+  detalhe de Projeto, Histórico, Documentos) — "Garagem" › nome do
+  veículo › seção atual, separador `h-3 w-px bg-accent/60` (linha fina
+  âmbar, nunca `/`/`›` genérico). Cada segmento exceto o último é link;
+  o último (página atual) tem `aria-current="page"`. `VehiclePage` não
+  tem breadcrumb próprio — já tem o seletor de veículo como forma de
+  navegar
+- `VehicleMetricsRow` revisado (Fase 14): odômetro vira o
+  elemento-assinatura da home do veículo — mostrador de arco SVG (270°,
+  igual um painel de carro), preenchendo o progresso até o próximo
+  múltiplo de 10.000km (ver ADR-050 — não existe teto de vida útil real
+  pra usar como 100%). Custo/km e total investido continuam número
+  calmo em `font-mono`; total investido ganha um sparkline real dos
+  últimos 6 meses de `expenses_by_month` (sem fabricar tendência onde
+  não existe dado — custo/km não ganhou sparkline por isso). Alertas
+  ativos vira ponto (pulsa só se > 0) + número, nunca só cor
+
+## Sistema de resposta (motion)
+
+Decidido no mesmo processo da Fase 14 (skill `frontend-design`, depois
+do usuário achar o produto "sem interatividade"). Regra geral: a
+resposta confirma que o app "sentiu" a ação — nunca celebra, nunca roda
+sozinha sem gatilho do usuário ou sem um dado real ter mudado. Tudo
+condicionado a `motion-safe:` (Tailwind mapeia pra
+`prefers-reduced-motion: no-preference`) — sem `prefers-reduced-motion`,
+todo estado final aparece direto, sem transição.
+
+| Gatilho | Comportamento | Token |
+|---|---|---|
+| Número muda de valor (km, custo/km, total investido) | Realce de fundo âmbar a 18%, esvaindo | `--animate-value-flash` (`value-flash`, 400ms), hook `useFlashOnChange` |
+| Alerta novo aparece (`AlertBanner`) | Entra com slide-down (6px) + fade | `--animate-alert-in` (`alert-in`, 200ms) |
+| Qualquer `Button` pressionado | `scale-95` no `:active` — botão físico de painel cedendo ao toque, não hover de link | `motion-safe:active:scale-95` na própria `buttonVariants` |
+| Card "vivo" (métrica que muda) vs. card "de referência" (financeiro detalhado, combustível, gráfico) | Só o vivo tem `hover:shadow-md` — hover em tudo é o sintoma clássico de kit de card SaaS genérico | `transition-shadow duration-150` só em `VehicleMetricsRow` |
 
 ## Hierarquia
 
@@ -283,6 +322,14 @@ de marca, não uma animação de sucesso).
 (`AuthLayout` não usa o `AppShell`, de propósito, pra não competir com o
 wordmark). Card do formulário em `surface`, sem sombra — só borda de 1px,
 mantendo o fundo escuro como protagonista atrás do wordmark.
+
+**Segundo ponto de ousadia, deliberadamente isolado (Fase 14):** o
+mostrador de odômetro (arco SVG) na home do veículo. Não conflita com a
+regra "gaste a ousadia em um lugar" porque vive numa zona completamente
+diferente do wordmark (app autenticado vs. tela de login) — dentro da
+própria `VehiclePage`, é o único elemento gráfico "de painel"; todo
+resto da tela (tiles calmos, cards de referência) continua quieto ao
+redor dele, mesma disciplina do wordmark em `/entrar`.
 
 ## Ícones do PWA
 
@@ -326,3 +373,25 @@ não é um defeito a corrigir agora.
   monta) ou reaproveitar a própria imagem da logo em vez de texto vivo. O
   token `--font-jp` já existe em `tokens.css`, mas sem fonte carregada —
   cai no fallback de `--font-sans` até essa decisão.
+- **Teto arbitrário no mostrador de odômetro (ex.: "300.000km = 100%")**
+  — inventaria um dado que não existe (não há coluna nem consenso de
+  "vida útil máxima" de um carro). Trocado por progresso até o próximo
+  múltiplo de 10.000km, que só usa o valor real (ADR-050).
+  Sparkline/tendência de "Custo/km" — mesmo motivo: não existe histórico
+  dessa métrica no banco, só de gasto mensal (usado em "Total
+  investido").
+  Ver `docs/DECISIONS.md` (ADR-050).
+- **Biblioteca de animação (framer-motion, auto-animate) pro sistema de
+  resposta da Fase 14** — os 4 comportamentos (realce, entrada de
+  alerta, `:active` de botão, hover diferenciado) são só CSS
+  (`@keyframes`/`transition`/`:active`) + 1 hook de ~15 linhas
+  (`useFlashOnChange`) — mesma lógica de "escrito à mão quando o caso é
+  simples o bastante" de todo componente anterior do projeto.
+- **Som, haptic feedback, ou animação de celebração (confete etc.) no
+  sistema de resposta** — contradiz a regra já estabelecida desde o
+  wordmark de login: "confirma, nunca celebra".
+- **Item de navegação continuar aparecendo desabilitado sem veículo
+  (manter ADR-024 como estava)** — o próprio usuário apontou que virou
+  ruído depois que todas as 8 telas de veículo passaram a existir
+  (Fase 9+); ver ADR-049 pra decisão completa e por que não é regressão
+  do princípio de acessibilidade original.

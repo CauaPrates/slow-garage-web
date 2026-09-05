@@ -2,7 +2,7 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Link } from "react-router-dom";
 import { X } from "lucide-react";
 import { useCurrentVehicleId } from "@/hooks/useCurrentVehicleId";
-import { ADD_SHEET_ITEMS, DISABLED_REASON_LABEL, resolveNavItem } from "@/lib/navigation";
+import { ADD_SHEET_ITEMS, resolveNavItem } from "@/lib/navigation";
 
 type AddActionSheetProps = {
   open: boolean;
@@ -12,10 +12,10 @@ type AddActionSheetProps = {
 /**
  * Folha do botão "Adicionar" — usa o Dialog (Radix) já instalado, só com
  * posicionamento próprio na base da tela, em vez de instalar uma lib de
- * bottom-sheet (ver plan.md da Fase 3, alternativas descartadas). Cada
- * item resolve sua própria rota via `resolveNavItem` — "sem tela ainda"
- * e "sem veículo selecionado" são motivos diferentes de desabilitar
- * (Fase 4, ADR-024).
+ * bottom-sheet (ver plan.md da Fase 3, alternativas descartadas). Fase 14:
+ * o FAB que abre esta folha já fica desabilitado sem veículo selecionado
+ * (`BottomNav.tsx`), então todo item aqui sempre resolve uma rota — sem
+ * branch de item desabilitado.
  */
 export function AddActionSheet({ open, onOpenChange }: AddActionSheetProps) {
   const vehicleId = useCurrentVehicleId();
@@ -42,33 +42,13 @@ export function AddActionSheet({ open, onOpenChange }: AddActionSheetProps) {
           <div className="grid grid-cols-3 gap-3">
             {ADD_SHEET_ITEMS.map((item) => {
               const Icon = item.icon;
-              const resolved = resolveNavItem(item, vehicleId);
-
-              if (!resolved.enabled) {
-                return (
-                  <button
-                    key={item.label}
-                    type="button"
-                    aria-disabled="true"
-                    aria-label={`${item.label} — ${DISABLED_REASON_LABEL[resolved.reason]}`}
-                    onClick={(event) => event.preventDefault()}
-                    className="flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-md border border-border p-3 text-center opacity-50 cursor-not-allowed"
-                  >
-                    <Icon className="h-5 w-5 text-text-secondary" aria-hidden="true" />
-                    <span className="text-xs text-text-primary" aria-hidden="true">
-                      {item.label}
-                    </span>
-                    <span className="text-[10px] text-text-secondary" aria-hidden="true">
-                      {DISABLED_REASON_LABEL[resolved.reason]}
-                    </span>
-                  </button>
-                );
-              }
+              const href = resolveNavItem(item, vehicleId);
+              if (!href) return null;
 
               return (
                 <Link
                   key={item.label}
-                  to={resolved.href}
+                  to={href}
                   onClick={() => onOpenChange(false)}
                   className="flex min-h-[64px] flex-col items-center justify-center gap-1 rounded-md border border-border p-3 text-center text-text-primary transition-colors duration-150 hover:border-accent"
                 >
