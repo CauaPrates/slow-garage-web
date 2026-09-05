@@ -266,14 +266,17 @@ portanto já é CSS variable):
   não mostra mais cinza com "Selecione um veículo" (ver ADR-049,
   supera ADR-024). O FAB "Adicionar" continua sempre visível (ponto de
   referência espacial fixo), só fica `aria-disabled` sem veículo
-- Breadcrumb temático (Fase 14, `Breadcrumb`): em toda subtela de
-  veículo (Gastos, Abastecimentos, Manutenção, Problemas, Projetos,
-  detalhe de Projeto, Histórico, Documentos) — "Garagem" › nome do
-  veículo › seção atual, separador `h-3 w-px bg-accent/60` (linha fina
-  âmbar, nunca `/`/`›` genérico). Cada segmento exceto o último é link;
-  o último (página atual) tem `aria-current="page"`. `VehiclePage` não
-  tem breadcrumb próprio — já tem o seletor de veículo como forma de
-  navegar
+- Breadcrumb temático (Fase 14, `Breadcrumb`): em `VehiclePage` e toda
+  subtela de veículo (Gastos, Abastecimentos, Manutenção, Problemas,
+  Projetos, detalhe de Projeto, Histórico, Documentos) — "Garagem" ›
+  nome do veículo › seção atual (ou só "Garagem › nome do veículo" na
+  própria `VehiclePage`, já que ela é a raiz), separador `h-3 w-px
+  bg-accent/60` (linha fina âmbar, nunca `/`/`›` genérico). Cada
+  segmento exceto o último é link; o último (página atual) tem
+  `aria-current="page"`. Decisão original da Fase 14 (excluir
+  `VehiclePage`, por já ter o seletor de veículo) revertida na Fase 14b
+  a pedido do usuário — o breadcrumb reforça que sidebar/dashboard
+  concordam sobre "dentro de qual veículo você está"
 - `VehicleMetricsRow` revisado (Fase 14): odômetro vira o
   elemento-assinatura da home do veículo — mostrador de arco SVG (270°,
   igual um painel de carro), preenchendo o progresso até o próximo
@@ -295,6 +298,16 @@ portanto já é CSS variable):
   (e-mail, nome de exibição) ganham a mesma casca `rounded-lg border
   border-border bg-surface p-4` de todo card do app — não tinha nenhuma
   antes, ficava um formulário solto na tela
+- Sidebar agrupada por nível, não mais uma lista plana (Fase 14b): o
+  usuário apontou que "Minha garagem" (nível conta, lista de veículos)
+  não fazia sentido misturada com "Gastos"/"Manutenção" etc. (nível
+  veículo específico) no mesmo grupo visual. Reestruturado em 3 blocos:
+  item de conta no topo (`Minha garagem`), seção do veículo atual
+  logo abaixo de um divisor com o **nome do veículo** como rótulo
+  (`text-xs uppercase tracking-wide`, só aparece com veículo
+  selecionado), e `Configurações` fixo no rodapé (`mt-auto`) — mesmo
+  padrão de app com conta+contexto+config separados, não uma pilha
+  única de link
 
 ## Sistema de resposta (motion)
 
