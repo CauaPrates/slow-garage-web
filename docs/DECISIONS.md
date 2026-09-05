@@ -1069,3 +1069,91 @@ Corrigido pra uma regra mais simples e sem aritmética escondida: todo
 Carros), 2 à direita (Mais, Configurações). Sem veículo: 1 e 1 (Carros
 | Configurações, "Mais" some). Sempre simétrico, sem precisar calcular
 metade de nada.
+
+## ADR-057 — `Configurações` ganha alterar senha e tema completo (Fase 14k)
+
+Usuário apontou que a tela de Configurações estava "pobre e genérica" —
+só e-mail (somente leitura) e nome de exibição. Duas seções novas,
+ambas usando capacidade que já existia no backend/lógica do app, sem
+inventar nada:
+
+- **Segurança (alterar senha):** `ChangePasswordForm` reaproveita o
+  mesmo `updatePassword` do `AuthProvider` e o mesmo
+  `updatePasswordSchema` que o fluxo de recuperação de senha
+  (`UpdatePasswordForm`, acessado via link de e-mail) já usa —
+  `supabase.auth.updateUser({ password })` funciona igual pra sessão de
+  recuperação e pra sessão normal já logada. Única diferença de verdade:
+  fica na própria página com mensagem de sucesso (`role="status"`,
+  mesmo padrão do `DisplayNameForm`) em vez de navegar embora, porque
+  aqui o usuário já está logado, não acabou de clicar num link.
+- **Aparência (tema completo):** ver ADR-058 — reverte o "dark é o
+  padrão absoluto, não segue `prefers-color-scheme`" documentado no
+  `DESIGN.md`/Fase 0.
+
+Seções organizadas em cards (`SettingsSection`, `rounded-lg border
+border-border bg-surface p-4`) por assunto — Conta / Aparência /
+Segurança — em vez de tudo solto num card só, mesma disciplina de
+"nenhuma decoração nova sem função" (aqui a função é escaneabilidade,
+não decoração).
+
+## ADR-058 — Tema ganha "seguir o sistema"; reverte o "dark não segue `prefers-color-scheme`" (Fase 14k)
+
+O `DESIGN.md` documentava, desde a Fase 0: "Dark é o padrão absoluto do
+produto — não segue `prefers-color-scheme`". Usuário pediu
+explicitamente, ao ver a nova seção "Aparência" em Configurações, as 3
+opções padrão de app: Claro, Escuro, Seguir o sistema. Reversão
+consciente e direta, não descoberta silenciosa — registrada aqui pelo
+mesmo motivo de sempre (ver ADR-049, ADR-053, ADR-055): a próxima
+pessoa que ler o `DESIGN.md` antigo não deve achar que "seguir o
+sistema" foi esquecido.
+
+O que continua igual: **dark continua o padrão pra quem nunca escolheu
+nada** — `getStoredPreference()` só retorna `"system"` se a pessoa
+escolheu isso explicitamente em Configurações; sem preferência salva,
+o padrão ainda é `"dark"`, não `"system"`. Só mudou o leque de opções
+disponível, não o comportamento de quem nunca mexeu em nada.
+
+Implementação: `Theme` ("dark" | "light", o que é de fato aplicado no
+DOM) separado de `ThemePreference` ("dark" | "light" | "system", o que
+fica salvo). `resolvedTheme` é derivado durante a própria renderização
+(`preference === "system" ? (systemPrefersLight ? "light" : "dark") :
+preference`) — `systemPrefersLight` vem de `useSyncExternalStore`
+assinando o evento `change` de `matchMedia("(prefers-color-scheme:
+light)")`, não de `useEffect` + `setState` (a primeira versão fazia
+isso e o lint `react-hooks/set-state-in-effect` acusou "cascading
+renders" — `useSyncExternalStore` é o jeito correto de ler estado de
+fora do React que muda sozinho). Troca o SO com o app aberto muda o
+tema ao vivo, sem precisar recarregar. O atalho rápido do cabeçalho/login
+(`ThemeToggle`, `Switch` binário) continua existindo — sempre define
+uma preferência explícita (nunca "system"), pensado pra alternância
+rápida; o controle completo com as 3 opções (`ThemePreferenceSelect`,
+`<select>` — reaproveita o componente `Select` já usado em todo
+formulário do app, sem inventar um novo widget de 3 botões pra um único
+uso) fica só em Configurações. O script inline de `index.html` (que
+aplica a classe `.light` antes do primeiro paint pra não piscar) ganhou
+o mesmo cálculo de `prefers-color-scheme` pro caso `"system"`.
+
+## ADR-059 — `Configurações` ganha "Voltar", logo do cabeçalho vira link, e grade de 2 colunas no desktop (Fase 14l)
+
+Três atritos reais reportados em sequência, todos na mesma tela:
+
+1. **Sem jeito de voltar pra onde estava.** Entrar em Configurações só
+   pra trocar uma preferência e sair de novo forçava renavegar pela
+   sidebar/bottom nav do zero até achar a tela anterior. Adicionado um
+   link "Voltar" (`ArrowLeft` + `navigate(-1)`) no topo — usa o
+   histórico do próprio navegador, então volta pra exatamente onde a
+   pessoa estava (dentro de um veículo, na garagem, etc.), não pra uma
+   rota fixa qualquer.
+2. **Logo/nome do cabeçalho não levava a lugar nenhum.** `AppShell`
+   tinha só um `<div>` com o ícone + "Slow Garage", sem link. Virou
+   `<Link to={ROUTES.home}>` — convenção universal de app (clicar na
+   marca leva pra home) que este produto nunca tinha implementado.
+3. **Página parecia mobile mesmo em tela larga.** O container era
+   `mx-auto max-w-md` (448px), sempre centralizado — com mais conteúdo
+   (Aparência, Segurança) a faixa estreita ficava mais óbvia. Trocado
+   pro mesmo padrão de toda outra tela do app: sem largura máxima
+   artificial, seções organizadas em `grid grid-cols-1 lg:grid-cols-2`
+   (Conta ocupa as 2 colunas — tem mais campo —, Aparência e Segurança
+   dividem a segunda linha). Dentro de "Conta", e-mail e nome de
+   exibição também viram 2 colunas no desktop em vez de um campo
+   solto esticado pela largura toda.
