@@ -1315,3 +1315,38 @@ não `font-hero`/Rajdhani — essa continua restrita ao wordmark de
 `--color-accent`), sem traço/sublinhado decorativo. É volume dentro do
 cromo quieto, não um novo elemento gráfico — mesma disciplina, com mais
 peso.
+
+## ADR-066 — Cabeçalho ganha o 3º toque de âmbar, conscientemente (Fase 14s)
+
+O ADR-065 (só escala/peso, sem cor) não resolveu — usuário continuou
+achando o cabeçalho "sem graça, não muito gearhead". Em vez de tentar
+mais uma variação de tamanho às cegas pela 3ª vez, gerei 3 direções
+reais (renderizadas com os tokens de cor de verdade, não descrição) e
+pedi pra escolher: (A) emblema em moldura âmbar + traço fino embaixo
+do texto, (B) só maior/mais espaçoso — mesma direção já tentada 2x,
+(C) logo dominante com legenda temática embaixo (descartada por
+exigir inventar uma frase de marca que não é decisão minha tomar).
+Escolhida (A).
+
+**Isso assume conscientemente um 3º ponto de âmbar**, sem ser um 3º
+"ponto de ousadia" no sentido do wordmark de login ou do mostrador de
+odômetro — a diferença é de escala e função:
+
+- Moldura do ícone: `border-accent/40 bg-accent/5` — os mesmos 2 tokens
+  já usados no placeholder de foto do `VehicleCard` (não é combinação
+  nova).
+- Traço embaixo do texto: `h-0.5 w-8 bg-accent` — 2px, 32px de largura,
+  ao lado de sidebar e conteúdo o tempo todo. O traço do wordmark de
+  login é `h-0.5 w-16` (64px), sozinho numa tela hero sem mais nada ao
+  redor. A proporção e o contexto continuam bem diferentes — não é o
+  mesmo elemento reaproveitado, é um eco pequeno.
+- Continua Space Grotesk (`font-sans`), não Rajdhani (`font-hero`) — a
+  recusa de usar a fonte condensada fora do wordmark de login (já
+  registrada antes) continua de pé. Essa é a fronteira que realmente
+  separa "cabeçalho com identidade" de "duplicar o hero".
+
+Se essa combinação (moldura + traço) aparecer em mais um lugar no
+futuro, vale revisar se "gaste a ousadia em um lugar" ainda descreve o
+produto com precisão — por ora, com âmbar em exatamente 3 pontos (login,
+odômetro, cabeçalho) e os 2 primeiros claramente maiores/mais isolados
+que este, a regra ainda orienta decisão, só não é mais "literalmente 2".

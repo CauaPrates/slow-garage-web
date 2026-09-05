@@ -459,14 +459,20 @@ própria `VehiclePage`, é o único elemento gráfico "de painel"; todo
 resto da tela (tiles calmos, cards de referência) continua quieto ao
 redor dele, mesma disciplina do wordmark em `/entrar`.
 
-Marca do cabeçalho autenticado (`AppShell`) ganhou mais presença na
-Fase 14r — ícone maior (`h-9`) e "Slow Garage" em `font-bold uppercase
-tracking-wide text-text-primary` (era `text-sm text-text-secondary`).
-Não é um terceiro ponto de ousadia: continua só Space Grotesk (sem
-`font-hero`), sem cor de marca (`text-text-primary` é hierarquia
-normal, não `--color-accent`), sem traço decorativo. É mais peso
-dentro do mesmo cromo "quieto" — o wordmark de login continua sendo o
-único lugar com Rajdhani + sublinhado âmbar (ver ADR-065).
+Marca do cabeçalho autenticado (`AppShell`) ganhou mais presença em 2
+passadas. A primeira (Fase 14r: ícone maior, texto `font-bold uppercase
+tracking-wide`, ainda sem cor de marca) o usuário achou insuficiente —
+"ainda sem graça". A segunda (Fase 14s) assumiu conscientemente um
+terceiro toque de âmbar, **bem mais contido** que os dois pontos de
+ousadia: ícone dentro de uma moldura pequena (`border-accent/40
+bg-accent/5`, mesma dupla de tokens que o placeholder de foto do
+`VehicleCard` já usa) e um traço de 2px (`bg-accent`, `w-8`) só embaixo
+do texto — um eco em miniatura do sublinhado do wordmark de login, não
+uma repetição dele (o de login é `w-16` numa tela hero sem mais nada
+ao redor; este é `w-8`, sentado ao lado de sidebar/conteúdo, cromo
+persistente o tempo todo). Continua Space Grotesk, não Rajdhani — a
+diferença de família continua sendo o que separa "cabeçalho com
+identidade" de "segundo wordmark hero" (ver ADR-066).
 
 ## Ícones do PWA
 
