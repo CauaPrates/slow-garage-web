@@ -90,11 +90,12 @@ frota e um gráfico de investimento por veículo.
 - Remoção do card "Atividade recente" da tela "Minha Garagem".
 - Novo painel na tela "Minha Garagem", visível com 1+ veículo cadastrado
   e só em telas `lg` ou maiores (desktop — escondido no mobile,
-  revisão 015c):
+  revisão 015c). Módulos (revisados em 015d):
   - quantidade de veículos cadastrados e quantos estão ativos;
-  - km total rodado somando todos os veículos;
   - custo por km médio da garagem;
   - gasto do mês atual somado de todos os veículos;
+  - próxima manutenção da frota inteira (nome do item, veículo e data);
+  - contagem de pendências ativas (mesma fonte do sino do cabeçalho);
   - gráfico de barras comparando o investimento total (`total_invested`)
     de cada veículo.
 
@@ -130,11 +131,13 @@ frota e um gráfico de investimento por veículo.
   seção de atividade não aparece nem na sidebar nem no cabeçalho.
 - **AC-4**: Dado qualquer estado da garagem, quando o usuário abre "Minha
   Garagem", então o card "Atividade recente" não existe mais nessa tela.
-- **AC-5**: Dado 1 ou mais veículos cadastrados, quando o usuário abre
-  "Minha Garagem" em tela `lg` ou maior, então aparece o painel
-  comparativo com: contagem de veículos (total e ativos), km total da
-  garagem, custo/km médio da garagem, gasto do mês atual somado, e o
-  gráfico de investimento por veículo — mesmo com 1 veículo só.
+- **AC-5** *(revisado em 015d)*: Dado 1 ou mais veículos cadastrados,
+  quando o usuário abre "Minha Garagem" em tela `lg` ou maior, então
+  aparece o painel comparativo com: contagem de veículos (total e
+  ativos), custo/km médio da garagem, gasto do mês atual somado,
+  próxima manutenção da frota e contagem de pendências ativas, mais o
+  gráfico de investimento por veículo — mesmo com 1 veículo só. "Km
+  total rodado" **não** aparece.
 - **AC-6**: Dado 1 ou mais veículos cadastrados, quando o usuário abre
   "Minha Garagem" em tela abaixo de `lg` (mobile), então o painel
   comparativo não aparece.
@@ -149,6 +152,17 @@ frota e um gráfico de investimento por veículo.
   investimento por veículo é exibido, então os 8 com maior
   `total_invested` aparecem como barras individuais e o restante é
   somado em uma barra "Outros".
+- **AC-10** *(015d)*: Dado o gráfico de investimento por veículo, então
+  toda barra de veículo usa `--color-accent` (nunca a paleta categórica
+  de gráfico), com trilho reto e fino — sem cápsula arredondada.
+- **AC-11** *(015d)*: Dado o painel comparativo, então os módulos de
+  métrica são separados por fio de 1px em `--color-border`, dentro de
+  uma superfície única — nunca cards com borda própria aninhados dentro
+  do card do painel.
+- **AC-12** *(015d)*: Dado que a garagem não tem manutenção prevista nem
+  pendência ativa, então os módulos correspondentes mostram "—" com um
+  contexto textual ("nenhuma prevista" / "nada vencendo"), nunca um zero
+  ambíguo sem explicação.
 
 ## 6. Regras de negócio
 
@@ -170,6 +184,16 @@ frota e um gráfico de investimento por veículo.
   desktop (`lg`+) — não aparece no mobile, pra não empilhar informação
   demais numa tela pequena que já mostra `GarageSummary` e a lista de
   veículos.
+- **RN-6** *(nova em 015d)*: Métrica de garagem só entra no painel se a
+  agregação for uma grandeza real. Soma de odômetro de veículos
+  diferentes não é (cada odômetro é uma régua independente, não um fluxo
+  cumulativo) — por isso "Km total rodado" saiu. Contagem, média
+  ponderada por dado existente, soma de dinheiro e "o mais urgente da
+  frota" são agregações válidas.
+- **RN-7** *(nova em 015d)*: Alerta/pendência tem uma fonte só no app
+  (`useGarageAlerts`, a mesma do sino do cabeçalho). Qualquer lugar novo
+  que mostre pendência consome esse hook — nunca reimplementa a regra de
+  o que conta como pendente.
 
 ## 7. Dados
 

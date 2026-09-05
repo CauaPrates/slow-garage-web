@@ -440,6 +440,36 @@ portanto já é CSS variable):
   muda em outro dispositivo. `localStorage` continua existindo — é o
   que aplica o tema antes do primeiro paint e antes do perfil carregar,
   só deixou de ser a única fonte (ver ADR-069)
+- Painel de leitura agregada = **grade de instrumentos** (Fase 15d,
+  `GarageComparisonDashboard`, ver ADR-070): uma superfície só
+  (`rounded-lg border border-border bg-surface overflow-hidden`), com
+  cabeçalho separado por `border-b`, grade de módulos separados por fio
+  de 1px (`--color-border`) e seção de gráfico separada por `border-t`.
+  Módulo é `px-4 py-3`, rótulo `text-xs text-text-secondary`, valor em
+  `font-mono text-text-primary` e segunda linha opcional de contexto
+  ("18 ativos", "Peugeot 308 · 20/09/2026") — nunca um segundo número
+  solto. Fio, não caixa: módulo com borda própria dentro de card com
+  borda recria os "cards competindo" do ADR-061. Técnica:
+  `-mt-px -ml-px` na grade + `border-t border-l` no módulo, com
+  `overflow-hidden` no painel (funciona em qualquer contagem de coluna,
+  sem célula vazia sobrando). Isto **generaliza** pra fora do
+  `VehicleCard`/`VehicleMetricsRow` o padrão de tile que antes só valia
+  dentro do veículo
+- Métrica agregada de garagem precisa agregar de verdade (Fase 15d):
+  "Km total rodado" (soma de odômetro de veículos diferentes) foi
+  removido — odômetro é régua independente por veículo, não fluxo
+  cumulativo, então a soma não é grandeza nenhuma. Entraram "Próxima
+  manutenção" (o mais urgente da frota, com o veículo no contexto) e
+  "Pendências ativas" (contagem, mesma fonte `useGarageAlerts` do sino
+  do cabeçalho — mesma query key, sem segunda regra de alerta no app)
+- Gráfico de comparação de magnitude usa hue único `--color-accent`
+  (Fase 15d, `VehicleInvestmentChart`), não a paleta categórica de 8
+  slots: a paleta categórica é pra quando a série **é** o assunto e a
+  cor mapeia identidade (`ExpensesByCategoryChart`). Quando cada barra
+  já tem o nome colado nela e todas medem a mesma coisa, cor é
+  decoração — mesma regra que o `ExpensesByMonthChart` já seguia.
+  Trilho reto e fino (`h-1.5`, sem raio, trilho em `--color-border`),
+  não cápsula `rounded-full` grossa
 
 ## Sistema de resposta (motion)
 

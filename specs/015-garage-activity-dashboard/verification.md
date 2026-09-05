@@ -138,6 +138,89 @@ de `>= 2` para `> 0` e que a lógica interna do componente já era segura
 para 1 elemento, mas o humano deve confirmar visualmente na própria conta
 real (1 veículo) que o layout com 1 barra só no gráfico fica legível.
 
+## Revisão 015d — métricas que agregam, hue único e grade de instrumentos
+
+Revisão de design pedida pelo usuário em três frentes: (1) tirar métrica
+sem sentido, (2) tirar vazamento de estilo genérico do gráfico, (3) dar
+cara de painel ao bloco.
+
+| AC | Resultado | Evidência |
+|---|---|---|
+| AC-5 (revisado) | ✅ | Script escopado ao painel, 1440px, login real: `"Km total rodado" ainda existe (deve ser false): false`; os 5 módulos presentes com valor lido do DOM — `Veículos na garagem: "18 \| 18 ativos"`, `Custo/km médio: "R$ 0,03/km \| 4 de 18 com dado"`, `Gasto no mês: "R$ 4.060,20"`, `Próxima manutenção: "— \| nenhuma prevista"`, `Pendências ativas: "0 \| nada vencendo"`. |
+| AC-10 | ✅ | Estilo computado das 3 primeiras barras **dentro do painel**: `background: rgb(255, 138, 30)` (= `#ff8a1e` = `--color-accent`, lido do próprio `:root` no mesmo teste), `height: 6px`, `borderTopLeftRadius: 0px`. A primeira medição pegou barras do card vizinho (`GarageSummary`) por falta de escopo — refeita com escopo no painel. |
+| AC-11 | ✅ | Grade escopada ao painel: `colunas=5 módulos=5`; cada módulo com `borderTop: 1px`, `borderLeft: 1px`, `color: rgb(46, 49, 54)` (= `#2e3136` = `--color-border`). Screenshot `.ui-check/15d-panel-1440.png`. |
+| AC-12 | ✅ | Mesmo run: com a garagem sem manutenção/alerta, os módulos mostram `— \| nenhuma prevista` e `0 \| nada vencendo`. |
+| RN-6 | ✅ | Mesma evidência do AC-5 — "Km total rodado" não existe mais no DOM do painel. |
+| RN-7 | ✅ | `GarageComparisonDashboard` consome `useGarageAlerts` (mesmo hook/query key do `HeaderAlertsMenu`), sem regra de alerta própria — leitura de código + o passo 1 abaixo mostra uma única requisição a `vehicle_alerts` servindo os dois. |
+
+### Caminho populado (a conta de teste não tem manutenção nem alerta)
+
+Duas metades verificadas separadamente, porque a conta de teste
+(`e2e-test@dev.local`) tem 18 veículos mas nenhum item de manutenção com
+data prevista e nenhum alerta ativo:
+
+```
+--- passo 1: query real (banco de verdade) ---
+  vehicle_alerts: HTTP 200 (select válido)
+  maintenance_status: HTTP 200 (select válido)
+--- passo 2: caminho populado (resposta injetada) ---
+  Próxima manutenção → Troca de óleo | Gauge318107 Teste · 20/09/2026
+  Pendências ativas  → 2 | 1 vencida
+  console errors: nenhum
+```
+
+O passo 1 prova que o `select`/filtro de `useGarageMaintenance` é válido
+contra o banco real (200, lista vazia porque não há dado — coluna ou
+filtro errado devolveria 400). O passo 2 substitui **só a resposta de
+leitura** (`page.route`, nada gravado no banco) pra provar a renderização
+populada, incluindo a resolução do nome do veículo e a pluralização de
+"1 vencida". Screenshot `.ui-check/15d-panel-populado.png`.
+
+### Saída do comando (015d)
+```
+--- item 1: métricas ---
+  "Km total rodado" ainda existe (deve ser false): false
+  Veículos na garagem: ok → "18 | 18 ativos"
+  Custo/km médio: ok → "R$ 0,03/km | 4 de 18 com dado"
+  Gasto no mês: ok → "R$ 4.060,20"
+  Próxima manutenção: ok → "— | nenhuma prevista"
+  Pendências ativas: ok → "0 | nada vencendo"
+--- item 2: barra de investimento (escopo do painel) ---
+  --color-accent = #ff8a1e
+  {"title":"Gauge318107 Teste: R$ 1.500,00","background":"rgb(255, 138, 30)","height":"6px","radius":"0px"}
+  {"title":"TesteAC393561 Modelo: R$ 420,20","background":"rgb(255, 138, 30)","height":"6px","radius":"0px"}
+  {"title":"TesteAC353977 Modelo: R$ 342,50","background":"rgb(255, 138, 30)","height":"6px","radius":"0px"}
+--- item 3: grade de módulos (escopo do painel) ---
+  colunas=5 módulos=5 --color-border=#2e3136
+  {"label":"Veículos na garagem","borderTop":"1px","borderLeft":"1px","color":"rgb(46, 49, 54)"}
+  {"label":"Custo/km médio","borderTop":"1px","borderLeft":"1px","color":"rgb(46, 49, 54)"}
+  {"label":"Gasto no mês","borderTop":"1px","borderLeft":"1px","color":"rgb(46, 49, 54)"}
+--- geral ---
+  overflow: 1440 vs 1440 ok
+  console errors: nenhum
+```
+
+### Tipos e lint (015d)
+```
+$ npx tsc --noEmit
+TSC_OK
+
+$ npm run lint
+> slow-garage-web@0.0.0 lint
+> eslint .
+(sem saída — passou)
+```
+
+### Correção de premissa registrada
+
+O pedido dizia que a barra usava "a cor azul padrão do componente
+(`bg-blue-500` ou equivalente), que não existe em nenhum token do
+DESIGN.md". O azul era `--chart-series-1` (#3987e5), token real da paleta
+categórica da Fase 9 — não era Tailwind cru vazando. A troca foi feita
+mesmo assim porque a **regra** de quando usar a paleta categórica não se
+aplicava aqui (ver AC-10/DESIGN.md), não porque a cor fosse de fora do
+sistema.
+
 ## Pendências
 
 - AC-2, AC-3, AC-7, AC-8 não têm evidência de execução real porque a

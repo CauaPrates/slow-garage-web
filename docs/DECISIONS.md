@@ -1486,3 +1486,38 @@ login: mudar pra "Claro" no primeiro e abrir uma sessão nova do zero
 no segundo aplicou "Claro" imediatamente, sem nunca ter passado por
 esse `localStorage` — confirma que o pull vem mesmo do banco, não de
 storage compartilhado por acidente (mesmo host de dev).
+
+## ADR-070 — Grade de instrumentos: o padrão de tile sai do card do veículo e vira layout de painel (Fase 15d)
+
+O "Comparativo da garagem" (Fase 15) nasceu como 4 pares label/valor
+soltos num card, com `gap-4` entre eles e nada mais — o mesmo "grid de
+admin genérico" que o ADR-061 já tinha corrigido em Configurações e que
+a Fase 14c tinha tirado do `VehicleCard`. Num painel largo de desktop o
+espaço vazio entre os pares fazia cada número flutuar sem pertencer a
+lugar nenhum.
+
+Adotado: **módulo separado por fio de 1px (`--color-border`)**, não card
+dentro de card. O painel é uma superfície só (`rounded-lg border
+bg-surface overflow-hidden`); dentro dele, cabeçalho com `border-b`,
+grade de módulos com linha interna, e a seção de gráfico separada por
+outro `border-t`. Cada módulo é `px-4 py-3` com rótulo
+`text-xs text-text-secondary`, valor em `font-mono text-text-primary` e
+uma segunda linha opcional de contexto (de qual veículo, quantos
+vencidos) — nunca um segundo número solto.
+
+**Por que fio e não caixa:** aninhar módulos com borda própria dentro de
+um card que já tem borda recria exatamente o problema dos "3 cards
+competindo entre si" que o ADR-061 resolveu. O fio dá a leitura de
+instrumento (mostrador dividido) sem somar uma segunda moldura.
+
+**Técnica:** `-mt-px -ml-px` na grade + `border-t border-l` em cada
+módulo, com `overflow-hidden` no painel. Cada linha interna é desenhada
+uma vez só e as externas caem debaixo da borda do painel. Escolhido em
+vez de `gap-px` com fundo de borda porque funciona em qualquer contagem
+de coluna sem célula vazia sobrando quando o número de módulos não é
+múltiplo das colunas do breakpoint.
+
+Isso **generaliza** pra fora do `VehicleCard`/`VehicleMetricsRow` o que
+até aqui era só "tile dentro do veículo": qualquer painel de leitura
+agregada do app passa a ter uma forma canônica. Registrado em
+DESIGN.md ("Densidade").

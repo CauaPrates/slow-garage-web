@@ -39,6 +39,17 @@ comparativo passa a ser exclusivo de desktop, envolvendo seu uso em
 extra: o componente não busca dado próprio, só agrega o array `vehicles`
 já carregado pela própria página).
 
+**Revisão 015d** (revisão de design pedida pelo usuário, três frentes):
+(1) *Métrica sem sentido* — "Km total rodado" sai (RN-6); entram
+"Próxima manutenção" (novo hook `useGarageMaintenance` sobre a view
+`maintenance_status`, mesmo padrão dos outros hooks de garagem) e
+"Pendências ativas" (reusa `useGarageAlerts`, a mesma query key do sino
+do cabeçalho — o React Query serve do cache, sem segunda regra de
+alerta). (2) *Cor* — `VehicleInvestmentChart` troca a paleta categórica
+por hue único `--color-accent` com trilho reto e fino. (3) *Layout* —
+painel vira grade de instrumentos com fio de 1px (ADR-070), com o
+gráfico como seção separada por `border-t` em vez de card aninhado.
+
 ## 2. Alternativas descartadas
 
 | Alternativa | Por que não |
@@ -47,6 +58,9 @@ já carregado pela própria página).
 | Atividade recente virar uma rota/página própria (`/atividades`) | Contraria o pedido explícito: "não vai ser uma aba que vão clicar e abrir uma página" — o padrão certo é popover, igual ao sino de alertas. |
 | Nova view/RPC no Postgres para agregar métricas de frota (km total, custo/km médio, gasto do mês) | Os dados já vêm por veículo via `useVehicles`; com o volume esperado (poucos veículos por usuário) agregar no cliente é suficiente e evita migration só pra isto. |
 | Biblioteca de gráfico (recharts, visx, etc.) pro gráfico comparativo | O projeto inteiro já resolve gráfico com barras em `div` + token de cor (`ExpensesByMonthChart`, `ExpensesByCategoryChart`) — inconsistente introduzir uma dependência nova pra um gráfico a mais do mesmo tipo. |
+| **(015d)** Implementar "Km rodados este mês" no lugar do "Km total rodado" | Não existe tabela de leitura de odômetro: o valor só aparece grudado em evento (gasto, abastecimento, manutenção, nota) que por acaso registrou km. O delta do mês só enxerga o intervalo entre a primeira e a última leitura registrada — mês sem registro daria "0 km rodados" com o carro tendo rodado. Seria trocar uma métrica sem sentido por outra enganosa, exatamente o que o item 1 pede pra evitar. Registrado como proposta pro usuário decidir. |
+| **(015d)** Nested card pro gráfico dentro do painel | Card com borda dentro de card com borda é o "3 cards competindo" do ADR-061; virou seção separada por `border-t`. |
+| **(015d)** `gap-px` + fundo de borda pra desenhar o fio entre módulos | Funciona, mas deixa bloco de fundo de borda visível quando a contagem de módulos não é múltiplo das colunas do breakpoint. `-mt-px -ml-px` + `border-t border-l` não tem esse caso. |
 
 ## 3. Impacto em contratos e dados
 
@@ -67,6 +81,9 @@ alteração de assinatura ou de query.
 | `src/components/layout/SidebarActivityFeed.tsx` | criar (015b) | Seção "Atividade recente" inline na sidebar (desktop), itens compactos. |
 | `src/components/layout/Sidebar.tsx` | modificar (015b) | Passa a receber `vehicles` como prop e monta `SidebarActivityFeed` entre a navegação e "Configurações". |
 | `src/components/layout/AppShell.tsx` | modificar (015b) | Passa `vehicles` para `Sidebar`; envolve `HeaderActivityMenu` num `<div className="lg:hidden">` (só mobile). |
+| `src/features/vehicle/useGarageMaintenance.ts` | criar (015d) | Próxima manutenção da frota inteira via view `maintenance_status`, mesmo padrão de `useGarageAlerts`. |
+| `docs/DECISIONS.md` | modificar (015d) | ADR-070 — grade de instrumentos como layout canônico de painel agregado. |
+| `docs/DESIGN.md` | modificar (015d) | Entradas em "Densidade": grade de instrumentos, regra de métrica agregada e hue único em gráfico de magnitude. |
 
 ## 5. Ordem de execução
 
