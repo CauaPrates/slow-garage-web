@@ -112,7 +112,7 @@ export function FuelLogForm({
         <div className="flex flex-col gap-4 border-t border-border p-3">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="occurredOn">Data</Label>
+              <Label htmlFor="occurredOn">Data (opcional)</Label>
               <Input
                 id="occurredOn"
                 type="date"
@@ -122,7 +122,7 @@ export function FuelLogForm({
               <FieldError>{errors.occurredOn?.message}</FieldError>
             </div>
             <div className="flex flex-col gap-1.5">
-              <Label htmlFor="fuelType">Combustível</Label>
+              <Label htmlFor="fuelType">Combustível (opcional)</Label>
               <Select
                 id="fuelType"
                 defaultValue=""

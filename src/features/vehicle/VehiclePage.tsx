@@ -29,7 +29,7 @@ export function VehiclePage() {
   const dashboardQuery = useVehicleDashboard(vehicleId ?? "");
   const { data: categories } = useExpenseCategories();
   const { data: maintenanceItems } = useMaintenanceItems(vehicleId ?? "");
-  const { data: timelineEvents } = useTimeline(vehicleId ?? "");
+  const timelineQuery = useTimeline(vehicleId ?? "");
 
   if (isLoading) {
     return (
@@ -165,10 +165,23 @@ export function VehiclePage() {
                   Ver histórico completo
                 </Link>
               </div>
-              {(timelineEvents ?? []).length === 0 ? (
+              {timelineQuery.isLoading ? (
+                <div className="flex flex-col gap-2">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="h-14 animate-pulse rounded-lg border border-border bg-surface" />
+                  ))}
+                </div>
+              ) : timelineQuery.isError ? (
+                <div className="flex flex-col items-start gap-2 rounded-lg border border-border bg-surface p-4">
+                  <p className="text-sm text-text-secondary">Não foi possível carregar o histórico recente.</p>
+                  <Button variant="ghost" onClick={() => timelineQuery.refetch()}>
+                    Tentar de novo
+                  </Button>
+                </div>
+              ) : (timelineQuery.data ?? []).length === 0 ? (
                 <p className="text-sm text-text-secondary">Nenhum evento registrado ainda.</p>
               ) : (
-                (timelineEvents ?? []).slice(0, RECENT_TIMELINE_LIMIT).map((event) => (
+                (timelineQuery.data ?? []).slice(0, RECENT_TIMELINE_LIMIT).map((event) => (
                   <TimelineItem
                     key={`${event.source_table}-${event.source_id}`}
                     vehicleId={vehicle.id}

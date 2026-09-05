@@ -39,7 +39,7 @@ export function ObligationForm({ mode, defaultValues, onSubmit, submitLabel }: O
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="kind">Tipo</Label>
+          <Label htmlFor="kind">Tipo (opcional)</Label>
           <Select id="kind" {...register("kind")}>
             {OBLIGATION_KINDS.map((value) => (
               <option key={value} value={value}>

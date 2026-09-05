@@ -70,7 +70,7 @@ export function ExpenseForm({
           <FieldError>{errors.categoryId?.message}</FieldError>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="occurredOn">Data</Label>
+          <Label htmlFor="occurredOn">Data (opcional)</Label>
           <Input
             id="occurredOn"
             type="date"

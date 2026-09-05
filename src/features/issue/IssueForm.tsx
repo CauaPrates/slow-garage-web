@@ -57,7 +57,7 @@ export function IssueForm({
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="reportedOn">Data do relato</Label>
+          <Label htmlFor="reportedOn">Data do relato (opcional)</Label>
           <Input
             id="reportedOn"
             type="date"

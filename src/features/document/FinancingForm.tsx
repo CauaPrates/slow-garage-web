@@ -72,7 +72,7 @@ export function FinancingForm({ mode, defaultValues, onSubmit, submitLabel }: Fi
           <FieldError>{errors.installmentCount?.message}</FieldError>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="startedOn">Início</Label>
+          <Label htmlFor="startedOn">Início (opcional)</Label>
           <Input
             id="startedOn"
             type="date"
