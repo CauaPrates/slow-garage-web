@@ -1521,3 +1521,59 @@ Isso **generaliza** pra fora do `VehicleCard`/`VehicleMetricsRow` o que
 até aqui era só "tile dentro do veículo": qualquer painel de leitura
 agregada do app passa a ter uma forma canônica. Registrado em
 DESIGN.md ("Densidade").
+
+## ADR-071 — Esteira: CI no GitHub Actions, deploy pela integração da Vercel (Fase 16)
+
+Primeira automação do repositório. Duas responsabilidades separadas de
+propósito: **o Actions verifica, a Vercel publica.**
+
+**Deploy pela integração Git da Vercel, não por workflow.** A alternativa
+era rodar `vercel deploy` dentro do Actions, o que exigiria três segredos
+no GitHub (`VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID`) e
+reimplementar à mão o que a integração já faz de graça: preview por
+branch e por PR, comentário no PR com a URL, e rollback de um clique no
+painel. Para um projeto de uma pessoa, o controle a mais não paga o
+custo de manter token e reproduzir a esteira de preview.
+
+**`main` é produção, `dev` é preview.** `dev` recebe todo merge de fase e
+ganha uma URL de preview estável; publicar em produção é um merge
+`dev` → `main`, que é o ponto onde alguém decide "isso vai pro ar".
+Consequência assumida: `main` estava 103 commits atrás quando isto foi
+configurado, então o primeiro deploy de produção exige esse merge.
+
+**O CI não bloqueia o deploy sozinho.** A integração da Vercel publica
+mesmo com o Actions vermelho — quem amarra os dois é proteção de branch
+no GitHub exigindo o check "Lint + build" no PR pra `main`. Sem isso, o
+CI é só sinal, não portão. Fica registrado porque é o tipo de coisa que
+se assume estar funcionando sem estar.
+
+**O que o CI roda:** `npm run lint` e `npm run build` (que é
+`tsc -b && vite build`, então cobre checagem de tipo). **Não roda teste
+automatizado porque não existe nenhum no projeto** — a verificação de
+comportamento é manual, com Playwright contra o app real, no gate de
+verificação de cada fase (`specs/*/verification.md`). Registrar isso
+evita a leitura errada de "CI verde = comportamento verificado": aqui
+verde significa "compila e passa no lint", nada além.
+
+**O build do CI roda sem as variáveis do Supabase.** Confirmado
+empiricamente (`VITE_SUPABASE_URL="" VITE_SUPABASE_ANON_KEY="" npm run
+build` → exit 0): `vite build` só substitui `import.meta.env.*` no
+bundle, não executa o código, e o `throw` de `lib/supabase.ts` é de
+runtime. O artefato do CI não é publicado, então não precisa ser
+funcional — quem precisa das variáveis de verdade é a Vercel.
+
+**Node fixado em 22** (`.nvmrc` + `engines.node`), o mesmo do ambiente de
+desenvolvimento, lido tanto pelo `setup-node` quanto pela Vercel — evita
+o clássico "funciona local, quebra no build" por diferença de major.
+
+**`sw.js` e `manifest.webmanifest` com `max-age=0, must-revalidate`** em
+`vercel.json`. O `vite-plugin-pwa` gera esses dois sem hash no nome; se
+o service worker for cacheado, o usuário fica preso numa versão antiga
+do app mesmo depois de publicar uma nova. O resto do `dist/` tem hash no
+nome e pode ser cacheado pra sempre pelo padrão da Vercel.
+
+**Formatação não entra no CI**: o projeto não tem `prettier` nas
+dependências nem arquivo de configuração. O que foi formatado até aqui
+saiu de `npx prettier` com os defaults, o que casou com o estilo do
+código por sorte, não por contrato. Adicionar `prettier` + `--check` no
+CI é uma decisão de projeto pendente, não um detalhe de esteira.

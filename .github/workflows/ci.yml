@@ -1,0 +1,45 @@
+# Portão de qualidade do repositório. NÃO faz deploy — quem publica é a
+# integração da Vercel com o GitHub (ver docs/DECISIONS.md, ADR-071).
+#
+# Não há suíte de teste automatizada no projeto: a verificação de
+# comportamento é feita com Playwright contra o app real, na mão, no gate de
+# verificação de cada fase (ver specs/*/verification.md e a skill `ui-verify`).
+# Este workflow cobre o que dá pra cobrir sem browser e sem segredo: lint e
+# build (que inclui `tsc -b`, então é checagem de tipo também).
+name: CI
+
+on:
+  push:
+    branches: [main, dev]
+  pull_request:
+
+# Push novo na mesma ref cancela a execução anterior — não adianta terminar
+# de checar um commit que já foi substituído.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint + build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Instalar dependências
+        run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      # `npm run build` é `tsc -b && vite build`. Roda sem as variáveis do
+      # Supabase de propósito: aqui o build é só prova de compilação, o
+      # artefato não é publicado. Quem precisa das variáveis de verdade é a
+      # Vercel, onde elas ficam configuradas no projeto.
+      - name: Build
+        run: npm run build
