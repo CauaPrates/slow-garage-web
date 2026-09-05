@@ -878,3 +878,32 @@ existe view nem coluna com histórico de custo por km no banco (só
 `expenses_by_month`, usado para "Total investido"). Mostrar uma
 tendência ali seria calcular no cliente o que o banco não decide (regra
 geral do projeto desde a Fase 5/ADR-030).
+
+## ADR-051 — Resumo agregado de todos os veículos soma views por veículo no cliente, sem RPC própria (Fase 14d)
+
+Usuário pediu, na "Minha Garagem": ver gráfico/informação combinando
+todos os veículos (ex.: "quanto já gastei de upgrade em todos os
+carros"). Diferente do dashboard de um veículo (`get_vehicle_dashboard`,
+RPC única, RN-1 de `useVehicleDashboard.ts`: "nunca decompor em query de
+tabela por bloco"), não existe uma RPC equivalente pra garagem inteira.
+
+Decisão: `useGarageSummary` busca `vehicle_expenses_by_category`/
+`vehicle_expenses_by_month` filtrando `vehicle_id IN (...)` pra todos os
+veículos do usuário, e soma no cliente por `category_slug`/`month`. Os 5
+totais (investido, gastos, manutenção, combustível, itens de projeto)
+nem precisam de query nova — já vêm em cache de `useVehicles`
+(`vehicle_financial_summary` por veículo), só somados no componente.
+
+Isso **não** é o mesmo erro que o projeto proíbe (recalcular regra de
+negócio no cliente, ex.: o que conta como "vencido"): somar valores que
+o banco já computou por veículo, sem reinterpretar nenhuma regra, é
+aritmética sobre dado real e completo (RLS já garante que só os veículos
+do próprio usuário aparecem). Registrado como decisão consciente, não
+descoberta depois: se este resumo crescer em lógica (ex.: filtro de
+período, mais métricas cruzadas), vale promover pra uma RPC própria
+(`get_garage_dashboard`) do lado do backend, mesmo padrão do
+`get_vehicle_dashboard`.
+
+`GarageSummary` só aparece com 2+ veículos — com 1 só, seria idêntico ao
+dashboard daquele veículo (mesma regra de "nunca duplicar número já
+visível em outro lugar" de todo o projeto).
