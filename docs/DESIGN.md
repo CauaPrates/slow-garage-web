@@ -81,6 +81,7 @@ atrapalhar a leitura de número e data repetidos cem vezes por semana.
 | Hero | **Rajdhani**, peso 700 (OFL, self-hosted via `@fontsource`) | Só no wordmark de login/cadastro (`AuthLayout`) — condensada, geométrica, maiúscula com tracking largo, mais "decalque de painel" que a cursiva anterior. Sem competir com o corpo do produto |
 | Corpo / dado | **Space Grotesk** (OFL, self-hosted) | Todo o resto: shell, formulário, lista, número. Numerais tabulares para alinhamento de coluna |
 | Marca (katakana) | **Noto Sans JP** — **adiada**, ver "O que foi recusado" | Pequena etiqueta de marca perto do nome do app, além da logo estática (decisão do clarify da Fase 0, ainda não revisitada) |
+| Número de medição (Fase 12) | **JetBrains Mono**, peso 400 (OFL, self-hosted via `@fontsource`) | Só os "hero numbers" de card de resumo — km/R$/L/km-por-L em `FinancialSummaryCard`, `FuelSummarySection`, `FuelSummaryCard`, e o odômetro no cabeçalho da `VehiclePage`. Nunca em lista comum (gasto, abastecimento, `VehicleCard` da garagem), data ou contagem — decisão fechada em clarify, ver `specs/012-mono-numeric/spec.md` |
 
 ## Densidade
 
@@ -242,6 +243,11 @@ portanto já é CSS variable):
   *default* no banco (combustível, câmbio, tipo de documento), onde a
   opção vazia pode continuar `disabled` porque o campo nunca fica
   genuinamente vazio pro usuário
+- Número de medição em card de resumo (Fase 12): `font-mono`
+  (JetBrains Mono) só nos 4 pontos listados na tabela de Tipografia
+  acima — troca só a família, nunca peso/cor/tamanho (RN-1 da spec).
+  Lista comum (linha de gasto, abastecimento, `VehicleCard`) continua
+  em Space Grotesk de propósito, pra não fragmentar a leitura
 
 ## Hierarquia
 
@@ -307,3 +313,36 @@ não é um defeito a corrigir agora.
   monta) ou reaproveitar a própria imagem da logo em vez de texto vivo. O
   token `--font-jp` já existe em `tokens.css`, mas sem fonte carregada —
   cai no fallback de `--font-sans` até essa decisão.
+
+---
+
+## Propostas em aberto (não decididas)
+
+Vieram de um exercício de direção visual feito em paralelo, sem contato
+com o código ou este histórico (registrado num rascunho, `DESIGN_2.md`,
+já absorvido neste arquivo e removido). Não conflitam com nenhuma decisão
+já tomada, mas não foram validadas contra uso real nem passaram por
+clarify completo. Fica registrada aqui pra não se perder, não pra virar
+tarefa automática.
+
+### Home do veículo como hub (stats + ações rápidas + timeline)
+
+`VehiclePage` hoje mostra resumos por seção (financeiro, combustível,
+progresso de projeto etc.), cada um em seu card, conforme a fase que o
+construiu. A ideia em aberto é uma tela de entrada do veículo que reúna,
+acima da dobra, sem precisar navegar:
+
+- Uma faixa de 4 métricas (odômetro, custo/km, total investido, nº de
+  alertas ativos) em módulos separados por linha fina — não mais um card
+  único de resumo.
+- Uma fileira de ações rápidas (gasto, abastecimento, manutenção, foto)
+  sempre visível, não atrás de menu ou FAB.
+- Timeline recente (3–5 itens) lado a lado com um bloco de pendências
+  (usando o mesmo padrão de badge borda+texto já estabelecido).
+
+Isso não substitui nenhum componente já construído (`FuelSummaryCard`,
+`AlertBanner`, `TimelineItem` continuam válidos) — é uma proposta de
+**composição da tela**, reaproveitando esses componentes num layout de
+entrada mais denso. Antes de implementar: confirmar que não duplica dado
+já visível em outra seção da mesma `VehiclePage`, e rodar como fase
+própria com clarify, já que mexe na tela mais visitada do produto.

@@ -22,6 +22,7 @@
   --font-sans:
     "Space Grotesk", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-jp: "Noto Sans JP", var(--font-sans);
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;

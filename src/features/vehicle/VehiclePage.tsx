@@ -81,7 +81,9 @@ export function VehiclePage() {
               <p className="text-sm text-text-secondary">
                 {vehicle.model_year}
                 {vehicle.trim ? ` · ${vehicle.trim}` : ""} ·{" "}
-                {vehicle.current_odometer_km != null ? formatKm(vehicle.current_odometer_km) : "—"}
+                <span className="font-mono">
+                  {vehicle.current_odometer_km != null ? formatKm(vehicle.current_odometer_km) : "—"}
+                </span>
               </p>
             </div>
             <span className="shrink-0 rounded-full border border-border px-2 py-0.5 text-xs text-text-secondary">
