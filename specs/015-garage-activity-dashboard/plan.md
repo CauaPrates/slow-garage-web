@@ -50,6 +50,16 @@ por hue único `--color-accent` com trilho reto e fino. (3) *Layout* —
 painel vira grade de instrumentos com fio de 1px (ADR-070), com o
 gráfico como seção separada por `border-t` em vez de card aninhado.
 
+**Revisão 015e** (bug de layout criado pela 015b): a sidebar é filha flex
+de um contêiner em linha, então esticava (`align-items: stretch`) até a
+altura do `<main>` — com 18 veículos a página passa de 5.000px e
+"Configurações", preso com `mt-auto` no rodapé da sidebar, ia junto pro
+fim da página. Correção: a partir de `lg` o shell passa a ter a altura
+exata da viewport (`lg:h-dvh lg:overflow-hidden`) e o `<main>` vira o
+contêiner de rolagem (`lg:overflow-y-auto`); cabeçalho e sidebar ficam
+fixos e só a lista de atividade rola dentro da sidebar. Abaixo de `lg`
+nada muda — o documento continua rolando.
+
 ## 2. Alternativas descartadas
 
 | Alternativa | Por que não |
@@ -61,6 +71,8 @@ gráfico como seção separada por `border-t` em vez de card aninhado.
 | **(015d)** Implementar "Km rodados este mês" no lugar do "Km total rodado" | Não existe tabela de leitura de odômetro: o valor só aparece grudado em evento (gasto, abastecimento, manutenção, nota) que por acaso registrou km. O delta do mês só enxerga o intervalo entre a primeira e a última leitura registrada — mês sem registro daria "0 km rodados" com o carro tendo rodado. Seria trocar uma métrica sem sentido por outra enganosa, exatamente o que o item 1 pede pra evitar. Registrado como proposta pro usuário decidir. |
 | **(015d)** Nested card pro gráfico dentro do painel | Card com borda dentro de card com borda é o "3 cards competindo" do ADR-061; virou seção separada por `border-t`. |
 | **(015d)** `gap-px` + fundo de borda pra desenhar o fio entre módulos | Funciona, mas deixa bloco de fundo de borda visível quando a contagem de módulos não é múltiplo das colunas do breakpoint. `-mt-px -ml-px` + `border-t border-l` não tem esse caso. |
+| **(015e)** `position: sticky` na sidebar em vez de shell de altura fixa | Precisaria de `top: <altura do cabeçalho>` e `height: calc(100dvh - <altura do cabeçalho>)` — número mágico que quebra na primeira mudança de padding/ícone do cabeçalho. O shell de altura fixa não precisa saber a altura de ninguém. |
+| **(015e)** Aplicar o shell de altura fixa em todos os tamanhos | Trocaria o scroll do documento pelo de um contêiner interno também no mobile, onde isso impede a barra de endereço do navegador de se esconder. Escopado em `lg:` — abaixo disso não há sidebar pra corrigir. |
 
 ## 3. Impacto em contratos e dados
 

@@ -163,6 +163,14 @@ frota e um gráfico de investimento por veículo.
   pendência ativa, então os módulos correspondentes mostram "—" com um
   contexto textual ("nenhuma prevista" / "nada vencendo"), nunca um zero
   ambíguo sem explicação.
+- **AC-13** *(015e)*: Dado o usuário em tela `lg` ou maior numa página de
+  conteúdo longo, quando ele rola o conteúdo até o fim, então a sidebar
+  não se move e "Configurações" continua visível no rodapé dela sem
+  precisar rolar — a única parte que rola dentro da sidebar é a lista de
+  "Atividade recente".
+- **AC-14** *(015e)*: Dado o usuário em tela abaixo de `lg`, então o
+  documento continua rolando normalmente (o modelo de rolagem fixa é só
+  de desktop).
 
 ## 6. Regras de negócio
 

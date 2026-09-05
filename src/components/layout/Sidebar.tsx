@@ -25,7 +25,7 @@ function NavItemLink({ item, href }: { item: NavItem; href: string }) {
       end={href === "/"}
       className={({ isActive }) =>
         cn(
-          "flex items-center gap-2 rounded-md px-3 py-2 text-sm text-text-primary transition-colors duration-150 hover:bg-bg",
+          "flex shrink-0 items-center gap-2 rounded-md px-3 py-2 text-sm text-text-primary transition-colors duration-150 hover:bg-bg",
           isActive && "bg-bg font-medium",
         )
       }
@@ -59,7 +59,15 @@ export function Sidebar({ vehicles }: SidebarProps) {
   return (
     <nav
       aria-label="Navegação principal"
-      className="hidden w-56 shrink-0 flex-col gap-1 border-r border-border bg-surface p-3 lg:flex"
+      /*
+        Fase 15e: a sidebar é fixa — tem a altura da viewport (o shell é
+        `lg:h-dvh`, ver `AppShell`) e "Configurações" fica sempre visível no
+        rodapé dela. Quem rola é a lista de atividade (`SidebarActivityFeed`,
+        `flex-1 min-h-0` com scroll próprio). O `overflow-y-auto` aqui é só
+        rede de segurança pra janela muito baixa, onde nem os links fixos
+        cabem: degrada rolando em vez de cortar item.
+      */
+      className="hidden min-h-0 w-56 shrink-0 flex-col gap-1 overflow-y-auto border-r border-border bg-surface p-3 lg:flex"
     >
       {accountItems.map((item) => {
         const href = resolveNavItem(item, vehicleId);
@@ -68,7 +76,7 @@ export function Sidebar({ vehicles }: SidebarProps) {
       })}
 
       {vehicleId && (
-        <div className="mt-2 flex flex-col gap-1 border-t border-border pt-2">
+        <div className="mt-2 flex shrink-0 flex-col gap-1 border-t border-border pt-2">
           <p className="truncate px-3 pb-1 text-xs tracking-wide text-text-secondary uppercase">
             {vehicle ? `${vehicle.make} ${vehicle.model}` : "Veículo"}
           </p>
@@ -82,7 +90,7 @@ export function Sidebar({ vehicles }: SidebarProps) {
 
       <SidebarActivityFeed vehicles={vehicles} />
 
-      <div className="mt-auto flex flex-col gap-1 border-t border-border pt-2">
+      <div className="mt-auto flex shrink-0 flex-col gap-1 border-t border-border pt-2">
         {bottomItems.map((item) => {
           const href = resolveNavItem(item, vehicleId);
           if (!href) return null;
