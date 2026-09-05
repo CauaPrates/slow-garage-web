@@ -31,13 +31,15 @@ function BottomNavLink({ item, vehicleId }: { item: NavItem; vehicleId: string |
 
 /**
  * Fase 14: item que depende de veículo só aparece quando há um selecionado;
- * o FAB fica desabilitado (não a folha inteira) sem veículo. Fase 14g:
+ * o FAB fica desabilitado (não a folha inteira) sem veículo. Fase 14g/h:
  * "Configurações" fica sempre por último (mesmo lugar fixo da sidebar);
- * o resto (Home/Carros/Dados, vehicle-scoped ou não) se divide nos dois
+ * o resto (Dashboard/Carros, vehicle-scoped ou não) se divide nos dois
  * lados do FAB. A aba "Mais" (folha com as seções que não cabem aqui) só
  * aparece com veículo selecionado — todo item dela é vehicle-scoped, então
  * sem veículo ela não teria o que mostrar (mesma regra de "item some, não
- * aparece desabilitado" do resto da bottom nav).
+ * aparece desabilitado" do resto da bottom nav). Resultado com veículo
+ * selecionado: 4 abas (Dashboard, Carros, Mais, Configurações) + FAB —
+ * "Histórico" saiu da lista fixa nesta revisão pra caber sem apertar.
  */
 export function BottomNav() {
   const [addOpen, setAddOpen] = useState(false);

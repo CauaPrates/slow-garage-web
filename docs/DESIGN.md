@@ -349,17 +349,22 @@ portanto já é CSS variable):
   reaproveita o `TimelineItem` já existente, alimentado por
   `useGarageTimeline` (mesmo padrão do ADR-051, sem RPC nova); aparece
   com 1 veículo também, diferente do `GarageSummary` (ver ADR-053)
-- Aba "Mais" na bottom nav (Fase 14g, `BottomNav`/`MoreSheet`): as 4
-  abas fixas (Home/Carros/Dados/Configurações) nunca cobriram as 9
-  seções que a sidebar de desktop mostra — bug de paridade mobile,
-  achado pelo usuário. 5ª aba entre "Dados" e "Configurações" (que
-  continua fixa por último), ícone `LayoutGrid`, abre folha com as 6
-  seções que faltavam (Gastos, Abastecimentos, Manutenção, Problemas,
-  Projetos, Documentos). Só aparece com veículo selecionado, mesma
-  regra de item vehicle-scoped da Fase 14 (ADR-049). `NavSheet` novo
-  extrai a base comum do Radix `Dialog`-na-base que o FAB "Adicionar"
-  já usava — `AddActionSheet` e a nova `MoreSheet` viram wrappers finos
-  (ver ADR-054)
+- Aba "Mais" na bottom nav (Fase 14g/h, `BottomNav`/`MoreSheet`): as 4
+  abas fixas de então (Home/Carros/Dados/Configurações) nunca cobriram
+  as 9 seções que a sidebar de desktop mostra — bug de paridade mobile,
+  achado pelo usuário. Abre folha com as seções que faltavam (Gastos,
+  Abastecimentos, Manutenção, Problemas, Projetos, Documentos), ícone
+  `LayoutGrid`. Só aparece com veículo selecionado, mesma regra de item
+  vehicle-scoped da Fase 14 (ADR-049). `NavSheet` novo extrai a base
+  comum do Radix `Dialog`-na-base que o FAB "Adicionar" já usava —
+  `AddActionSheet` e a nova `MoreSheet` viram wrappers finos (ver
+  ADR-054). Fase 14h corrigiu 2 problemas reais que só apareceram
+  testando: 5 abas + FAB cortava rótulo ("Configuraç…") num telefone
+  estreito — "Histórico" saiu da lista fixa e entrou na folha "Mais"
+  também, voltando a 4 abas (Dashboard, Carros, Mais, Configurações) +
+  FAB; e a aba do painel de 1 veículo, antes chamada "Home", virou
+  "Dashboard" (mesmo rótulo/ícone da sidebar) — "home" do app é a
+  garagem ("Carros"), não o painel de um veículo (ver ADR-055)
 
 ## Sistema de resposta (motion)
 
