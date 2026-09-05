@@ -339,6 +339,16 @@ portanto já é CSS variable):
   Zebra decorativa no slot da foto e ações rápidas duplicadas por linha
   foram avaliadas e recusadas (ver ADR-052) — a primeira violaria "gaste
   a ousadia em um lugar", a segunda duplicaria a própria `VehiclePage`
+- Ações rápidas por linha e atividade agregada, revertendo parte do
+  ADR-052 (Fase 14f, `VehicleQuickActions`/`GarageActivityFeed`): com
+  poucos veículos a objeção de "mini-dashboard" não se sustenta, e a
+  página realmente morria depois do card. `VehicleQuickActions` é 4
+  ícones (`size="icon"`, 44px) numa faixa `border-t` no rodapé do card,
+  fora do `<Link>` da linha — só ícone, sem rótulo, pra não competir
+  com o grid 2x2 rotulado da `VehiclePage`. `GarageActivityFeed`
+  reaproveita o `TimelineItem` já existente, alimentado por
+  `useGarageTimeline` (mesmo padrão do ADR-051, sem RPC nova); aparece
+  com 1 veículo também, diferente do `GarageSummary` (ver ADR-053)
 
 ## Sistema de resposta (motion)
 

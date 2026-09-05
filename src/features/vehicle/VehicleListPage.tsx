@@ -1,12 +1,15 @@
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useExpenseCategories } from "@/features/expense/useExpenseCategories";
 import { useVehicles } from "./useVehicles";
 import { VehicleCard } from "./VehicleCard";
 import { CreateVehicleDialog } from "./CreateVehicleDialog";
 import { GarageSummary } from "./GarageSummary";
+import { GarageActivityFeed } from "./GarageActivityFeed";
 
 export function VehicleListPage() {
   const { data: vehicles, isLoading, isError, refetch } = useVehicles();
+  const { data: categories } = useExpenseCategories();
 
   return (
     <div className="flex flex-col gap-6 p-6">
@@ -52,9 +55,18 @@ export function VehicleListPage() {
       )}
 
       {!isLoading && !isError && vehicles && vehicles.length > 0 && (
+        <GarageActivityFeed vehicles={vehicles} />
+      )}
+
+      {!isLoading && !isError && vehicles && vehicles.length > 0 && (
         <div className="flex flex-col gap-4">
           {vehicles.map((vehicle, index) => (
-            <VehicleCard key={vehicle.id} vehicle={vehicle} bayNumber={index + 1} />
+            <VehicleCard
+              key={vehicle.id}
+              vehicle={vehicle}
+              bayNumber={index + 1}
+              categories={categories}
+            />
           ))}
         </div>
       )}

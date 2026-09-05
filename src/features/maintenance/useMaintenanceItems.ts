@@ -35,10 +35,11 @@ async function fetchMaintenanceItems(vehicleId: string): Promise<MaintenanceItem
   }));
 }
 
-export function useMaintenanceItems(vehicleId: string) {
+export function useMaintenanceItems(vehicleId: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: ["vehicles", vehicleId, "maintenance-items"],
     queryFn: () => fetchMaintenanceItems(vehicleId),
+    enabled: options?.enabled ?? true,
   });
 }
 
