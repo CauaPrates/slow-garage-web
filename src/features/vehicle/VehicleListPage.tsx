@@ -52,8 +52,10 @@ export function VehicleListPage() {
         <GarageSummary vehicles={vehicles} />
       )}
 
-      {!isLoading && !isError && vehicles && vehicles.length >= 2 && (
-        <GarageComparisonDashboard vehicles={vehicles} />
+      {!isLoading && !isError && vehicles && vehicles.length > 0 && (
+        <div className="hidden lg:block">
+          <GarageComparisonDashboard vehicles={vehicles} />
+        </div>
       )}
 
       {!isLoading && !isError && vehicles && vehicles.length > 0 && (

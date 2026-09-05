@@ -28,6 +28,17 @@ rodapé; itens compactos (ícone + título + data/valor via `Link` quando
 permanece igual, mas só renderiza abaixo de `lg` (`AppShell.tsx` passa a
 envolver seu uso num `<div className="lg:hidden">`).
 
+**Revisão 015c**: duas correções do usuário na mesma rodada. (1) O gate
+`vehicles.length >= 2` do painel comparativo escondia a área inteira em
+contas com 1 veículo só (o caso real do usuário) — mudou pra
+`vehicles.length > 0`, e a leitura interna de `GarageComparisonDashboard`
+já funcionava para array de 1 elemento sem ajuste (todo `reduce`/`filter`
+é seguro com 1 item). (2) Informação demais no mobile — o painel
+comparativo passa a ser exclusivo de desktop, envolvendo seu uso em
+`VehicleListPage.tsx` num `<div className="hidden lg:block">` (sem custo
+extra: o componente não busca dado próprio, só agrega o array `vehicles`
+já carregado pela própria página).
+
 ## 2. Alternativas descartadas
 
 | Alternativa | Por que não |
@@ -50,8 +61,8 @@ alteração de assinatura ou de query.
 | `src/components/layout/HeaderActivityMenu.tsx` | criar | Ícone + popover de atividade recente no cabeçalho, mesmo padrão do `HeaderAlertsMenu`. |
 | `src/components/layout/AppShell.tsx` | modificar | Inserir `<HeaderActivityMenu vehicles={...} />` ao lado do sino de alertas. |
 | `src/features/vehicle/GarageActivityFeed.tsx` | remover | Conteúdo migrado para `HeaderActivityMenu`; nenhum outro lugar importa este componente. |
-| `src/features/vehicle/VehicleListPage.tsx` | modificar | Remove import/uso de `GarageActivityFeed`; adiciona `GarageComparisonDashboard` no mesmo lugar. |
-| `src/features/vehicle/GarageComparisonDashboard.tsx` | criar | Tiles agregados (contagem de veículos, km total, custo/km médio, gasto do mês) + `VehicleInvestmentChart`, gate `vehicles.length >= 2`. |
+| `src/features/vehicle/VehicleListPage.tsx` | modificar | Remove import/uso de `GarageActivityFeed`; adiciona `GarageComparisonDashboard` no mesmo lugar, gate `vehicles.length > 0` + `hidden lg:block` (revisão 015c). |
+| `src/features/vehicle/GarageComparisonDashboard.tsx` | criar | Tiles agregados (contagem de veículos, km total, custo/km médio, gasto do mês) + `VehicleInvestmentChart`; gate de quantidade de veículos vive só no chamador (`VehicleListPage`), não no componente. |
 | `src/features/dashboard/VehicleInvestmentChart.tsx` | criar | Barra horizontal comparando `total_invested` por veículo, top 8 + "Outros", mesmo padrão do `ExpensesByCategoryChart`. |
 | `src/components/layout/SidebarActivityFeed.tsx` | criar (015b) | Seção "Atividade recente" inline na sidebar (desktop), itens compactos. |
 | `src/components/layout/Sidebar.tsx` | modificar (015b) | Passa a receber `vehicles` como prop e monta `SidebarActivityFeed` entre a navegação e "Configurações". |
