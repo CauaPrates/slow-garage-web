@@ -96,7 +96,7 @@ export function MaintenanceRecordForm({
           <FieldError>{errors.odometerKm?.message}</FieldError>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="performedOn">Data</Label>
+          <Label htmlFor="performedOn">Data (opcional)</Label>
           <Input
             id="performedOn"
             type="date"

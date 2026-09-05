@@ -39,9 +39,9 @@ export function VehicleCard({ vehicle }: VehicleCardProps) {
         <div className="flex flex-1 flex-col gap-2 p-4">
           <div className="flex items-start justify-between gap-2">
             <div>
-              <h3 className="font-medium text-text-primary">
+              <p className="font-medium text-text-primary">
                 {vehicle.make} {vehicle.model}
-              </h3>
+              </p>
               <p className="text-sm text-text-secondary">
                 {vehicle.model_year}
                 {vehicle.trim ? ` · ${vehicle.trim}` : ""}

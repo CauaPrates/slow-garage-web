@@ -39,7 +39,7 @@ export function NoteForm({ defaultValues, onSubmit, submitLabel }: NoteFormProps
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="occurredOn">Data</Label>
+          <Label htmlFor="occurredOn">Data (opcional)</Label>
           <Input
             id="occurredOn"
             type="date"

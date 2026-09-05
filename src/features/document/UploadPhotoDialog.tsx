@@ -103,7 +103,7 @@ export function UploadPhotoDialog({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <Label htmlFor="photo-category">Categoria</Label>
+            <Label htmlFor="photo-category">Categoria (opcional)</Label>
             <Select
               id="photo-category"
               value={category}
