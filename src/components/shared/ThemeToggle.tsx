@@ -2,7 +2,7 @@ import { Moon, Sun } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useTheme } from "@/hooks/useTheme";
 
-/** Atalho rápido (cabeçalho/login) — sempre claro/escuro explícito. Controle completo com "seguir sistema" fica em Configurações (`ThemePreferenceSelect`). */
+/** Atalho rápido (só na tela de login, Fase 14q — o cabeçalho do app autenticado não tem mais isso, já está em Configurações) — sempre claro/escuro explícito. Controle completo com "seguir sistema" fica em Configurações (`ThemePreferenceSelect`). */
 export function ThemeToggle() {
   const { resolvedTheme, toggleTheme } = useTheme();
   const isLight = resolvedTheme === "light";
