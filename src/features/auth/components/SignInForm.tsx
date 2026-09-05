@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { FieldError } from "@/components/ui/field-error";
 import { ROUTES, safeRedirectTarget } from "@/lib/routes";
@@ -48,9 +49,8 @@ export function SignInForm() {
       </div>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="signin-password">Senha</Label>
-        <Input
+        <PasswordInput
           id="signin-password"
-          type="password"
           autoComplete="current-password"
           aria-invalid={!!errors.password}
           {...register("password")}

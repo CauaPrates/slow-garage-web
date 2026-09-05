@@ -10,15 +10,15 @@
     <meta name="theme-color" content="#121316" />
     <title>Slow Garage</title>
     <script>
-      // Aplica o tema salvo antes do primeiro paint, para não piscar dark
-      // e depois trocar pra light quando a pessoa já escolheu light (ou
-      // "seguir o sistema" e o SO estiver em modo claro) antes.
+      // Aplica o tema antes do primeiro paint, para não piscar dark e
+      // depois trocar pra light. Sem preferência salva o padrão é seguir
+      // o SO; só "dark"/"light" explícitos ignoram o sistema.
       (function () {
         try {
           var stored = window.localStorage.getItem("slow-garage-theme");
           var isLight =
             stored === "light" ||
-            (stored === "system" &&
+            (stored !== "dark" &&
               window.matchMedia("(prefers-color-scheme: light)").matches);
           if (isLight) {
             document.documentElement.classList.add("light");

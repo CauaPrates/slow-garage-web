@@ -1577,3 +1577,64 @@ dependências nem arquivo de configuração. O que foi formatado até aqui
 saiu de `npx prettier` com os defaults, o que casou com o estilo do
 código por sorte, não por contrato. Adicionar `prettier` + `--check` no
 CI é uma decisão de projeto pendente, não um detalhe de esteira.
+
+## ADR-072 — O padrão de tema passa a ser o sistema operacional, e o login perde o controle de tema
+
+Duas mudanças ligadas, decididas juntas.
+
+**O padrão sem preferência salva vira `"system"`, não `"dark"`.** Isso
+reverte explicitamente o "o que continua igual" do ADR-067: lá ficou
+registrado que dark seguiria sendo o padrão absoluto de quem nunca
+escolheu nada, e "seguir o sistema" só entraria por escolha consciente
+em Configurações. Não é mais verdade. Quem nunca mexeu em nada agora
+recebe o tema do SO; `"dark"` e `"light"` no `localStorage` passam a
+significar exclusivamente escolha explícita da pessoa. `getStoredPreference()`
+inverteu a validação por causa disso — antes aceitava `"light"`/`"system"`
+e caía em `"dark"`, agora aceita `"light"`/`"dark"` e cai em `"system"`.
+
+**O script inline do `index.html` mudou junto, e é a metade fácil de
+esquecer.** Ele aplica a classe `.light` antes do primeiro paint pra não
+piscar; se só o TypeScript tivesse mudado, quem está com o SO em claro
+veria um flash escuro em toda carga. A condição virou `stored === "light"
+|| (stored !== "dark" && prefersLight)`. Verificado com o bundle do React
+bloqueado, de modo que a classe observada vem só do script inline: SO
+claro sem nada salvo → `.light`; SO escuro sem nada salvo → sem classe;
+salvo `dark` com SO claro → sem classe; salvo `light` com SO escuro →
+`.light`.
+
+**`ThemeToggle` foi deletado.** O ADR-064 já o havia tirado do cabeçalho
+autenticado, deixando `AuthLayout` como último uso — com o padrão
+seguindo o SO, esse último uso também deixou de fazer sentido: a tela de
+login vira uma decisão a menos antes de entrar. Sem nenhum consumidor
+restante, o componente saiu do repositório em vez de ficar órfão, e
+`toggleTheme` saiu junto do `ThemeContext` (era usado só por ele). O
+controle de tema existe agora em um lugar só: `ThemePreferenceSelect`,
+em Configurações, com as três opções.
+
+**Limitação conhecida:** o `<meta name="theme-color">` do `index.html`
+continua fixo no escuro (`#121316`). Quem usa o SO em claro vê a barra do
+navegador/PWA escura contra uma interface clara. Fica registrado por ser
+exatamente o tipo de ponta solta que se assume resolvida junto.
+
+## ADR-073 — Campo de senha com olho de mostrar/ocultar (`PasswordInput`)
+
+Digitar senha às cegas no celular é a maior fonte de erro de login do
+app, e o `type="password"` estava repetido em quatro formulários
+(`SignInForm`, `SignUpForm`, `UpdatePasswordForm`, `ChangePasswordForm`).
+Em vez de acrescentar o botão em cada um, o campo virou um componente:
+`components/ui/password-input.tsx` envolve o `Input` já existente e é
+dono do `type` — quem usa não passa `type`, e é impossível ter um campo
+de senha do app sem o olho.
+
+Três decisões dentro dele:
+
+* **`tabIndex={-1}` no botão, de propósito.** Quem digita senha e aperta
+  Tab quer o próximo campo ou o botão de entrar, não o olho no meio do
+  caminho. Verificado: a partir do e-mail, Tab vai pra senha e o Tab
+  seguinte vai pro "Entrar". O botão continua clicável e continua
+  anunciado por leitor de tela, só não está na ordem de tabulação
+* **44px de alvo de toque** (`h-11 w-11`), como o resto do app — medido,
+  não presumido. O campo ganhou `pr-11` pra o texto não passar por baixo
+* **`aria-label` alternando "Mostrar senha"/"Ocultar senha"** mais
+  `aria-pressed`, em vez de rótulo fixo: o estado é a informação que
+  importa, e o ícone sozinho (`aria-hidden`) não diz nada
