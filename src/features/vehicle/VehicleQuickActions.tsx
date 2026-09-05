@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Camera, Fuel, Receipt, Wrench } from "lucide-react";
+import { Camera, Fuel, Pencil, Receipt, Trash2, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CreateExpenseDialog } from "@/features/expense/CreateExpenseDialog";
 import type { useExpenseCategories } from "@/features/expense/useExpenseCategories";
@@ -14,6 +14,8 @@ type VehicleQuickActionsProps = {
   categories: ReturnType<typeof useExpenseCategories>["data"];
   defaultFuelType: Database["public"]["Enums"]["fuel_type"];
   defaultOdometerKm?: number;
+  onEdit: () => void;
+  onDelete: () => void;
 };
 
 /**
@@ -30,6 +32,8 @@ export function VehicleQuickActions({
   categories,
   defaultFuelType,
   defaultOdometerKm,
+  onEdit,
+  onDelete,
 }: VehicleQuickActionsProps) {
   const [expenseOpen, setExpenseOpen] = useState(false);
   const [fuelOpen, setFuelOpen] = useState(false);
@@ -80,6 +84,27 @@ export function VehicleQuickActions({
         <Camera className="h-4 w-4" aria-hidden="true" />
       </Button>
 
+      <div className="ml-auto flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Editar veículo"
+          className="text-accent hover:bg-accent/10 hover:text-accent"
+          onClick={onEdit}
+        >
+          <Pencil className="h-4 w-4" aria-hidden="true" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Excluir veículo"
+          className="text-error hover:bg-error/10 hover:text-error"
+          onClick={onDelete}
+        >
+          <Trash2 className="h-4 w-4" aria-hidden="true" />
+        </Button>
+      </div>
+
       {categories && (
         <CreateExpenseDialog
           vehicleId={vehicleId}
@@ -104,7 +129,11 @@ export function VehicleQuickActions({
           onOpenChange={setMaintenanceOpen}
         />
       )}
-      <UploadPhotoDialog vehicleId={vehicleId} open={photoOpen} onOpenChange={setPhotoOpen} />
+      <UploadPhotoDialog
+        vehicleId={vehicleId}
+        open={photoOpen}
+        onOpenChange={setPhotoOpen}
+      />
     </div>
   );
 }
