@@ -35,6 +35,10 @@
 | 26 | **(015e)** Sidebar com altura limitada (`min-h-0 overflow-y-auto`) e grupos de link `shrink-0`, pra só a atividade ceder espaço | `src/components/layout/Sidebar.tsx` | AC-13 | 25 | ☑ |
 | 27 | **(015e)** Registrar o modelo de rolagem em DESIGN.md ("Densidade") | `docs/DESIGN.md` | AC-13 | 26 | ☑ |
 | 28 | **(015e)** Verificação real (Playwright) em 1440x900, 1280x620 e 390x844: posição de "Configurações" antes/depois de rolar, scroll interno do feed, documento rolando no mobile | — | AC-13, AC-14 | 27 | ☑ |
+| 29 | **(015f)** `GarageSummary` vira acordeão fechado abaixo de `lg` (dois títulos, `aria-expanded`/`aria-controls`, gatilho `min-h-11`) | `src/features/vehicle/GarageSummary.tsx` | AC-15, AC-17 | — | ☑ |
+| 30 | **(015f)** `VehicleInvestmentChart` mostra 4 barras + "Ver todos os N veículos"; remove a barra "Outros" e fixa a escala no conjunto inteiro | `src/features/dashboard/VehicleInvestmentChart.tsx` | AC-16, AC-17 | — | ☑ |
+| 31 | **(015f)** Registrar o padrão de acordeão e o de lista longa em DESIGN.md ("Densidade") | `docs/DESIGN.md` | AC-15, AC-16 | 29, 30 | ☑ |
+| 32 | **(015f)** Verificação real (Playwright): estado inicial/aria/altura do gatilho no mobile, ausência do gatilho no desktop, 4→18→4 barras, sem overflow | — | AC-15, AC-16, AC-17 | 31 | ☑ |
 
 Status: ☐ pendente · ◐ em andamento · ☑ feita · ✖ bloqueada
 
@@ -51,3 +55,4 @@ Nenhum.
 | Bloco de "pendências da frota" linkando pro popover do sino (015d) | Sugerido pelo usuário como proposta | **Parcialmente coberto sem o link**: o módulo "Pendências ativas" já consome `useGarageAlerts` (RN-7), então não há regra duplicada. O *link* pro popover não foi implementado (proposta). |
 | Ícone por tipo de evento na "Atividade recente" da sidebar (015d) | Sugerido pelo usuário como proposta | **Já existia desde a 015b** — `SidebarActivityFeed` usa `TIMELINE_EVENT_TYPE_ICONS`, o mesmo mapa da timeline. Nada a fazer. |
 | `ExpensesByCategoryChart` ("Gasto por categoria", card `GarageSummary`) mantém cápsula `rounded-full` grossa e paleta categórica (015d) | Achado durante a medição do item 2 — é o vizinho direto do painel na mesma tela | **Não alterado**: ali a cor **mapeia** categoria (uso legítimo da paleta, ver DESIGN.md). Mas a diferença de forma (cápsula grossa vs. trilho fino) na mesma tela é inconsistência real. Reportado ao usuário como proposta. |
+| "Ver mais" do `VehicleCard` (Fase 15, mobile) não tem `aria-expanded`/`aria-controls` (015f) | Ao montar os dois acordeões com o padrão WAI-ARIA correto, ficou visível que o toggle equivalente do card de veículo — escrito antes, na mesma sessão — não segue esse padrão | **Não alterado** (é um controle fora do escopo deste pedido). Correção de 2 linhas, reportada ao usuário. |

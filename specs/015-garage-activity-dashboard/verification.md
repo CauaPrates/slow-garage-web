@@ -262,6 +262,51 @@ $ npm run lint
 (sem saída — passou)
 ```
 
+## Revisão 015f — acordeão no resumo (mobile) e no investimento (desktop)
+
+| AC | Resultado | Evidência |
+|---|---|---|
+| AC-15 | ✅ | 390px, login real: `gatilho do acordeão visível: true`, `aria-expanded inicial: false`, `corpo visível fechado: false`; depois do clique `aria-expanded: true` e `corpo visível: true`. No desktop (1440px): `gatilho do resumo no desktop (deve ser false): false` e `corpo do resumo visível no desktop (deve ser true): true` — ou seja, sempre aberto e sem gatilho lá. Screenshot `.ui-check/15f-mobile-colapsado.png` mostra o resumo reduzido a uma linha, com "baia 01" já visível na primeira tela. |
+| AC-16 | ✅ | 1440px, 18 veículos: fechado → `{"bars":4,"buttonText":"Ver todos os 18 veículos","ariaExpanded":"false"}`; após acionar → `{"bars":18,"buttonText":"Ver menos","ariaExpanded":"true"}`; após "Ver menos" → volta a `{"bars":4,...}`. Screenshots `.ui-check/15f-desktop-fechado.png` e `.ui-check/15f-desktop-aberto.png`. |
+| AC-17 | ✅ | Mesmo run: `aria-expanded` acompanha o estado nos dois acordeões e `controlsExists: true` (o `aria-controls` resolve pra um elemento real). Gatilho do mobile medido em **44px** de altura, no alvo de toque mínimo do projeto. |
+
+**Ganho de espaço medido no mobile:** a página vai de `7393px` (resumo
+aberto) para `6845px` (fechado) — 548px a menos antes da lista de
+veículos, que é o assunto da tela.
+
+### Saída do comando (015f)
+```
+=== mobile 390px ===
+  gatilho do acordeão visível: true
+  aria-expanded inicial: false
+  corpo visível fechado (deve ser false): false
+  altura do gatilho: 44px (alvo de toque mínimo 44)
+  aria-expanded depois do clique: true
+  corpo visível aberto (deve ser true): true
+  página: 6845px fechado → 7393px aberto (economia de 548px)
+  console errors: nenhum
+
+=== desktop 1440px ===
+  gatilho do resumo no desktop (deve ser false): false
+  corpo do resumo visível no desktop (deve ser true): true
+  investimento fechado: {"bars":4,"buttonText":"Ver todos os 18 veículos","ariaExpanded":"false","controlsExists":true}
+  investimento aberto:  {"bars":18,"buttonText":"Ver menos","ariaExpanded":"true","controlsExists":true}
+  depois de "Ver menos": {"bars":4,"buttonText":"Ver todos os 18 veículos","ariaExpanded":"false","controlsExists":true}
+  overflow: 1440 vs 1440 ok
+  console errors: nenhum
+```
+
+### Tipos e lint (015f)
+```
+$ npx tsc --noEmit
+TSC_OK
+
+$ npm run lint
+> slow-garage-web@0.0.0 lint
+> eslint .
+(sem saída — passou)
+```
+
 ## Pendências
 
 - AC-2, AC-3, AC-7, AC-8 não têm evidência de execução real porque a
