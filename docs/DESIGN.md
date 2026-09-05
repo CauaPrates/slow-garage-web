@@ -412,8 +412,7 @@ portanto já é CSS variable):
   `AuthLayout` (login/cadastro), onde não há Configurações pra apontar
   (ver ADR-064)
 - Cabeçalho ganha sino de alertas, troca de veículo e menu de usuário
-  (Fase 14t, `hidden lg:flex` — só desktop, mobile já tem equivalente):
-  `HeaderAlertsMenu` (badge só com `count > 0`, cor de
+  (Fase 14t): `HeaderAlertsMenu` (badge só com `count > 0`, cor de
   `severity === "critical"`, popover reaproveita o próprio
   `AlertBanner`), `HeaderVehicleSwitcher` (só com 2+ veículos e dentro
   de um veículo, placa em tag mono como o `VehicleCard`),
@@ -422,7 +421,16 @@ portanto já é CSS variable):
   `lucide-react` (única biblioteca de ícone do app — não instalado
   Tabler como o pedido original citava). Novo primitivo compartilhado
   `Popover` (`@radix-ui/react-popover`), mesmo wrapper de
-  `Dialog`/`AlertDialog` (ver ADR-067)
+  `Dialog`/`AlertDialog` (ver ADR-067). Fase 14u corrigiu o
+  `hidden lg:flex` original — os 3 elementos também aparecem no
+  mobile agora (o equivalente mobile não cobria o mesmo caso; regra
+  geral passou a ser sempre verificar desktop **e** mobile). Nome do
+  veículo no switcher some abaixo de `sm` (só placa + chevron,
+  `aria-label` cobre o texto que sumiu); wordmark do cabeçalho ganha
+  `truncate` + tamanho responsivo pra não quebrar linha disputando
+  espaço com o cluster novo; avatar do `HeaderUserMenu` corrigido pra
+  44px (era 36px, abaixo do alvo de toque mínimo do resto do app) —
+  ver ADR-068
 
 ## Sistema de resposta (motion)
 

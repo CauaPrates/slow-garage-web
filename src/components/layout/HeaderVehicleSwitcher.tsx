@@ -32,17 +32,18 @@ export function HeaderVehicleSwitcher({ vehicles }: HeaderVehicleSwitcherProps) 
       <PopoverTrigger asChild>
         <button
           type="button"
-          className="flex items-center gap-2 rounded-md px-2 py-1.5 text-sm text-text-primary transition-colors duration-150 hover:bg-surface"
+          aria-label={`Trocar de veículo — atual: ${current.make} ${current.model}`}
+          className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-md px-1.5 text-sm text-text-primary transition-colors duration-150 hover:bg-surface sm:gap-2 sm:px-2"
         >
-          <span className="max-w-32 truncate font-medium">
+          <span className="hidden max-w-32 truncate font-medium sm:inline">
             {current.make} {current.model}
           </span>
           {current.plate && (
-            <span className="rounded-sm border border-border bg-bg px-1.5 py-0.5 font-mono text-xs tracking-wider text-text-secondary">
+            <span className="shrink-0 rounded-sm border border-border bg-bg px-1.5 py-0.5 font-mono text-xs tracking-wider whitespace-nowrap text-text-secondary">
               {current.plate}
             </span>
           )}
-          <ChevronDown className="h-4 w-4 text-text-secondary" aria-hidden="true" />
+          <ChevronDown className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden="true" />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-64" align="end">
