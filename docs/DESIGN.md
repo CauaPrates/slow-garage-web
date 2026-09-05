@@ -481,6 +481,16 @@ portanto já é CSS variable):
   espaço, então "Configurações" fica sempre visível no rodapé dela. Sem
   isso, a sidebar esticava junto com o conteúdo (`align-items: stretch`)
   e o rodapé dela ia parar a 5.000px do topo numa lista longa
+- Card de veículo compacto no mobile (Fase 15h, `VehicleCard`): a ficha
+  de dados (km, custo/km, total investido, combustível) fica escondida
+  abaixo de `sm` atrás de um "Ver mais"/"Ver menos"; a partir de `sm`
+  continua sempre visível, sem gatilho. Com a ficha aberta o card
+  ocupava quase uma tela inteira e só dava pra ver um veículo por vez.
+  Editar/excluir saíram da coluna própria ao lado da foto e foram pra
+  linha de ações rápidas do rodapé, alinhados à direita (`ml-auto`) e
+  com cor de função — `text-accent` pra editar, `text-error` pra
+  excluir — separando-os visualmente dos 4 ícones neutros de registro
+  (gasto/abastecimento/manutenção/foto) que ficam à esquerda
 - Emblema do cabeçalho (Fase 15g): o `icon-192.png` **não** é uma marca
   que preenche o canvas — a arte mede 152x88 num canvas de 192x192
   (medido pixel a pixel, não estimado): ~10% de margem morta de cada
