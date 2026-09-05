@@ -410,7 +410,13 @@ portanto já é CSS variable):
   redundante depois que Configurações ganhou o controle completo de
   tema — cabeçalho fica só com a marca. `ThemeToggle` continua em
   `AuthLayout` (login/cadastro), onde não há Configurações pra apontar
-  (ver ADR-064)
+  (ver ADR-064). **Desfeito depois:** o componente foi deletado quando o
+  padrão de tema passou a seguir o SO — as telas de auth não têm mais
+  controle de tema nenhum, e `ThemePreferenceSelect` (Configurações) é o
+  único lugar de escolher tema no app (ver ADR-072)
+- Campo de senha é `PasswordInput`, nunca `Input type="password"` solto:
+  traz o olho de mostrar/ocultar (44px, fora da ordem de tabulação) e é
+  dono do próprio `type` (ver ADR-073)
 - Cabeçalho ganha sino de alertas, troca de veículo e menu de usuário
   (Fase 14t): `HeaderAlertsMenu` (badge só com `count > 0`, cor de
   `severity === "critical"`, popover reaproveita o próprio

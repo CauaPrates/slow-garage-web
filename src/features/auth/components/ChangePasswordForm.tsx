@@ -2,7 +2,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { FieldError } from "@/components/ui/field-error";
 import { useAuth } from "../AuthProvider";
@@ -36,9 +36,8 @@ export function ChangePasswordForm() {
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="settings-new-password">Nova senha</Label>
-        <Input
+        <PasswordInput
           id="settings-new-password"
-          type="password"
           autoComplete="new-password"
           aria-invalid={!!errors.password}
           {...register("password")}
@@ -47,9 +46,8 @@ export function ChangePasswordForm() {
       </div>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="settings-confirm-password">Confirmar nova senha</Label>
-        <Input
+        <PasswordInput
           id="settings-confirm-password"
-          type="password"
           autoComplete="new-password"
           aria-invalid={!!errors.confirmPassword}
           {...register("confirmPassword")}

@@ -23,8 +23,6 @@ type ThemeContextValue = {
   /** Tema efetivamente aplicado (já resolvido a partir de "system", se for o caso). */
   resolvedTheme: Theme;
   setPreference: (preference: ThemePreference) => void;
-  /** Alterna entre claro/escuro explícito — usado pelo atalho rápido do cabeçalho/login, sempre define uma preferência explícita (nunca "system"). */
-  toggleTheme: () => void;
 };
 
 export const ThemeContext = createContext<ThemeContextValue | null>(null);
@@ -62,19 +60,9 @@ export function Providers({ children }: { children: ReactNode }) {
     storePreference(next);
   }, []);
 
-  const toggleTheme = useCallback(() => {
-    setPreferenceState((current) => {
-      const currentlyLight =
-        current === "system" ? systemPrefersLight : current === "light";
-      const next: ThemePreference = currentlyLight ? "dark" : "light";
-      storePreference(next);
-      return next;
-    });
-  }, [systemPrefersLight]);
-
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeContext.Provider value={{ preference, resolvedTheme, setPreference, toggleTheme }}>
+      <ThemeContext.Provider value={{ preference, resolvedTheme, setPreference }}>
         <AuthProvider>
           <ThemeProfileSync />
           {children}
