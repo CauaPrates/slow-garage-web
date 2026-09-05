@@ -61,6 +61,11 @@ export function formatKm(value: number): string {
   return `${integerFormatter.format(value)} km`;
 }
 
+/** `87400` -> `"87.400"` — sem unidade, pra quando o "km" já aparece num rótulo separado ao lado/embaixo (ex.: mostrador de odômetro). */
+export function formatKmValue(value: number): string {
+  return integerFormatter.format(value);
+}
+
 /** `12.4` -> `"12,4 km/L"` */
 export function formatConsumption(value: number): string {
   return `${oneDecimalFormatter.format(value)} km/L`;
