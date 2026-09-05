@@ -907,3 +907,42 @@ período, mais métricas cruzadas), vale promover pra uma RPC própria
 `GarageSummary` só aparece com 2+ veículos — com 1 só, seria idêntico ao
 dashboard daquele veículo (mesma regra de "nunca duplicar número já
 visível em outro lugar" de todo o projeto).
+
+## ADR-052 — `VehicleCard` ganha placa/ficha técnica de verdade; recusa zebra e ações duplicadas (Fase 14e)
+
+Revisão de design (externa, comparando a "baia de oficina" da Fase 14c
+contra um mockup próprio) trouxe 4 sugestões pro card da "Minha Garagem".
+Duas foram aceitas por adicionarem **dado real que já existe no schema
+mas não aparecia em lugar nenhum** (mesma disciplina da Fase 14c: "mais
+densidade de dado real, nenhuma decoração nova sem função"); duas foram
+recusadas.
+
+**Aceito:**
+- Placa (`vehicle.plate`, campo opcional desde a Fase 11) ao lado do
+  nome, tag mono de borda reta — só aparece se o veículo tiver placa
+  cadastrada, nunca um placeholder tipo "sem placa".
+- Chips de ficha técnica (`engine_description`, `transmission`,
+  `horsepower`) abaixo do nome — os 3 já existem no formulário de
+  veículo ("Mais detalhes") mas não eram exibidos em lugar nenhum da
+  garagem. `transmission` sempre tem valor (default no banco, Fase 11);
+  os outros dois só renderizam se preenchidos.
+- Número da baia ganhou a mesma casca "plaquinha" do badge de status
+  (`rounded-sm border`) em vez de texto solto no canto — reforça que é
+  uma etiqueta, não decoração.
+
+**Recusado:**
+- **Textura de zebra (faixa amarelo/carbono) no slot da foto** — seria
+  um **terceiro** elemento de ousadia decorativa do produto. O
+  `docs/DESIGN.md` (seção "Onde a ousadia mora") já limita a isso a
+  exatamente dois pontos, cada um justificado por viver numa zona
+  isolada (wordmark de login, mostrador de odômetro da `VehiclePage`).
+  Uma faixa de zebra no card de lista não tem função — é puramente
+  decorativa e concorreria com os dois pontos já decididos. Mantém a
+  disciplina em vez de acumular ousadia.
+- **Ações rápidas + últimos registros em cada linha da lista** — a
+  `VehiclePage` (Fase 13/14) já é exatamente esse hub (`QuickActionsRow`
+  + timeline). Repetir isso em toda linha de `VehicleListPage` duplica a
+  mesma estrutura de UI em dois lugares (o problema que o item 8 da
+  `design-review` proíbe) e, com muitos veículos, transforma a garagem
+  numa lista de mini-dashboards — o oposto de "lista de baias" que a
+  Fase 14c decidiu. O clique na linha já leva 1 passo até essas ações.
