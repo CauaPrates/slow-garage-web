@@ -3,7 +3,6 @@ import {
   FileText,
   Fuel,
   History,
-  Home,
   LayoutDashboard,
   ClipboardList,
   AlertTriangle,
@@ -60,24 +59,31 @@ export const SIDEBAR_NAV_ITEMS: NavItem[] = [
 ];
 
 /**
- * "Home" e "Dados" espelham "Dashboard"/"Histórico" da sidebar — rótulo
- * mais curto pro espaço apertado da bottom nav, mesmo destino (Fase 9).
+ * "Carros" espelha "Minha garagem" da sidebar — rótulo mais curto pro
+ * espaço apertado da bottom nav, mesmo destino (Fase 9). "Dashboard"
+ * usa o mesmo rótulo/ícone da sidebar (Fase 14h) — a versão anterior
+ * chamava esta aba de "Home", mas "home" do app é a garagem (`Carros`),
+ * não o painel de 1 veículo; nomear os dois de jeito confuso foi
+ * apontado pelo usuário (ver ADR-054 update). "Histórico" saiu daqui e
+ * foi pra dentro da folha "Mais" (ver `MORE_SHEET_ITEMS`) — eram 4 abas
+ * + FAB + "Mais" (6 elementos), apertado demais num telefone estreito.
  */
 export const BOTTOM_NAV_ITEMS: NavItem[] = [
-  { label: "Home", icon: Home, to: (vehicleId) => ROUTES.vehicle(vehicleId) },
+  { label: "Dashboard", icon: LayoutDashboard, to: (vehicleId) => ROUTES.vehicle(vehicleId) },
   { label: "Carros", icon: Car, to: ROUTES.home },
-  { label: "Dados", icon: History, to: (vehicleId) => ROUTES.vehicleTimeline(vehicleId) },
   { label: "Configurações", icon: Settings, to: ROUTES.configuracoes },
 ];
 
 /**
- * Itens da folha "Mais" (aba da bottom nav, Fase 14g): as seções de veículo
- * que a sidebar mostra mas as 4 abas fixas (Home/Carros/Dados/Configurações)
- * não cobrem. Mesma ressalva do ADD_SHEET_ITEMS — a aba "Mais" só aparece
- * com veículo selecionado (ver BottomNav.tsx), então todo item aqui sempre
- * resolve uma rota.
+ * Itens da folha "Mais" (aba da bottom nav, Fase 14g/h): as seções de
+ * veículo que a sidebar mostra mas as 3 abas fixas (Dashboard/Carros/
+ * Configurações) não cobrem — inclui "Histórico", que antes era aba
+ * fixa própria (ver comentário de `BOTTOM_NAV_ITEMS`). Mesma ressalva do
+ * ADD_SHEET_ITEMS — a aba "Mais" só aparece com veículo selecionado (ver
+ * BottomNav.tsx), então todo item aqui sempre resolve uma rota.
  */
 export const MORE_SHEET_ITEMS: NavItem[] = [
+  { label: "Histórico", icon: History, to: (vehicleId) => ROUTES.vehicleTimeline(vehicleId) },
   { label: "Gastos", icon: Receipt, to: (vehicleId) => ROUTES.vehicleExpenses(vehicleId) },
   { label: "Abastecimentos", icon: Fuel, to: (vehicleId) => ROUTES.vehicleFuelLogs(vehicleId) },
   { label: "Manutenção", icon: Wrench, to: (vehicleId) => ROUTES.vehicleMaintenance(vehicleId) },

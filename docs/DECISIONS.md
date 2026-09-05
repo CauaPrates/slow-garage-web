@@ -1022,3 +1022,31 @@ bottom nav, ADR-049). Alternativas descartadas: substituir "Dados" por
 próprio); menu hambúrguer/drawer full-screen no lugar da bottom nav
 inteira (mudança maior, perderia o acesso de 1 toque às abas mais
 usadas que a bottom nav já dá).
+
+## ADR-055 — Corrige o ADR-054: "Dados" volta pra dentro de "Mais"; "Home" vira "Dashboard" (Fase 14h)
+
+Usuário testou o resultado do ADR-054 (print da bottom nav com 5 abas +
+FAB) e reportou dois problemas reais, que fazem reverter uma das
+alternativas descartadas ali:
+
+1. **A barra ficou apertada** — 5 abas + FAB (6 elementos) num telefone
+   estreito já cortava o rótulo de "Configurações" ("Configuraç…").
+   A alternativa "mover Histórico pra dentro de 'Mais'" que o ADR-054
+   descartou (achando que perderia atalho de uso) era, na prática, a
+   correção certa — o atalho de 1 toque não compensa a barra cortando
+   texto. "Histórico" saiu de `BOTTOM_NAV_ITEMS` e entrou como primeiro
+   item de `MORE_SHEET_ITEMS`.
+2. **"Home" apontava pro veículo, não pra garagem** — a aba que abre o
+   painel de 1 veículo (`ROUTES.vehicle`) se chamava "Home" desde a
+   Fase 9, mas o "home" conceitual do app (onde você cai sem veículo
+   selecionado, a visão de conjunto) é a garagem — hoje a aba "Carros".
+   Chamar o painel de veículo de "Home" e a garagem de "Carros" inverte
+   a expectativa de quem usa o app. Renomeado pra "Dashboard" (mesmo
+   rótulo e ícone `LayoutDashboard` que a sidebar já usa pro mesmo
+   destino) — não precisa de vocabulário novo, só parar de abreviar
+   errado.
+
+Resultado com veículo selecionado: 4 abas (Dashboard, Carros, Mais,
+Configurações) + FAB — mesma contagem de elementos que a bottom nav
+tinha antes do ADR-054 introduzir a aba "Mais", só que agora com
+paridade completa de seção via a folha.
