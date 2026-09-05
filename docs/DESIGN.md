@@ -308,6 +308,19 @@ portanto já é CSS variable):
   selecionado), e `Configurações` fixo no rodapé (`mt-auto`) — mesmo
   padrão de app com conta+contexto+config separados, não uma pilha
   única de link
+- "Minha Garagem" vira lista de baias de oficina, não grid de card de
+  admin (Fase 14c, `VehicleCard`/`VehicleListPage`): o usuário rejeitou
+  a estrutura em si ("card empilhado" — o padrão mais genérico de
+  admin/CRM que existe), não só a cor. Trocado `grid-cols-1 sm:grid-cols-2
+  lg:grid-cols-3` por lista de linhas largas (`flex flex-col`), cada
+  veículo como uma "baia": número da vaga (`01`, `02`... `font-mono`
+  `text-accent`, canto da foto — não é dado do banco, é posição na
+  lista) + foto em faixa lateral (`sm:w-56`, empilha acima da info em
+  telas estreitas) + ficha técnica de 4 colunas (Km, Custo/km, Total
+  investido, Combustível — dobro da informação de antes, que só tinha
+  2) em vez de só um `<dl>` de 2 campos soltos. Badge de status
+  continua a "plaquinha" da Fase 14. Mesma disciplina de sempre: mais
+  densidade de dado real, nenhuma decoração nova sem função
 
 ## Sistema de resposta (motion)
 

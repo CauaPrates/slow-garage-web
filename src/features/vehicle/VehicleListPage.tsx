@@ -17,11 +17,11 @@ export function VehicleListPage() {
       </div>
 
       {isLoading && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="flex flex-col gap-4">
           {[1, 2, 3].map((i) => (
             <div
               key={i}
-              className="h-64 animate-pulse rounded-lg border border-border bg-surface"
+              className="h-40 animate-pulse rounded-lg border border-border bg-surface"
             />
           ))}
         </div>
@@ -47,9 +47,9 @@ export function VehicleListPage() {
       )}
 
       {!isLoading && !isError && vehicles && vehicles.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {vehicles.map((vehicle) => (
-            <VehicleCard key={vehicle.id} vehicle={vehicle} />
+        <div className="flex flex-col gap-4">
+          {vehicles.map((vehicle, index) => (
+            <VehicleCard key={vehicle.id} vehicle={vehicle} bayNumber={index + 1} />
           ))}
         </div>
       )}
