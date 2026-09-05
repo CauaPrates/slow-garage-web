@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#121316" />
+    <title>Slow Garage</title>
+    <script>
+      // Aplica o tema salvo antes do primeiro paint, para não piscar dark
+      // e depois trocar pra light quando a pessoa já escolheu light (ou
+      // "seguir o sistema" e o SO estiver em modo claro) antes.
+      (function () {
+        try {
+          var stored = window.localStorage.getItem("slow-garage-theme");
+          var isLight =
+            stored === "light" ||
+            (stored === "system" &&
+              window.matchMedia("(prefers-color-scheme: light)").matches);
+          if (isLight) {
+            document.documentElement.classList.add("light");
+          }
+        } catch (e) {
+          /* localStorage indisponível (modo privado etc.) — segue no dark padrão */
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
