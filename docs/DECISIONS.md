@@ -1350,3 +1350,68 @@ futuro, vale revisar se "gaste a ousadia em um lugar" ainda descreve o
 produto com precisão — por ora, com âmbar em exatamente 3 pontos (login,
 odômetro, cabeçalho) e os 2 primeiros claramente maiores/mais isolados
 que este, a regra ainda orienta decisão, só não é mais "literalmente 2".
+
+## ADR-067 — Cabeçalho ganha sino de alertas, troca rápida de veículo e menu de usuário (Fase 14t)
+
+Pedido do usuário já veio com o nível de detalhe de uma spec (fonte de
+dado, regra de cor, o que reaproveitar de cada elemento) — implementado
+direto numa passada (spec→implementação→verificação), sem abrir pasta
+`specs/` própria, mesmo padrão usado nas Fases 14d/14g/14k desta sessão
+pra features de tamanho parecido.
+
+**Sino de alertas (`HeaderAlertsMenu`):** mesmo padrão do
+`useGarageSummary`/`useGarageTimeline` (ADR-051/053) — sem RPC de
+garagem, `useGarageAlerts` busca `vehicle_alerts` com `vehicle_id IN
+(...)`. Badge só aparece com `count > 0`; cor vem de `severity ===
+"critical"` (a mesma checagem que `AlertBanner` já faz, não uma nova
+regra) — `--color-error` se houver qualquer alerta crítico, senão
+`--color-warning`. O popover **reaproveita o próprio `AlertBanner`**
+(não recria a formatação/copy) — só agrupa por veículo com um rótulo
+(`text-xs uppercase tracking-wide`, mesmo padrão do `GarageActivityFeed`)
+quando há 2+ veículos.
+
+**Troca rápida de veículo (`HeaderVehicleSwitcher`):** só aparece com
+2+ veículos **e** dentro do contexto de um veículo
+(`useCurrentVehicleId`, com a exceção de Configurações do ADR-062/063)
+— sem veículo atual não há o que mostrar como "ativo". Placa em tag
+mono, mesmo padrão exato do `VehicleCard` (Fase 14e). Trocar de veículo
+sempre vai pro Dashboard dele (`ROUTES.vehicle`), mesmo comportamento
+do seletor "Trocar de veículo" que já existe dentro da própria
+`VehiclePage` — não inventou um comportamemto "mais esperto" (preservar
+sub-rota) que não foi pedido.
+
+**Menu de usuário (`HeaderUserMenu`):** `profiles.avatar_url` (real,
+existe na tabela) > iniciais de `display_name` > ícone genérico —
+nessa ordem, nunca inventando uma das duas primeiras quando falta dado.
+"Sair" abre o mesmo `SignOutDialog` já usado em Configurações (mesmo
+componente, não uma cópia) — só o `handleSignOut` (2 linhas: `signOut()`
++ `navigate`) é replicado, porque replicar isso não é "duplicar lógica"
+no sentido que o pedido queria evitar (a lógica de confirmação, que é o
+componente inteiro, é a mesma instância de código).
+
+**Ícones:** o pedido citou "Tabler outline" — este projeto usa só
+`lucide-react` em todo o resto do app (nenhum outro ponto usa Tabler).
+Implementado com os equivalentes de `lucide-react` (`Bell`,
+`ChevronDown`, `User`, `Settings`) em vez de instalar uma segunda
+biblioteca de ícone só pra 4 ícones — a própria instrução do pedido
+("seguir DESIGN.md, não inventar novo padrão") pesa a favor de manter
+1 biblioteca só; sinalizado aqui em vez de decidido em silêncio.
+
+**Novo primitivo:** `@radix-ui/react-popover` instalado —
+`src/components/ui/popover.tsx` segue o mesmo wrapper (`Portal` +
+classes de entrada/saída) que `dialog.tsx`/`alert-dialog.tsx` já usam,
+reaproveitado pelos 3 componentes acima (não é 1 popover por
+componente).
+
+**Breakpoint:** todo o cluster (`hidden lg:flex`) — mesmo breakpoint
+que já separa `Sidebar` (`lg:flex`) de `BottomNav` (`lg:hidden`); no
+mobile os 3 elementos já têm equivalente (bottom nav, telas de veículo,
+Configurações), como o pedido observou.
+
+**Achado fora de escopo, não mexido agora:** `profiles.theme` (enum
+`"dark" | "light" | "system"`) já existe no banco — a Fase 14k
+(ADR-058) implementou o mesmo conceito de preferência de tema
+inteiramente em `localStorage`/`sessionStorage`, sem saber que a coluna
+já existia (não tinha sido checado o schema na hora). Hoje a preferência
+de tema não sincroniza entre dispositivos, mesmo o banco já suportando
+isso. Fora do pedido desta fase — registrado aqui pra não se perder.

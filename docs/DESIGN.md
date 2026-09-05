@@ -411,6 +411,18 @@ portanto já é CSS variable):
   tema — cabeçalho fica só com a marca. `ThemeToggle` continua em
   `AuthLayout` (login/cadastro), onde não há Configurações pra apontar
   (ver ADR-064)
+- Cabeçalho ganha sino de alertas, troca de veículo e menu de usuário
+  (Fase 14t, `hidden lg:flex` — só desktop, mobile já tem equivalente):
+  `HeaderAlertsMenu` (badge só com `count > 0`, cor de
+  `severity === "critical"`, popover reaproveita o próprio
+  `AlertBanner`), `HeaderVehicleSwitcher` (só com 2+ veículos e dentro
+  de um veículo, placa em tag mono como o `VehicleCard`),
+  `HeaderUserMenu` (`avatar_url` > iniciais > ícone genérico, "Sair"
+  abre o mesmo `SignOutDialog` de Configurações). Ícones em
+  `lucide-react` (única biblioteca de ícone do app — não instalado
+  Tabler como o pedido original citava). Novo primitivo compartilhado
+  `Popover` (`@radix-ui/react-popover`), mesmo wrapper de
+  `Dialog`/`AlertDialog` (ver ADR-067)
 
 ## Sistema de resposta (motion)
 
