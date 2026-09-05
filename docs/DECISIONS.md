@@ -1547,6 +1547,23 @@ no GitHub exigindo o check "Lint + build" no PR pra `main`. Sem isso, o
 CI é só sinal, não portão. Fica registrado porque é o tipo de coisa que
 se assume estar funcionando sem estar.
 
+**Ressalva descoberta ao aplicar (mesma fase).** Essa proteção não estava
+disponível: no plano Free do GitHub, ruleset e branch protection só
+existem em repositório **público**, e este era privado. A API respondia
+`403 — Upgrade to GitHub Pro or make this repository public`. As três
+saídas eram: pagar o Pro, abrir o repositório, ou aceitar o CI como sinal
+sem portão. Escolhida **abrir o repositório**, porque ele passou a servir
+de portfólio — decisão independente, que por acaso destravou isto. Antes
+de abrir, verificado que o `.env` nunca entrou no histórico e que nenhuma
+senha foi commitada (busca com pickaxe em todos os commits).
+
+Com o repositório público, o ruleset foi criado na `main`: `deletion`,
+`non_fast_forward`, `pull_request` com **0 aprovações exigidas** (num
+projeto de uma pessoa, exigir 1 tranca o autor fora da própria branch,
+porque ninguém aprova o próprio PR) e `required_status_checks` com o
+contexto `Lint + build`. Consequência aceita: push direto na `main`
+deixou de existir — toda mudança entra por PR.
+
 **O que o CI roda:** `npm run lint` e `npm run build` (que é
 `tsc -b && vite build`, então cobre checagem de tipo). **Não roda teste
 automatizado porque não existe nenhum no projeto** — a verificação de
@@ -1638,3 +1655,50 @@ Três decisões dentro dele:
 * **`aria-label` alternando "Mostrar senha"/"Ocultar senha"** mais
   `aria-pressed`, em vez de rótulo fixo: o estado é a informação que
   importa, e o ícone sozinho (`aria-hidden`) não diz nada
+
+## ADR-074 — O que fica versionado num repositório público de portfólio (Fase 18)
+
+O repositório passou a ser público (ver a ressalva do ADR-071) e a servir
+de portfólio. Isso muda o critério do que merece estar versionado: **o
+produto e as decisões de engenharia, não o ferramental de quem
+desenvolve.**
+
+**Saíram do controle de versão** (continuam no disco, agora ignorados):
+`.claude/` — configuração do assistente de código — e o prompt de
+bootstrap do projeto. Nenhum dos dois é consumido pelo build, pelo CI ou
+pelo deploy; são ferramenta pessoal, do mesmo tipo que configuração de
+editor.
+
+**Ficaram, deliberadamente:** `specs/` e `docs/DECISIONS.md`/`DESIGN.md`.
+São o maior ativo técnico do repositório — mostram alternativa descartada,
+regra de negócio explícita e verificação com evidência colada. Um
+repositório de portfólio sem isso é só código sem raciocínio.
+`scripts/ui-check.mjs` também ficou: é varredura real de acessibilidade e
+responsividade (Playwright + axe), parte do processo, não do andaime.
+`5348.png` ficou por ser o logo-fonte que `scripts/generate-icons.mjs`
+consome — o nome ruim é dívida cosmética, mas renomear quebraria as
+referências históricas nas specs, que descrevem o que aconteceu na época.
+
+**Armadilha encontrada na execução, registrada pra não repetir:**
+`git rm --cached` mantém o arquivo no disco, mas quando **o commit de
+deleção é mergeado numa branch onde o arquivo ainda era rastreado**, o
+git apaga o original do disco de verdade. Foi o que aconteceu — os 10
+arquivos de `.claude/skills/` e o prompt sumiram, e foram restaurados do
+histórico (`git archive <commit> <path> | tar -x`, que não mexe no
+índice), conferidos um a um contra o commit de origem. O jeito seguro é
+copiar pra fora do repositório **antes** de desversionar.
+
+**O limite honesto desta limpeza:** tirar arquivo do topo não tira do
+histórico. Quem navegar pelos commits ainda encontra `.claude/skills/*` e
+o prompt inteiros, e 48 dos 112 commits carregam trailer de
+`Co-Authored-By`. Mudar isso exigiria reescrever o histórico e forçar o
+push — o que muda todos os SHAs, colide com a regra `non_fast_forward`
+recém-criada na `main`, e deixa os PRs e os registros de deploy da Vercel
+apontando pra commits órfãos. Avaliado e **não feito**: o custo é real e o
+ganho é sobre um leitor hipotético que vasculha 112 commits, não sobre
+quem abre o repositório.
+
+**README** ganhou o link do app publicado logo no topo — o item de maior
+valor num repositório de portfólio — e a seção de deploy deixou de ser um
+passo a passo de "como eu publicaria" pra descrever a esteira que existe
+de verdade.
