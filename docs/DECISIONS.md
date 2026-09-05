@@ -1050,3 +1050,22 @@ Resultado com veículo selecionado: 4 abas (Dashboard, Carros, Mais,
 Configurações) + FAB — mesma contagem de elementos que a bottom nav
 tinha antes do ADR-054 introduzir a aba "Mais", só que agora com
 paridade completa de seção via a folha.
+
+## ADR-056 — Bug real no ADR-055: FAB descentralizado (Fase 14i)
+
+A implementação do ADR-055 dividia `linkItems` (tudo exceto
+"Configurações") ao meio matematicamente (`Math.ceil(length / 2)`) e só
+*depois* colava o botão "Mais" no array `after`, fora dessa conta. Com
+2 `linkItems` (Dashboard, Carros), a divisão dava 1 de cada lado — mas
+"Mais" entrava a mais no lado direito sem entrar na conta, resultando
+em 1 item à esquerda do FAB e 3 à direita (Carros, Mais, Configurações).
+O FAB nunca esteve realmente centralizado desde que "Mais" existe;
+só não tinha sido visualmente óbvio até o usuário mandar print de perto.
+
+Corrigido pra uma regra mais simples e sem aritmética escondida: todo
+`BOTTOM_NAV_ITEMS` exceto o último (`settingsItem`, sempre
+"Configurações") vai à esquerda do FAB; "Mais" (quando visível) e
+"Configurações" vão à direita. Com veículo: 2 à esquerda (Dashboard,
+Carros), 2 à direita (Mais, Configurações). Sem veículo: 1 e 1 (Carros
+| Configurações, "Mais" some). Sempre simétrico, sem precisar calcular
+metade de nada.

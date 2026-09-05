@@ -31,15 +31,15 @@ function BottomNavLink({ item, vehicleId }: { item: NavItem; vehicleId: string |
 
 /**
  * Fase 14: item que depende de veículo só aparece quando há um selecionado;
- * o FAB fica desabilitado (não a folha inteira) sem veículo. Fase 14g/h:
- * "Configurações" fica sempre por último (mesmo lugar fixo da sidebar);
- * o resto (Dashboard/Carros, vehicle-scoped ou não) se divide nos dois
- * lados do FAB. A aba "Mais" (folha com as seções que não cabem aqui) só
- * aparece com veículo selecionado — todo item dela é vehicle-scoped, então
- * sem veículo ela não teria o que mostrar (mesma regra de "item some, não
- * aparece desabilitado" do resto da bottom nav). Resultado com veículo
- * selecionado: 4 abas (Dashboard, Carros, Mais, Configurações) + FAB —
- * "Histórico" saiu da lista fixa nesta revisão pra caber sem apertar.
+ * o FAB fica desabilitado (não a folha inteira) sem veículo. Fase 14h:
+ * "Configurações" fica sempre por último (mesmo lugar fixo da sidebar); os
+ * outros itens de `BOTTOM_NAV_ITEMS` (Dashboard/Carros) ficam à esquerda do
+ * FAB; "Mais" + "Configurações" ficam à direita — 2 de cada lado com
+ * veículo selecionado, 1 de cada lado sem (`Mais` some), sempre simétrico.
+ * Fase 14i corrigiu um FAB descentralizado: a v1 dividia todo o resto ao
+ * meio matematicamente e só *depois* colava "Mais" no lado direito, o que
+ * dava 1 item à esquerda e 3 à direita — nunca tinha ficado simétrico de
+ * verdade com "Mais" na lista.
  */
 export function BottomNav() {
   const [addOpen, setAddOpen] = useState(false);
@@ -47,9 +47,7 @@ export function BottomNav() {
   const vehicleId = useCurrentVehicleId();
   const visibleItems = BOTTOM_NAV_ITEMS.filter((item) => !isVehicleScoped(item) || vehicleId);
   const settingsItem = visibleItems[visibleItems.length - 1];
-  const linkItems = visibleItems.slice(0, -1);
-  const mid = Math.ceil(linkItems.length / 2);
-  const [before, after] = [linkItems.slice(0, mid), linkItems.slice(mid)];
+  const leftItems = visibleItems.slice(0, -1);
 
   return (
     <>
@@ -57,7 +55,7 @@ export function BottomNav() {
         aria-label="Navegação principal"
         className="fixed inset-x-0 bottom-0 z-30 flex items-stretch border-t border-border bg-surface px-1 pb-[env(safe-area-inset-bottom)] lg:hidden"
       >
-        {before.map((item) => (
+        {leftItems.map((item) => (
           <BottomNavLink key={item.label} item={item} vehicleId={vehicleId} />
         ))}
 
@@ -75,10 +73,6 @@ export function BottomNav() {
             <Plus className="h-6 w-6" aria-hidden="true" />
           </button>
         </div>
-
-        {after.map((item) => (
-          <BottomNavLink key={item.label} item={item} vehicleId={vehicleId} />
-        ))}
 
         {vehicleId && (
           <button
