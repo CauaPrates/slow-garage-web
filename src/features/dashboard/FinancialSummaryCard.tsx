@@ -11,17 +11,8 @@ const money = (value: number | null | undefined) => (value != null ? formatMoney
 export function FinancialSummaryCard({ summary }: FinancialSummaryCardProps) {
   return (
     <div className="flex flex-col gap-4 rounded-lg border border-border bg-surface p-4">
-      <dl className="grid grid-cols-2 gap-4 text-sm sm:grid-cols-4">
-        <div>
-          <dt className="text-text-secondary">Total investido</dt>
-          <dd className="font-mono text-text-primary">{money(summary?.total_invested)}</dd>
-        </div>
-        <div>
-          <dt className="text-text-secondary">Custo/km</dt>
-          <dd className="font-mono text-text-primary">
-            {summary?.cost_per_km != null ? `${formatMoney(summary.cost_per_km)}/km` : "—"}
-          </dd>
-        </div>
+      {/* Total investido/Custo por km subiram pra VehicleMetricsRow na Fase 13 — não repetir aqui (AC-8). */}
+      <dl className="grid grid-cols-2 gap-4 text-sm">
         <div>
           <dt className="text-text-secondary">Gasto este mês</dt>
           <dd className="font-mono text-text-primary">{money(summary?.current_month_spend)}</dd>
