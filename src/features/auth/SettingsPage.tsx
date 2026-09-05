@@ -14,17 +14,19 @@ export function SettingsPage() {
   }
 
   return (
-    <div className="mx-auto flex max-w-md flex-col gap-8 p-6">
+    <div className="mx-auto flex max-w-md flex-col gap-6 p-6">
       <h1 className="text-lg font-medium text-text-primary">Configurações</h1>
 
-      <section className="flex flex-col gap-1.5">
-        <p className="text-sm text-text-secondary">E-mail</p>
-        <p className="text-text-primary">{user?.email}</p>
-      </section>
+      <div className="flex flex-col gap-6 rounded-lg border border-border bg-surface p-4">
+        <section className="flex flex-col gap-1.5">
+          <p className="text-sm text-text-secondary">E-mail</p>
+          <p className="text-text-primary">{user?.email}</p>
+        </section>
 
-      <section>
-        <DisplayNameForm />
-      </section>
+        <section>
+          <DisplayNameForm />
+        </section>
+      </div>
 
       <Button variant="ghost" onClick={handleSignOut}>
         Sair

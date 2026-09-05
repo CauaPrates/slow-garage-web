@@ -283,6 +283,18 @@ portanto já é CSS variable):
   últimos 6 meses de `expenses_by_month` (sem fabricar tendência onde
   não existe dado — custo/km não ganhou sparkline por isso). Alertas
   ativos vira ponto (pulsa só se > 0) + número, nunca só cor
+- Marca no cabeçalho (Fase 14, `AppShell`): ícone (`public/icons/icon-192.png`,
+  já gerado a partir de `5348.png`) ao lado do texto "Slow Garage" — antes
+  era só texto cinza, sem nenhuma presença de marca fora de `/entrar`.
+  Card de veículo (`VehicleCard`, garagem): placeholder sem foto troca
+  `bg-bg` neutro por `bg-accent/5` (tom âmbar bem sutil, sem virar
+  gradiente decorativo); badge de status vira "plaquinha" (`rounded-sm`,
+  maiúsculo, `tracking-wide`) em vez da pílula genérica de admin — só
+  "Ativo" ganha tom âmbar (`border-accent/40 bg-accent/10 text-accent`),
+  os outros 3 status continuam neutros. `SettingsPage`: os dois campos
+  (e-mail, nome de exibição) ganham a mesma casca `rounded-lg border
+  border-border bg-surface p-4` de todo card do app — não tinha nenhuma
+  antes, ficava um formulário solto na tela
 
 ## Sistema de resposta (motion)
 
