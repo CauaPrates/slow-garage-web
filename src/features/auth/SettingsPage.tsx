@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "./AuthProvider";
 import { ChangePasswordForm } from "./components/ChangePasswordForm";
 import { DisplayNameForm } from "./components/DisplayNameForm";
+import { SignOutDialog } from "./components/SignOutDialog";
 
 function SettingsSection({
   title,
@@ -34,6 +35,7 @@ function SettingsSection({
 export function SettingsPage() {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [signOutOpen, setSignOutOpen] = useState(false);
 
   async function handleSignOut() {
     await signOut();
@@ -53,29 +55,44 @@ export function SettingsPage() {
 
       <h1 className="text-lg font-medium text-text-primary">Configurações</h1>
 
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-        <SettingsSection title="Conta" className="lg:col-span-2">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <div className="flex flex-col gap-1.5">
-              <p className="text-sm text-text-secondary">E-mail</p>
-              <p className="text-text-primary">{user?.email}</p>
-            </div>
-            <DisplayNameForm />
+      {/* Conta: seção de uso diário, fica sozinha no topo com mais destaque. */}
+      <SettingsSection title="Conta">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="flex flex-col gap-1.5">
+            <p className="text-sm text-text-secondary">E-mail</p>
+            <p className="text-text-primary">{user?.email}</p>
           </div>
-        </SettingsSection>
+          <DisplayNameForm />
+        </div>
+      </SettingsSection>
 
+      {/* Aparência (dia a dia) e Segurança+Sair (raras/risco) — blocos separados por frequência de uso, não pelo mesmo peso visual. */}
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <SettingsSection title="Aparência">
           <ThemePreferenceSelect />
         </SettingsSection>
 
         <SettingsSection title="Segurança">
           <ChangePasswordForm />
+          <div className="flex flex-col gap-2 border-t border-border pt-4">
+            <p className="text-sm text-text-secondary">Sair da conta neste dispositivo.</p>
+            <Button
+              type="button"
+              variant="ghost"
+              className="self-start border border-error/40 text-error hover:bg-error/10"
+              onClick={() => setSignOutOpen(true)}
+            >
+              Sair
+            </Button>
+          </div>
         </SettingsSection>
       </div>
 
-      <Button variant="ghost" className="self-start" onClick={handleSignOut}>
-        Sair
-      </Button>
+      <SignOutDialog
+        open={signOutOpen}
+        onOpenChange={setSignOutOpen}
+        onConfirm={handleSignOut}
+      />
     </div>
   );
 }

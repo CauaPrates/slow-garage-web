@@ -53,6 +53,7 @@ export function DisplayNameForm() {
       )}
       <Button
         type="submit"
+        className="self-end"
         disabled={isSubmitting || updateDisplayName.isPending}
       >
         {updateDisplayName.isPending ? "Salvando…" : "Salvar"}
