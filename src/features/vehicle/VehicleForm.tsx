@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { FieldError } from "@/components/ui/field-error";
+import { FipeAssistant } from "./FipeAssistant";
 import {
   vehicleSchema,
   type VehicleFormInput,
@@ -34,6 +35,7 @@ export function VehicleForm({
   const {
     register,
     handleSubmit,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm<VehicleFormInput, unknown, VehicleFormOutput>({
     resolver: zodResolver(vehicleSchema),
@@ -54,6 +56,31 @@ export function VehicleForm({
       className="flex flex-col gap-4"
       noValidate
     >
+      {/*
+        Fase 020: assistente opcional, acima dos campos manuais. Ele nunca
+        escreve direto no veículo — só chama `setValue` nos mesmos campos que
+        o usuário digitaria, com `shouldValidate` pra que um valor vindo da
+        FIPE passe pelas mesmas regras do zod que um valor digitado.
+      */}
+      <FipeAssistant
+        onFill={({ make, model, modelYear }) => {
+          setValue("make", make, { shouldValidate: true, shouldDirty: true });
+          setValue("model", model, { shouldValidate: true, shouldDirty: true });
+          if (modelYear != null) {
+            setValue("modelYear", String(modelYear), {
+              shouldValidate: true,
+              shouldDirty: true,
+            });
+          }
+        }}
+        onFillValue={(amount) =>
+          setValue("estimatedCurrentValue", String(amount), {
+            shouldValidate: true,
+            shouldDirty: true,
+          })
+        }
+      />
+
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="make">Marca</Label>
@@ -162,7 +189,10 @@ export function VehicleForm({
         </div>
       </div>
 
-      <details className="rounded-md border border-border" open={mode === "edit"}>
+      <details
+        className="rounded-md border border-border"
+        open={mode === "edit"}
+      >
         <summary className="cursor-pointer px-3 py-2 text-sm font-medium text-text-primary select-none">
           Mais detalhes
         </summary>
@@ -185,7 +215,10 @@ export function VehicleForm({
             </div>
             <div className="flex flex-col gap-1.5">
               <Label htmlFor="engineDescription">Motor</Label>
-              <Input id="engineDescription" {...register("engineDescription")} />
+              <Input
+                id="engineDescription"
+                {...register("engineDescription")}
+              />
             </div>
           </div>
 

@@ -1702,3 +1702,54 @@ quem abre o repositório.
 valor num repositório de portfólio — e a seção de deploy deixou de ser um
 passo a passo de "como eu publicaria" pra descrever a esteira que existe
 de verdade.
+
+## ADR-075 — FIPE: o pressuposto do backend não se confirmou, e o que foi feito com isso (Fase 020)
+
+O pedido da fase 020 trazia um pressuposto explícito: o backend já teria
+`fipe_brands`, `fipe_models` (RLS de leitura pra `authenticated`) e as
+colunas `fipe_brand_id`/`fipe_model_id` em `vehicles`, bastando
+sincronizar `database.types.ts`.
+
+**Sincronizado primeiro, como manda a regra do projeto — e o pressuposto
+caiu.** `SUPABASE_PROJECT_ID=… npm run types` contra o projeto remoto
+devolveu um arquivo com **zero** ocorrências de `fipe`, e `vehicles`
+segue sem as duas colunas. (O diff de 2.980 linhas contra o arquivo
+antigo era só CRLF↔LF; o conteúdo é idêntico.)
+
+Três saídas possíveis: parar e devolver o pedido; inventar os tipos e
+codar contra um contrato imaginário; ou entregar a feature inteira
+mantendo a costura no lugar certo. **Escolhida a terceira.**
+
+**O que mudou em relação ao pedido:**
+
+1. `fipeCache` mantém a interface pedida (`getBrands()`,
+   `getModelsByBrand(brandId)`) mas hoje delega pra API externa. Quando a
+   migration entrar, a troca é dentro dessa função — nenhum hook,
+   componente ou verificação muda. O arquivo carrega o SQL pretendido em
+   comentário.
+2. **Gravar `fipe_brand_id`/`fipe_model_id` não foi implementado.** As
+   colunas não existem. Os códigos já saem no `FipeFillPayload` do
+   assistente, então ligar isso depois é uma linha no `VehicleForm`.
+3. `useFipeYears` recebe `brandCode` além do `modelCode`: a API exige a
+   marca no caminho (`/marcas/{marca}/modelos/{modelo}/anos`). A
+   assinatura do pedido não era suficiente.
+
+**Consequência aceita:** enquanto marca e modelo vierem do externo, eles
+herdam a fragilidade de rede que era pra ser só do ano e do valor. A UI
+trata os quatro iguais — cada consulta com seu estado de erro local — o
+que aliás deixa o componente pronto pros dois mundos.
+
+**`cmdk` como dependência nova.** O projeto tem a regra de não instalar
+sem necessidade real. A necessidade: 107 marcas e 585 modelos numa marca
+comum (medido na Fiat), e `<select>` nativo não filtra por digitação.
+Escrever combobox acessível à mão (teclado, `aria-activedescendant`,
+foco) é justamente o tipo de coisa que se erra em silêncio — e o próprio
+pedido citou o Combobox do shadcn, que é `cmdk` por baixo. Radix Popover,
+que já estava no projeto, dá o resto.
+
+**RN-1 é a regra que molda a UI:** nada da FIPE é dado calculado pelo
+sistema. O valor aparece rotulado com o mês de referência da tabela e a
+frase "É uma sugestão — o campo continua editável", e só entra no
+formulário por clique. Vai pro mesmo `<input>` que o usuário digitaria,
+nunca num campo somente-leitura — o oposto de `cost_per_km`, que vem de
+view e o usuário não edita.
