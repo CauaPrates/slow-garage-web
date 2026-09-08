@@ -297,6 +297,62 @@ export type Database = {
           },
         ]
       }
+      fipe_brands: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      fipe_models: {
+        Row: {
+          brand_id: number
+          created_at: string
+          fipe_model_code: number
+          id: number
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          brand_id: number
+          created_at?: string
+          fipe_model_code: number
+          id?: number
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          brand_id?: number
+          created_at?: string
+          fipe_model_code?: number
+          id?: number
+          name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fipe_models_brand_id_fkey"
+            columns: ["brand_id"]
+            isOneToOne: false
+            referencedRelation: "fipe_brands"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       fuel_logs: {
         Row: {
           created_at: string
@@ -910,6 +966,8 @@ export type Database = {
           engine_description: string | null
           engine_displacement_cc: number | null
           estimated_current_value: number | null
+          fipe_brand_id: number | null
+          fipe_model_id: number | null
           fuel_type: Database["public"]["Enums"]["fuel_type"]
           horsepower: number | null
           id: string
@@ -936,6 +994,8 @@ export type Database = {
           engine_description?: string | null
           engine_displacement_cc?: number | null
           estimated_current_value?: number | null
+          fipe_brand_id?: number | null
+          fipe_model_id?: number | null
           fuel_type?: Database["public"]["Enums"]["fuel_type"]
           horsepower?: number | null
           id?: string
@@ -962,6 +1022,8 @@ export type Database = {
           engine_description?: string | null
           engine_displacement_cc?: number | null
           estimated_current_value?: number | null
+          fipe_brand_id?: number | null
+          fipe_model_id?: number | null
           fuel_type?: Database["public"]["Enums"]["fuel_type"]
           horsepower?: number | null
           id?: string
@@ -981,6 +1043,20 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "vehicles_fipe_brand_id_fkey"
+            columns: ["fipe_brand_id"]
+            isOneToOne: false
+            referencedRelation: "fipe_brands"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "vehicles_fipe_model_id_fkey"
+            columns: ["fipe_model_id"]
+            isOneToOne: false
+            referencedRelation: "fipe_models"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "vehicles_primary_photo_id_fkey"
             columns: ["primary_photo_id"]

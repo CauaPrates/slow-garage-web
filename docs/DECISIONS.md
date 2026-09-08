@@ -1547,6 +1547,23 @@ no GitHub exigindo o check "Lint + build" no PR pra `main`. Sem isso, o
 CI é só sinal, não portão. Fica registrado porque é o tipo de coisa que
 se assume estar funcionando sem estar.
 
+**Ressalva descoberta ao aplicar (mesma fase).** Essa proteção não estava
+disponível: no plano Free do GitHub, ruleset e branch protection só
+existem em repositório **público**, e este era privado. A API respondia
+`403 — Upgrade to GitHub Pro or make this repository public`. As três
+saídas eram: pagar o Pro, abrir o repositório, ou aceitar o CI como sinal
+sem portão. Escolhida **abrir o repositório**, porque ele passou a servir
+de portfólio — decisão independente, que por acaso destravou isto. Antes
+de abrir, verificado que o `.env` nunca entrou no histórico e que nenhuma
+senha foi commitada (busca com pickaxe em todos os commits).
+
+Com o repositório público, o ruleset foi criado na `main`: `deletion`,
+`non_fast_forward`, `pull_request` com **0 aprovações exigidas** (num
+projeto de uma pessoa, exigir 1 tranca o autor fora da própria branch,
+porque ninguém aprova o próprio PR) e `required_status_checks` com o
+contexto `Lint + build`. Consequência aceita: push direto na `main`
+deixou de existir — toda mudança entra por PR.
+
 **O que o CI roda:** `npm run lint` e `npm run build` (que é
 `tsc -b && vite build`, então cobre checagem de tipo). **Não roda teste
 automatizado porque não existe nenhum no projeto** — a verificação de
@@ -1638,3 +1655,158 @@ Três decisões dentro dele:
 * **`aria-label` alternando "Mostrar senha"/"Ocultar senha"** mais
   `aria-pressed`, em vez de rótulo fixo: o estado é a informação que
   importa, e o ícone sozinho (`aria-hidden`) não diz nada
+
+## ADR-074 — O que fica versionado num repositório público de portfólio (Fase 18)
+
+O repositório passou a ser público (ver a ressalva do ADR-071) e a servir
+de portfólio. Isso muda o critério do que merece estar versionado: **o
+produto e as decisões de engenharia, não o ferramental de quem
+desenvolve.**
+
+**Saíram do controle de versão** (continuam no disco, agora ignorados):
+`.claude/` — configuração do assistente de código — e o prompt de
+bootstrap do projeto. Nenhum dos dois é consumido pelo build, pelo CI ou
+pelo deploy; são ferramenta pessoal, do mesmo tipo que configuração de
+editor.
+
+**Ficaram, deliberadamente:** `specs/` e `docs/DECISIONS.md`/`DESIGN.md`.
+São o maior ativo técnico do repositório — mostram alternativa descartada,
+regra de negócio explícita e verificação com evidência colada. Um
+repositório de portfólio sem isso é só código sem raciocínio.
+`scripts/ui-check.mjs` também ficou: é varredura real de acessibilidade e
+responsividade (Playwright + axe), parte do processo, não do andaime.
+`5348.png` ficou por ser o logo-fonte que `scripts/generate-icons.mjs`
+consome — o nome ruim é dívida cosmética, mas renomear quebraria as
+referências históricas nas specs, que descrevem o que aconteceu na época.
+
+**Armadilha encontrada na execução, registrada pra não repetir:**
+`git rm --cached` mantém o arquivo no disco, mas quando **o commit de
+deleção é mergeado numa branch onde o arquivo ainda era rastreado**, o
+git apaga o original do disco de verdade. Foi o que aconteceu — os 10
+arquivos de `.claude/skills/` e o prompt sumiram, e foram restaurados do
+histórico (`git archive <commit> <path> | tar -x`, que não mexe no
+índice), conferidos um a um contra o commit de origem. O jeito seguro é
+copiar pra fora do repositório **antes** de desversionar.
+
+**O limite honesto desta limpeza:** tirar arquivo do topo não tira do
+histórico. Quem navegar pelos commits ainda encontra `.claude/skills/*` e
+o prompt inteiros, e 48 dos 112 commits carregam trailer de
+`Co-Authored-By`. Mudar isso exigiria reescrever o histórico e forçar o
+push — o que muda todos os SHAs, colide com a regra `non_fast_forward`
+recém-criada na `main`, e deixa os PRs e os registros de deploy da Vercel
+apontando pra commits órfãos. Avaliado e **não feito**: o custo é real e o
+ganho é sobre um leitor hipotético que vasculha 112 commits, não sobre
+quem abre o repositório.
+
+**README** ganhou o link do app publicado logo no topo — o item de maior
+valor num repositório de portfólio — e a seção de deploy deixou de ser um
+passo a passo de "como eu publicaria" pra descrever a esteira que existe
+de verdade.
+
+## ADR-075 — FIPE: o pressuposto do backend não se confirmou, e o que foi feito com isso (Fase 020)
+
+O pedido da fase 020 trazia um pressuposto explícito: o backend já teria
+`fipe_brands`, `fipe_models` (RLS de leitura pra `authenticated`) e as
+colunas `fipe_brand_id`/`fipe_model_id` em `vehicles`, bastando
+sincronizar `database.types.ts`.
+
+**Sincronizado primeiro, como manda a regra do projeto — e o pressuposto
+caiu.** `SUPABASE_PROJECT_ID=… npm run types` contra o projeto remoto
+devolveu um arquivo com **zero** ocorrências de `fipe`, e `vehicles`
+segue sem as duas colunas. (O diff de 2.980 linhas contra o arquivo
+antigo era só CRLF↔LF; o conteúdo é idêntico.)
+
+Três saídas possíveis: parar e devolver o pedido; inventar os tipos e
+codar contra um contrato imaginário; ou entregar a feature inteira
+mantendo a costura no lugar certo. **Escolhida a terceira.**
+
+**O que mudou em relação ao pedido:**
+
+1. `fipeCache` mantém a interface pedida (`getBrands()`,
+   `getModelsByBrand(brandId)`) mas hoje delega pra API externa. Quando a
+   migration entrar, a troca é dentro dessa função — nenhum hook,
+   componente ou verificação muda. O arquivo carrega o SQL pretendido em
+   comentário.
+2. **Gravar `fipe_brand_id`/`fipe_model_id` não foi implementado.** As
+   colunas não existem. Os códigos já saem no `FipeFillPayload` do
+   assistente, então ligar isso depois é uma linha no `VehicleForm`.
+3. `useFipeYears` recebe `brandCode` além do `modelCode`: a API exige a
+   marca no caminho (`/marcas/{marca}/modelos/{modelo}/anos`). A
+   assinatura do pedido não era suficiente.
+
+**Consequência aceita:** enquanto marca e modelo vierem do externo, eles
+herdam a fragilidade de rede que era pra ser só do ano e do valor. A UI
+trata os quatro iguais — cada consulta com seu estado de erro local — o
+que aliás deixa o componente pronto pros dois mundos.
+
+**`cmdk` como dependência nova.** O projeto tem a regra de não instalar
+sem necessidade real. A necessidade: 107 marcas e 585 modelos numa marca
+comum (medido na Fiat), e `<select>` nativo não filtra por digitação.
+Escrever combobox acessível à mão (teclado, `aria-activedescendant`,
+foco) é justamente o tipo de coisa que se erra em silêncio — e o próprio
+pedido citou o Combobox do shadcn, que é `cmdk` por baixo. Radix Popover,
+que já estava no projeto, dá o resto.
+
+**RN-1 é a regra que molda a UI:** nada da FIPE é dado calculado pelo
+sistema. O valor aparece rotulado com o mês de referência da tabela e a
+frase "É uma sugestão — o campo continua editável", e só entra no
+formulário por clique. Vai pro mesmo `<input>` que o usuário digitaria,
+nunca num campo somente-leitura — o oposto de `cost_per_km`, que vem de
+view e o usuário não edita.
+
+## ADR-076 — Corrige o ADR-075: as tabelas FIPE existiam, e a persistência foi ligada (Fase 023)
+
+O ADR-075 registrou que o schema não tinha `fipe_brands`, `fipe_models` nem
+`vehicles.fipe_brand_id`/`fipe_model_id`, e que por isso `fipeCache` lia da
+API externa e os IDs não eram gravados. **Isso não vale mais.**
+
+**O que aconteceu.** O backend contestou, dizendo que as colunas existiam
+desde a Fase 11 e que o problema seria tipo desatualizado no front. A
+checagem decisiva não foi regerar tipo, e sim perguntar ao PostgREST — que
+recusa coluna inexistente no parse, independente de RLS:
+
+```
+select=id,fipe_brand_id,fipe_model_id  -> 200
+select=id,coluna_que_nao_existe        -> 400  42703 column ... does not exist
+```
+
+As colunas existem. **A medição do ADR-075 estava certa no momento em que
+foi feita** (`npm run types` contra o projeto remoto, zero ocorrência de
+`fipe`) — o mais provável é que a migration tenha entrado depois. Não é
+caso de culpar a ferramenta: é caso de refazer a leitura antes de tratar
+"não existe" como permanente. Fica a lição: quando o backend contradiz o
+tipo gerado, o árbitro é a API do banco, não o arquivo local.
+
+**Estado real, medido:** `fipe_brands` com 107 linhas, `fipe_models` com
+7.366. Os códigos casam com a API externa (marca 21 = Fiat nos dois; a
+Fiat tem 585 modelos em ambos).
+
+**A armadilha dos dois identificadores.** `fipe_models` tem `id` (PK
+serial) **e** `fipe_model_code` (o código da FIPE), e são números
+diferentes. `vehicles.fipe_model_id` é FK pra `fipe_models.id`, mas a API
+externa só entende `fipe_model_code`. Confundir os dois não dá erro de
+tipo — dá consulta do carro errado, em silêncio. Medido no teste real: o
+veículo gravou `fipe_model_id=5491` enquanto a chamada externa usou
+`5901`. Por isso `FipeCachedModel` carrega os dois campos com nome
+explícito.
+
+**`fipeCache` passou a ler do Supabase**, como a spec original pedia — a
+troca foi dentro daquela função, sem tocar em hook, componente ou
+verificação, exatamente o que a interface tinha sido desenhada pra
+permitir. Marca e modelo agora vêm de dado sob nosso SLA; ano e valor
+seguem no externo, porque tabela de preço muda de mês em mês e o backend
+não cacheia.
+
+**Regra nova (RN-8): ID da FIPE que contradiz o texto é pior que ID
+ausente.** Se o usuário preenche pelo assistente e depois edita marca ou
+modelo à mão, `fipe_brand_id`/`fipe_model_id` são limpos. Sem isso, o
+banco guardaria "este carro é o modelo 5491" ao lado de um texto escrito
+à mão que diz outra coisa — o tipo exato de dado silenciosamente errado
+que este assistente existe pra evitar.
+
+**Bug pego antes de ir pro ar:** `toFormDefaults` do `EditVehicleDialog`
+não carregava as duas colunas novas. Como o payload manda `?? null`,
+abrir a edição e salvar sem tocar no assistente **apagaria** a
+identificação já gravada. É a terceira vez que o `Edit` divergir do
+`Create` morde neste projeto (ver ADR-048) — a conferência campo a campo
+no diálogo de edição não é opcional.

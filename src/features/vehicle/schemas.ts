@@ -28,16 +28,27 @@ export const FUEL_TYPE_LABELS: Record<(typeof FUEL_TYPES)[number], string> = {
 
 export const TRANSMISSIONS = ["manual", "automatic", "cvt", "other"] as const;
 
-export const TRANSMISSION_LABELS: Record<(typeof TRANSMISSIONS)[number], string> = {
+export const TRANSMISSION_LABELS: Record<
+  (typeof TRANSMISSIONS)[number],
+  string
+> = {
   manual: "Manual",
   automatic: "Automático",
   cvt: "CVT",
   other: "Outro",
 };
 
-export const VEHICLE_STATUSES = ["active", "project", "stored", "sold"] as const;
+export const VEHICLE_STATUSES = [
+  "active",
+  "project",
+  "stored",
+  "sold",
+] as const;
 
-export const VEHICLE_STATUS_LABELS: Record<(typeof VEHICLE_STATUSES)[number], string> = {
+export const VEHICLE_STATUS_LABELS: Record<
+  (typeof VEHICLE_STATUSES)[number],
+  string
+> = {
   active: "Ativo",
   project: "Projeto",
   stored: "Guardado",
@@ -53,11 +64,15 @@ export const vehicleSchema = z.object({
   modelYear: z
     .string()
     .optional()
-    .transform((val) => (val === undefined || val.trim() === "" ? undefined : Number(val)))
+    .transform((val) =>
+      val === undefined || val.trim() === "" ? undefined : Number(val),
+    )
     .refine(
       (val) =>
         val === undefined ||
-        (Number.isInteger(val) && val >= 1900 && val <= new Date().getFullYear() + 1),
+        (Number.isInteger(val) &&
+          val >= 1900 &&
+          val <= new Date().getFullYear() + 1),
       "Ano inválido.",
     ),
   currentOdometerKm: optionalNonNegativeInt("a quilometragem atual"),
@@ -77,6 +92,16 @@ export const vehicleSchema = z.object({
   estimatedCurrentValue: optionalNonNegativeNumber("o valor estimado atual"),
   notes: optionalText,
   status: z.enum(VEHICLE_STATUSES).optional(),
+  /**
+   * Fase 020: identificação na FIPE. **Não são campos de tela** — nenhum
+   * `<input>` os renderiza. O assistente os escreve via `setValue` quando o
+   * usuário completa a seleção, e o `VehicleForm` os limpa se ele depois
+   * editar marca ou modelo à mão (ID que contradiz o texto é pior que ID
+   * ausente). Vivem no schema pra atravessar o mesmo pipeline do
+   * `react-hook-form` que todo o resto e chegar nos dois diálogos.
+   */
+  fipeBrandId: z.number().int().positive().optional(),
+  fipeModelId: z.number().int().positive().optional(),
 });
 
 export type VehicleFormInput = z.input<typeof vehicleSchema>;
