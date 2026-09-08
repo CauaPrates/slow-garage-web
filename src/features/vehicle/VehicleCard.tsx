@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useId, useState } from "react";
 import { Link } from "react-router-dom";
 import { Car } from "lucide-react";
 import { formatKm, formatMoney } from "@/lib/format";
@@ -41,6 +41,7 @@ export function VehicleCard({
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [detailsOpen, setDetailsOpen] = useState(false);
+  const specsId = useId();
   const totalInvested = vehicle.financialSummary?.total_invested;
   const costPerKm = vehicle.financialSummary?.cost_per_km;
   const specChips = [
@@ -113,6 +114,14 @@ export function VehicleCard({
             </div>
           )}
 
+          {/*
+            Mesmo padrão de acordeão do resto do app (ver DESIGN.md,
+            "Densidade"): `aria-expanded` refletindo o estado e
+            `aria-controls` apontando pra ficha que ele abre. Sem isso, o
+            leitor de tela anuncia um botão sem dizer que ele expande nada.
+            `min-h-11` porque é alvo de toque, e este é justamente o
+            breakpoint mobile.
+          */}
           <button
             type="button"
             onClick={(event) => {
@@ -120,12 +129,15 @@ export function VehicleCard({
               event.stopPropagation();
               setDetailsOpen((open) => !open);
             }}
-            className="self-start text-xs font-medium text-accent hover:underline sm:hidden"
+            aria-expanded={detailsOpen}
+            aria-controls={specsId}
+            className="flex min-h-11 items-center self-start text-xs font-medium text-accent hover:underline sm:hidden"
           >
             {detailsOpen ? "Ver menos" : "Ver mais"}
           </button>
 
           <dl
+            id={specsId}
             className={cn(
               "grid-cols-2 gap-3 border-t border-border pt-3 text-sm sm:grid sm:grid-cols-4",
               detailsOpen ? "grid" : "hidden sm:grid",

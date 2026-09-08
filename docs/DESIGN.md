@@ -510,6 +510,13 @@ portanto já é CSS variable):
   do "S" e a bandeira quadriculada. Quem quiser mexer nisso de novo:
   meça a caixa da arte antes (dá pra fazer com canvas +
   `getImageData`), não vá no olho
+- Trilho de barra horizontal é reto e fino em todo o app (Fase 024): o
+  `ExpensesByCategoryChart` tinha ficado com cápsula `rounded-full h-3`
+  enquanto o `VehicleInvestmentChart`, na mesma tela, usava `h-1.5` reto —
+  duas formas para a mesma primitiva lia como dois sistemas. Unificado no
+  fio, com trilho em `--color-border`. A **cor** permanece diferente de
+  propósito: categórica onde ela mapeia categoria, hue único onde ela é
+  decoração
 - Acordeão (Fase 15f, primeiro uso no projeto): padrão WAI-ARIA
   `heading > button`, com `aria-expanded` no botão e `aria-controls`
   apontando pro corpo (`useId`), chevron `ChevronDown` girando 180° em
