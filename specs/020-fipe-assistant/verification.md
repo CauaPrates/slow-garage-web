@@ -4,21 +4,32 @@
 |---|---|
 | **Spec** | ./spec.md |
 | **Verificado em** | 2026-09-05 |
-| **Resultado** | aprovado, com pendência de backend (§ Pendências) |
-| **Complementado em** | 2026-09-05 — AC-8 com falhas induzidas e fluxo de edição percorrido |
+| **Resultado** | aprovado — fluxo completo verificado, inclusive submit real |
+| **Complementado em** | 2026-09-05 — AC-8 com falhas induzidas, fluxo de edição e submit real no banco |
 
 ## Como foi verificado
 
-A conta de teste (`e2e-test@dev.local`) foi apagada pelo usuário antes
-desta fase, e o Supabase recusa criar conta em domínio `.dev.local`
-(`email_address_invalid`). Criar uma conta nova deixaria resíduo no banco
-de produção que a `anon key` não consegue remover.
+Em duas rodadas, por uma razão prática: a conta de teste
+(`e2e-test@dev.local`) tinha sido apagada, e o Supabase recusa criar
+conta em domínio `.dev.local` (`email_address_invalid`).
 
-Em vez disso, o formulário foi exercitado por uma **rota temporária sem
-autenticação** (`/__fipe-check`), montando o `VehicleForm` isolado. Nada
-foi gravado no banco. A rota e o harness foram removidos antes do commit
-— confirmado com `grep` (zero ocorrências) e `git diff` do `router.tsx`
-(idêntico ao commitado).
+**Rodada 1 — sem autenticação.** O formulário foi exercitado por uma
+**rota temporária** (`/__fipe-check` e `/__fipe-edit`), montando o
+`VehicleForm` e o `EditVehicleDialog` isolados, com um veículo fabricado
+em memória. Nada foi gravado no banco. Cobriu todos os ACs de
+comportamento de tela, as falhas induzidas e o fluxo de edição. A rota e
+o harness foram removidos antes do commit — confirmado com `grep` (zero
+ocorrências) e `git diff` do `router.tsx` (idêntico ao commitado).
+
+**Rodada 2 — autenticada, contra o banco real.** Com a conta de teste
+fornecida pelo usuário, o `INSERT` e o `UPDATE` foram executados de
+verdade pelo app, com reload entre salvar e conferir. Os veículos criados
+receberam placa marcadora (`ZZF####`) e foram apagados no fim — ver
+"Submit real no Supabase".
+
+Ou seja: a rota temporária provou o comportamento da interface sem tocar
+em dado; a rodada autenticada provou a persistência. Nenhuma das duas
+deixou resíduo.
 
 ## Critérios de aceite
 
@@ -142,20 +153,66 @@ Confirma que o assistente nasce fechado também na edição, que preencher
 pedindo), e que campo fora do alcance do assistente (placa, km) não é
 tocado.
 
+## Submit real no Supabase (`INSERT` e `UPDATE`)
+
+Executado no app autenticado, com conta de teste fornecida pelo usuário,
+contra o banco real. Cada veículo criado recebeu uma placa marcadora
+(`ZZF####`) pra ser localizado e apagado no fim.
+
+```
+login: OK
+veículos na garagem antes: 1
+
+===== INSERT via assistente =====
+formulário preenchido pela FIPE: {"make":"Peugeot","model":"308 Active 1.6 Flex 16V 5p mec.","year":"2015","value":"48849"}
+placa marcadora: ZZF8994
+diálogo fechou (submit aceito): true
+veículos na garagem depois: 2 (antes 1)
+card do veículo novo contém a placa: true
+card menciona o modelo da FIPE: true
+
+===== persistência após reload =====
+veículos após reload: 2 · placa ZZF8994 presente: true
+
+===== UPDATE via assistente =====
+abriu edição com model="308 Active 1.6 Flex 16V 5p mec."
+trocado para: make="Fiat" model="Uno 1.6 mpi 2p e 4p"
+UPDATE persistiu após reload ("Uno 1.6 mpi 2p e 4"): true
+
+===== limpeza =====
+  apagado: ZZF8994
+  apagado: ZZF5307
+veículos ao final: 0 · marcador ZZF ainda presente: false
+
+erros de console: nenhum
+```
+
+O **reload** entre salvar e conferir é o que prova persistência: o valor
+foi buscado do banco de novo, não lido do cache do React Query.
+
+Screenshot `.ui-check/fipe-submit-criado.png` — o veículo salvo aparece
+na garagem como "Peugeot 308 Active 1.6 Flex 16V 5p mec. · ZZF8994 ·
+2015", exatamente o que a FIPE preencheu.
+
+`Total investido R$ 0,00` no card é **correto**: esse número vem de preço
+de compra + gastos pela view do banco, não do valor estimado atual que o
+assistente sugeriu. Confirma na prática a RN-1 — o que a FIPE preencheu
+não virou dado calculado.
+
+**Nenhum resíduo ficou no banco.** A limpeza apagou os dois veículos de
+teste (o desta execução e um órfão de uma execução anterior que falhou no
+meio), e a garagem voltou a zero.
+
 ## Pendências
 
 - **Persistir a seleção não foi implementado** — as colunas
   `fipe_brand_id`/`fipe_model_id` não existem no schema. Ver §11 da spec e
-  o ADR-075.
-- **O `submit` real não foi exercitado.** A verificação cobriu o
-  formulário e o diálogo de edição, mas não o `INSERT`/`UPDATE` no
-  Supabase: a conta de teste foi apagada e criar outra deixaria resíduo no
-  banco de produção. Esta fase não toca o caminho de submit — o
-  assistente só chama `setValue` — mas fica registrado como não executado.
+  o ADR-075. Esta é a única pendência restante da fase, e depende do
+  backend.
 
 ## Para o humano testar na mão
 
-1. Cadastrar um veículo de verdade pelo app usando o assistente e
-   confirmar que ele salva normalmente.
-2. Salvar um veículo **editado** com o assistente e confirmar que o
-   `UPDATE` grava o que apareceu na tela.
+Nada obrigatório — o fluxo completo foi percorrido de ponta a ponta.
+Opcional: usar o assistente num carro que **não** esteja na FIPE e
+confirmar que "Não encontrei meu carro" resolve o caminho manual sem
+atrito.
