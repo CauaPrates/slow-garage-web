@@ -18,12 +18,18 @@ const SERIES_COUNT = 8;
  * skill proíbe hue gerada — uma cor nova não é CVD-segura por
  * construção).
  */
-export function ExpensesByCategoryChart({ data }: ExpensesByCategoryChartProps) {
+export function ExpensesByCategoryChart({
+  data,
+}: ExpensesByCategoryChartProps) {
   if (data.length === 0) {
     return (
       <div className="rounded-lg border border-border bg-surface p-4">
-        <h3 className="mb-3 text-sm font-medium text-text-primary">Gasto por categoria</h3>
-        <p className="text-sm text-text-secondary">Nenhum gasto registrado ainda.</p>
+        <h3 className="mb-3 text-sm font-medium text-text-primary">
+          Gasto por categoria
+        </h3>
+        <p className="text-sm text-text-secondary">
+          Nenhum gasto registrado ainda.
+        </p>
       </div>
     );
   }
@@ -48,10 +54,13 @@ export function ExpensesByCategoryChart({ data }: ExpensesByCategoryChartProps) 
 
   return (
     <div className="rounded-lg border border-border bg-surface p-4">
-      <h3 className="mb-3 text-sm font-medium text-text-primary">Gasto por categoria</h3>
+      <h3 className="mb-3 text-sm font-medium text-text-primary">
+        Gasto por categoria
+      </h3>
       <div className="flex flex-col gap-3">
         {rows.map((row, index) => {
-          const widthPct = maxAmount > 0 ? (row.total_amount / maxAmount) * 100 : 0;
+          const widthPct =
+            maxAmount > 0 ? (row.total_amount / maxAmount) * 100 : 0;
           const color =
             row.category_slug === "other"
               ? "var(--color-text-secondary)"
@@ -59,13 +68,27 @@ export function ExpensesByCategoryChart({ data }: ExpensesByCategoryChartProps) 
           return (
             <div key={row.category_slug} className="flex flex-col gap-1">
               <div className="flex items-baseline justify-between gap-2 text-xs">
-                <span className="min-w-0 truncate text-text-primary">{row.category_label}</span>
-                <span className="shrink-0 text-text-secondary">{formatMoney(row.total_amount)}</span>
+                <span className="min-w-0 truncate text-text-primary">
+                  {row.category_label}
+                </span>
+                <span className="shrink-0 text-text-secondary">
+                  {formatMoney(row.total_amount)}
+                </span>
               </div>
-              <div className="h-3 w-full rounded-full bg-bg">
+              {/*
+                Fase 024: trilho reto e fino, igual ao `VehicleInvestmentChart`
+                — os dois ficam na mesma tela e a diferença de forma (cápsula
+                grossa vs. fio) lia como dois sistemas. A **cor** continua
+                categórica aqui, e isso é proposital: ali a cor é decoração,
+                aqui ela mapeia categoria (ver DESIGN.md).
+              */}
+              <div className="h-1.5 w-full bg-border">
                 <div
-                  className="h-3 rounded-full"
-                  style={{ width: `${Math.max(widthPct, 3)}%`, backgroundColor: color }}
+                  className="h-1.5"
+                  style={{
+                    width: `${Math.max(widthPct, 3)}%`,
+                    backgroundColor: color,
+                  }}
                   title={`${row.category_label}: ${formatMoney(row.total_amount)} (${row.expense_count} gasto${row.expense_count === 1 ? "" : "s"})`}
                 />
               </div>

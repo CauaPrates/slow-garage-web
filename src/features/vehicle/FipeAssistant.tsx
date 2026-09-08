@@ -188,7 +188,7 @@ export function FipeAssistant({ onFill, onFillValue }: FipeAssistantProps) {
               <button
                 type="button"
                 onClick={() => setShowYear(true)}
-                className="self-start text-xs font-medium text-accent hover:underline"
+                className="flex min-h-11 items-center self-start text-xs font-medium text-accent hover:underline"
               >
                 Buscar também o ano e o valor de referência
               </button>
@@ -273,7 +273,7 @@ export function FipeAssistant({ onFill, onFillValue }: FipeAssistantProps) {
           <button
             type="button"
             onClick={() => setOpen(false)}
-            className="text-xs font-medium text-text-secondary hover:underline"
+            className="flex min-h-11 items-center text-xs font-medium text-text-secondary hover:underline"
           >
             Não encontrei meu carro
           </button>

@@ -98,9 +98,16 @@ export function Combobox({
             itemValue.toLowerCase().includes(search.toLowerCase()) ? 1 : 0
           }
         >
+          {/*
+            `outline-none` precisa de substituto (regra de foco visível do
+            projeto). Aqui o indicador é a própria linha divisória virando
+            âmbar — anel de foco dentro de um popover com `p-0` seria cortado
+            pela borda, e o `Input` do projeto já usa `focus-visible:border-accent`
+            como parte do mesmo padrão.
+          */}
           <Command.Input
             placeholder={searchPlaceholder}
-            className="h-11 w-full border-b border-border bg-transparent px-3 text-base text-text-primary outline-none placeholder:text-text-secondary md:text-sm"
+            className="h-11 w-full border-b border-border bg-transparent px-3 text-base text-text-primary outline-none transition-colors focus-visible:border-accent placeholder:text-text-secondary md:text-sm"
           />
           <Command.List id={listboxId} className="max-h-64 overflow-y-auto p-1">
             <Command.Empty className="px-3 py-6 text-center text-sm text-text-secondary">
