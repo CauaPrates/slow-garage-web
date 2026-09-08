@@ -5,6 +5,7 @@
 | **Spec** | ./spec.md |
 | **Verificado em** | 2026-09-05 |
 | **Resultado** | aprovado, com pendência de backend (§ Pendências) |
+| **Complementado em** | 2026-09-05 — AC-8 com falhas induzidas e fluxo de edição percorrido |
 
 ## Como foi verificado
 
@@ -33,7 +34,7 @@ Roteiro completo executado em **320px (escuro), 390px (claro) e 1440px
 | AC-5 | ✅ | `modelYear após preencher com ano escolhido: "2015"` |
 | AC-6 | ✅ | `valor exibido: Valor de referência: R$ 48.849,00`; só após clicar → `estimatedCurrentValue="48849"`. Tela mostra "Tabela FIPE de setembro de 2026 · código 024186-5. É uma sugestão — o campo continua editável" |
 | AC-7 | ✅ | `colapsou=true \| preservou make=true valor=true` |
-| AC-8 | ✅ | Verificado por leitura do código (`FipeError` por tipo, `ErrorLine` local por consulta). **Não** foi forçada uma falha real da API — ver Pendências |
+| AC-8 | ✅ | Quatro falhas **induzidas de verdade** via `page.route` — ver "Falhas induzidas". Cada tipo produziu sua mensagem, o formulário manual seguiu intacto e nenhuma exceção escapou |
 | AC-9 | ✅ | `overflow: 320 vs 320 ok`, `390 vs 390 ok`, `1440 vs 1440 ok`; `axe: 0 violações, 0 serious/critical` nos três, com o bloco **aberto**; `console: nenhum erro` |
 
 ## Saída dos comandos
@@ -100,21 +101,61 @@ O `eslint-plugin-jsx-a11y` reprovou a primeira versão do combobox:
 Sem o lint, isso teria passado — o axe só avalia o que está renderizado, e
 a lista só existe com o popover aberto.
 
+## Falhas induzidas na API externa (AC-8)
+
+Interceptando `**parallelum.com.br/**` no Playwright, com o bloco aberto
+e o formulário manual já preenchido antes da falha:
+
+| Cenário | Mensagem exibida | Formulário manual | Exceção |
+|---|---|---|---|
+| Rede caiu (`abort`) | "Não foi possível falar com a FIPE. Verifique a conexão ou preencha à mão." | intacto, "Salvar" habilitado | nenhuma |
+| HTTP 500 | "A FIPE respondeu com erro (500). Tente de novo ou preencha à mão." | intacto, "Salvar" habilitado | nenhuma |
+| JSON inválido | "A FIPE devolveu uma resposta inesperada. Preencha à mão." | intacto, "Salvar" habilitado | nenhuma |
+| Timeout (resposta retida 12s, limite de 10s) | "A consulta à FIPE demorou demais. Tente de novo ou preencha à mão." | intacto, "Salvar" habilitado | nenhuma |
+
+No estado de erro: `axe: 0 violações (0 serious/critical)`. Screenshot
+`.ui-check/fipe-erro-http500.png` — a mensagem aparece sob o combobox
+afetado, "Preencher com dados FIPE" fica desabilitado, e os campos
+manuais seguem com o que foi digitado.
+
+## Fluxo de edição (`EditVehicleDialog` real)
+
+Diálogo montado com um veículo pré-carregado (Peugeot / "308 antigo" /
+2014 / R$ 47.000), em 390px e 1440px — resultado idêntico:
+
+```
+diálogo de edição aberto: true
+valores pré-carregados: make="Peugeot" model="308 antigo" valor="47000"
+assistente presente na edição: true · fechado=true
+escolheu: Peugeot / 308 Active 1.6 Flex 16V 5p mec.
+ano: 2015 Flex
+SOBRESCREVEU o que existia:
+  model: "308 antigo" -> "308 Active 1.6 Flex 16V 5p mec."
+  ano: "2014" -> "2015"
+  valor: "47000" -> "48849"
+campo não tocado preservado: placa="PAZ5333" km="105000"
+overflow: ok · axe: 0 violações · console: nenhum erro
+```
+
+Confirma que o assistente nasce fechado também na edição, que preencher
+**sobrescreve** valor já existente (comportamento desejado — é o usuário
+pedindo), e que campo fora do alcance do assistente (placa, km) não é
+tocado.
+
 ## Pendências
 
-- **AC-8 sem falha real induzida.** O tratamento de erro foi lido linha a
-  linha, mas não houve execução com a API fora do ar (bloquear o domínio
-  no teste não foi feito). Fica registrado como verificado por leitura,
-  não por execução.
-- **Backend não entregou o que a spec pressupunha** — ver §11 da spec e o
-  ADR-075. `fipeCache` está no externo e os IDs da FIPE não são gravados.
+- **Persistir a seleção não foi implementado** — as colunas
+  `fipe_brand_id`/`fipe_model_id` não existem no schema. Ver §11 da spec e
+  o ADR-075.
+- **O `submit` real não foi exercitado.** A verificação cobriu o
+  formulário e o diálogo de edição, mas não o `INSERT`/`UPDATE` no
+  Supabase: a conta de teste foi apagada e criar outra deixaria resíduo no
+  banco de produção. Esta fase não toca o caminho de submit — o
+  assistente só chama `setValue` — mas fica registrado como não executado.
 
 ## Para o humano testar na mão
 
 1. Cadastrar um veículo de verdade pelo app usando o assistente e
    confirmar que ele salva normalmente.
-2. Conferir o bloco na **edição** de um veículo já existente (a
-   verificação cobriu o formulário, que é o mesmo componente nos dois
-   modos, mas o fluxo de edição real não foi percorrido).
-3. Simular queda da FIPE (DevTools → offline) e confirmar que o
-   formulário manual continua salvando.
+2. Salvar um veículo **editado** com o assistente e confirmar que o
+   `UPDATE` grava o que apareceu na tela.

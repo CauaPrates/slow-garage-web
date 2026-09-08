@@ -11,6 +11,8 @@
 | 7 | Integração no formulário via `setValue` | `src/features/vehicle/VehicleForm.tsx` | AC-4, AC-5, RN-1 | ☑ |
 | 8 | `tsc` + `eslint` + `build` limpos | — | — | ☑ |
 | 9 | Verificação real (Playwright + axe + `ui-check`) | — | AC-1 a AC-9 | ☑ |
+| 10 | Fechar AC-8 com falha induzida de verdade (abort, 500, JSON inválido, timeout) | — | AC-8 | ☑ |
+| 11 | Percorrer o fluxo de edição no `EditVehicleDialog` real | — | AC-1, AC-4, AC-5, AC-6 | ☑ |
 
 ## Escopo recusado / não entregue
 
