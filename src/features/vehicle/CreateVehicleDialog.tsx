@@ -40,6 +40,10 @@ export function CreateVehicleDialog({
       torque_nm: values.torqueNm ?? null,
       estimated_current_value: values.estimatedCurrentValue ?? null,
       notes: values.notes ?? null,
+      // Fase 020: identificação na FIPE, gravada em background quando o
+      // assistente completou a seleção (ADR-075). FK pra fipe_brands/fipe_models.
+      fipe_brand_id: values.fipeBrandId ?? null,
+      fipe_model_id: values.fipeModelId ?? null,
     });
     setOpen(false);
   }

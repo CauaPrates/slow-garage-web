@@ -19,13 +19,13 @@ export type FipeFillPayload = {
   /** Só vem quando o usuário chegou a escolher um ano. */
   modelYear?: number;
   /**
-   * Códigos da FIPE da seleção completa. Hoje ninguém consome — as colunas
-   * `fipe_brand_id`/`fipe_model_id` não existem no schema (ADR-075). Ficam na
-   * assinatura pra que ligar isso depois seja mudança de uma linha no
-   * `VehicleForm`, não redesenho do componente.
+   * IDs graváveis em `vehicles.fipe_brand_id`/`fipe_model_id`. Vêm das tabelas
+   * do backend (as duas colunas são FK), **não** do código da API externa —
+   * confundir os dois grava FK inválida. Só chegam quando o usuário completou
+   * marca e modelo.
    */
-  brandCode: string;
-  modelCode: string;
+  fipeBrandId: number;
+  fipeModelId: number;
 };
 
 type FipeAssistantProps = {
@@ -62,9 +62,10 @@ function ErrorLine({ error }: { error: unknown }) {
  */
 export function FipeAssistant({ onFill, onFillValue }: FipeAssistantProps) {
   const [open, setOpen] = useState(false);
-  const [brandCode, setBrandCode] = useState<string | null>(null);
+  const [brandId, setBrandId] = useState<number | null>(null);
   const [brandName, setBrandName] = useState("");
-  const [modelCode, setModelCode] = useState<string | null>(null);
+  const [modelId, setModelId] = useState<number | null>(null);
+  const [modelFipeCode, setModelFipeCode] = useState<number | null>(null);
   const [modelName, setModelName] = useState("");
   const [showYear, setShowYear] = useState(false);
   const [yearCode, setYearCode] = useState<string | null>(null);
@@ -76,16 +77,16 @@ export function FipeAssistant({ onFill, onFillValue }: FipeAssistantProps) {
   const yearFieldId = useId();
 
   const brandsQuery = useFipeBrands(open);
-  const modelsQuery = useFipeModels(brandCode);
-  const yearsQuery = useFipeYears(brandCode, modelCode, showYear);
+  const modelsQuery = useFipeModels(brandId);
+  const yearsQuery = useFipeYears(brandId, modelFipeCode, showYear);
   const valueQuery = useFipeEstimatedValue(
-    brandCode,
-    modelCode,
+    brandId,
+    modelFipeCode,
     yearCode,
     showYear,
   );
 
-  const canFill = Boolean(brandCode && modelCode);
+  const canFill = brandId != null && modelId != null;
   const selectedYear = yearsQuery.data?.find((y) => y.code === yearCode);
   /** O código do ano vem como "2019-1" (ano + combustível); só o ano interessa pro formulário. */
   const yearNumber = selectedYear
@@ -127,15 +128,16 @@ export function FipeAssistant({ onFill, onFillValue }: FipeAssistantProps) {
           <Combobox
             id={brandFieldId}
             options={(brandsQuery.data ?? []).map((brand) => ({
-              value: brand.code,
+              value: String(brand.id),
               label: brand.name,
             }))}
-            value={brandCode}
+            value={brandId != null ? String(brandId) : null}
             loading={brandsQuery.isLoading}
-            onChange={(code, option) => {
-              setBrandCode(code);
+            onChange={(value, option) => {
+              setBrandId(Number(value));
               setBrandName(option.label);
-              setModelCode(null);
+              setModelId(null);
+              setModelFipeCode(null);
               setModelName("");
               setYearCode(null);
               setValueUsed(false);
@@ -152,20 +154,27 @@ export function FipeAssistant({ onFill, onFillValue }: FipeAssistantProps) {
           <Combobox
             id={modelFieldId}
             options={(modelsQuery.data ?? []).map((model) => ({
-              value: model.code,
+              value: String(model.id),
               label: model.name,
             }))}
-            value={modelCode}
-            disabled={!brandCode}
+            value={modelId != null ? String(modelId) : null}
+            disabled={brandId == null}
             loading={modelsQuery.isLoading}
-            onChange={(code, option) => {
-              setModelCode(code);
+            onChange={(value, option) => {
+              const id = Number(value);
+              setModelId(id);
               setModelName(option.label);
+              // O código da FIPE é outro campo da mesma linha — a API externa
+              // não entende o `id` da tabela.
+              setModelFipeCode(
+                modelsQuery.data?.find((m) => m.id === id)?.fipeModelCode ??
+                  null,
+              );
               setYearCode(null);
               setValueUsed(false);
             }}
             placeholder={
-              brandCode ? "Escolha o modelo" : "Escolha a marca primeiro"
+              brandId != null ? "Escolha o modelo" : "Escolha a marca primeiro"
             }
             searchPlaceholder="Buscar modelo…"
             emptyMessage="Nenhum modelo com esse nome."
@@ -253,8 +262,8 @@ export function FipeAssistant({ onFill, onFillValue }: FipeAssistantProps) {
                 make: brandName,
                 model: modelName,
                 modelYear: Number.isFinite(yearNumber) ? yearNumber : undefined,
-                brandCode: brandCode!,
-                modelCode: modelCode!,
+                fipeBrandId: brandId!,
+                fipeModelId: modelId!,
               })
             }
           >

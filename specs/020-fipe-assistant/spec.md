@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | implementada (parcial — ver §11) |
+| **Status** | implementada |
 | **Tamanho** | G |
 | **Criada em** | 2026-09-05 |
 | **Depende de** | specs/002-garage (`VehicleForm`) |
@@ -50,7 +50,8 @@ com a FIPE fora do ar.
 - Preenchimento de `make`, `model`, `modelYear` e `estimatedCurrentValue`.
 
 **Fora**
-- Persistir qualquer dado da FIPE no Supabase.
+- Persistir **preço** da FIPE no Supabase (o valor é sugestão ao vivo; só a
+  identificação de marca/modelo é gravada).
 - Motos e caminhões (a API tem `/motos` e `/caminhoes`; V1 é só carro).
 - Preencher combustível/câmbio a partir da FIPE — o texto dela
   ("Flex", "mec.") não mapeia 1:1 nos enums do banco.
@@ -79,11 +80,20 @@ com a FIPE fora do ar.
 
 - **RN-1**: Nada vindo da FIPE é dado calculado pelo sistema. Cai em
   campo de texto comum, editável, nunca em campo somente-leitura.
-- **RN-2**: Nenhuma consulta da FIPE é persistida no Supabase.
+- **RN-2** *(revisada na fase 023)*: Nenhum **preço** da FIPE é persistido
+  — o valor é sugestão ao vivo e cai em campo editável. A
+  **identificação** (marca/modelo) é gravada em
+  `fipe_brand_id`/`fipe_model_id`, que são FK pro cache do backend.
 - **RN-3**: Regra de negócio do backend não é duplicada aqui — este bloco
   só preenche campo de formulário.
 - **RN-4**: A API externa é terceiro sem SLA: toda chamada tem timeout e
   estado de erro próprio.
+- **RN-8** *(nova na fase 023)*: ID da FIPE que contradiz o texto é pior
+  que ID ausente. Editar marca ou modelo à mão limpa
+  `fipe_brand_id`/`fipe_model_id`.
+- **RN-9** *(nova na fase 023)*: `fipe_models` tem dois identificadores —
+  `id` (o que se grava, FK) e `fipe_model_code` (o que a API externa
+  entende). Nunca são intercambiáveis.
 
 ## 7. Dados
 
@@ -110,12 +120,10 @@ N/A — o bloco é um assistente sem entidade própria.
 
 ## 11. Perguntas abertas / pendências
 
-**O pressuposto do pedido não se confirmou.** `npm run types` contra o
-projeto remoto não trouxe `fipe_brands`, `fipe_models` nem
-`vehicles.fipe_brand_id`/`fipe_model_id`. Consequências, registradas no
-ADR-075:
+Nenhuma. O pressuposto do pedido (tabelas e colunas no backend) **se
+confirmou** depois — ver ADR-076. A fase foi completada: `fipeCache` lê do
+Supabase e `fipe_brand_id`/`fipe_model_id` são persistidos.
 
-1. `fipeCache` lê da API externa, não do Supabase (interface preservada).
-2. Gravar `fipe_brand_id`/`fipe_model_id` em background **não foi
-   implementado** — as colunas não existem. Os códigos já saem no
-   `FipeFillPayload` pra ligar isso numa linha quando a migration entrar.
+Histórico: a primeira entrega registrou essas duas coisas como pendentes
+porque, na medição feita na hora, o schema não tinha nada de `fipe` (ver
+ADR-075). A migration entrou depois.

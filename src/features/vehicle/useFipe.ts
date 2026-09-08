@@ -3,22 +3,16 @@ import { fipeCache } from "@/lib/fipe/fipeCache";
 import { fetchValue, fetchYears } from "@/lib/fipe/fipeExternal";
 
 /**
- * Chave separada de `["vehicles", ...]` de propósito: dado da FIPE não é dado
- * do usuário e não pode ser invalidado por mutação de veículo — se entrasse no
- * mesmo prefixo, salvar um gasto jogaria fora a lista de 107 marcas à toa.
+ * Chave fora do prefixo `["vehicles", ...]` de propósito: o catálogo da FIPE
+ * não é dado do usuário e não pode ser invalidado por mutação de veículo —
+ * senão salvar um gasto jogaria fora as 107 marcas à toa.
  */
 const FIPE_KEY = "fipe";
 
-/**
- * Catálogo raramente muda; 24h de `staleTime` evita refazer a leitura a cada
- * abertura do formulário. `retry: 1` porque a origem é terceiro sem SLA:
- * insistir 3 vezes (padrão do React Query) só faz o usuário esperar mais pra
- * ver o mesmo erro.
- */
+/** Catálogo do backend muda raramente; 24h evita refazer a leitura a cada abertura do formulário. */
 const CATALOG_OPTIONS = {
   staleTime: 24 * 60 * 60 * 1000,
   gcTime: 24 * 60 * 60 * 1000,
-  retry: 1,
 } as const;
 
 export function useFipeBrands(enabled = true) {
@@ -30,50 +24,52 @@ export function useFipeBrands(enabled = true) {
   });
 }
 
-export function useFipeModels(brandCode: string | null) {
+export function useFipeModels(brandId: number | null) {
   return useQuery({
-    queryKey: [FIPE_KEY, "models", brandCode],
-    queryFn: () => fipeCache.getModelsByBrand(brandCode!),
-    enabled: Boolean(brandCode),
+    queryKey: [FIPE_KEY, "models", brandId],
+    queryFn: () => fipeCache.getModelsByBrand(brandId!),
+    enabled: brandId != null,
     ...CATALOG_OPTIONS,
   });
 }
 
 /**
- * `enabled` externo além do `brandCode`/`modelCode`: a spec pede que ano só
- * seja buscado **sob demanda** (quando o usuário abre a seção de ano), não
- * automaticamente ao escolher o modelo. Sem esse terceiro controle, escolher
- * um modelo já dispararia a chamada.
+ * Ano e valor vêm da API externa (terceiro sem SLA): `retry: 1` porque
+ * insistir 3 vezes só faz o usuário esperar mais pra ver o mesmo erro.
  *
- * A API exige a marca no caminho (`/marcas/{marca}/modelos/{modelo}/anos`),
- * então a assinatura leva `brandCode` — não dá pra buscar ano só com o código
- * do modelo, como a spec original supunha.
+ * Recebe `fipeModelCode`, **não** o `id` da tabela — a API externa só entende
+ * o código da FIPE. E exige a marca no caminho
+ * (`/marcas/{marca}/modelos/{modelo}/anos`), por isso `brandId` também entra.
+ *
+ * O `enabled` externo é o que garante o "sob demanda" da spec: sem ele,
+ * escolher um modelo já dispararia a consulta de ano.
  */
 export function useFipeYears(
-  brandCode: string | null,
-  modelCode: string | null,
+  brandId: number | null,
+  fipeModelCode: number | null,
   enabled: boolean,
 ) {
   return useQuery({
-    queryKey: [FIPE_KEY, "years", brandCode, modelCode],
-    queryFn: () => fetchYears(brandCode!, modelCode!),
-    enabled: enabled && Boolean(brandCode) && Boolean(modelCode),
+    queryKey: [FIPE_KEY, "years", brandId, fipeModelCode],
+    queryFn: () => fetchYears(String(brandId), String(fipeModelCode)),
+    enabled: enabled && brandId != null && fipeModelCode != null,
     retry: 1,
   });
 }
 
-/** Valor é consulta ao vivo (a tabela FIPE muda de mês em mês) — sem `staleTime` longo. */
+/** Sem `staleTime` longo: a tabela FIPE tem mês de referência e muda todo mês. */
 export function useFipeEstimatedValue(
-  brandCode: string | null,
-  modelCode: string | null,
+  brandId: number | null,
+  fipeModelCode: number | null,
   yearCode: string | null,
   enabled: boolean,
 ) {
   return useQuery({
-    queryKey: [FIPE_KEY, "value", brandCode, modelCode, yearCode],
-    queryFn: () => fetchValue(brandCode!, modelCode!, yearCode!),
+    queryKey: [FIPE_KEY, "value", brandId, fipeModelCode, yearCode],
+    queryFn: () =>
+      fetchValue(String(brandId), String(fipeModelCode), yearCode!),
     enabled:
-      enabled && Boolean(brandCode) && Boolean(modelCode) && Boolean(yearCode),
+      enabled && brandId != null && fipeModelCode != null && Boolean(yearCode),
     retry: 1,
   });
 }

@@ -50,6 +50,19 @@ export function VehicleForm({
     },
   });
 
+  /**
+   * Digitar marca ou modelo à mão invalida a identificação da FIPE: o texto
+   * passa a não corresponder mais ao ID. Guardar um `fipe_model_id` que
+   * contradiz o campo `model` é pior que não guardar nada — é exatamente o
+   * tipo de dado silenciosamente errado que este assistente existe pra
+   * evitar. `setValue` não dispara `onChange` de DOM, então preencher pela
+   * FIPE não cai aqui.
+   */
+  function clearFipeIds() {
+    setValue("fipeBrandId", undefined, { shouldDirty: true });
+    setValue("fipeModelId", undefined, { shouldDirty: true });
+  }
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -63,7 +76,7 @@ export function VehicleForm({
         FIPE passe pelas mesmas regras do zod que um valor digitado.
       */}
       <FipeAssistant
-        onFill={({ make, model, modelYear }) => {
+        onFill={({ make, model, modelYear, fipeBrandId, fipeModelId }) => {
           setValue("make", make, { shouldValidate: true, shouldDirty: true });
           setValue("model", model, { shouldValidate: true, shouldDirty: true });
           if (modelYear != null) {
@@ -72,6 +85,9 @@ export function VehicleForm({
               shouldDirty: true,
             });
           }
+          // Gravação em background: o usuário nunca vê nem edita estes dois.
+          setValue("fipeBrandId", fipeBrandId, { shouldDirty: true });
+          setValue("fipeModelId", fipeModelId, { shouldDirty: true });
         }}
         onFillValue={(amount) =>
           setValue("estimatedCurrentValue", String(amount), {
@@ -84,7 +100,11 @@ export function VehicleForm({
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="make">Marca</Label>
-          <Input id="make" aria-invalid={!!errors.make} {...register("make")} />
+          <Input
+            id="make"
+            aria-invalid={!!errors.make}
+            {...register("make", { onChange: clearFipeIds })}
+          />
           <FieldError>{errors.make?.message}</FieldError>
         </div>
         <div className="flex flex-col gap-1.5">
@@ -92,7 +112,7 @@ export function VehicleForm({
           <Input
             id="model"
             aria-invalid={!!errors.model}
-            {...register("model")}
+            {...register("model", { onChange: clearFipeIds })}
           />
           <FieldError>{errors.model?.message}</FieldError>
         </div>
