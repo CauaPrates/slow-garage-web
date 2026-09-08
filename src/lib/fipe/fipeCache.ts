@@ -1,40 +1,62 @@
-import { fetchBrands, fetchModels } from "./fipeExternal";
-import type { FipeBrand, FipeModel } from "./fipeExternal";
+import { supabase } from "@/lib/supabase";
 
 /**
- * Fonte de marca e modelo da FIPE — a camada que **deveria** ler as tabelas
- * `fipe_brands`/`fipe_models` do Supabase (cache do backend, RLS de leitura
- * pra `authenticated`).
+ * `id` é o código de marca da própria FIPE (conferido: `id=21` é "Fiat", o
+ * mesmo código 21 da API externa), então serve pra gravar em
+ * `vehicles.fipe_brand_id` **e** pra montar a URL da API externa.
+ */
+export type FipeCachedBrand = { id: number; name: string };
+
+/**
+ * Modelo tem **dois** identificadores, e confundi-los quebra em silêncio:
+ * `id` é a chave da tabela (é o que `vehicles.fipe_model_id` referencia) e
+ * `fipeModelCode` é o código da FIPE (é o que a API externa entende).
+ * Conferido: o modelo "147 C/ CL" tem `id=1273` e `fipe_model_code=437`.
+ */
+export type FipeCachedModel = {
+  id: number;
+  fipeModelCode: number;
+  name: string;
+};
+
+/**
+ * Marca e modelo vêm do **cache do backend** (`fipe_brands`/`fipe_models`,
+ * leitura liberada pra `authenticated`), não da API externa: é dado sob nosso
+ * SLA, e é a única fonte cujos IDs podem ser gravados em `vehicles` — as duas
+ * colunas são FK pra essas tabelas.
  *
- * ⚠️ Hoje ela lê da API externa, não do Supabase. Motivo registrado no
- * ADR-075: no dia em que a fase 020 foi implementada, o schema real do
- * projeto **não tinha** essas tabelas — `npm run types` contra o projeto
- * remoto trouxe zero ocorrência de `fipe`, e `vehicles` não tinha
- * `fipe_brand_id`/`fipe_model_id`. Em vez de codar contra um contrato que
- * não existe, a implementação foi ligada na API externa mantendo **esta
- * interface exata**.
+ * Ano e valor continuam na API externa (`fipeExternal`), porque o backend não
+ * cacheia tabela de preço — ela muda de mês em mês.
  *
- * Quando a migration entrar, a troca é só aqui dentro — nenhum hook,
- * componente ou teste precisa mudar:
- *
- * ```ts
- * const { data, error } = await supabase
- *   .from("fipe_brands")
- *   .select("id, name")
- *   .order("name");
- * ```
- *
- * A distinção importa porque as duas fontes têm custo diferente: o Supabase
- * é cache próprio (rápido, sob nosso SLA) e a API externa é terceiro sem
- * garantia. Enquanto for a segunda, marca e modelo herdam a mesma
- * fragilidade de rede que ano e valor — e a UI trata os dois iguais.
+ * Histórico: a fase 020 nasceu lendo marca/modelo da API externa porque, na
+ * hora em que foi implementada, a migration ainda não tinha entrado. A
+ * interface foi desenhada pra que essa troca fosse aqui dentro, e foi
+ * exatamente o que aconteceu (ver ADR-075).
  */
 export const fipeCache = {
-  getBrands(): Promise<FipeBrand[]> {
-    return fetchBrands();
+  async getBrands(): Promise<FipeCachedBrand[]> {
+    const { data, error } = await supabase
+      .from("fipe_brands")
+      .select("id, name")
+      .order("name");
+    if (error) throw error;
+    return data ?? [];
   },
 
-  getModelsByBrand(brandId: string): Promise<FipeModel[]> {
-    return fetchModels(brandId);
+  async getModelsByBrand(brandId: number): Promise<FipeCachedModel[]> {
+    const { data, error } = await supabase
+      .from("fipe_models")
+      .select("id, fipe_model_code, name")
+      .eq("brand_id", brandId)
+      .order("name")
+      // A marca com mais modelos tem 585 (medido); o teto do PostgREST é 1000.
+      // Explícito pra que crescer além disso vire erro visível, não silêncio.
+      .limit(1000);
+    if (error) throw error;
+    return (data ?? []).map((row) => ({
+      id: row.id,
+      fipeModelCode: row.fipe_model_code,
+      name: row.name,
+    }));
   },
 };

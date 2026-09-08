@@ -1753,3 +1753,60 @@ frase "É uma sugestão — o campo continua editável", e só entra no
 formulário por clique. Vai pro mesmo `<input>` que o usuário digitaria,
 nunca num campo somente-leitura — o oposto de `cost_per_km`, que vem de
 view e o usuário não edita.
+
+## ADR-076 — Corrige o ADR-075: as tabelas FIPE existiam, e a persistência foi ligada (Fase 023)
+
+O ADR-075 registrou que o schema não tinha `fipe_brands`, `fipe_models` nem
+`vehicles.fipe_brand_id`/`fipe_model_id`, e que por isso `fipeCache` lia da
+API externa e os IDs não eram gravados. **Isso não vale mais.**
+
+**O que aconteceu.** O backend contestou, dizendo que as colunas existiam
+desde a Fase 11 e que o problema seria tipo desatualizado no front. A
+checagem decisiva não foi regerar tipo, e sim perguntar ao PostgREST — que
+recusa coluna inexistente no parse, independente de RLS:
+
+```
+select=id,fipe_brand_id,fipe_model_id  -> 200
+select=id,coluna_que_nao_existe        -> 400  42703 column ... does not exist
+```
+
+As colunas existem. **A medição do ADR-075 estava certa no momento em que
+foi feita** (`npm run types` contra o projeto remoto, zero ocorrência de
+`fipe`) — o mais provável é que a migration tenha entrado depois. Não é
+caso de culpar a ferramenta: é caso de refazer a leitura antes de tratar
+"não existe" como permanente. Fica a lição: quando o backend contradiz o
+tipo gerado, o árbitro é a API do banco, não o arquivo local.
+
+**Estado real, medido:** `fipe_brands` com 107 linhas, `fipe_models` com
+7.366. Os códigos casam com a API externa (marca 21 = Fiat nos dois; a
+Fiat tem 585 modelos em ambos).
+
+**A armadilha dos dois identificadores.** `fipe_models` tem `id` (PK
+serial) **e** `fipe_model_code` (o código da FIPE), e são números
+diferentes. `vehicles.fipe_model_id` é FK pra `fipe_models.id`, mas a API
+externa só entende `fipe_model_code`. Confundir os dois não dá erro de
+tipo — dá consulta do carro errado, em silêncio. Medido no teste real: o
+veículo gravou `fipe_model_id=5491` enquanto a chamada externa usou
+`5901`. Por isso `FipeCachedModel` carrega os dois campos com nome
+explícito.
+
+**`fipeCache` passou a ler do Supabase**, como a spec original pedia — a
+troca foi dentro daquela função, sem tocar em hook, componente ou
+verificação, exatamente o que a interface tinha sido desenhada pra
+permitir. Marca e modelo agora vêm de dado sob nosso SLA; ano e valor
+seguem no externo, porque tabela de preço muda de mês em mês e o backend
+não cacheia.
+
+**Regra nova (RN-8): ID da FIPE que contradiz o texto é pior que ID
+ausente.** Se o usuário preenche pelo assistente e depois edita marca ou
+modelo à mão, `fipe_brand_id`/`fipe_model_id` são limpos. Sem isso, o
+banco guardaria "este carro é o modelo 5491" ao lado de um texto escrito
+à mão que diz outra coisa — o tipo exato de dado silenciosamente errado
+que este assistente existe pra evitar.
+
+**Bug pego antes de ir pro ar:** `toFormDefaults` do `EditVehicleDialog`
+não carregava as duas colunas novas. Como o payload manda `?? null`,
+abrir a edição e salvar sem tocar no assistente **apagaria** a
+identificação já gravada. É a terceira vez que o `Edit` divergir do
+`Create` morde neste projeto (ver ADR-048) — a conferência campo a campo
+no diálogo de edição não é opcional.

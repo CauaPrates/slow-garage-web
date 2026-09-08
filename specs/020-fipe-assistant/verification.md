@@ -4,7 +4,7 @@
 |---|---|
 | **Spec** | ./spec.md |
 | **Verificado em** | 2026-09-05 |
-| **Resultado** | aprovado — fluxo completo verificado, inclusive submit real |
+| **Resultado** | aprovado — fluxo completo, submit real e persistência das FKs |
 | **Complementado em** | 2026-09-05 — AC-8 com falhas induzidas, fluxo de edição e submit real no banco |
 
 ## Como foi verificado
@@ -216,3 +216,82 @@ Nada obrigatório — o fluxo completo foi percorrido de ponta a ponta.
 Opcional: usar o assistente num carro que **não** esteja na FIPE e
 confirmar que "Não encontrei meu carro" resolve o caminho manual sem
 atrito.
+
+## Fase 023 — persistência ligada (correção do ADR-075)
+
+O backend contestou a leitura de que as colunas não existiam. Árbitro
+usado: o PostgREST, que recusa coluna inexistente no parse
+independentemente de RLS.
+
+```
+select=id,fipe_brand_id,fipe_model_id  -> 200  (existem)
+select=id,make                         -> 200  (controle positivo)
+select=id,coluna_que_nao_existe        -> 400  42703 column does not exist
+fipe_brands  -> Content-Range: 0-106/107     (107 marcas)
+fipe_models  -> Content-Range: 0-999/7366    (7.366 modelos)
+marca id=21  -> "Fiat"                        (mesmo código da API externa)
+fipe_model_code=437 -> id=1273, "147 C/ CL"   (dois identificadores distintos)
+Fiat na tabela -> 585 modelos                 (idêntico à API externa)
+```
+
+O backend estava certo. A medição anterior também estava certa **no
+momento em que foi feita** — a migration entrou depois.
+
+### Verificação do fluxo com persistência
+
+Executado no app autenticado contra o banco real, lendo a linha crua via
+REST (a UI não mostra as colunas FIPE):
+
+```
+===== origem do catálogo =====
+requisições até aqui: ["supabase:fipe_brands","supabase:fipe_models"]
+catálogo veio SÓ do Supabase (sem API externa): true
+
+ano: 2015 Flex
+requisições ao externo: ["externo:/marcas/44/modelos/5901/anos",
+                         "externo:/marcas/44/modelos/5901/anos/2015-5"]
+
+===== persistência das colunas FIPE =====
+linha no banco: {"make":"Peugeot","model":"308 Active 1.6 Flex 16V 5p mec.",
+                 "model_year":2015,"estimated_current_value":48849,
+                 "fipe_brand_id":44,"fipe_model_id":5491}
+o ID aponta pra: {"id":5491,"name":"308 Active 1.6 Flex 16V 5p mec.",
+                  "brand_id":44,"fipe_model_code":5901}
+nome do modelo no banco casa com o campo de texto: true
+brand_id do modelo casa com fipe_brand_id do veículo: true
+
+===== editar sem tocar no assistente =====
+IDs preservados: brand=44 model=5491 · NÃO zerou: true
+
+===== editar o modelo à mão limpa os IDs =====
+model agora: "Modelo escrito à mão"
+IDs limpos: brand=null model=null · regra valeu (ambos null): true
+
+axe: 0 violações (0 serious/critical)
+limpeza: apagado ZZP4407 · sobrou no banco: false
+erros de console: nenhum
+```
+
+**A prova de que os dois identificadores não foram confundidos:** o
+veículo gravou `fipe_model_id=5491` (chave da tabela) enquanto a chamada
+externa usou `5901` (código da FIPE). Números diferentes, cada um no seu
+lugar — se tivessem sido trocados, a consulta de ano teria trazido outro
+carro sem erro nenhum.
+
+**RN-8 verificada nos dois sentidos:** editar só o km preservou os IDs;
+editar o texto do modelo à mão zerou os dois.
+
+### Bug pego antes de ir pro ar
+
+`toFormDefaults` do `EditVehicleDialog` não carregava as colunas novas.
+Como o payload manda `?? null`, abrir a edição e salvar sem tocar no
+assistente **apagaria** a identificação já gravada. Corrigido antes de
+qualquer commit, e é o caso que o teste "editar sem tocar no assistente"
+passou a cobrir.
+
+### Cobertura não repetida, e por quê
+
+O sweep de viewports (`ui-check.mjs` em 320/390/768/1440/teclado) **não
+foi refeito** nesta fase: a mudança foi de origem de dado, não de layout —
+mesmos componentes, mesmos rótulos, mesma estrutura. O `axe` rodou
+inline (0 violações) sobre a tela com o assistente aberto em 1440px.
