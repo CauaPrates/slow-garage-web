@@ -1810,3 +1810,55 @@ abrir a edição e salvar sem tocar no assistente **apagaria** a
 identificação já gravada. É a terceira vez que o `Edit` divergir do
 `Create` morde neste projeto (ver ADR-048) — a conferência campo a campo
 no diálogo de edição não é opcional.
+
+## ADR-077 — A escolha da FIPE mora nos campos Marca e Modelo (Fase 026)
+
+**Contexto.** Desde a Fase 020 o preenchimento por FIPE era um bloco
+separado, acima do formulário: a pessoa abria "Buscar dados na FIPE",
+escolhia marca e modelo lá dentro e o assistente copiava o resultado pros
+campos. Funcionava, mas era um segundo lugar para fazer a mesma coisa —
+quem chegava no campo "Marca" e digitava nunca descobria que havia uma
+lista. O bloco só ajudava quem o encontrasse primeiro.
+
+**Decisão.** A cascata some como bloco e vira o próprio campo. Marca e
+Modelo passam a ser **combobox editável** (`ComboboxInput`): a lista da
+FIPE aparece ao focar, e quem não acha o carro digita e segue.
+
+Consequências:
+
+- **Escolher da lista identifica o veículo** e grava `fipe_brand_id` /
+  `fipe_model_id`. **Digitar limpa os dois** — texto que não corresponde
+  ao id é dado silenciosamente errado (RN-8).
+- A lista de modelos depende da marca *identificada*, não do texto. Sem
+  marca da lista, o campo Modelo é um input comum.
+- A consulta de valor de referência sobrou como bloco próprio
+  (`FipeValueLookup`), e **só aparece com o veículo identificado** — sem
+  id não há o que consultar. `FipeAssistant.tsx` foi removido.
+
+**`ComboboxInput` não usa cmdk, de propósito.** O `Command.Input` gera o
+próprio `id` (via `@radix-ui/react-id`) e descarta o que recebe, o que
+deixa o `<label htmlFor>` apontando pra nada — campo de formulário sem
+rótulo associado é defeito de acessibilidade, não detalhe de teste. O
+Popover do Radix tinha o mesmo efeito. Como o teclado deste padrão é
+curto (setas, Enter, Escape), sai mais barato escrever do que contornar.
+O cmdk segue no `Combobox` de seleção fechada, onde o input é interno.
+
+**Escape passou a ser tratado em camadas, no `DialogContent`.** Com a
+lista aberta, Escape fecha só a lista; o diálogo continua. Sem isso,
+dispensar as sugestões jogava fora o formulário inteiro. A regra precisa
+morar no diálogo porque o Radix escuta a tecla no `document` em fase de
+**captura** — nenhum `stopPropagation` no combobox chega a tempo. O
+diálogo se guia pelo `aria-expanded` de quem está focado, então vale pra
+qualquer popup interno, não só este.
+
+**Verificação** (Playwright + axe, 390px e 1440px): escolha pela lista
+grava os ids (`fipe_brand_id: 44`, `fipe_model_id: 5491`, conferido no
+banco após recarregar); marca digitada fora da FIPE grava com os dois
+`null` e não oferece consulta de valor; setas movem a opção ativa; Enter
+escolhe **sem enviar** o formulário; zero violações sérias com a lista
+aberta; sem overflow horizontal.
+
+Dois achados vieram daí e foram corrigidos: a caixa de "não está na FIPE"
+cobria o campo seguinte e engolia o clique de quem só queria seguir em
+frente (agora atravessável), e a região que rola precisava de acesso por
+teclado (o scroll passou pra `listbox`, que é focável).
