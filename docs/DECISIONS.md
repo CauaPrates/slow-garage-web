@@ -1862,3 +1862,42 @@ Dois achados vieram daí e foram corrigidos: a caixa de "não está na FIPE"
 cobria o campo seguinte e engolia o clique de quem só queria seguir em
 frente (agora atravessável), e a região que rola precisava de acesso por
 teclado (o scroll passou pra `listbox`, que é focável).
+
+## ADR-078 — Valor da FIPE no painel do veículo, com botão de reconsultar (Fase 027)
+
+**Contexto.** Depois da Fase 026 o veículo pode ficar **identificado** na FIPE
+(`fipe_brand_id` e `fipe_model_id` gravados ao escolher da lista), mas isso não
+aparecia em lugar nenhum depois do cadastro. O valor de referência só existia
+dentro do formulário, no momento de preencher.
+
+**Decisão.** O painel do veículo passa a mostrar o valor da tabela FIPE, com um
+botão de atualizar **ao lado do número** — não no canto do card: no desktop
+isso deixaria o botão a meia tela de distância do que ele atualiza.
+
+Como o ano é resolvido:
+
+- A linha da FIPE precisa de marca, modelo **e ano**. O ano vem do
+  `model_year` do veículo; entre as variações do mesmo ano (a FIPE separa por
+  combustível) escolhemos pela pista do `fuel_type`, com "Flex" antes de
+  "Gasolina" porque a tabela usa os dois pro mesmo carro.
+- É palpite, então **o ano escolhido vai pra tela** junto do valor ("2015
+  Flex"): quem conhece o próprio carro vê na hora se pegamos a linha errada.
+- Sem identificação, sem ano, ou com o ano ausente da tabela, o card **diz o
+  que falta** e oferece a ação (abrir a edição) em vez de sumir.
+
+**O valor da FIPE não sobrescreve nada sozinho** (RN-1). Ele alimenta o resumo
+financeiro através de `estimated_current_value`, e trocar esse número por conta
+própria mudaria o patrimônio do usuário pelas costas. O card compara os dois e
+**oferece** a troca; quem decide é o dono do carro.
+
+**Cache.** `useFipeEstimatedValue` ganhou `staleTime` de 6h. A tabela FIPE muda
+de mês em mês, e o painel consulta a cada visita — reperguntar de hora em hora
+a um terceiro sem SLA é desperdício puro. O botão chama `refetch()`, que passa
+por cima do `staleTime`.
+
+**Verificação** (Playwright + axe, 390px e 1440px): valor exibido com mês de
+referência e ano usado; botão de 44×44 que de fato refaz a chamada à API
+externa; adotar o valor grava no banco (conferido por leitura direta após
+recarregar); com estimado divergente o card aponta a diferença e oferece a
+troca; com estimado igual, diz que está igual; veículo sem identificação mostra
+o que falta com ação; zero violações de acessibilidade e sem overflow.
