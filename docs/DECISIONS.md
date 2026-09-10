@@ -1901,3 +1901,48 @@ externa; adotar o valor grava no banco (conferido por leitura direta após
 recarregar); com estimado divergente o card aponta a diferença e oferece a
 troca; com estimado igual, diz que está igual; veículo sem identificação mostra
 o que falta com ação; zero violações de acessibilidade e sem overflow.
+
+## ADR-079 — Corrige o ADR-074: quatro skills são regra de projeto, não ferramental (Fase 028)
+
+**Contexto.** O ADR-074 tirou `.claude/` do controle de versão quando o
+repositório virou público, classificando tudo ali como "ferramental de quem
+desenvolve, do mesmo tipo que configuração de editor". A classificação estava
+certa para parte do conteúdo e errada para a outra.
+
+O furo apareceu na pergunta óbvia de quem for contribuir: **o README afirma
+práticas cuja definição estava no `.gitignore`.** Ele diz que cada fase é
+verificada com Playwright, que métrica derivada nunca é recalculada no cliente,
+que toda tela tem quatro estados — e o arquivo que define o que isso significa
+na prática não vinha no clone.
+
+**Decisão.** Quatro das seis skills voltam ao controle de versão, porque não são
+preferência de quem desenvolve — são as regras do projeto em forma executável:
+
+| Skill | O que define | Onde o README já prometia |
+|---|---|---|
+| `sdd` | ciclo spec → plano → tasks → verificação, proibição de inventar requisito | Roadmap |
+| `slow-garage-data` | query keys, invalidação, path do Storage, tradução de erro | Data access |
+| `ui-verify` | verificação por execução, 320/390/768/1440, overflow, axe | Scripts |
+| `design-review` | tokens, quatro estados, alvo de toque, semântica, idioma | Design |
+
+`frontend-design` e `ai` **continuam fora**: a primeira é direção visual
+genérica, reaproveitável em qualquer projeto; a segunda é um stub de 8 linhas
+com `description: TODO`. Essas sim são ferramental.
+
+**A ressalva que motivou o `CONTRIBUTING.md`.** Skill só funciona no Claude
+Code. Quem contribuir de outro editor não herda nada de `.claude/skills/`, e
+versionar a skill sozinha daria a falsa sensação de que a regra está
+comunicada. Então as mesmas regras foram escritas em prosa no
+`CONTRIBUTING.md`, que é a versão que vale — a skill é a forma executável dela,
+e se as duas divergirem, o defeito é da skill.
+
+**Duplicação removida no caminho.** `ui-verify/references/ui-check.mjs` era
+cópia byte a byte de `scripts/ui-check.mjs`. Versionar as duas colocaria 177
+linhas repetidas no repositório — exatamente o que a skill `design-review`
+reprova. A referência ficou ignorada e a skill passou a apontar para o script do
+repo. Havia também um diretório `{ui-verify` com nome literal, resto de uma
+expansão de chaves que não expandiu na restauração descrita no ADR-074; apagado.
+
+**O que este ADR não muda.** O limite honesto do ADR-074 continua valendo: tirar
+arquivo do topo não tira do histórico, e reescrever histórico segue avaliado e
+não feito pelos mesmos motivos.
