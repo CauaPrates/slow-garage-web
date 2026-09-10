@@ -17,6 +17,7 @@ import { useVehicleDashboard } from "@/features/dashboard/useVehicleDashboard";
 import { useExpenseCategories } from "@/features/expense/useExpenseCategories";
 import { TimelineItem } from "@/features/timeline/TimelineItem";
 import { useTimeline } from "@/features/timeline/useTimeline";
+import { VehicleFipeCard } from "./VehicleFipeCard";
 import { VEHICLE_STATUS_LABELS } from "./schemas";
 import { useVehicle, useVehicles } from "./useVehicles";
 
@@ -122,6 +123,10 @@ export function VehiclePage() {
           </label>
         </div>
       </div>
+
+      {/* Fora do bloco do painel: a FIPE é atributo do veículo e não depende
+          da carga do dashboard pra aparecer. */}
+      <VehicleFipeCard vehicle={vehicle} />
 
       {dashboardQuery.isLoading && (
         <div className="flex flex-col gap-4">

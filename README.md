@@ -235,7 +235,21 @@ In short: it has to actually replace the spreadsheet.
 
 ---
 
-## Commit conventions
+## Contributing
+
+**Read [`CONTRIBUTING.md`](CONTRIBUTING.md) first.** It holds the rules that are not
+style preferences — the spec-first cycle, the three data-layer prohibitions, the
+"verify by running it" rule for UI, and the design constraints. Breaking them
+produces bugs that stay hidden for weeks, because the wrong number still looks
+plausible.
+
+The same rules also ship as four project skills in `.claude/skills/` (`sdd`,
+`slow-garage-data`, `ui-verify`, `design-review`). Claude Code loads them
+automatically when you open this repository, so an AI assistant follows the same
+conventions without being told each time. They are the executable form of
+`CONTRIBUTING.md`, not a second set of rules — if the two disagree, the prose wins.
+
+Commit conventions:
 
 ```
 feat(expenses): add quick-entry sheet

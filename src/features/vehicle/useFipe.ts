@@ -33,6 +33,16 @@ export function useFipeModels(brandId: number | null) {
   });
 }
 
+/** Resolve o `fipe_model_id` gravado no veículo no código que a API externa entende. */
+export function useFipeModel(modelId: number | null) {
+  return useQuery({
+    queryKey: [FIPE_KEY, "model", modelId],
+    queryFn: () => fipeCache.getModelById(modelId!),
+    enabled: modelId != null,
+    ...CATALOG_OPTIONS,
+  });
+}
+
 /**
  * Ano e valor vêm da API externa (terceiro sem SLA): `retry: 1` porque
  * insistir 3 vezes só faz o usuário esperar mais pra ver o mesmo erro.
@@ -57,7 +67,15 @@ export function useFipeYears(
   });
 }
 
-/** Sem `staleTime` longo: a tabela FIPE tem mês de referência e muda todo mês. */
+/**
+ * A tabela FIPE muda de mês em mês, então reperguntar de hora em hora é
+ * desperdício — e o painel do veículo consulta a cada visita. Seis horas
+ * segura a repetição sem nunca mostrar mês de referência velho. Quem quiser
+ * conferir na hora usa o botão de atualizar, que chama `refetch()` e passa
+ * por cima disto.
+ */
+const VALUE_STALE_TIME = 6 * 60 * 60 * 1000;
+
 export function useFipeEstimatedValue(
   brandId: number | null,
   fipeModelCode: number | null,
@@ -71,5 +89,6 @@ export function useFipeEstimatedValue(
     enabled:
       enabled && brandId != null && fipeModelCode != null && Boolean(yearCode),
     retry: 1,
+    staleTime: VALUE_STALE_TIME,
   });
 }

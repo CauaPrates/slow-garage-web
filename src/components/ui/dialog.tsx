@@ -10,12 +10,29 @@ export const DialogClose = DialogPrimitive.Close;
 export function DialogContent({
   className,
   children,
+  onEscapeKeyDown,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content>) {
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/60 transition-opacity duration-150 data-[state=closed]:opacity-0 data-[state=open]:opacity-100" />
       <DialogPrimitive.Content
+        onEscapeKeyDown={(event) => {
+          /*
+            Escape pertence ao popup mais interno. Com a lista de um combobox
+            aberta, fechar o diálogo inteiro jogaria fora tudo que a pessoa
+            digitou só porque ela quis dispensar as sugestões — o próprio
+            combobox fecha a lista no bubble logo depois.
+
+            Precisa ser aqui: o Radix escuta Escape no document em fase de
+            captura, então nenhum `stopPropagation` lá dentro chega a tempo.
+          */
+          const foco = document.activeElement;
+          if (foco?.getAttribute("aria-expanded") === "true") {
+            event.preventDefault();
+          }
+          onEscapeKeyDown?.(event);
+        }}
         className={cn(
           "fixed top-1/2 left-1/2 z-50 max-h-[85vh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-surface p-6 shadow-lg transition-[opacity,transform] duration-150 focus:outline-none data-[state=closed]:scale-95 data-[state=closed]:opacity-0 data-[state=open]:scale-100 data-[state=open]:opacity-100",
           className,

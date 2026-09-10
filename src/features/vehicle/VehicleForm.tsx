@@ -1,4 +1,4 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +6,9 @@ import { Label } from "@/components/ui/label";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { FieldError } from "@/components/ui/field-error";
-import { FipeAssistant } from "./FipeAssistant";
+import { ComboboxInput } from "@/components/ui/combobox-input";
+import { FipeValueLookup } from "./FipeValueLookup";
+import { useFipeBrands, useFipeModels } from "./useFipe";
 import {
   vehicleSchema,
   type VehicleFormInput,
@@ -36,6 +38,7 @@ export function VehicleForm({
     register,
     handleSubmit,
     setValue,
+    control,
     formState: { errors, isSubmitting },
   } = useForm<VehicleFormInput, unknown, VehicleFormOutput>({
     resolver: zodResolver(vehicleSchema),
@@ -50,17 +53,40 @@ export function VehicleForm({
     },
   });
 
-  /**
-   * Digitar marca ou modelo à mão invalida a identificação da FIPE: o texto
-   * passa a não corresponder mais ao ID. Guardar um `fipe_model_id` que
-   * contradiz o campo `model` é pior que não guardar nada — é exatamente o
-   * tipo de dado silenciosamente errado que este assistente existe pra
-   * evitar. `setValue` não dispara `onChange` de DOM, então preencher pela
-   * FIPE não cai aqui.
-   */
-  function clearFipeIds() {
-    setValue("fipeBrandId", undefined, { shouldDirty: true });
-    setValue("fipeModelId", undefined, { shouldDirty: true });
+  /*
+    Fase 026: a escolha da FIPE mora nos próprios campos Marca e Modelo, em
+    vez de um bloco separado acima. Os dois são combobox **editável**: a lista
+    é sugestão, e quem tem carro fora da FIPE (importado, modificado, antigo)
+    digita e segue — o formulário nunca depende da FIPE pra funcionar.
+
+    Escolher da lista identifica o veículo e grava o id; digitar limpa o id,
+    porque texto que não corresponde ao id é dado silenciosamente errado
+    (RN-8).
+  */
+  // `useWatch` em vez de `watch()`: o `watch` devolvido pelo `useForm` não é
+  // memoizável com segurança (o lint do React Compiler acusa), `useWatch` é.
+  const make = useWatch({ control, name: "make" }) ?? "";
+  const model = useWatch({ control, name: "model" }) ?? "";
+  const fipeBrandId = useWatch({ control, name: "fipeBrandId" }) ?? null;
+  const fipeModelId = useWatch({ control, name: "fipeModelId" }) ?? null;
+
+  const brandsQuery = useFipeBrands();
+  const modelsQuery = useFipeModels(fipeBrandId);
+
+  const brandOptions = (brandsQuery.data ?? []).map((brand) => ({
+    value: String(brand.id),
+    label: brand.name,
+  }));
+  const modelOptions = (modelsQuery.data ?? []).map((m) => ({
+    value: String(m.id),
+    label: m.name,
+  }));
+  /** A consulta de valor precisa do código da FIPE, não do id da tabela (RN-9). */
+  const fipeModelCode =
+    modelsQuery.data?.find((m) => m.id === fipeModelId)?.fipeModelCode ?? null;
+
+  function setText(campo: "make" | "model", texto: string) {
+    setValue(campo, texto, { shouldValidate: true, shouldDirty: true });
   }
 
   return (
@@ -69,54 +95,79 @@ export function VehicleForm({
       className="flex flex-col gap-4"
       noValidate
     >
-      {/*
-        Fase 020: assistente opcional, acima dos campos manuais. Ele nunca
-        escreve direto no veículo — só chama `setValue` nos mesmos campos que
-        o usuário digitaria, com `shouldValidate` pra que um valor vindo da
-        FIPE passe pelas mesmas regras do zod que um valor digitado.
-      */}
-      <FipeAssistant
-        onFill={({ make, model, modelYear, fipeBrandId, fipeModelId }) => {
-          setValue("make", make, { shouldValidate: true, shouldDirty: true });
-          setValue("model", model, { shouldValidate: true, shouldDirty: true });
-          if (modelYear != null) {
-            setValue("modelYear", String(modelYear), {
-              shouldValidate: true,
-              shouldDirty: true,
-            });
-          }
-          // Gravação em background: o usuário nunca vê nem edita estes dois.
-          setValue("fipeBrandId", fipeBrandId, { shouldDirty: true });
-          setValue("fipeModelId", fipeModelId, { shouldDirty: true });
-        }}
-        onFillValue={(amount) =>
-          setValue("estimatedCurrentValue", String(amount), {
-            shouldValidate: true,
-            shouldDirty: true,
-          })
-        }
-      />
-
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="make">Marca</Label>
-          <Input
+          <ComboboxInput
             id="make"
+            value={make}
+            options={brandOptions}
+            loading={brandsQuery.isLoading}
             aria-invalid={!!errors.make}
-            {...register("make", { onChange: clearFipeIds })}
+            placeholder="Escolha ou digite"
+            emptyMessage="Não está na FIPE — pode digitar assim mesmo."
+            onTextChange={(texto) => {
+              setText("make", texto);
+              // Texto que não veio da lista não corresponde a id nenhum.
+              setValue("fipeBrandId", undefined, { shouldDirty: true });
+              setValue("fipeModelId", undefined, { shouldDirty: true });
+            }}
+            onSelect={(option) => {
+              setText("make", option.label);
+              setValue("fipeBrandId", Number(option.value), {
+                shouldDirty: true,
+              });
+              // Marca nova invalida o modelo identificado, mas não apaga o
+              // texto que a pessoa já tinha escrito.
+              setValue("fipeModelId", undefined, { shouldDirty: true });
+            }}
           />
           <FieldError>{errors.make?.message}</FieldError>
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="model">Modelo</Label>
-          <Input
+          <ComboboxInput
             id="model"
+            value={model}
+            // Sem marca identificada não há lista — o campo vira input comum.
+            options={modelOptions}
+            loading={modelsQuery.isLoading}
             aria-invalid={!!errors.model}
-            {...register("model", { onChange: clearFipeIds })}
+            placeholder={
+              fipeBrandId != null ? "Escolha ou digite" : "Digite o modelo"
+            }
+            emptyMessage="Não está na FIPE — pode digitar assim mesmo."
+            onTextChange={(texto) => {
+              setText("model", texto);
+              setValue("fipeModelId", undefined, { shouldDirty: true });
+            }}
+            onSelect={(option) => {
+              setText("model", option.label);
+              setValue("fipeModelId", Number(option.value), {
+                shouldDirty: true,
+              });
+            }}
           />
           <FieldError>{errors.model?.message}</FieldError>
         </div>
       </div>
+
+      {/*
+        Só faz sentido consultar valor quando o veículo foi identificado na
+        FIPE — com texto digitado à mão não há o que consultar.
+      */}
+      {fipeBrandId != null && fipeModelCode != null && (
+        <FipeValueLookup
+          brandId={fipeBrandId}
+          fipeModelCode={fipeModelCode}
+          onUseValue={(amount) =>
+            setValue("estimatedCurrentValue", String(amount), {
+              shouldValidate: true,
+              shouldDirty: true,
+            })
+          }
+        />
+      )}
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5">
