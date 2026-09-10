@@ -43,6 +43,23 @@ export const fipeCache = {
     return data ?? [];
   },
 
+  /**
+   * Uma linha só, pelo id gravado em `vehicles.fipe_model_id`. O painel do
+   * veículo precisa do `fipe_model_code` pra falar com a API externa, e
+   * baixar os até 585 modelos da marca inteira pra achar um é desperdício.
+   */
+  async getModelById(modelId: number): Promise<FipeCachedModel | null> {
+    const { data, error } = await supabase
+      .from("fipe_models")
+      .select("id, fipe_model_code, name")
+      .eq("id", modelId)
+      .maybeSingle();
+    if (error) throw error;
+    return data
+      ? { id: data.id, fipeModelCode: data.fipe_model_code, name: data.name }
+      : null;
+  },
+
   async getModelsByBrand(brandId: number): Promise<FipeCachedModel[]> {
     const { data, error } = await supabase
       .from("fipe_models")

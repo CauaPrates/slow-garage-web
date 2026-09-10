@@ -26,5 +26,18 @@ supabase/
 
 # Ferramental local de quem desenvolve (configuração de editor/assistente e
 # notas de bootstrap do projeto) — não faz parte do produto.
-.claude/
+#
+# As quatro skills abaixo são a exceção, e ficam versionadas: elas não são
+# preferência de quem desenvolve, são as regras do projeto em forma executável
+# — o mesmo que o CONTRIBUTING.md diz em prosa. Ver ADR-079.
+.claude/*
+!.claude/skills/
+.claude/skills/*
+!.claude/skills/sdd/
+!.claude/skills/slow-garage-data/
+!.claude/skills/ui-verify/
+!.claude/skills/design-review/
+# O ui-check.mjs de referência da skill é cópia byte a byte de
+# scripts/ui-check.mjs; a skill aponta pro script do repo em vez de duplicar.
+.claude/skills/ui-verify/references/
 prompt-*.md

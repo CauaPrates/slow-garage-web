@@ -1810,3 +1810,139 @@ abrir a edição e salvar sem tocar no assistente **apagaria** a
 identificação já gravada. É a terceira vez que o `Edit` divergir do
 `Create` morde neste projeto (ver ADR-048) — a conferência campo a campo
 no diálogo de edição não é opcional.
+
+## ADR-077 — A escolha da FIPE mora nos campos Marca e Modelo (Fase 026)
+
+**Contexto.** Desde a Fase 020 o preenchimento por FIPE era um bloco
+separado, acima do formulário: a pessoa abria "Buscar dados na FIPE",
+escolhia marca e modelo lá dentro e o assistente copiava o resultado pros
+campos. Funcionava, mas era um segundo lugar para fazer a mesma coisa —
+quem chegava no campo "Marca" e digitava nunca descobria que havia uma
+lista. O bloco só ajudava quem o encontrasse primeiro.
+
+**Decisão.** A cascata some como bloco e vira o próprio campo. Marca e
+Modelo passam a ser **combobox editável** (`ComboboxInput`): a lista da
+FIPE aparece ao focar, e quem não acha o carro digita e segue.
+
+Consequências:
+
+- **Escolher da lista identifica o veículo** e grava `fipe_brand_id` /
+  `fipe_model_id`. **Digitar limpa os dois** — texto que não corresponde
+  ao id é dado silenciosamente errado (RN-8).
+- A lista de modelos depende da marca *identificada*, não do texto. Sem
+  marca da lista, o campo Modelo é um input comum.
+- A consulta de valor de referência sobrou como bloco próprio
+  (`FipeValueLookup`), e **só aparece com o veículo identificado** — sem
+  id não há o que consultar. `FipeAssistant.tsx` foi removido.
+
+**`ComboboxInput` não usa cmdk, de propósito.** O `Command.Input` gera o
+próprio `id` (via `@radix-ui/react-id`) e descarta o que recebe, o que
+deixa o `<label htmlFor>` apontando pra nada — campo de formulário sem
+rótulo associado é defeito de acessibilidade, não detalhe de teste. O
+Popover do Radix tinha o mesmo efeito. Como o teclado deste padrão é
+curto (setas, Enter, Escape), sai mais barato escrever do que contornar.
+O cmdk segue no `Combobox` de seleção fechada, onde o input é interno.
+
+**Escape passou a ser tratado em camadas, no `DialogContent`.** Com a
+lista aberta, Escape fecha só a lista; o diálogo continua. Sem isso,
+dispensar as sugestões jogava fora o formulário inteiro. A regra precisa
+morar no diálogo porque o Radix escuta a tecla no `document` em fase de
+**captura** — nenhum `stopPropagation` no combobox chega a tempo. O
+diálogo se guia pelo `aria-expanded` de quem está focado, então vale pra
+qualquer popup interno, não só este.
+
+**Verificação** (Playwright + axe, 390px e 1440px): escolha pela lista
+grava os ids (`fipe_brand_id: 44`, `fipe_model_id: 5491`, conferido no
+banco após recarregar); marca digitada fora da FIPE grava com os dois
+`null` e não oferece consulta de valor; setas movem a opção ativa; Enter
+escolhe **sem enviar** o formulário; zero violações sérias com a lista
+aberta; sem overflow horizontal.
+
+Dois achados vieram daí e foram corrigidos: a caixa de "não está na FIPE"
+cobria o campo seguinte e engolia o clique de quem só queria seguir em
+frente (agora atravessável), e a região que rola precisava de acesso por
+teclado (o scroll passou pra `listbox`, que é focável).
+
+## ADR-078 — Valor da FIPE no painel do veículo, com botão de reconsultar (Fase 027)
+
+**Contexto.** Depois da Fase 026 o veículo pode ficar **identificado** na FIPE
+(`fipe_brand_id` e `fipe_model_id` gravados ao escolher da lista), mas isso não
+aparecia em lugar nenhum depois do cadastro. O valor de referência só existia
+dentro do formulário, no momento de preencher.
+
+**Decisão.** O painel do veículo passa a mostrar o valor da tabela FIPE, com um
+botão de atualizar **ao lado do número** — não no canto do card: no desktop
+isso deixaria o botão a meia tela de distância do que ele atualiza.
+
+Como o ano é resolvido:
+
+- A linha da FIPE precisa de marca, modelo **e ano**. O ano vem do
+  `model_year` do veículo; entre as variações do mesmo ano (a FIPE separa por
+  combustível) escolhemos pela pista do `fuel_type`, com "Flex" antes de
+  "Gasolina" porque a tabela usa os dois pro mesmo carro.
+- É palpite, então **o ano escolhido vai pra tela** junto do valor ("2015
+  Flex"): quem conhece o próprio carro vê na hora se pegamos a linha errada.
+- Sem identificação, sem ano, ou com o ano ausente da tabela, o card **diz o
+  que falta** e oferece a ação (abrir a edição) em vez de sumir.
+
+**O valor da FIPE não sobrescreve nada sozinho** (RN-1). Ele alimenta o resumo
+financeiro através de `estimated_current_value`, e trocar esse número por conta
+própria mudaria o patrimônio do usuário pelas costas. O card compara os dois e
+**oferece** a troca; quem decide é o dono do carro.
+
+**Cache.** `useFipeEstimatedValue` ganhou `staleTime` de 6h. A tabela FIPE muda
+de mês em mês, e o painel consulta a cada visita — reperguntar de hora em hora
+a um terceiro sem SLA é desperdício puro. O botão chama `refetch()`, que passa
+por cima do `staleTime`.
+
+**Verificação** (Playwright + axe, 390px e 1440px): valor exibido com mês de
+referência e ano usado; botão de 44×44 que de fato refaz a chamada à API
+externa; adotar o valor grava no banco (conferido por leitura direta após
+recarregar); com estimado divergente o card aponta a diferença e oferece a
+troca; com estimado igual, diz que está igual; veículo sem identificação mostra
+o que falta com ação; zero violações de acessibilidade e sem overflow.
+
+## ADR-079 — Corrige o ADR-074: quatro skills são regra de projeto, não ferramental (Fase 028)
+
+**Contexto.** O ADR-074 tirou `.claude/` do controle de versão quando o
+repositório virou público, classificando tudo ali como "ferramental de quem
+desenvolve, do mesmo tipo que configuração de editor". A classificação estava
+certa para parte do conteúdo e errada para a outra.
+
+O furo apareceu na pergunta óbvia de quem for contribuir: **o README afirma
+práticas cuja definição estava no `.gitignore`.** Ele diz que cada fase é
+verificada com Playwright, que métrica derivada nunca é recalculada no cliente,
+que toda tela tem quatro estados — e o arquivo que define o que isso significa
+na prática não vinha no clone.
+
+**Decisão.** Quatro das seis skills voltam ao controle de versão, porque não são
+preferência de quem desenvolve — são as regras do projeto em forma executável:
+
+| Skill | O que define | Onde o README já prometia |
+|---|---|---|
+| `sdd` | ciclo spec → plano → tasks → verificação, proibição de inventar requisito | Roadmap |
+| `slow-garage-data` | query keys, invalidação, path do Storage, tradução de erro | Data access |
+| `ui-verify` | verificação por execução, 320/390/768/1440, overflow, axe | Scripts |
+| `design-review` | tokens, quatro estados, alvo de toque, semântica, idioma | Design |
+
+`frontend-design` e `ai` **continuam fora**: a primeira é direção visual
+genérica, reaproveitável em qualquer projeto; a segunda é um stub de 8 linhas
+com `description: TODO`. Essas sim são ferramental.
+
+**A ressalva que motivou o `CONTRIBUTING.md`.** Skill só funciona no Claude
+Code. Quem contribuir de outro editor não herda nada de `.claude/skills/`, e
+versionar a skill sozinha daria a falsa sensação de que a regra está
+comunicada. Então as mesmas regras foram escritas em prosa no
+`CONTRIBUTING.md`, que é a versão que vale — a skill é a forma executável dela,
+e se as duas divergirem, o defeito é da skill.
+
+**Duplicação removida no caminho.** `ui-verify/references/ui-check.mjs` era
+cópia byte a byte de `scripts/ui-check.mjs`. Versionar as duas colocaria 177
+linhas repetidas no repositório — exatamente o que a skill `design-review`
+reprova. A referência ficou ignorada e a skill passou a apontar para o script do
+repo. Havia também um diretório `{ui-verify` com nome literal, resto de uma
+expansão de chaves que não expandiu na restauração descrita no ADR-074; apagado.
+
+**O que este ADR não muda.** O limite honesto do ADR-074 continua valendo: tirar
+arquivo do topo não tira do histórico, e reescrever histórico segue avaliado e
+não feito pelos mesmos motivos.
