@@ -35,15 +35,18 @@ export function AppShell() {
           className="group flex min-w-0 shrink items-center gap-2.5 rounded-lg py-1 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:gap-3"
         >
           {/*
-            Fase 16b: container/card removido — o SVG usa cor branca nativa e
-            filtro invert() que inverte no modo claro e preserva no dark.
+            A logo é colorida (preenchimento preto, contorno branco, estrela
+            laranja), então não leva o filtro invert() do ícone monocromático
+            anterior — inverter mataria o laranja da marca. O contorno branco
+            a separa do fundo no dark; o preenchimento preto, no claro.
           */}
           <img
-            src="/icons/slowicon.svg"
+            src="/brand/logo-slow-garage.png"
             alt="Slow Garage Logo"
             aria-hidden="true"
-            className="h-8 w-auto shrink-0 transition-[transform,filter] duration-300 ease-[var(--ease-spring)] group-hover:scale-105 sm:h-9"
-            style={{ filter: "invert(var(--logo-invert))" }}
+            width={487}
+            height={256}
+            className="h-8 w-auto shrink-0 transition-transform duration-300 ease-[var(--ease-spring)] group-hover:scale-105 sm:h-9"
           />
           <div className="flex min-w-0 flex-col gap-0.5">
             <span className="font-hero truncate text-lg font-bold tracking-widest text-text-primary uppercase transition-colors duration-200 group-hover:text-accent sm:text-xl">
