@@ -4,6 +4,7 @@ import { ChevronDown } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useCurrentVehicleId } from "@/hooks/useCurrentVehicleId";
 import { ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 import type { VehicleWithSummary } from "@/features/vehicle/useVehicles";
 
 type HeaderVehicleSwitcherProps = {
@@ -33,17 +34,23 @@ export function HeaderVehicleSwitcher({ vehicles }: HeaderVehicleSwitcherProps) 
         <button
           type="button"
           aria-label={`Trocar de veículo — atual: ${current.make} ${current.model}`}
-          className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-md px-1.5 text-sm text-text-primary transition-colors duration-150 hover:bg-surface sm:gap-2 sm:px-2"
+          className="flex h-10 shrink-0 items-center gap-1.5 rounded-full border border-border/60 bg-surface/60 px-3 text-sm text-text-primary backdrop-blur-sm transition-all duration-300 ease-[var(--ease-smooth)] hover:border-accent/40 hover:bg-surface hover:[box-shadow:0_0_12px_1px_color-mix(in_srgb,var(--color-accent)_12%,transparent)] sm:gap-2 sm:px-3.5"
         >
           <span className="hidden max-w-32 truncate font-medium sm:inline">
             {current.make} {current.model}
           </span>
           {current.plate && (
-            <span className="shrink-0 rounded-sm border border-border bg-bg px-1.5 py-0.5 font-mono text-xs tracking-wider whitespace-nowrap text-text-secondary">
+            <span className="shrink-0 rounded border border-border/60 bg-bg/80 px-1.5 py-0.5 font-mono text-[11px] font-medium tracking-wider whitespace-nowrap text-text-secondary">
               {current.plate}
             </span>
           )}
-          <ChevronDown className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden="true" />
+          <ChevronDown
+            className={cn(
+              "h-4 w-4 shrink-0 text-text-secondary transition-transform duration-300 ease-[var(--ease-spring)]",
+              open && "rotate-180",
+            )}
+            aria-hidden="true"
+          />
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-64" align="end">
@@ -59,7 +66,7 @@ export function HeaderVehicleSwitcher({ vehicles }: HeaderVehicleSwitcherProps) 
                 setOpen(false);
                 navigate(ROUTES.vehicle(vehicle.id));
               }}
-              className="flex items-center justify-between gap-2 rounded-md px-2 py-2 text-left text-sm text-text-primary transition-colors duration-150 hover:bg-bg"
+              className="flex items-center justify-between gap-2 rounded-md px-2 py-2 text-left text-sm text-text-primary transition-[background-color,transform] duration-200 ease-[var(--ease-smooth)] hover:bg-bg active:scale-[0.98]"
             >
               <span className="truncate">
                 {vehicle.make} {vehicle.model}

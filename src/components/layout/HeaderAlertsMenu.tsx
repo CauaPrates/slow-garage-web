@@ -39,14 +39,16 @@ export function HeaderAlertsMenu({ vehicles }: HeaderAlertsMenuProps) {
           variant="ghost"
           size="icon"
           aria-label={count > 0 ? `Alertas (${count})` : "Alertas"}
-          className="relative"
+          className="group relative h-10 w-10 rounded-full text-text-secondary transition-all duration-200 hover:bg-surface/80 hover:text-text-primary"
         >
-          <Bell className="h-5 w-5 text-text-secondary" aria-hidden="true" />
+          <Bell className="h-5 w-5 transition-transform duration-200 group-hover:scale-110 group-hover:text-accent" aria-hidden="true" />
           {count > 0 && (
             <span
               className={cn(
-                "absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[10px] font-medium text-accent-foreground",
-                hasCritical ? "bg-error" : "bg-warning",
+                "absolute top-1 right-1 flex h-4 min-w-4 animate-[badge-in_400ms_cubic-bezier(0.34,1.56,0.64,1)_forwards] items-center justify-center rounded-full px-1 text-[10px] font-medium text-accent-foreground",
+                hasCritical
+                  ? "bg-error [box-shadow:0_0_8px_1px_color-mix(in_srgb,var(--color-error)_30%,transparent)]"
+                  : "bg-warning [box-shadow:0_0_8px_1px_color-mix(in_srgb,var(--color-warning)_30%,transparent)]",
               )}
             >
               {count > 9 ? "9+" : count}
