@@ -44,6 +44,8 @@
   --chart-series-6: #008300; /* verde */
   --chart-series-7: #9085e9; /* violeta */
   --chart-series-8: #e66767; /* vermelho */
+
+  --logo-invert: 0;
 }
 
 .light {
@@ -66,4 +68,6 @@
   --chart-series-6: #008300;
   --chart-series-7: #4a3aa7;
   --chart-series-8: #e34948;
+
+  --logo-invert: 1;
 }

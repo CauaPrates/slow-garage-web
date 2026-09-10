@@ -21,45 +21,57 @@ export function AppShell() {
 
   return (
     <div className="flex min-h-dvh flex-col bg-bg text-text-primary lg:h-dvh lg:min-h-0 lg:overflow-hidden">
-      <header className="flex shrink-0 items-center justify-between border-b border-border px-3 py-2.5 sm:px-4 sm:py-3">
+      {/*
+        Fase 16: header premium — glassmorphism (backdrop-blur com
+        transparência) substitui o border-b flat. A sombra difusa na base
+        cria separação por "luz" em vez de linha, como um UINavigationBar
+        do iOS. No mobile fica sticky pra o blur funcionar com o conteúdo
+        rolando por baixo. O z-20 fica abaixo do z-30 do BottomNav e do
+        z-50 dos modais/popovers.
+      */}
+      <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between border-b border-border/50 bg-bg/75 px-4 backdrop-blur-xl backdrop-saturate-150 transition-colors duration-300 sm:px-6 lg:relative lg:bg-bg/85 [box-shadow:0_1px_2px_0_rgb(0_0_0/0.05),0_1px_0_0_color-mix(in_srgb,var(--color-border)_40%,transparent)]">
         <Link
           to={ROUTES.home}
-          className="flex min-w-0 shrink items-center gap-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:gap-3"
+          className="group flex min-w-0 shrink items-center gap-2.5 rounded-lg py-1 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:gap-3"
         >
           {/*
-            Fase 15g: o `icon-192.png` é um lockup largo (arte de 152x88 num
-            canvas de 192x192 — medido, não estimado): 10% de margem morta de
-            cada lado e ~27% em cima e embaixo. Encaixado num quadro quadrado
-            sem zoom, a arte visível ficava em 22x13px dentro de 44px — daí a
-            sensação de logo minúscula por mais que o quadro crescesse. O
-            `scale-[1.1]` come essa margem e o quadro cresceu 36→44 (mobile,
-            sem mexer na altura do cabeçalho, que já é ditada pelos botões de
-            44px) e 44→56 (sm+) — a arte visível sai de 22x13px pra 49x28px.
-            Não vai além de 1.1: a 1.2 a arte encosta na borda e o
-            `rounded-md` come a ponta do "S" e a bandeira quadriculada
-            (conferido em captura ampliada, não no olho). O `bg-accent/5` da
-            moldura (ADR-066) fica coberto pela marca agora — continua ali
-            como estado de carregamento/falha da imagem, não como decoração
-            visível; o âmbar da moldura quem carrega é a borda.
+            Fase 16b: container/card removido — o SVG usa cor branca nativa e
+            filtro invert() que inverte no modo claro e preserva no dark.
           */}
-          <span className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-md border border-accent/40 bg-accent/5 sm:h-14 sm:w-14">
-            <img
-              src="/icons/icon-192.png"
-              alt=""
-              aria-hidden="true"
-              className="h-full w-full scale-[1.1]"
-            />
-          </span>
-          <span className="flex min-w-0 flex-col gap-0.5">
-            <span className="truncate text-base font-bold tracking-wide text-text-primary uppercase sm:text-lg">
-              Slow Garage
+          <img
+            src="/icons/slowicon.svg"
+            alt="Slow Garage Logo"
+            aria-hidden="true"
+            className="h-8 w-auto shrink-0 transition-[transform,filter] duration-300 ease-[var(--ease-spring)] group-hover:scale-105 sm:h-9"
+            style={{ filter: "invert(var(--logo-invert))" }}
+          />
+          <div className="flex min-w-0 flex-col gap-0.5">
+            <span className="font-hero truncate text-lg font-bold tracking-widest text-text-primary uppercase transition-colors duration-200 group-hover:text-accent sm:text-xl">
+              Garage
             </span>
-            <span className="h-0.5 w-8 bg-accent" aria-hidden="true" />
-          </span>
+            {/*
+              Fase 16: a barra accent agora tem shimmer — um gradiente
+              que percorre da esquerda pra direita uma única vez após o
+              carregamento, simulando um reflexo de luz passando. Fica
+              estático depois, sem loop infinito (não é loading state).
+            */}
+            <span
+              className="h-0.5 w-7 animate-[shimmer_2s_ease-in-out_0.5s_1_forwards] rounded-full bg-accent transition-all duration-300 ease-[var(--ease-smooth)] group-hover:w-full"
+              style={{
+                backgroundImage: "linear-gradient(90deg, var(--color-accent) 0%, color-mix(in srgb, var(--color-accent) 60%, white) 50%, var(--color-accent) 100%)",
+                backgroundSize: "200% 100%",
+              }}
+              aria-hidden="true"
+            />
+          </div>
         </Link>
 
-        <div className="flex shrink-0 items-center gap-0.5 sm:gap-1">
+        <div className="flex shrink-0 items-center gap-1.5 sm:gap-2">
           <HeaderVehicleSwitcher vehicles={vehicles ?? []} />
+
+          {/* Fase 16: separador vertical entre contexto de veículo e ações globais */}
+          <span className="mx-1 hidden h-5 w-px bg-gradient-to-b from-transparent via-border/80 to-transparent sm:block" aria-hidden="true" />
+
           <div className="lg:hidden">
             <HeaderActivityMenu vehicles={vehicles ?? []} />
           </div>

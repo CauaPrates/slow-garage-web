@@ -34,8 +34,13 @@ export function HeaderActivityMenu({ vehicles }: HeaderActivityMenuProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <Button variant="ghost" size="icon" aria-label="Atividade recente">
-          <History className="h-5 w-5 text-text-secondary" aria-hidden="true" />
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Atividade recente"
+          className="group relative h-10 w-10 rounded-full text-text-secondary transition-all duration-200 hover:bg-surface/80 hover:text-text-primary"
+        >
+          <History className="h-5 w-5 transition-transform duration-200 group-hover:scale-110 group-hover:text-accent" aria-hidden="true" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-96">
