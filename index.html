@@ -4,11 +4,28 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32.png" />
     <link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png" />
+    <link rel="icon" type="image/png" sizes="512x512" href="/icons/icon-512.png" />
     <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#121316" />
     <title>Slow Garage</title>
+    <meta
+      name="description"
+      content="Seu carro. Sua história. Tudo em um lugar."
+    />
+    <meta property="og:title" content="Slow Garage" />
+    <meta
+      property="og:description"
+      content="Seu carro. Sua história. Tudo em um lugar."
+    />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="pt_BR" />
+    <!-- og:image aponta pro ícone 512 (logo sobre o fundo dark da marca) e
+         não pro PNG transparente: preview de link renderiza sobre fundo
+         branco, onde o contorno branco da logo sumiria. -->
+    <meta property="og:image" content="/icons/icon-512.png" />
+    <meta name="twitter:card" content="summary" />
     <script>
       // Aplica o tema antes do primeiro paint, para não piscar dark e
       // depois trocar pra light. Sem preferência salva o padrão é seguir

@@ -1,11 +1,11 @@
-// Gera os ícones do PWA a partir do adesivo JDM (5348.png, contorno branco
-// sobre fundo transparente) compostos sobre o fundo dark da marca.
+// Gera os ícones do PWA a partir da logo da marca (logo-slow-garage.png,
+// badge SG colorido sobre fundo transparente) composta sobre o fundo dark.
 // Reexecute com `npm run icons` sempre que a logo de origem mudar.
 import sharp from "sharp";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
-const SRC = path.resolve("slowicon.svg");
+const SRC = path.resolve("logo-slow-garage.png");
 const OUT_DIR = path.resolve("public/icons");
 const BG = { r: 0x12, g: 0x13, b: 0x16, alpha: 1 };
 
@@ -22,8 +22,19 @@ const ICONS = [
 async function makeIcon({ name, size, logoScale }) {
   const targetWidth = Math.round(size * logoScale);
 
+  // `trim` remove a margem transparente do arquivo de origem — sem isso a
+  // escala abaixo mediria o canvas, não o desenho, e a logo sairia menor do
+  // que o pedido. O box é quadrado com `fit: inside` porque a logo é larga
+  // (~1.9:1): limitar só a largura deixaria a altura livre e, numa logo mais
+  // alta no futuro, estouraria o enquadramento do ícone.
   const logoBuffer = await sharp(SRC)
-    .resize({ width: targetWidth, fit: "inside" })
+    .trim({ threshold: 1 })
+    .resize({
+      width: targetWidth,
+      height: targetWidth,
+      fit: "inside",
+      withoutEnlargement: false,
+    })
     .png()
     .toBuffer();
   const { width: logoWidth, height: logoHeight } =
