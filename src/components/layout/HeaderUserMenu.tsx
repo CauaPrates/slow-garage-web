@@ -37,7 +37,7 @@ export function HeaderUserMenu() {
           <button
             type="button"
             aria-label="Menu do usuário"
-            className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full border border-border bg-surface text-sm font-medium text-text-primary transition-colors duration-150 hover:border-accent"
+            className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-surface text-sm font-medium text-text-primary ring-1 ring-border/80 transition-all duration-300 ease-[var(--ease-smooth)] hover:scale-105 hover:ring-2 hover:ring-accent/50 hover:[box-shadow:0_0_12px_1px_color-mix(in_srgb,var(--color-accent)_15%,transparent)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
           >
             {profile?.avatar_url ? (
               <img src={profile.avatar_url} alt="" className="h-full w-full object-cover" />

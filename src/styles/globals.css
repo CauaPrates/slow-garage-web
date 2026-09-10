@@ -34,6 +34,13 @@
   /* Fase 14 — sistema de resposta. Ver docs/DESIGN.md, "Sistema de resposta". */
   --animate-value-flash: value-flash 400ms ease-out;
   --animate-alert-in: alert-in 200ms ease-out;
+
+  /* Fase 16 — header premium. Micro-animações e easing de mola. */
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --animate-shimmer: shimmer 2s ease-in-out 0.5s 1 forwards;
+  --animate-badge-in: badge-in 400ms var(--ease-spring) forwards;
+  --animate-header-glow: header-glow 600ms var(--ease-smooth) forwards;
 }
 
 @keyframes value-flash {
@@ -53,6 +60,42 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes badge-in {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes header-glow {
+  0% {
+    box-shadow: 0 0 0 0 transparent;
+  }
+  50% {
+    box-shadow: 0 0 12px 2px color-mix(in srgb, var(--color-accent) 25%, transparent);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent;
   }
 }
 

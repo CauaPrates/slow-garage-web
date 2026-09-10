@@ -5,7 +5,7 @@ import sharp from "sharp";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
 
-const SRC = path.resolve("5348.png");
+const SRC = path.resolve("slowicon.svg");
 const OUT_DIR = path.resolve("public/icons");
 const BG = { r: 0x12, g: 0x13, b: 0x16, alpha: 1 };
 
