@@ -16,6 +16,7 @@ import type { ExpenseWithAttachment } from "./useExpenses";
 
 type EditExpenseDialogProps = {
   vehicleId: string;
+  upgradeCategoryId?: string;
   expense: ExpenseWithAttachment;
   categories: NonNullable<ReturnType<typeof useExpenseCategories>["data"]>;
   open: boolean;
@@ -37,6 +38,7 @@ function toFormDefaults(expense: ExpenseWithAttachment): Partial<ExpenseFormInpu
 
 export function EditExpenseDialog({
   vehicleId,
+  upgradeCategoryId,
   expense,
   categories,
   open,
@@ -50,7 +52,7 @@ export function EditExpenseDialog({
     try {
       await updateExpense.mutateAsync({
         id: expense.id,
-        category_id: values.categoryId ?? null,
+        category_id: upgradeCategoryId ?? values.categoryId ?? null,
         amount: values.amount,
         description: values.description ?? null,
         occurred_on: values.occurredOn,
@@ -69,11 +71,12 @@ export function EditExpenseDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Editar gasto</DialogTitle>
+          <DialogTitle>{upgradeCategoryId ? "Editar upgrade" : "Editar gasto"}</DialogTitle>
         </DialogHeader>
         <ExpenseForm
           mode="edit"
           categories={categories}
+          upgrade={!!upgradeCategoryId}
           defaultValues={toFormDefaults(expense)}
           onSubmit={handleSubmit}
           submitLabel="Salvar alterações"

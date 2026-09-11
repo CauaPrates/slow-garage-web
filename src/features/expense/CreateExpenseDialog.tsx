@@ -14,6 +14,7 @@ import type { ExpenseFormOutput } from "./schemas";
 
 type CreateExpenseDialogProps = {
   vehicleId: string;
+  upgradeCategoryId?: string;
   categories: NonNullable<ReturnType<typeof useExpenseCategories>["data"]>;
   defaultOdometerKm?: number;
   open: boolean;
@@ -29,6 +30,7 @@ type CreateExpenseDialogProps = {
  */
 export function CreateExpenseDialog({
   vehicleId,
+  upgradeCategoryId,
   categories,
   defaultOdometerKm,
   open,
@@ -41,7 +43,7 @@ export function CreateExpenseDialog({
     setError(null);
     try {
       await createExpense.mutateAsync({
-        category_id: values.categoryId ?? null,
+        category_id: upgradeCategoryId ?? values.categoryId ?? null,
         amount: values.amount,
         description: values.description ?? null,
         occurred_on: values.occurredOn,
@@ -60,18 +62,17 @@ export function CreateExpenseDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Registrar gasto</DialogTitle>
+          <DialogTitle>{upgradeCategoryId ? "Registrar upgrade" : "Registrar gasto"}</DialogTitle>
         </DialogHeader>
         <ExpenseForm
           mode="create"
           categories={categories}
+          upgrade={!!upgradeCategoryId}
           defaultValues={
-            defaultOdometerKm !== undefined
-              ? { odometerKm: String(defaultOdometerKm) }
-              : undefined
+            { categoryId: upgradeCategoryId, ...(defaultOdometerKm !== undefined ? { odometerKm: String(defaultOdometerKm) } : {}) }
           }
           onSubmit={handleSubmit}
-          submitLabel="Registrar gasto"
+          submitLabel={upgradeCategoryId ? "Registrar upgrade" : "Registrar gasto"}
         />
         <FieldError>{error}</FieldError>
       </DialogContent>

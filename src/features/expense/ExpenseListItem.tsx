@@ -14,11 +14,12 @@ import type { ExpenseWithAttachment } from "./useExpenses";
 
 type ExpenseListItemProps = {
   vehicleId: string;
+  upgradeCategoryId?: string;
   expense: ExpenseWithAttachment;
   categories: NonNullable<ReturnType<typeof useExpenseCategories>["data"]>;
 };
 
-export function ExpenseListItem({ vehicleId, expense, categories }: ExpenseListItemProps) {
+export function ExpenseListItem({ vehicleId, expense, categories, upgradeCategoryId }: ExpenseListItemProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -40,6 +41,7 @@ export function ExpenseListItem({ vehicleId, expense, categories }: ExpenseListI
             {expense.vendor ? ` · ${expense.vendor}` : ""}
             {expense.payment_method ? ` · ${PAYMENT_METHOD_LABELS[expense.payment_method]}` : ""}
           </p>
+          {upgradeCategoryId && expense.notes && <p className="mt-2 whitespace-pre-wrap break-words text-sm text-text-secondary">{expense.notes}</p>}
           {expense.attachment && (
             <p className="mt-1 flex items-center gap-1 text-xs text-text-secondary">
               <Paperclip className="h-3 w-3" aria-hidden="true" />
@@ -55,7 +57,7 @@ export function ExpenseListItem({ vehicleId, expense, categories }: ExpenseListI
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Editar gasto"
+            aria-label={upgradeCategoryId ? "Editar upgrade" : "Editar gasto"}
             onClick={() => setEditOpen(true)}
           >
             <Pencil className="h-4 w-4" />
@@ -63,7 +65,7 @@ export function ExpenseListItem({ vehicleId, expense, categories }: ExpenseListI
           <Button
             variant="ghost"
             size="icon"
-            aria-label="Excluir gasto"
+            aria-label={upgradeCategoryId ? "Excluir upgrade" : "Excluir gasto"}
             onClick={() => setDeleteOpen(true)}
           >
             <Trash2 className="h-4 w-4" />
@@ -74,6 +76,7 @@ export function ExpenseListItem({ vehicleId, expense, categories }: ExpenseListI
       <EditExpenseDialog
         vehicleId={vehicleId}
         expense={expense}
+        upgradeCategoryId={upgradeCategoryId}
         categories={categories}
         open={editOpen}
         onOpenChange={setEditOpen}
