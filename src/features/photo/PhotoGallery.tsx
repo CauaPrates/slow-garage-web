@@ -10,8 +10,8 @@ import { UploadPhotoDialog } from "./UploadPhotoDialog";
 type PhotoGalleryProps = {
   vehicleId: string;
   primaryPhotoId: string | null;
-  uploadOpen: boolean;
-  onUploadOpenChange: (open: boolean) => void;
+  /** A tela abre o diálogo já aberto quando vem do FAB (`?novo=1`). */
+  initialUploadOpen?: boolean;
 };
 
 type CategoryFilter = "all" | (typeof VEHICLE_PHOTO_CATEGORIES)[number];
@@ -19,10 +19,10 @@ type CategoryFilter = "all" | (typeof VEHICLE_PHOTO_CATEGORIES)[number];
 export function PhotoGallery({
   vehicleId,
   primaryPhotoId,
-  uploadOpen,
-  onUploadOpenChange,
+  initialUploadOpen = false,
 }: PhotoGalleryProps) {
   const [filter, setFilter] = useState<CategoryFilter>("all");
+  const [uploadOpen, setUploadOpen] = useState(initialUploadOpen);
   const galleryQuery = useVehicleGallery(vehicleId);
 
   const photos = galleryQuery.data ?? [];
@@ -50,13 +50,13 @@ export function PhotoGallery({
             </Button>
           ))}
         </div>
-        <Button onClick={() => onUploadOpenChange(true)}>Adicionar foto</Button>
+        <Button onClick={() => setUploadOpen(true)}>Adicionar foto</Button>
       </div>
 
       {galleryQuery.isLoading && (
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="aspect-square animate-pulse rounded-lg border border-border bg-surface" />
+            <div key={i} className="aspect-[4/3] animate-pulse rounded-lg border border-border bg-surface" />
           ))}
         </div>
       )}
@@ -74,7 +74,7 @@ export function PhotoGallery({
       {!galleryQuery.isLoading && !galleryQuery.isError && photos.length === 0 && (
         <div className="flex flex-col items-center gap-4 rounded-lg border border-border bg-surface p-12 text-center">
           <p className="text-text-primary">Nenhuma foto ainda.</p>
-          <Button onClick={() => onUploadOpenChange(true)}>Adicionar a primeira foto</Button>
+          <Button onClick={() => setUploadOpen(true)}>Adicionar a primeira foto</Button>
         </div>
       )}
 
@@ -94,7 +94,7 @@ export function PhotoGallery({
       <UploadPhotoDialog
         vehicleId={vehicleId}
         open={uploadOpen}
-        onOpenChange={onUploadOpenChange}
+        onOpenChange={setUploadOpen}
         defaultCategory={filter === "all" ? undefined : filter}
       />
     </div>

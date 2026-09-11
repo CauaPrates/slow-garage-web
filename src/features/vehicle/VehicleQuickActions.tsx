@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Camera, Fuel, Pencil, Receipt, Trash2, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CreateExpenseDialog } from "@/features/expense/CreateExpenseDialog";
@@ -6,7 +7,8 @@ import type { useExpenseCategories } from "@/features/expense/useExpenseCategori
 import { CreateFuelLogDialog } from "@/features/fuel/CreateFuelLogDialog";
 import { CreateMaintenanceRecordDialog } from "@/features/maintenance/CreateMaintenanceRecordDialog";
 import { useMaintenanceItems } from "@/features/maintenance/useMaintenanceItems";
-import { UploadPhotoDialog } from "@/features/document/UploadPhotoDialog";
+import { UploadPhotoDialog } from "@/features/photo/UploadPhotoDialog";
+import { ROUTES } from "@/lib/routes";
 import type { Database } from "@/types/database.types";
 
 type VehicleQuickActionsProps = {
@@ -40,6 +42,7 @@ export function VehicleQuickActions({
   const [maintenanceOpen, setMaintenanceOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
   const [maintenanceEverOpened, setMaintenanceEverOpened] = useState(false);
+  const navigate = useNavigate();
 
   const maintenanceItemsQuery = useMaintenanceItems(vehicleId, {
     enabled: maintenanceEverOpened,
@@ -129,10 +132,12 @@ export function VehicleQuickActions({
           onOpenChange={setMaintenanceOpen}
         />
       )}
+      {/* Foto enviada daqui só é vista na galeria do veículo — leva o usuário até ela. */}
       <UploadPhotoDialog
         vehicleId={vehicleId}
         open={photoOpen}
         onOpenChange={setPhotoOpen}
+        onUploaded={() => navigate(ROUTES.vehiclePhotos(vehicleId))}
       />
     </div>
   );

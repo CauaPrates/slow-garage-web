@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Camera, Fuel, Receipt, Wrench } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CreateExpenseDialog } from "@/features/expense/CreateExpenseDialog";
@@ -6,7 +7,8 @@ import type { useExpenseCategories } from "@/features/expense/useExpenseCategori
 import { CreateFuelLogDialog } from "@/features/fuel/CreateFuelLogDialog";
 import { CreateMaintenanceRecordDialog } from "@/features/maintenance/CreateMaintenanceRecordDialog";
 import type { MaintenanceItemWithStatus } from "@/features/maintenance/useMaintenanceItems";
-import { UploadPhotoDialog } from "@/features/document/UploadPhotoDialog";
+import { UploadPhotoDialog } from "@/features/photo/UploadPhotoDialog";
+import { ROUTES } from "@/lib/routes";
 import type { Database } from "@/types/database.types";
 
 type QuickActionsRowProps = {
@@ -27,6 +29,7 @@ export function QuickActionsRow({
   const [fuelOpen, setFuelOpen] = useState(false);
   const [maintenanceOpen, setMaintenanceOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
@@ -69,7 +72,13 @@ export function QuickActionsRow({
         open={maintenanceOpen}
         onOpenChange={setMaintenanceOpen}
       />
-      <UploadPhotoDialog vehicleId={vehicleId} open={photoOpen} onOpenChange={setPhotoOpen} />
+      {/* Única ação da linha que navega: foto enviada daqui só é vista na galeria, então leva o usuário até ela. */}
+      <UploadPhotoDialog
+        vehicleId={vehicleId}
+        open={photoOpen}
+        onOpenChange={setPhotoOpen}
+        onUploaded={() => navigate(ROUTES.vehiclePhotos(vehicleId))}
+      />
     </div>
   );
 }

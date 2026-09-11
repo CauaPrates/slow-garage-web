@@ -56,15 +56,15 @@ export function VehicleCard({
         to={ROUTES.vehicle(vehicle.id)}
         className="flex flex-col focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent sm:flex-row"
       >
-        <div className="relative flex h-40 shrink-0 items-center justify-center bg-accent/5 sm:h-auto sm:w-56">
-          <span className="absolute top-2 left-2 rounded-sm border border-accent/40 bg-bg/80 px-1.5 py-0.5 font-mono text-xs text-accent">
+        <div className="relative flex h-40 shrink-0 items-center justify-center overflow-hidden bg-accent/5 sm:h-auto sm:min-h-36 sm:w-56 sm:self-stretch">
+          <span className="absolute top-2 left-2 z-10 rounded-sm border border-accent/40 bg-bg/80 px-1.5 py-0.5 font-mono text-xs text-accent">
             baia {String(bayNumber).padStart(2, "0")}
           </span>
           {vehicle.photoUrl ? (
             <img
               src={vehicle.photoUrl}
               alt={`${vehicle.make} ${vehicle.model}`}
-              className="h-full w-full object-cover"
+              className="absolute inset-0 h-full w-full object-cover"
             />
           ) : (
             <Car className="h-10 w-10 text-text-secondary" aria-hidden="true" />

@@ -85,7 +85,7 @@ export function CreateDocumentDialog({ vehicleId, open, onOpenChange }: CreateDo
             <input
               id="document-file"
               type="file"
-              accept="image/jpeg,image/png,image/webp,application/pdf"
+              accept="image/*,application/pdf"
               onChange={handleFileChange}
               className="text-sm text-text-secondary file:mr-3 file:rounded-md file:border-0 file:bg-accent file:px-3 file:py-1.5 file:text-sm file:text-accent-foreground"
             />

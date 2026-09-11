@@ -1946,3 +1946,106 @@ expansão de chaves que não expandiu na restauração descrita no ADR-074; apag
 **O que este ADR não muda.** O limite honesto do ADR-074 continua valendo: tirar
 arquivo do topo não tira do histórico, e reescrever histórico segue avaliado e
 não feito pelos mesmos motivos.
+
+## ADR-080 — Fotos ganham tela própria e a capa deixa de depender de um clique extra
+
+**Contexto.** Três lugares do app abriam o diálogo "Adicionar foto" — o
+quick action do painel do veículo, o do card da garagem e o item "Foto" do
+FAB — e nenhum dos três levava a lugar nenhum depois do envio. A galeria
+existia como **quarta aba dentro de "Documentos"**, sem item na sidebar nem
+na folha "Mais". Somado a isso, `useUploadGalleryPhoto` nunca escrevia
+`primary_photo_id`: só o upload de dentro de "Editar veículo" definia capa.
+O efeito combinado, relatado pelo usuário, é que a foto enviada parecia
+sumir — não aparecia no card, não aparecia no painel e a galeria que a
+continha não tinha porta de entrada.
+
+**Decisão.**
+
+- **Galeria vira rota de verdade**: `/v/:vehicleId/fotos`
+  (`features/photo/PhotosPage`), com item "Fotos" na sidebar e na folha
+  "Mais". `PhotoGallery`, `PhotoCard`, `UploadPhotoDialog` e
+  `useVehicleGallery` saíram de `features/document` para
+  `features/photo`, junto com as categorias de foto, que viraram
+  `features/photo/schemas.ts`. A aba "Fotos" de "Documentos" foi removida —
+  um lugar só, não dois.
+- **A primeira foto do veículo vira capa sozinha.** O update usa
+  `.is("primary_photo_id", null)`, então preenche quando não há capa e
+  nunca sobrescreve uma escolha feita no botão "Definir como capa".
+- **Quem envia fora da galeria é levado até ela.** `UploadPhotoDialog`
+  ganhou `onUploaded`; os dois quick actions navegam para a rota nova. É a
+  única ação dessas linhas que navega, e o motivo é justamente que o
+  resultado dela não é visível onde ela foi disparada.
+
+**Consequência aceita.** Veículo que já tinha foto na galeria de antes
+continua sem capa — a correção só age em upload novo. Definir a capa
+retroativamente exigiria escolher por conta própria qual das fotos
+existentes representa o carro, e essa escolha é do dono; o botão "Definir
+como capa" já resolve em um clique.
+
+**Nota de mesma origem — o seletor de arquivo no Android.** Listar MIME
+específicos (`image/jpeg,image/png,image/webp`) faz o Chrome no Android
+pedir o seletor com lista de MIME extra, e na prática só Google Fotos e
+Drive respondem: a galeria do próprio aparelho não aparece como opção. Os
+quatro campos de arquivo do app passaram a usar o curinga (`image/*`, mais
+`,application/pdf` onde PDF é aceito). O formato continua validado no
+submit por `imageFileSchema`, `vehiclePhotoSchema` e
+`fileAttachmentSchema`, então o seletor aceitar mais não deixa passar
+arquivo inválido — só troca "não consigo escolher a foto" por uma mensagem
+de erro clara nos poucos casos (HEIC, por exemplo) que o app não trata.
+
+## ADR-081 — A foto é recortada antes de subir, e a proporção é do app
+
+**Contexto.** Com a capa funcionando (ADR-080), apareceu o efeito colateral:
+uma foto em pé esticava a baia da garagem para ~400px de altura. A coluna da
+foto tinha `sm:h-auto` e a imagem `h-full`; altura automática não dá
+referência para `h-full`, então o navegador caía na altura natural da imagem
+— a proporção do arquivo passava a mandar no layout. Junto disso, subia o
+original do celular: vários MB e 4000px de largura para exibir num quadro de
+224px, com enquadramento decidido pelo acaso.
+
+**Decisão.**
+
+- **O app define a proporção, não o arquivo.** `PHOTO_ASPECT_RATIO` (4:3) é
+  a mesma no recorte, na baia, no painel do veículo e na grade da galeria —
+  o que a pessoa enquadra é exatamente o que ela vê depois. A imagem da baia
+  virou `absolute`, então não entra mais no cálculo de altura do card: a
+  altura vem do texto ao lado.
+- **Recorte antes do envio** (`components/shared/ImageCropDialog`), no
+  espírito de foto de perfil: arrastar para posicionar, pinça ou controle de
+  aproximação para o zoom, setas do teclado para quem não usa ponteiro. O
+  quadro é um `button` — a área inteira é manipulável, e um `div` com os
+  mesmos handlers não receberia foco nem seria anunciado como controle.
+- **O limite de tamanho passa a ser garantido, não torcido.** O que sobe é o
+  recorte reencodado em WebP com 1600px no maior lado (`lib/imageCrop.ts`).
+  Por isso a validação de tamanho mudou de lugar: o arquivo cru só é checado
+  como imagem, e `imageFileSchema` / `vehiclePhotoSchema` conferem o
+  resultado do recorte. Antes, uma foto de 12MB era recusada mesmo que fosse
+  virar 200KB.
+
+**Verificação.** Harness temporário + Playwright, apagado depois: imagem
+sintética de quadrantes, recorte sem ajuste devolve os quatro quadrantes em
+4:3 a 1600px (4,4KB); com zoom no máximo e arrasto para o canto, os quatro
+cantos da saída caem todos dentro de um quadrante só — a conta do recorte
+confere. A baia com foto em pé mediu 238px de altura em 1440px e não gerou
+rolagem horizontal em 390px.
+
+**Ressalva anotada no caminho.** Tornar a imagem absoluta escondeu o selo
+"baia 01", que é irmão dela — resolvido com `z-10` no selo, e só apareceu
+porque a verificação foi por captura de tela, não por leitura do diff.
+
+**Correção depois do primeiro uso: o quadro abria vazio.** A URL de blob da
+prévia vinha de um `useMemo` e era revogada na limpeza de um efeito. Sob
+`StrictMode` — que é como o app roda em desenvolvimento — o React monta,
+desmonta e remonta: a limpeza revogava a URL logo depois de criá-la, e o
+`useMemo` não recriava nada na remontagem. O `<img>` ficava com
+`naturalWidth` 0, o quadro aparecia vazio e o botão "Usar esta foto" seguia
+habilitado, porque `image` estava preenchido. Agora a URL é criada e
+revogada dentro do mesmo efeito, junto da imagem decodificada: cada execução
+é dona da sua, e a remontagem cria outra. `loadImageFromFile` deixou de
+revogar a URL que devolve, já que é ela que alimenta o `<img>` visível.
+
+A verificação anterior não pegou isso porque o harness montava o componente
+**sem `StrictMode`**, diferente do app. Harness de verificação tem que
+reproduzir o ambiente real — refeito com `StrictMode` e pelo caminho de
+verdade (diálogo de upload, arquivo escolhido pelo input), o defeito
+apareceu na primeira execução.

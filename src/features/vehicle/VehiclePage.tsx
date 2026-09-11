@@ -74,7 +74,7 @@ export function VehiclePage() {
     <div className="flex flex-col gap-6 p-6">
       <Breadcrumb items={[]} />
       <div className="flex flex-col gap-4 sm:flex-row">
-        <div className="flex h-40 w-full items-center justify-center overflow-hidden rounded-lg border border-border bg-surface sm:w-56">
+        <div className="flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-lg border border-border bg-surface sm:w-56">
           {vehicle.photoUrl ? (
             <img
               src={vehicle.photoUrl}
