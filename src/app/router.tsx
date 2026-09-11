@@ -66,6 +66,10 @@ export const router = createBrowserRouter([
                 element: lazyPage(() => import("@/features/vehicle/VehiclePage"), "VehiclePage"),
               },
               {
+                path: "v/:vehicleId/modificacoes",
+                element: lazyPage(() => import("@/features/modification/ModificationsPage"), "ModificationsPage"),
+              },
+              {
                 path: "v/:vehicleId/gastos",
                 element: lazyPage(() => import("@/features/expense/ExpensesPage"), "ExpensesPage"),
               },

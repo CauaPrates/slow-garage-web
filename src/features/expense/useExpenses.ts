@@ -51,10 +51,11 @@ async function fetchExpenses(
   }));
 }
 
-export function useExpenses(vehicleId: string, filters: ExpenseFilters) {
+export function useExpenses(vehicleId: string, filters: ExpenseFilters, enabled = true) {
   return useQuery({
     queryKey: ["vehicles", vehicleId, "expenses", filters],
     queryFn: () => fetchExpenses(vehicleId, filters),
+    enabled: !!vehicleId && enabled,
   });
 }
 

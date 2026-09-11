@@ -19,6 +19,7 @@ import type { useExpenseCategories } from "./useExpenseCategories";
 
 type ExpenseFormProps = {
   mode: "create" | "edit";
+  upgrade?: boolean;
   categories: NonNullable<ReturnType<typeof useExpenseCategories>["data"]>;
   defaultValues?: Partial<ExpenseFormInput>;
   onSubmit: (values: ExpenseFormOutput) => Promise<void>;
@@ -28,6 +29,7 @@ type ExpenseFormProps = {
 
 export function ExpenseForm({
   mode,
+  upgrade = false,
   categories,
   defaultValues,
   onSubmit,
@@ -52,7 +54,7 @@ export function ExpenseForm({
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1.5">
+        {!upgrade && <div className="flex flex-col gap-1.5">
           <Label htmlFor="categoryId">Categoria (opcional)</Label>
           <Select
             id="categoryId"
@@ -68,7 +70,7 @@ export function ExpenseForm({
             ))}
           </Select>
           <FieldError>{errors.categoryId?.message}</FieldError>
-        </div>
+        </div>}
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="occurredOn">Data (opcional)</Label>
           <Input
@@ -95,9 +97,10 @@ export function ExpenseForm({
           <FieldError>{errors.amount?.message}</FieldError>
         </div>
         <div className="flex flex-col gap-1.5">
-          <Label htmlFor="description">Descrição (opcional)</Label>
+          <Label htmlFor="description">{upgrade ? "Modificação (opcional)" : "Descrição (opcional)"}</Label>
           <Input
             id="description"
+            placeholder={upgrade ? "Ex.: kit de suspensão esportiva" : undefined}
             aria-invalid={!!errors.description}
             {...register("description")}
           />

@@ -48,6 +48,7 @@ export function resolveNavItem(item: NavItem, vehicleId: string | null): string 
 export const SIDEBAR_NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", icon: LayoutDashboard, to: (vehicleId) => ROUTES.vehicle(vehicleId) },
   { label: "Minha garagem", icon: Car, to: ROUTES.home },
+  { label: "Modificações", icon: TrendingUp, to: (vehicleId) => ROUTES.vehicleModifications(vehicleId) },
   { label: "Gastos", icon: Receipt, to: (vehicleId) => ROUTES.vehicleExpenses(vehicleId) },
   { label: "Abastecimentos", icon: Fuel, to: (vehicleId) => ROUTES.vehicleFuelLogs(vehicleId) },
   { label: "Manutenção", icon: Wrench, to: (vehicleId) => ROUTES.vehicleMaintenance(vehicleId) },
@@ -85,6 +86,7 @@ export const BOTTOM_NAV_ITEMS: NavItem[] = [
  */
 export const MORE_SHEET_ITEMS: NavItem[] = [
   { label: "Histórico", icon: History, to: (vehicleId) => ROUTES.vehicleTimeline(vehicleId) },
+  { label: "Modificações", icon: TrendingUp, to: (vehicleId) => ROUTES.vehicleModifications(vehicleId) },
   { label: "Gastos", icon: Receipt, to: (vehicleId) => ROUTES.vehicleExpenses(vehicleId) },
   { label: "Abastecimentos", icon: Fuel, to: (vehicleId) => ROUTES.vehicleFuelLogs(vehicleId) },
   { label: "Manutenção", icon: Wrench, to: (vehicleId) => ROUTES.vehicleMaintenance(vehicleId) },
@@ -110,7 +112,7 @@ export const ADD_SHEET_ITEMS: NavItem[] = [
   {
     label: "Upgrade",
     icon: TrendingUp,
-    to: (vehicleId) => `${ROUTES.vehicleProjects(vehicleId)}?novo=1`,
+    to: (vehicleId) => `${ROUTES.vehicleModifications(vehicleId)}?novo=1`,
   },
   {
     label: "Foto",
