@@ -31,29 +31,6 @@ export const OBLIGATION_KIND_LABELS: Record<(typeof OBLIGATION_KINDS)[number], s
   other: "Outro",
 };
 
-export const VEHICLE_PHOTO_CATEGORIES = [
-  "exterior",
-  "interior",
-  "engine",
-  "wheels",
-  "mods",
-  "before_after",
-  "other",
-] as const;
-
-export const VEHICLE_PHOTO_CATEGORY_LABELS: Record<
-  (typeof VEHICLE_PHOTO_CATEGORIES)[number],
-  string
-> = {
-  exterior: "Exterior",
-  interior: "Interior",
-  engine: "Motor",
-  wheels: "Rodas",
-  mods: "Modificações",
-  before_after: "Antes/depois",
-  other: "Outro",
-};
-
 export const documentSchema = z.object({
   docType: optionalEnum(DOCUMENT_TYPES),
   title: z.string().trim().min(1, "Informe o título."),
@@ -110,11 +87,3 @@ export const financingSchema = z
 
 export type FinancingFormInput = z.input<typeof financingSchema>;
 export type FinancingFormOutput = z.output<typeof financingSchema>;
-
-export const photoUploadSchema = z.object({
-  category: optionalEnum(VEHICLE_PHOTO_CATEGORIES),
-  caption: optionalText,
-});
-
-export type PhotoUploadFormInput = z.input<typeof photoUploadSchema>;
-export type PhotoUploadFormOutput = z.output<typeof photoUploadSchema>;

@@ -22,6 +22,8 @@ type UploadPhotoDialogProps = {
   onOpenChange: (open: boolean) => void;
   /** Categoria pré-selecionada quando o diálogo abre a partir do filtro já ativo. */
   defaultCategory?: VehiclePhotoRow["category"];
+  /** Chamado só quando o envio deu certo — quem abriu fora da galeria usa isso pra levar o usuário até lá. */
+  onUploaded?: () => void;
 };
 
 export function UploadPhotoDialog({
@@ -29,6 +31,7 @@ export function UploadPhotoDialog({
   open,
   onOpenChange,
   defaultCategory,
+  onUploaded,
 }: UploadPhotoDialogProps) {
   const [category, setCategory] = useState<VehiclePhotoRow["category"]>(
     defaultCategory ?? "exterior",
@@ -71,6 +74,7 @@ export function UploadPhotoDialog({
       await upload.mutateAsync({ file, category, caption: caption.trim() || null });
       reset();
       onOpenChange(false);
+      onUploaded?.();
     } catch (mutationError) {
       setError(translatePostgresError(mutationError));
     }
@@ -91,10 +95,17 @@ export function UploadPhotoDialog({
         <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="photo-file">Foto</Label>
+            {/*
+              No Android, listar MIME específicos faz o Chrome pedir o seletor com
+              lista de MIME extra, e só Google Fotos e Drive respondem — a galeria
+              do aparelho nem aparece como opção. Com o curinga "image" o seletor
+              de mídia padrão abre e a galeria nativa volta. O formato de verdade
+              continua validado no submit por imageFileSchema.
+            */}
             <input
               id="photo-file"
               type="file"
-              accept="image/jpeg,image/png,image/webp"
+              accept="image/*"
               onChange={handleFileChange}
               className="text-sm text-text-secondary file:mr-3 file:rounded-md file:border-0 file:bg-accent file:px-3 file:py-1.5 file:text-sm file:text-accent-foreground"
             />

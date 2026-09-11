@@ -1946,3 +1946,49 @@ expansão de chaves que não expandiu na restauração descrita no ADR-074; apag
 **O que este ADR não muda.** O limite honesto do ADR-074 continua valendo: tirar
 arquivo do topo não tira do histórico, e reescrever histórico segue avaliado e
 não feito pelos mesmos motivos.
+
+## ADR-080 — Fotos ganham tela própria e a capa deixa de depender de um clique extra
+
+**Contexto.** Três lugares do app abriam o diálogo "Adicionar foto" — o
+quick action do painel do veículo, o do card da garagem e o item "Foto" do
+FAB — e nenhum dos três levava a lugar nenhum depois do envio. A galeria
+existia como **quarta aba dentro de "Documentos"**, sem item na sidebar nem
+na folha "Mais". Somado a isso, `useUploadGalleryPhoto` nunca escrevia
+`primary_photo_id`: só o upload de dentro de "Editar veículo" definia capa.
+O efeito combinado, relatado pelo usuário, é que a foto enviada parecia
+sumir — não aparecia no card, não aparecia no painel e a galeria que a
+continha não tinha porta de entrada.
+
+**Decisão.**
+
+- **Galeria vira rota de verdade**: `/v/:vehicleId/fotos`
+  (`features/photo/PhotosPage`), com item "Fotos" na sidebar e na folha
+  "Mais". `PhotoGallery`, `PhotoCard`, `UploadPhotoDialog` e
+  `useVehicleGallery` saíram de `features/document` para
+  `features/photo`, junto com as categorias de foto, que viraram
+  `features/photo/schemas.ts`. A aba "Fotos" de "Documentos" foi removida —
+  um lugar só, não dois.
+- **A primeira foto do veículo vira capa sozinha.** O update usa
+  `.is("primary_photo_id", null)`, então preenche quando não há capa e
+  nunca sobrescreve uma escolha feita no botão "Definir como capa".
+- **Quem envia fora da galeria é levado até ela.** `UploadPhotoDialog`
+  ganhou `onUploaded`; os dois quick actions navegam para a rota nova. É a
+  única ação dessas linhas que navega, e o motivo é justamente que o
+  resultado dela não é visível onde ela foi disparada.
+
+**Consequência aceita.** Veículo que já tinha foto na galeria de antes
+continua sem capa — a correção só age em upload novo. Definir a capa
+retroativamente exigiria escolher por conta própria qual das fotos
+existentes representa o carro, e essa escolha é do dono; o botão "Definir
+como capa" já resolve em um clique.
+
+**Nota de mesma origem — o seletor de arquivo no Android.** Listar MIME
+específicos (`image/jpeg,image/png,image/webp`) faz o Chrome no Android
+pedir o seletor com lista de MIME extra, e na prática só Google Fotos e
+Drive respondem: a galeria do próprio aparelho não aparece como opção. Os
+quatro campos de arquivo do app passaram a usar o curinga (`image/*`, mais
+`,application/pdf` onde PDF é aceito). O formato continua validado no
+submit por `imageFileSchema`, `vehiclePhotoSchema` e
+`fileAttachmentSchema`, então o seletor aceitar mais não deixa passar
+arquivo inválido — só troca "não consigo escolher a foto" por uma mensagem
+de erro clara nos poucos casos (HEIC, por exemplo) que o app não trata.

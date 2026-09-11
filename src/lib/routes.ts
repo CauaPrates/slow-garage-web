@@ -20,6 +20,7 @@ export const ROUTES = {
   vehicleProject: (vehicleId: string, projectId: string) =>
     `/v/${vehicleId}/projetos/${projectId}`,
   vehicleDocuments: (vehicleId: string) => `/v/${vehicleId}/documentos`,
+  vehiclePhotos: (vehicleId: string) => `/v/${vehicleId}/fotos`,
   vehicleTimeline: (vehicleId: string) => `/v/${vehicleId}/historico`,
 } as const;
 

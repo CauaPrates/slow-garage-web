@@ -142,7 +142,7 @@ export function AttachmentField({
       <input
         ref={inputRef}
         type="file"
-        accept="image/jpeg,image/png,image/webp,application/pdf"
+        accept="image/*,application/pdf"
         className="hidden"
         onChange={handleFileChange}
       />

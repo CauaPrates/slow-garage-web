@@ -79,6 +79,17 @@ export function useUploadGalleryPhoto(vehicleId: string) {
         .select()
         .single();
       if (error) throw error;
+
+      // RN-6: primeira foto do veículo vira capa sozinha — sem isso o card e a
+      // página do veículo ficam no placeholder mesmo com foto na galeria.
+      // O filtro `is null` garante que uma capa já escolhida não é sobrescrita.
+      const { error: coverError } = await supabase
+        .from("vehicles")
+        .update({ primary_photo_id: data.id })
+        .eq("id", vehicleId)
+        .is("primary_photo_id", null);
+      if (coverError) throw coverError;
+
       return data;
     },
     onSuccess: () => invalidateVehicles(),

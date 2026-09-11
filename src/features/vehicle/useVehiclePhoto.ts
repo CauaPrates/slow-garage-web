@@ -48,7 +48,8 @@ export function useUploadVehiclePhoto(vehicleId: string) {
       return photo;
     },
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ["vehicles", user?.id] });
+      // Prefixo ["vehicles"] cobre a lista e a galeria (["vehicles", id, "gallery"]).
+      void queryClient.invalidateQueries({ queryKey: ["vehicles"] });
     },
   });
 }

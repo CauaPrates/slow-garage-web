@@ -14,7 +14,6 @@ import { useFinancing } from "./useFinancing";
 import { DocumentListItem } from "./DocumentListItem";
 import { ObligationListItem } from "./ObligationListItem";
 import { FinancingCard } from "./FinancingCard";
-import { PhotoGallery } from "./PhotoGallery";
 import { CreateDocumentDialog } from "./CreateDocumentDialog";
 import { CreateObligationDialog } from "./CreateObligationDialog";
 import { CreateFinancingDialog } from "./CreateFinancingDialog";
@@ -23,7 +22,6 @@ const TABS = [
   { key: "documentos", label: "Documentos" },
   { key: "obrigacoes", label: "Obrigações" },
   { key: "financiamento", label: "Financiamento" },
-  { key: "fotos", label: "Fotos" },
 ] as const;
 
 type TabKey = (typeof TABS)[number]["key"];
@@ -44,9 +42,6 @@ export function DocumentsPage() {
   const [createDocumentOpen, setCreateDocumentOpen] = useState(false);
   const [createObligationOpen, setCreateObligationOpen] = useState(false);
   const [createFinancingOpen, setCreateFinancingOpen] = useState(false);
-  const [uploadPhotoOpen, setUploadPhotoOpen] = useState(
-    () => searchParams.get("aba") === "fotos" && searchParams.get("novo") === "1",
-  );
 
   const {
     vehicle,
@@ -299,16 +294,6 @@ export function DocumentsPage() {
         </div>
       )}
 
-      {activeTab === "fotos" && (
-        <div role="tabpanel" id="panel-fotos" aria-labelledby="tab-fotos">
-          <PhotoGallery
-            vehicleId={vehicle.id}
-            primaryPhotoId={vehicle.primary_photo_id}
-            uploadOpen={uploadPhotoOpen}
-            onUploadOpenChange={setUploadPhotoOpen}
-          />
-        </div>
-      )}
     </div>
   );
 }

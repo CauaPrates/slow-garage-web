@@ -53,6 +53,7 @@ export const SIDEBAR_NAV_ITEMS: NavItem[] = [
   { label: "Manutenção", icon: Wrench, to: (vehicleId) => ROUTES.vehicleMaintenance(vehicleId) },
   { label: "Problemas", icon: AlertTriangle, to: (vehicleId) => ROUTES.vehicleIssues(vehicleId) },
   { label: "Projetos", icon: ClipboardList, to: (vehicleId) => ROUTES.vehicleProjects(vehicleId) },
+  { label: "Fotos", icon: Camera, to: (vehicleId) => ROUTES.vehiclePhotos(vehicleId) },
   { label: "Histórico", icon: History, to: (vehicleId) => ROUTES.vehicleTimeline(vehicleId) },
   { label: "Documentos", icon: FileText, to: (vehicleId) => ROUTES.vehicleDocuments(vehicleId) },
   { label: "Configurações", icon: Settings, to: ROUTES.configuracoes, pinBottom: true },
@@ -89,6 +90,7 @@ export const MORE_SHEET_ITEMS: NavItem[] = [
   { label: "Manutenção", icon: Wrench, to: (vehicleId) => ROUTES.vehicleMaintenance(vehicleId) },
   { label: "Problemas", icon: AlertTriangle, to: (vehicleId) => ROUTES.vehicleIssues(vehicleId) },
   { label: "Projetos", icon: ClipboardList, to: (vehicleId) => ROUTES.vehicleProjects(vehicleId) },
+  { label: "Fotos", icon: Camera, to: (vehicleId) => ROUTES.vehiclePhotos(vehicleId) },
   { label: "Documentos", icon: FileText, to: (vehicleId) => ROUTES.vehicleDocuments(vehicleId) },
 ];
 
@@ -113,7 +115,7 @@ export const ADD_SHEET_ITEMS: NavItem[] = [
   {
     label: "Foto",
     icon: Camera,
-    to: (vehicleId) => `${ROUTES.vehicleDocuments(vehicleId)}?aba=fotos&novo=1`,
+    to: (vehicleId) => `${ROUTES.vehiclePhotos(vehicleId)}?novo=1`,
   },
   {
     label: "Nota",
