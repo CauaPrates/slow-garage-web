@@ -24,7 +24,7 @@ export function PhotosPage() {
         <div className="h-8 w-48 animate-pulse rounded-md bg-surface" />
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="aspect-square animate-pulse rounded-lg border border-border bg-surface" />
+            <div key={i} className="aspect-[4/3] animate-pulse rounded-lg border border-border bg-surface" />
           ))}
         </div>
       </div>

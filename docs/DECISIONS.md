@@ -1992,3 +1992,60 @@ submit por `imageFileSchema`, `vehiclePhotoSchema` e
 `fileAttachmentSchema`, então o seletor aceitar mais não deixa passar
 arquivo inválido — só troca "não consigo escolher a foto" por uma mensagem
 de erro clara nos poucos casos (HEIC, por exemplo) que o app não trata.
+
+## ADR-081 — A foto é recortada antes de subir, e a proporção é do app
+
+**Contexto.** Com a capa funcionando (ADR-080), apareceu o efeito colateral:
+uma foto em pé esticava a baia da garagem para ~400px de altura. A coluna da
+foto tinha `sm:h-auto` e a imagem `h-full`; altura automática não dá
+referência para `h-full`, então o navegador caía na altura natural da imagem
+— a proporção do arquivo passava a mandar no layout. Junto disso, subia o
+original do celular: vários MB e 4000px de largura para exibir num quadro de
+224px, com enquadramento decidido pelo acaso.
+
+**Decisão.**
+
+- **O app define a proporção, não o arquivo.** `PHOTO_ASPECT_RATIO` (4:3) é
+  a mesma no recorte, na baia, no painel do veículo e na grade da galeria —
+  o que a pessoa enquadra é exatamente o que ela vê depois. A imagem da baia
+  virou `absolute`, então não entra mais no cálculo de altura do card: a
+  altura vem do texto ao lado.
+- **Recorte antes do envio** (`components/shared/ImageCropDialog`), no
+  espírito de foto de perfil: arrastar para posicionar, pinça ou controle de
+  aproximação para o zoom, setas do teclado para quem não usa ponteiro. O
+  quadro é um `button` — a área inteira é manipulável, e um `div` com os
+  mesmos handlers não receberia foco nem seria anunciado como controle.
+- **O limite de tamanho passa a ser garantido, não torcido.** O que sobe é o
+  recorte reencodado em WebP com 1600px no maior lado (`lib/imageCrop.ts`).
+  Por isso a validação de tamanho mudou de lugar: o arquivo cru só é checado
+  como imagem, e `imageFileSchema` / `vehiclePhotoSchema` conferem o
+  resultado do recorte. Antes, uma foto de 12MB era recusada mesmo que fosse
+  virar 200KB.
+
+**Verificação.** Harness temporário + Playwright, apagado depois: imagem
+sintética de quadrantes, recorte sem ajuste devolve os quatro quadrantes em
+4:3 a 1600px (4,4KB); com zoom no máximo e arrasto para o canto, os quatro
+cantos da saída caem todos dentro de um quadrante só — a conta do recorte
+confere. A baia com foto em pé mediu 238px de altura em 1440px e não gerou
+rolagem horizontal em 390px.
+
+**Ressalva anotada no caminho.** Tornar a imagem absoluta escondeu o selo
+"baia 01", que é irmão dela — resolvido com `z-10` no selo, e só apareceu
+porque a verificação foi por captura de tela, não por leitura do diff.
+
+**Correção depois do primeiro uso: o quadro abria vazio.** A URL de blob da
+prévia vinha de um `useMemo` e era revogada na limpeza de um efeito. Sob
+`StrictMode` — que é como o app roda em desenvolvimento — o React monta,
+desmonta e remonta: a limpeza revogava a URL logo depois de criá-la, e o
+`useMemo` não recriava nada na remontagem. O `<img>` ficava com
+`naturalWidth` 0, o quadro aparecia vazio e o botão "Usar esta foto" seguia
+habilitado, porque `image` estava preenchido. Agora a URL é criada e
+revogada dentro do mesmo efeito, junto da imagem decodificada: cada execução
+é dona da sua, e a remontagem cria outra. `loadImageFromFile` deixou de
+revogar a URL que devolve, já que é ela que alimenta o `<img>` visível.
+
+A verificação anterior não pegou isso porque o harness montava o componente
+**sem `StrictMode`**, diferente do app. Harness de verificação tem que
+reproduzir o ambiente real — refeito com `StrictMode` e pelo caminho de
+verdade (diálogo de upload, arquivo escolhido pelo input), o defeito
+apareceu na primeira execução.

@@ -54,7 +54,7 @@ export function PhotoCard({ vehicleId, photo, isPrimary }: PhotoCardProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="relative aspect-square overflow-hidden rounded-lg border border-border bg-surface">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-lg border border-border bg-surface">
         {photo.signedUrl ? (
           <img
             src={photo.signedUrl}
