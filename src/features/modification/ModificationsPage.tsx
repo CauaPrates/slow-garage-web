@@ -11,6 +11,7 @@ import { useExpenseCategories } from "@/features/expense/useExpenseCategories";
 import { useExpenses } from "@/features/expense/useExpenses";
 import { CreateExpenseDialog } from "@/features/expense/CreateExpenseDialog";
 import { ExpenseListItem } from "@/features/expense/ExpenseListItem";
+import { useVehicleDashboard } from "@/features/dashboard/useVehicleDashboard";
 import { formatDateOnly, formatMoney } from "@/lib/format";
 import { PERIODS, PERIOD_LABELS, periodRange, type Period } from "@/lib/period";
 import { ROUTES } from "@/lib/routes";
@@ -40,6 +41,8 @@ function ModificationWorkspace({ vehicleId }: { vehicleId: string }) {
   const categoriesQuery = useExpenseCategories();
   const category = categoriesQuery.data?.find((item) => item.slug === "upgrade" && item.user_id === null);
   const expensesQuery = useExpenses(vehicleId, { categoryId: category?.id ?? "all", period: "all" }, !!category);
+  // Total e contagem vêm de `vehicle_expenses_by_category` (via dashboard) — nunca somados aqui.
+  const dashboardQuery = useVehicleDashboard(vehicleId);
 
   if (vehicleQuery.isLoading || categoriesQuery.isLoading) {
     return <div role="status" className="p-6 text-text-secondary">Carregando modificações…</div>;
@@ -55,7 +58,12 @@ function ModificationWorkspace({ vehicleId }: { vehicleId: string }) {
   }
 
   const upgrades = expensesQuery.data ?? [];
-  const total = upgrades.reduce((sum, item) => sum + item.amount, 0);
+  // A view agrupa por slug + label; sem linha = nenhum upgrade registrado.
+  const summary = dashboardQuery.data?.expenses_by_category.find(
+    (row) => row.category_slug === category.slug && row.category_label === category.label,
+  );
+  const total = summary?.total_amount ?? 0;
+  const count = summary?.expense_count ?? 0;
   const range = periodRange(period);
   const term = search.trim().toLocaleLowerCase("pt-BR");
   const visible = upgrades.filter((item) => {
@@ -79,11 +87,11 @@ function ModificationWorkspace({ vehicleId }: { vehicleId: string }) {
         <div className="space-y-2"><p className="flex items-center gap-2 text-sm text-accent"><Sparkles className="h-4 w-4" aria-hidden="true" /> A evolução do seu carro</p><h1 className="text-2xl font-semibold text-text-primary">Modificações</h1><p className="max-w-xl text-sm text-text-secondary">Peças, acertos e upgrades que deixam o carro do seu jeito. Registre cada mudança e acompanhe seu investimento.</p></div>
         <Button onClick={() => setOpen(true)}>Registrar upgrade</Button>
       </header>
-      {expensesQuery.isLoading ? <p role="status">Carregando upgrades…</p> : expensesQuery.isError ? (
-        <div role="alert" className="space-y-3"><p>Não foi possível carregar os upgrades.</p><Button onClick={() => void expensesQuery.refetch()}>Tentar de novo</Button></div>
+      {expensesQuery.isLoading || dashboardQuery.isLoading ? <p role="status">Carregando upgrades…</p> : expensesQuery.isError || dashboardQuery.isError ? (
+        <div role="alert" className="space-y-3"><p>Não foi possível carregar os upgrades.</p><Button onClick={() => { void expensesQuery.refetch(); void dashboardQuery.refetch(); }}>Tentar de novo</Button></div>
       ) : <>
         <dl className="grid gap-3 sm:grid-cols-3">
-          {[["Investimento em upgrades", formatMoney(total)], ["Upgrades registrados", String(upgrades.length)], ["Último registro datado", dated[0] ? formatDateOnly(dated[0].occurred_on) : "—"]].map(([label, value]) => <div key={label} className="rounded-lg border border-border bg-surface p-4"><dt className="text-sm text-text-secondary">{label}</dt><dd className="mt-2 break-words text-xl font-semibold text-text-primary">{value}</dd></div>)}
+          {[["Investimento em upgrades", formatMoney(total)], ["Upgrades registrados", String(count)], ["Último registro datado", dated[0] ? formatDateOnly(dated[0].occurred_on) : "—"]].map(([label, value]) => <div key={label} className="rounded-lg border border-border bg-surface p-4"><dt className="text-sm text-text-secondary">{label}</dt><dd className="mt-2 break-words text-xl font-semibold text-text-primary">{value}</dd></div>)}
         </dl>
         <p className="text-sm text-text-secondary">Estes valores já fazem parte dos gastos do veículo. Upgrades anteriores aparecem aqui automaticamente.</p>
         {monthly.length > 0 && <section className="rounded-lg border border-border bg-surface p-4" aria-label="Investimento por mês"><h2 className="font-medium text-text-primary">Investimento por mês</h2><p className="mb-4 text-xs text-text-secondary">Últimos seis meses com registros datados</p><div className="space-y-3">{monthly.map(([month, value]) => <div key={month} className="grid grid-cols-[4rem_1fr] items-center gap-3 sm:grid-cols-[4rem_1fr_8rem]"><span className="text-xs text-text-secondary">{month.slice(5)}/{month.slice(0, 4)}</span><div className="h-2 overflow-hidden rounded bg-bg" aria-hidden="true"><div className="h-full rounded bg-accent" style={{ width: `${value / max * 100}%` }} /></div><span className="col-start-2 text-sm text-text-primary sm:col-start-auto sm:text-right">{formatMoney(value)}</span></div>)}</div></section>}

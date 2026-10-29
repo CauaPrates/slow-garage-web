@@ -2049,3 +2049,38 @@ A verificação anterior não pegou isso porque o harness montava o componente
 reproduzir o ambiente real — refeito com `StrictMode` e pelo caminho de
 verdade (diálogo de upload, arquivo escolhido pelo input), o defeito
 apareceu na primeira execução.
+
+## ADR-082 — Total de upgrades vem da view, não de `reduce` (Fase 030)
+
+**Contexto.** A tela de Modificações somava `amount` da lista de gastos da
+categoria `upgrade` no cliente para mostrar "Investimento em upgrades", e
+usava `length` da lista para "Upgrades registrados". Isso é exatamente a
+proibição nº 1 do `CONTRIBUTING.md`: `vehicle_expenses_by_category` já
+entrega `total_amount` e `expense_count` por categoria, e duas fontes para o
+mesmo total divergem um dia sem ninguém saber qual está certa.
+
+**Decisão.** Os dois números vêm da linha `upgrade` de
+`expenses_by_category`, lida pelo `useVehicleDashboard` que já existe — sem
+hook novo e sem query nova à view. As mutations de gasto já invalidam
+`['vehicles']`, então o dashboard recarrega sozinho depois de registrar,
+editar ou apagar um upgrade. A linha é casada por `slug` **e** `label`,
+porque a view agrupa pelos dois. Sem linha, o veículo não tem upgrade, e os
+números ficam R$ 0,00 e 0. O RPC entra no mesmo estado de carregamento e de
+erro da lista, com um único "Tentar de novo" que refaz as duas.
+
+**O que continua no cliente, de propósito.**
+
+- **"Investimento por mês".** Não existe view de gasto por categoria **e**
+  por mês (`vehicle_expenses_by_month` não separa categoria). Pela regra do
+  `CONTRIBUTING.md`, o certo é o backend ganhar essa view. Até lá o gráfico
+  segue agregando a lista, e esta nota existe para a pendência não ficar
+  invisível.
+- **"N registros · R$ X nesta seleção".** É a soma do que está filtrado na
+  tela por busca livre, período e ordem. Nenhuma view tem como pré-calcular
+  um filtro de texto arbitrário. É leitura da lista visível, não um total do
+  veículo.
+
+**Dependência do backend.** A tela exige a categoria de sistema `upgrade`.
+Ela só existia via `seed.sql`, que o `db push` não aplica. O backend passou
+a criá-la por migration (backend, Fase 12 / ADR-012), então um projeto novo
+já nasce com ela.
