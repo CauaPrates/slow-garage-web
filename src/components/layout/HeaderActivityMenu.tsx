@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { TimelineItem } from "@/features/timeline/TimelineItem";
 import { useGarageTimeline } from "@/features/vehicle/useGarageTimeline";
 import type { VehicleWithSummary } from "@/features/vehicle/useVehicles";
+import { HEADER_ICON_BUTTON_CLASSNAME, NAV_EYEBROW_CLASSNAME } from "./navStyles";
 
 type HeaderActivityMenuProps = {
   vehicles: VehicleWithSummary[];
@@ -38,20 +39,20 @@ export function HeaderActivityMenu({ vehicles }: HeaderActivityMenuProps) {
           variant="ghost"
           size="icon"
           aria-label="Atividade recente"
-          className="group relative h-10 w-10 rounded-full text-text-secondary transition-all duration-200 hover:bg-surface/80 hover:text-text-primary"
+          className={HEADER_ICON_BUTTON_CLASSNAME}
         >
-          <History className="h-5 w-5 transition-transform duration-200 group-hover:scale-110 group-hover:text-accent" aria-hidden="true" />
+          <History className="h-5 w-5" aria-hidden="true" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-96">
-        <h2 className="mb-3 text-sm font-medium text-text-primary">
+        <h2 className="mb-3 text-sm font-semibold text-text-primary">
           Atividade recente
         </h2>
 
         {feedQuery.isLoading && (
           <div className="flex flex-col gap-2">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 animate-pulse rounded-lg bg-bg" />
+              <div key={i} className="h-16 animate-pulse rounded-lg bg-state-hover" />
             ))}
           </div>
         )}
@@ -74,7 +75,7 @@ export function HeaderActivityMenu({ vehicles }: HeaderActivityMenuProps) {
             {feedQuery.data.map((event) => (
               <div key={`${event.source_table}-${event.source_id}`}>
                 {showVehicleLabel && (
-                  <p className="pb-1 text-xs font-medium tracking-wide text-text-secondary uppercase">
+                  <p className={`${NAV_EYEBROW_CLASSNAME} truncate pb-1`}>
                     {vehicleLabelById.get(event.vehicle_id) ?? ""}
                   </p>
                 )}

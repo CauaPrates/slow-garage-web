@@ -5,6 +5,7 @@ import { AlertBanner } from "@/features/maintenance/AlertBanner";
 import { useGarageAlerts } from "@/features/vehicle/useGarageAlerts";
 import type { VehicleWithSummary } from "@/features/vehicle/useVehicles";
 import { cn } from "@/lib/utils";
+import { HEADER_BADGE_CLASSNAME, HEADER_ICON_BUTTON_CLASSNAME, NAV_EYEBROW_CLASSNAME } from "./navStyles";
 
 type HeaderAlertsMenuProps = {
   vehicles: VehicleWithSummary[];
@@ -38,17 +39,16 @@ export function HeaderAlertsMenu({ vehicles }: HeaderAlertsMenuProps) {
         <Button
           variant="ghost"
           size="icon"
-          aria-label={count > 0 ? `Alertas (${count})` : "Alertas"}
-          className="group relative h-10 w-10 rounded-full text-text-secondary transition-all duration-200 hover:bg-surface/80 hover:text-text-primary"
+          aria-label={count > 0 ? `Alertas (${count}${hasCritical ? ", há vencidos" : ""})` : "Alertas"}
+          className={HEADER_ICON_BUTTON_CLASSNAME}
         >
-          <Bell className="h-5 w-5 transition-transform duration-200 group-hover:scale-110 group-hover:text-accent" aria-hidden="true" />
+          <Bell className="h-5 w-5" aria-hidden="true" />
           {count > 0 && (
             <span
+              aria-hidden="true"
               className={cn(
-                "absolute top-1 right-1 flex h-4 min-w-4 animate-[badge-in_400ms_cubic-bezier(0.34,1.56,0.64,1)_forwards] items-center justify-center rounded-full px-1 text-[10px] font-medium text-accent-foreground",
-                hasCritical
-                  ? "bg-error [box-shadow:0_0_8px_1px_color-mix(in_srgb,var(--color-error)_30%,transparent)]"
-                  : "bg-warning [box-shadow:0_0_8px_1px_color-mix(in_srgb,var(--color-warning)_30%,transparent)]",
+                HEADER_BADGE_CLASSNAME,
+                hasCritical ? "bg-error text-error-foreground" : "bg-warning text-warning-foreground",
               )}
             >
               {count > 9 ? "9+" : count}
@@ -57,12 +57,12 @@ export function HeaderAlertsMenu({ vehicles }: HeaderAlertsMenuProps) {
         </Button>
       </PopoverTrigger>
       <PopoverContent>
-        <h2 className="mb-3 text-sm font-medium text-text-primary">Alertas</h2>
+        <h2 className="mb-3 text-sm font-semibold text-text-primary">Alertas</h2>
 
         {alertsQuery.isLoading && (
           <div className="flex flex-col gap-2">
             {[1, 2].map((i) => (
-              <div key={i} className="h-14 animate-pulse rounded-lg bg-bg" />
+              <div key={i} className="h-14 animate-pulse rounded-lg bg-state-hover" />
             ))}
           </div>
         )}
@@ -80,7 +80,7 @@ export function HeaderAlertsMenu({ vehicles }: HeaderAlertsMenuProps) {
             {[...alertsByVehicle.entries()].map(([vehicleId, vehicleAlerts]) => (
               <div key={vehicleId} className="flex flex-col gap-2">
                 {showVehicleLabel && (
-                  <p className="text-xs font-medium tracking-wide text-text-secondary uppercase">
+                  <p className={`${NAV_EYEBROW_CLASSNAME} truncate`}>
                     {vehicleLabelById.get(vehicleId) ?? ""}
                   </p>
                 )}

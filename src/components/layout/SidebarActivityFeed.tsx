@@ -11,13 +11,15 @@ import {
   type GarageTimelineEvent,
 } from "@/features/vehicle/useGarageTimeline";
 import type { VehicleWithSummary } from "@/features/vehicle/useVehicles";
+import { cn } from "@/lib/utils";
+import { NAV_EYEBROW_CLASSNAME } from "./navStyles";
 
 type SidebarActivityFeedProps = {
   vehicles: VehicleWithSummary[];
 };
 
 const ROW_CLASSNAME =
-  "flex items-start gap-2 rounded-md px-3 py-1.5 text-xs transition-colors duration-150 hover:bg-bg";
+  "flex items-start gap-2 rounded-md px-3 py-1.5 text-xs transition-colors duration-(--duration-fast) hover:bg-state-hover";
 
 function ActivityRow({
   vehicleId,
@@ -80,8 +82,8 @@ export function SidebarActivityFeed({ vehicles }: SidebarActivityFeedProps) {
   if (vehicles.length === 0) return null;
 
   return (
-    <div className="mt-2 flex min-h-0 flex-1 flex-col gap-1 border-t border-border pt-2">
-      <p className="px-3 pb-1 text-xs font-medium tracking-wide text-text-secondary uppercase">
+    <div className="mt-3 flex min-h-0 flex-1 flex-col gap-1 border-t border-border pt-3">
+      <p className={cn(NAV_EYEBROW_CLASSNAME, "px-3 pb-1")}>
         Atividade recente
       </p>
 
@@ -89,7 +91,7 @@ export function SidebarActivityFeed({ vehicles }: SidebarActivityFeedProps) {
         {feedQuery.isLoading && (
           <div className="flex flex-col gap-1 px-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-8 animate-pulse rounded-md bg-bg" />
+              <div key={i} className="h-8 animate-pulse rounded-md bg-state-hover" />
             ))}
           </div>
         )}
@@ -109,7 +111,7 @@ export function SidebarActivityFeed({ vehicles }: SidebarActivityFeedProps) {
         {feedQuery.data?.map((event) => (
           <div key={`${event.source_table}-${event.source_id}`}>
             {showVehicleLabel && (
-              <p className="px-3 pt-1 text-[10px] font-medium tracking-wide text-text-secondary/70 uppercase">
+              <p className="truncate px-3 pt-1.5 text-[10px] font-medium tracking-wide text-text-secondary uppercase">
                 {vehicleLabelById.get(event.vehicle_id) ?? ""}
               </p>
             )}

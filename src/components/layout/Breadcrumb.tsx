@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 import { useCurrentVehicleId } from "@/hooks/useCurrentVehicleId";
 import { useVehicle } from "@/features/vehicle/useVehicles";
 import { ROUTES } from "@/lib/routes";
@@ -14,7 +15,7 @@ type BreadcrumbProps = {
 };
 
 function Separator() {
-  return <span aria-hidden="true" className="mx-1.5 h-3 w-px shrink-0 bg-accent/60" />;
+  return <ChevronRight aria-hidden="true" className="mx-1 h-3.5 w-3.5 shrink-0 text-border-strong" />;
 }
 
 function Crumb({ segment, isLast }: { segment: BreadcrumbSegment; isLast: boolean }) {
@@ -22,20 +23,23 @@ function Crumb({ segment, isLast }: { segment: BreadcrumbSegment; isLast: boolea
     return (
       <Link
         to={segment.href}
-        className="rounded-sm text-text-secondary transition-colors duration-150 hover:text-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+        className="max-w-[16rem] truncate rounded-sm text-text-secondary transition-colors duration-(--duration-fast) hover:text-text-primary"
       >
         {segment.label}
       </Link>
     );
   }
   return (
-    <span className={isLast ? "font-medium text-text-primary" : "text-text-secondary"} aria-current={isLast ? "page" : undefined}>
+    <span
+      className={isLast ? "max-w-[16rem] truncate font-medium text-text-primary" : "max-w-[16rem] truncate text-text-secondary"}
+      aria-current={isLast ? "page" : undefined}
+    >
       {segment.label}
     </span>
   );
 }
 
-/** Fase 14: jeito de voltar de qualquer subtela de veículo sem depender da navegação global — separador fino âmbar, não `/`/`›` genérico. */
+/** Fase 14: jeito de voltar de qualquer subtela de veículo sem depender da navegação global. Etapa 01: separador neutro (o laranja fica pra ação/estado) e segmento longo trunca em vez de quebrar a linha. */
 export function Breadcrumb({ items }: BreadcrumbProps) {
   const vehicleId = useCurrentVehicleId();
   const { vehicle } = useVehicle(vehicleId ?? "");
@@ -51,7 +55,7 @@ export function Breadcrumb({ items }: BreadcrumbProps) {
   return (
     <nav aria-label="Trilha de navegação" className="flex flex-wrap items-center text-sm">
       {segments.map((segment, index) => (
-        <span key={`${segment.label}-${index}`} className="flex items-center">
+        <span key={`${segment.label}-${index}`} className="flex min-w-0 items-center">
           {index > 0 && <Separator />}
           <Crumb segment={segment} isLast={index === segments.length - 1} />
         </span>

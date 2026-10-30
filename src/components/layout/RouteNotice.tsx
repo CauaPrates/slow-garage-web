@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { X } from "lucide-react";
+import { AlertTriangle, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /** Estado de navegação que leva um aviso pra próxima tela (ex.: `AdminRoute` tirando do painel quem perdeu o acesso). */
@@ -20,9 +20,10 @@ export function RouteNotice() {
   return (
     <div
       role="status"
-      className="mx-4 mt-4 flex items-center justify-between gap-3 rounded-lg border border-warning/40 bg-warning/10 py-1 pr-1 pl-4 sm:mx-6"
+      className="mx-4 mt-4 flex items-center gap-3 rounded-lg border border-warning/40 bg-warning/10 py-1 pr-1 pl-4 sm:mx-6"
     >
-      <p className="text-sm text-text-primary">{notice}</p>
+      <AlertTriangle className="h-4 w-4 shrink-0 text-warning" aria-hidden="true" />
+      <p className="flex-1 text-sm text-text-primary">{notice}</p>
       <Button
         variant="ghost"
         size="icon"

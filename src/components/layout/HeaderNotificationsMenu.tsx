@@ -5,6 +5,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { FieldError } from "@/components/ui/field-error";
 import { ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
+import { HEADER_BADGE_CLASSNAME, HEADER_ICON_BUTTON_CLASSNAME } from "./navStyles";
 import { translatePostgresError } from "@/lib/postgresErrors";
 import { NotificationItem } from "@/features/notification/NotificationItem";
 import {
@@ -48,11 +50,11 @@ export function HeaderNotificationsMenu() {
           variant="ghost"
           size="icon"
           aria-label={unread > 0 ? `Notificações (${unread} não lidas)` : "Notificações"}
-          className="group relative h-10 w-10 rounded-full text-text-secondary transition-colors duration-200 hover:bg-surface/80 hover:text-text-primary"
+          className={HEADER_ICON_BUTTON_CLASSNAME}
         >
-          <Inbox className="h-5 w-5 group-hover:text-accent" aria-hidden="true" />
+          <Inbox className="h-5 w-5" aria-hidden="true" />
           {unread > 0 && (
-            <span className="absolute top-1 right-1 flex h-4 min-w-4 items-center justify-center rounded-full bg-accent px-1 text-[10px] font-medium text-accent-foreground">
+            <span aria-hidden="true" className={cn(HEADER_BADGE_CLASSNAME, "bg-accent text-accent-foreground")}>
               {unread > 9 ? "9+" : unread}
             </span>
           )}
@@ -60,7 +62,7 @@ export function HeaderNotificationsMenu() {
       </PopoverTrigger>
       <PopoverContent className="w-96" aria-labelledby="header-notifications-title">
         <div className="mb-3 flex items-center justify-between gap-2">
-          <h2 id="header-notifications-title" className="text-sm font-medium text-text-primary">
+          <h2 id="header-notifications-title" className="text-sm font-semibold text-text-primary">
             Notificações
           </h2>
           {unread > 0 && (
@@ -79,7 +81,7 @@ export function HeaderNotificationsMenu() {
         {notificationsQuery.isLoading && (
           <div className="flex flex-col gap-2">
             {[1, 2].map((i) => (
-              <div key={i} className="h-16 animate-pulse rounded-lg bg-bg" />
+              <div key={i} className="h-16 animate-pulse rounded-lg bg-state-hover" />
             ))}
           </div>
         )}
@@ -116,7 +118,7 @@ export function HeaderNotificationsMenu() {
           <Link
             to={ROUTES.meusConvites}
             onClick={() => setOpen(false)}
-            className="inline-flex min-h-11 items-center text-sm text-text-secondary hover:text-accent"
+            className="inline-flex min-h-11 items-center rounded-md px-1 text-sm text-text-secondary transition-colors duration-(--duration-fast) hover:text-text-primary"
           >
             Meus convites
           </Link>

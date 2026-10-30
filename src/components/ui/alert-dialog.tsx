@@ -12,10 +12,12 @@ export function AlertDialogContent({
 }: React.ComponentProps<typeof AlertDialogPrimitive.Content>) {
   return (
     <AlertDialogPrimitive.Portal>
-      <AlertDialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/60 transition-opacity duration-150 data-[state=closed]:opacity-0 data-[state=open]:opacity-100" />
+      <AlertDialogPrimitive.Overlay className="fixed inset-0 z-50 bg-overlay" />
       <AlertDialogPrimitive.Content
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 max-h-[85vh] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-surface p-6 shadow-lg transition-[opacity,transform] duration-150 focus:outline-none data-[state=closed]:scale-95 data-[state=closed]:opacity-0 data-[state=open]:scale-100 data-[state=open]:opacity-100",
+          // Toda confirmação do app é de ação sem volta fácil (excluir, sair, revogar): o fio carmim no topo marca
+          // isso antes mesmo do título, e a ação usa `destructive` — nunca o laranja da ação comum.
+          "fixed top-1/2 left-1/2 z-50 max-h-[85dvh] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-lg border border-t-2 border-border border-t-error bg-surface-raised p-5 shadow-overlay focus:outline-none sm:p-6",
           className,
         )}
         {...props}
@@ -34,7 +36,7 @@ export function AlertDialogTitle({
 }: React.ComponentProps<typeof AlertDialogPrimitive.Title>) {
   return (
     <AlertDialogPrimitive.Title
-      className={cn("text-lg font-medium text-text-primary", className)}
+      className={cn("text-lg font-semibold tracking-tight text-text-primary", className)}
       {...props}
     />
   );
@@ -54,7 +56,11 @@ export function AlertDialogDescription({
 
 export function AlertDialogFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
-    <div className={cn("mt-6 flex justify-end gap-3", className)} {...props} />
+    // Abaixo de `sm` empilha em largura cheia, com a ação por cima do "Cancelar".
+    <div
+      className={cn("mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end sm:gap-3", className)}
+      {...props}
+    />
   );
 }
 
@@ -64,7 +70,7 @@ export function AlertDialogCancel({
 }: React.ComponentProps<typeof AlertDialogPrimitive.Cancel>) {
   return (
     <AlertDialogPrimitive.Cancel
-      className={cn(buttonVariants({ variant: "ghost" }), className)}
+      className={cn(buttonVariants({ variant: "outline" }), className)}
       {...props}
     />
   );

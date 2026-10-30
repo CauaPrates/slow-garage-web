@@ -13,14 +13,26 @@
 @theme inline {
   --color-bg: var(--color-bg);
   --color-surface: var(--color-surface);
+  --color-surface-raised: var(--color-surface-raised);
+  --color-field: var(--color-field);
   --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
   --color-text-primary: var(--color-text-primary);
   --color-text-secondary: var(--color-text-secondary);
   --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
   --color-accent-foreground: var(--color-accent-foreground);
   --color-success: var(--color-success);
   --color-error: var(--color-error);
+  --color-error-foreground: var(--color-error-foreground);
   --color-warning: var(--color-warning);
+  --color-warning-foreground: var(--color-warning-foreground);
+  --color-state-hover: var(--color-state-hover);
+  --color-state-active: var(--color-state-active);
+  --color-focus-ring: var(--color-focus-ring);
+  --color-overlay: var(--color-overlay);
+
+  --shadow-overlay: var(--shadow-overlay);
 
   --font-hero: var(--font-hero);
   --font-sans: var(--font-sans);
@@ -34,8 +46,14 @@
   /* Fase 14 — sistema de resposta. Ver docs/DESIGN.md, "Sistema de resposta". */
   --animate-value-flash: value-flash 400ms ease-out;
   --animate-alert-in: alert-in 200ms ease-out;
+  /* Etapa 01 — folha da base entra deslizando 12px; só com motion-safe. */
+  --animate-sheet-in: sheet-in var(--duration-base) var(--ease-standard);
 
-  /* Fase 16 — header premium. Micro-animações e easing de mola. */
+  /*
+   * Fase 16 — mantidos só por compatibilidade: o shell parou de usar
+   * shimmer/brilho/mola na etapa 01 do redesign (nada decorativo roda
+   * sozinho), mas os nomes continuam resolvendo pra quem ainda referenciar.
+   */
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
   --ease-smooth: cubic-bezier(0.25, 0.1, 0.25, 1);
   --animate-shimmer: shimmer 2s ease-in-out 0.5s 1 forwards;
@@ -56,6 +74,17 @@
   from {
     opacity: 0;
     transform: translateY(-6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheet-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -104,14 +133,30 @@
     border-color: var(--color-border);
   }
 
+  html {
+    scrollbar-color: var(--color-border-strong) transparent;
+  }
+
   body {
     background-color: var(--color-bg);
     color: var(--color-text-primary);
     font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Valor comparável alinha em coluna: algarismos tabulares onde número costuma aparecer empilhado. */
+  dd,
+  td,
+  th,
+  input,
+  output,
+  time {
+    font-variant-numeric: tabular-nums;
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-accent);
+    outline: 2px solid var(--color-focus-ring);
     outline-offset: 2px;
   }
 }

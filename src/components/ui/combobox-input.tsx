@@ -2,6 +2,7 @@ import { useId, useRef, useState } from "react";
 import { Check, ChevronDown, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { ComboboxOption } from "@/components/ui/combobox";
+import { fieldClassName } from "./input";
 
 type ComboboxInputProps = {
   id: string;
@@ -134,7 +135,7 @@ export function ComboboxInput({
             setOpen(false);
           }
         }}
-        className="h-11 w-full min-w-0 rounded-md border border-border bg-surface px-3 py-2 pr-9 text-base text-text-primary outline-none transition-colors placeholder:text-text-secondary hover:border-text-secondary focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-error aria-invalid:ring-2 aria-invalid:ring-error/20 md:text-sm"
+        className={cn(fieldClassName, "h-11 pr-9")}
       />
 
       {loading ? (
@@ -162,7 +163,7 @@ export function ComboboxInput({
         // do campo seguinte — deixar o clique atravessar evita engolir o toque
         // de quem só queria ir pro próximo campo.
         className={cn(
-          "absolute top-full right-0 left-0 z-50 mt-1 rounded-lg border border-border bg-surface p-1 shadow-lg",
+          "absolute top-full right-0 left-0 z-50 mt-1 rounded-lg border border-border bg-surface-raised p-1 shadow-overlay",
           visiveis.length === 0 && "pointer-events-none",
         )}
       >
@@ -198,7 +199,7 @@ export function ComboboxInput({
               onMouseEnter={() => setActiveIndex(index)}
               className={cn(
                 "flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-text-primary transition-colors duration-150",
-                index === activeIndex && "bg-bg",
+                index === activeIndex && "bg-state-hover",
               )}
             >
               <Check

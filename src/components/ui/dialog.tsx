@@ -15,7 +15,7 @@ export function DialogContent({
 }: React.ComponentProps<typeof DialogPrimitive.Content>) {
   return (
     <DialogPrimitive.Portal>
-      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-black/60 transition-opacity duration-150 data-[state=closed]:opacity-0 data-[state=open]:opacity-100" />
+      <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-overlay" />
       <DialogPrimitive.Content
         onEscapeKeyDown={(event) => {
           /*
@@ -34,17 +34,19 @@ export function DialogContent({
           onEscapeKeyDown?.(event);
         }}
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 max-h-[85vh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-lg border border-border bg-surface p-6 shadow-lg transition-[opacity,transform] duration-150 focus:outline-none data-[state=closed]:scale-95 data-[state=closed]:opacity-0 data-[state=open]:scale-100 data-[state=open]:opacity-100",
+          // Quem rola é o próprio diálogo (`overscroll-contain` pra não arrastar a página de trás); as ações dos
+          // formulários ficam no fluxo, nunca fixas por cima do último campo. `dvh` acompanha o teclado virtual.
+          "fixed top-1/2 left-1/2 z-50 max-h-[85dvh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-lg border border-border bg-surface-raised p-5 shadow-overlay focus:outline-none sm:p-6",
           className,
         )}
         {...props}
       >
         {children}
         <DialogPrimitive.Close
-          className="absolute top-4 right-4 rounded-md text-text-secondary hover:text-text-primary focus-visible:outline-none"
+          className="absolute top-2 right-2 flex h-11 w-11 items-center justify-center rounded-md text-text-secondary transition-colors duration-(--duration-fast) hover:bg-state-hover hover:text-text-primary sm:top-3 sm:right-3"
           aria-label="Fechar"
         >
-          <X className="h-4 w-4" />
+          <X className="h-4 w-4" aria-hidden="true" />
         </DialogPrimitive.Close>
       </DialogPrimitive.Content>
     </DialogPrimitive.Portal>
@@ -52,7 +54,8 @@ export function DialogContent({
 }
 
 export function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
-  return <div className={cn("mb-4 flex flex-col gap-1", className)} {...props} />;
+  // `pr-10`: o título não corre por baixo do botão de fechar (absoluto, 44px).
+  return <div className={cn("mb-5 flex flex-col gap-1 pr-10", className)} {...props} />;
 }
 
 export function DialogTitle({
@@ -61,7 +64,7 @@ export function DialogTitle({
 }: React.ComponentProps<typeof DialogPrimitive.Title>) {
   return (
     <DialogPrimitive.Title
-      className={cn("text-lg font-medium text-text-primary", className)}
+      className={cn("text-lg font-semibold tracking-tight text-text-primary", className)}
       {...props}
     />
   );

@@ -1,22 +1,49 @@
 /*
- * Tokens "Rolê Noturno" — docs/DESIGN.md é a fonte da decisão (substitui
- * a paleta "Slow Car Club" da Fase 0). Dark é o padrão absoluto (não
- * segue prefers-color-scheme). A classe .light no elemento raiz troca a
- * paleta. Todo valor abaixo passou por checagem de contraste WCAG AA
- * (4.5:1 texto normal) calculada, não estimada — ver docs/DECISIONS.md.
+ * Tokens "Automotive Editorial" (redesign etapa 01) — docs/DESIGN.md é a
+ * fonte da decisão (substitui a paleta "Rolê Noturno"). Sem preferência
+ * salva o tema segue o sistema operacional (ADR-072); a classe .light no
+ * elemento raiz troca a paleta. Todo par texto/fundo abaixo passou por
+ * checagem de contraste WCAG AA calculada, não estimada — 4.5:1 pra texto
+ * (inclusive sobre o fundo tintado a 10% de badge), 3:1 pra borda de campo
+ * e anel de foco. Ver docs/DECISIONS.md (ADR-084).
+ *
+ * Os nomes antigos (`--color-bg`, `--color-surface`, `--color-accent`...)
+ * continuam valendo com o mesmo papel — só os valores mudaram. Os tokens
+ * novos são aditivos.
  */
 
 :root {
-  --color-bg: #121316;
-  --color-surface: #1b1d21;
-  --color-border: #2e3136;
-  --color-text-primary: #edeae3;
-  --color-text-secondary: #8d8f93;
-  --color-accent: #ff8a1e;
-  --color-accent-foreground: #121316;
-  --color-success: #5fae6b;
-  --color-error: #ea665a;
+  color-scheme: dark;
+
+  --color-bg: #111315;
+  --color-surface: #1b1e21;
+  /* Popover, diálogo, folha — um degrau acima do card, sem depender de sombra pra separar. */
+  --color-surface-raised: #212529;
+  /* Fundo de campo de formulário — levemente afundado em relação ao card. */
+  --color-field: #15181a;
+  --color-border: #2c3136;
+  /* Borda de campo/controle: 3:1 contra field, surface, raised e bg (WCAG 1.4.11). */
+  --color-border-strong: #6b7279;
+  --color-text-primary: #f2f0e9;
+  --color-text-secondary: #a8adb2;
+  --color-accent: #ef792d;
+  --color-accent-hover: #f48b47;
+  /* Branco sobre este laranja dá 2.8:1 — o texto sobre acento é o grafite do fundo (6.6:1). */
+  --color-accent-foreground: #111315;
+  --color-success: #62b06e;
+  /* Vermelho puxado pro carmim pra não se confundir com o laranja de marca. */
+  --color-error: #f26b7a;
+  --color-error-foreground: #111315;
   --color-warning: #e0b238;
+  --color-warning-foreground: #111315;
+
+  /* Estados de interação — sobreposição translúcida, funciona tanto sobre bg quanto sobre surface. */
+  --color-state-hover: color-mix(in srgb, var(--color-text-primary) 6%, transparent);
+  --color-state-active: color-mix(in srgb, var(--color-text-primary) 10%, transparent);
+  --color-focus-ring: var(--color-accent);
+  --color-overlay: rgb(5 6 7 / 0.72);
+
+  --shadow-overlay: 0 16px 40px -12px rgb(0 0 0 / 0.6), 0 2px 6px rgb(0 0 0 / 0.3);
 
   --font-hero: "Rajdhani", sans-serif;
   --font-sans:
@@ -25,8 +52,13 @@
   --font-mono: "JetBrains Mono", ui-monospace, monospace;
 
   --radius-sm: 0.25rem;
-  --radius-md: 0.5rem;
-  --radius-lg: 0.75rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.625rem;
+
+  /* Movimento: só resposta a ação, nunca decoração (docs/DESIGN.md, "Sistema de resposta"). */
+  --duration-fast: 120ms;
+  --duration-base: 180ms;
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
   /*
    * Paleta categórica de gráfico (Fase 9) — 8 slots, ordem fixa, nunca
@@ -47,16 +79,30 @@
 }
 
 .light {
-  --color-bg: #edebe6;
-  --color-surface: #f5f3ef;
-  --color-border: #d3d0c8;
-  --color-text-primary: #17181b;
-  --color-text-secondary: #5b5d61;
-  --color-accent: #974d00;
-  --color-accent-foreground: #fbf9f5;
+  color-scheme: light;
+
+  --color-bg: #f2f1ed;
+  --color-surface: #fbfaf8;
+  --color-surface-raised: #ffffff;
+  --color-field: #ffffff;
+  --color-border: #dcdad4;
+  --color-border-strong: #82878d;
+  --color-text-primary: #17191b;
+  --color-text-secondary: #5a5f65;
+  /* Escurecido pra fechar 4.5:1 como texto sobre bg/surface e sob tinta a 10%. */
+  --color-accent: #a1460a;
+  --color-accent-hover: #873a07;
+  /* Aqui o grafite sobre o acento dá 3:1 — no claro quem passa é o branco (6.2:1). */
+  --color-accent-foreground: #ffffff;
   --color-success: #386b41;
-  --color-error: #aa372a;
+  --color-error: #b42335;
+  --color-error-foreground: #ffffff;
   --color-warning: #7c5b10;
+  --color-warning-foreground: #ffffff;
+
+  --color-overlay: rgb(17 19 21 / 0.45);
+
+  --shadow-overlay: 0 16px 40px -16px rgb(17 19 21 / 0.22), 0 2px 6px rgb(17 19 21 / 0.06);
 
   --chart-series-1: #2a78d6;
   --chart-series-2: #eb6834;

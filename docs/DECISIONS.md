@@ -2123,3 +2123,70 @@ dicionário de nomes: quebra acima de 200 usuários.
 **Pendência no backend.** Se a lista de convites crescer, o certo é uma RPC
 de listagem de convites que já traga nome e e-mail de convidado e de quem
 convidou, no lugar das N chamadas a `admin_get_user`.
+
+## ADR-084 — Redesign etapa 01: sistema visual "Automotive Editorial", marca vetorial e navegação agrupada
+
+**Contexto.** A direção visual aprovada para o redesign (Automotive
+Editorial + Performance Minimalism) troca a estética "Rolê Noturno" e o
+acabamento do header da Fase 16 (vidro, brilho, shimmer, mola). Esta etapa
+cobre só a base compartilhada (tokens, `components/ui`, shell e
+navegação); as páginas recebem apenas o efeito natural dos tokens. O kit
+de marca v1 (SVGs `slow-garage-logo-dark/light` e `slow-garage-symbol`)
+veio junto.
+
+**Decisão.**
+
+- `tokens.css` continua a única fonte de cor. Os nomes antigos mantêm o
+  papel e mudam só o valor; os novos são aditivos (`surface-raised`,
+  `field`, `border-strong`, `accent-hover`, `error-foreground`,
+  `warning-foreground`, `state-hover`, `state-active`, `focus-ring`,
+  `overlay`, `shadow-overlay`, `duration-*`, `ease-standard`). Nenhuma
+  página precisou mudar de classe.
+- Texto sobre o acento é escolhido por contraste calculado: grafite no
+  escuro, branco no claro. O vermelho de erro foi para o carmim para não
+  ficar a poucos graus de matiz do laranja de marca.
+- `AlertDialogContent` ganhou um fio carmim no topo e a ação em
+  `destructive`; o "Cancelar" virou `outline`. Todas as 16 confirmações do
+  app são de ação sem volta fácil (conferido), então o padrão vale pra
+  todas.
+- `buttonVariants` e os botões de fechar de `Dialog`/`NavSheet` tinham
+  `focus-visible:outline-none` sem substituto: o botão ficava sem foco
+  visível no teclado. Agora usam o contorno global (`--color-focus-ring`).
+  Os botões de fechar viraram alvo de 44px; o título do diálogo ganha
+  `pr-10` para não correr por baixo deles.
+- Marca vetorial em `public/brand/` (PNG antigo preservado), via
+  `BrandLogo`, que escolhe o lettering pelo `resolvedTheme`. A marca
+  aparece num lugar só por vez. Favicon, ícones de instalação e manifest
+  não mudaram.
+- Shell: a sidebar ocupa a altura toda (marca no topo, alinhada à altura
+  do cabeçalho); o cabeçalho cobre só a coluna de conteúdo. O modelo de
+  rolagem da Fase 15e é o mesmo (shell `lg:h-dvh`, `<main>` rola,
+  atividade cede altura, "Configurações" sempre visível — verificado com
+  640px de altura).
+- Navegação agrupada (`NavGroup` em `lib/navigation.ts`): os títulos
+  Custos/Cuidados/Preparação/Arquivo são `role="group"` com rótulo, não
+  rotas. Os 11 destinos, o Painel admin condicionado a `is_admin`, o
+  fallback de veículo em Configurações (ADR-062/063) e a regra "sem
+  veículo, sem item" (ADR-049) ficaram iguais.
+- Bug corrigido: o "Dashboard" (`/v/:id`) não tinha `end`, então ficava
+  ativo junto com qualquer subpágina do veículo. `NavItem.end` resolve; o
+  "Projetos" continua ativo no detalhe do projeto (verificado).
+- Bottom nav: "Carros" → "Garagem"; o FAB "+" elevado virou "Registrar"
+  com rótulo visível, ainda só abrindo a folha (6 ações com `?novo=1`,
+  bloqueado sem veículo); "Mais" fica marcado quando a página atual mora
+  nele; "Configurações" aparece como "Ajustes" porque a 11px mede ~77px e
+  cada aba tem ~66px em 360px (medido). A folha "Mais" usa os mesmos
+  grupos da sidebar e marca a seção atual.
+- Folga inferior do `<main>` passou a somar a safe area
+  (`calc(5rem + env(safe-area-inset-bottom))`).
+
+**Alternativas descartadas.** Renomear tokens para uma nomenclatura nova:
+obrigaria a tocar todas as páginas. Busca global e central de notificações
+do protótipo: fora do escopo aprovado. Encolher o rótulo da aba para 10px
+para caber "Configurações": sobrariam ~2px, e a própria ADR-055 já tinha
+visto esse rótulo truncar. Repetir a marca no cabeçalho e na sidebar ao
+mesmo tempo no desktop.
+
+**Pendências.** `FieldError` continua associado ao campo só por
+`role="alert"` (anunciado ao aparecer), não por `aria-describedby`. Ligar
+isso exige mexer em cada formulário, fora desta etapa.

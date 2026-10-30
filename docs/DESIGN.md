@@ -1,5 +1,92 @@
 # DESIGN.md — Identidade visual do Slow Garage
 
+## Redesign — etapa 01: Automotive Editorial (sistema visual + navegação)
+
+Direção aprovada: **Automotive Editorial + Performance Minimalism** —
+personalidade de publicação automotiva bem editada com a clareza de um
+instrumento técnico. Substitui as escolhas *estéticas* das revisões
+anteriores (âmbar "luz de sódio", vidro/brilho/shimmer do header da Fase
+16, wordmark em Rajdhani); as decisões *funcionais e de acessibilidade*
+abaixo continuam valendo. Decisão completa em `docs/DECISIONS.md`
+(ADR-084).
+
+- **Superfícies sólidas** em grafite/carvão, branco levemente quente,
+  cinzas secundários legíveis. Sem glassmorphism, neon, brilho, gradiente
+  decorativo, textura ou fotografia de fundo.
+- **Laranja pontual** (`#EF792D` no escuro, `#A1460A` no claro): ação
+  primária, foco, estado ativo e a própria marca. Nunca pra destacar valor
+  em lista nem pra enfeitar ícone.
+- **Texto sobre o laranja é calculado, não presumido**: grafite no escuro
+  (6.6:1 — branco daria 2.8:1), branco no claro (6.2:1).
+- **Erro puxado pro carmim** (`#F26B7A`/`#B42335`) pra não se confundir
+  com o laranja de marca; ação destrutiva e ação comum diferem em matiz.
+- **Estados de interação** por sobreposição translúcida
+  (`--color-state-hover`/`--color-state-active`), que funciona igual sobre
+  `bg` e `surface` — antes `hover:bg-bg` dentro de popover (`surface`)
+  ficava invisível em alguns lugares e visível em outros.
+- **Campo de formulário** com fundo próprio (`--color-field`) e borda
+  `--color-border-strong`, 3:1 contra todo fundo onde aparece (WCAG
+  1.4.11). Casca única em `fieldClassName` (`components/ui/input.tsx`),
+  reaproveitada por `Textarea`, `Select`, `Combobox` e `ComboboxInput`.
+- **Camadas**: `bg` → `surface` (card, sidebar) → `surface-raised`
+  (popover, diálogo, folha), com `--shadow-overlay` só nas camadas que
+  flutuam.
+- **Movimento**: `--duration-fast` (120ms) / `--duration-base` (180ms),
+  `--ease-standard`. Nada roda sozinho; a folha da base entra com 12px de
+  deslize só com `motion-safe`. Shimmer, mola e brilho do header saíram
+  (os tokens antigos continuam definidos por compatibilidade).
+- **Tipografia**: nenhuma fonte nova. Space Grotesk continua a família de
+  interface; JetBrains Mono continua restrita a número de medição/placa;
+  algarismos tabulares em `dd`/`td`/`input`/`time`. Rajdhani deixou de ser
+  usada (o wordmark virou a marca vetorial), mas segue instalada.
+- **Marca** (`public/brand/slow-garage-*.svg`, `BrandLogo`): lettering
+  claro no escuro e escuro no claro (segue o tema **aplicado**, inclusive
+  "seguir o sistema"); símbolo compacto (dois quadrados laranja) onde falta
+  espaço. Aparece num lugar só por vez: topo da sidebar a partir de `lg`,
+  cabeçalho abaixo disso (símbolo abaixo de `sm`), e como `h1` das telas de
+  auth. O PNG antigo continua em `public/brand/`; favicon/ícones PWA não
+  mudaram.
+- **Navegação** — sidebar em altura total com três blocos: (A) destinos
+  gerais, (B) veículo aberto identificado por nome + placa e as seções
+  agrupadas sob títulos que **não são páginas** (Custos, Cuidados,
+  Preparação, Arquivo), (C) conta e administração no rodapé. Item ativo:
+  fundo + peso + fio de 2px no acento, nunca só cor. Bottom nav: Dashboard,
+  Garagem, **Registrar** (rótulo visível, abre a folha de 6 ações), Mais
+  (marcado quando a página atual mora nele) e **Ajustes** (= Configurações;
+  rótulo curto porque "Configurações" a 11px não cabe em 5 abas de 360px).
+  A folha "Mais" usa os mesmos grupos da sidebar.
+
+### Tokens (etapa 01)
+
+| Token | Escuro | Claro | Papel |
+|---|---|---|---|
+| `--color-bg` | `#111315` | `#F2F1ED` | Fundo |
+| `--color-surface` | `#1B1E21` | `#FBFAF8` | Card, sidebar, barra inferior |
+| `--color-surface-raised` | `#212529` | `#FFFFFF` | Popover, diálogo, folha |
+| `--color-field` | `#15181A` | `#FFFFFF` | Fundo de campo |
+| `--color-border` | `#2C3136` | `#DCDAD4` | Divisor, borda de card |
+| `--color-border-strong` | `#6B7279` | `#82878D` | Borda de campo/controle (3:1) |
+| `--color-text-primary` | `#F2F0E9` | `#17191B` | Texto principal |
+| `--color-text-secondary` | `#A8ADB2` | `#5A5F65` | Texto de apoio |
+| `--color-accent` | `#EF792D` | `#A1460A` | Ação primária, foco, ativo |
+| `--color-accent-hover` | `#F48B47` | `#873A07` | Hover da ação primária |
+| `--color-accent-foreground` | `#111315` | `#FFFFFF` | Texto sobre acento |
+| `--color-success` | `#62B06E` | `#386B41` | Sucesso |
+| `--color-warning` | `#E0B238` | `#7C5B10` | Aviso |
+| `--color-error` | `#F26B7A` | `#B42335` | Erro / destrutivo |
+| `--color-error-foreground`, `--color-warning-foreground` | `#111315` | `#FFFFFF` | Texto sobre selo/botão semântico |
+
+Todos os pares de texto passam 4.5:1 sobre `bg`, `surface`,
+`surface-raised` e `field`, inclusive sobre o fundo tintado a 10% de
+badge; borda forte e anel de foco passam 3:1. Calculado (fórmula WCAG,
+`color-mix` em sRGB como o navegador faz), não estimado. Raios: `sm` 4px,
+`md` 6px, `lg` 10px.
+
+As seções abaixo são o histórico das revisões anteriores. Onde contradizem
+esta etapa em cor, fonte de marca, separador do breadcrumb ou acabamento do
+cabeçalho, vale esta etapa; regras de densidade, hierarquia, motion
+("confirma, nunca celebra") e acessibilidade continuam valendo.
+
 ## Revisão de identidade (pós-Fase 10)
 
 A identidade original da Fase 0 ("Slow Car Club": dourado clássico sobre
