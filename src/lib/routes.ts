@@ -23,6 +23,14 @@ export const ROUTES = {
   vehicleDocuments: (vehicleId: string) => `/v/${vehicleId}/documentos`,
   vehiclePhotos: (vehicleId: string) => `/v/${vehicleId}/fotos`,
   vehicleTimeline: (vehicleId: string) => `/v/${vehicleId}/historico`,
+  meusConvites: "/convites",
+  admin: "/admin",
+  adminUsers: "/admin/usuarios",
+  adminUser: (userId: string) => `/admin/usuarios/${userId}`,
+  adminInvites: "/admin/convites",
+  adminAudit: "/admin/auditoria",
+  /** Log filtrado por um usuário (quem agiu OU quem foi afetado — `p_user_id` da RPC). */
+  adminAuditForUser: (userId: string) => `/admin/auditoria?usuario=${userId}`,
 } as const;
 
 /**

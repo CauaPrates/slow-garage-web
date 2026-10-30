@@ -1,20 +1,13 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Settings, User } from "lucide-react";
+import { Mail, Settings, ShieldCheck, User } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useAuth } from "@/features/auth/AuthProvider";
 import { useProfile } from "@/features/auth/useProfile";
 import { SignOutDialog } from "@/features/auth/components/SignOutDialog";
 import { ROUTES } from "@/lib/routes";
-
-function initialsFrom(displayName: string): string {
-  const parts = displayName.trim().split(/\s+/).filter(Boolean);
-  const initials = parts
-    .slice(0, 2)
-    .map((part) => part[0])
-    .join("");
-  return initials.toUpperCase();
-}
+import { initialsFrom } from "@/components/shared/UserAvatar";
+import { useIsAdmin } from "@/features/admin/useIsAdmin";
 
 /** Foto real (`avatar_url`) > iniciais do nome de exibição > ícone genérico — nessa ordem, nunca inventando uma das duas primeiras quando falta dado. "Sair" reaproveita o `SignOutDialog` já usado em Configurações, mesma confirmação. */
 export function HeaderUserMenu() {
@@ -22,6 +15,7 @@ export function HeaderUserMenu() {
   const [signOutOpen, setSignOutOpen] = useState(false);
   const { user, signOut } = useAuth();
   const { data: profile } = useProfile();
+  const { data: isAdmin } = useIsAdmin();
   const navigate = useNavigate();
   const displayName = profile?.display_name ?? null;
 
@@ -63,6 +57,25 @@ export function HeaderUserMenu() {
             <Settings className="h-4 w-4 text-text-secondary" aria-hidden="true" />
             Configurações
           </Link>
+          <Link
+            to={ROUTES.meusConvites}
+            onClick={() => setMenuOpen(false)}
+            className="flex items-center gap-2 rounded-md px-2 py-2 text-sm text-text-primary transition-colors duration-150 hover:bg-bg"
+          >
+            <Mail className="h-4 w-4 text-text-secondary" aria-hidden="true" />
+            Meus convites
+          </Link>
+          {/* Fase 031: só UX — quem barra de verdade é a RPC (403 `not_admin`). */}
+          {isAdmin && (
+            <Link
+              to={ROUTES.admin}
+              onClick={() => setMenuOpen(false)}
+              className="flex items-center gap-2 rounded-md px-2 py-2 text-sm text-text-primary transition-colors duration-150 hover:bg-bg"
+            >
+              <ShieldCheck className="h-4 w-4 text-text-secondary" aria-hidden="true" />
+              Painel admin
+            </Link>
+          )}
           <button
             type="button"
             onClick={() => {
