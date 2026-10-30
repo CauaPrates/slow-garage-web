@@ -7,13 +7,69 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5"
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
   }
   public: {
     Tables: {
+      admin_invites: {
+        Row: {
+          created_at: string
+          email_sent_at: string | null
+          expires_at: string
+          id: string
+          invited_by: string | null
+          invitee_id: string
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["admin_invite_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email_sent_at?: string | null
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          invitee_id: string
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["admin_invite_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email_sent_at?: string | null
+          expires_at?: string
+          id?: string
+          invited_by?: string | null
+          invitee_id?: string
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["admin_invite_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       attachments: {
         Row: {
           created_at: string
@@ -67,6 +123,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      audit_logs: {
+        Row: {
+          action: Database["public"]["Enums"]["audit_action"]
+          actor_id: string | null
+          id: number
+          metadata: Json
+          occurred_at: string
+          target_user_id: string | null
+        }
+        Insert: {
+          action: Database["public"]["Enums"]["audit_action"]
+          actor_id?: string | null
+          id?: never
+          metadata?: Json
+          occurred_at?: string
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: Database["public"]["Enums"]["audit_action"]
+          actor_id?: string | null
+          id?: never
+          metadata?: Json
+          occurred_at?: string
+          target_user_id?: string | null
+        }
+        Relationships: []
       }
       documents: {
         Row: {
@@ -673,6 +756,39 @@ export type Database = {
           },
         ]
       }
+      notifications: {
+        Row: {
+          body: string | null
+          created_at: string
+          data: Json
+          id: string
+          read_at: string | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          data?: Json
+          id?: string
+          read_at?: string | null
+          title: string
+          type: Database["public"]["Enums"]["notification_type"]
+          user_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          data?: Json
+          id?: string
+          read_at?: string | null
+          title?: string
+          type?: Database["public"]["Enums"]["notification_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       obligations: {
         Row: {
           amount: number | null
@@ -905,6 +1021,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          granted_at: string | null
+          granted_by: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          granted_at?: string | null
+          granted_by?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          granted_at?: string | null
+          granted_by?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       vehicle_photos: {
         Row: {
@@ -1267,7 +1410,155 @@ export type Database = {
       }
     }
     Functions: {
+      accept_admin_invite: {
+        Args: { p_invite_id: string }
+        Returns: {
+          created_at: string
+          email_sent_at: string | null
+          expires_at: string
+          id: string
+          invited_by: string | null
+          invitee_id: string
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["admin_invite_status"]
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "admin_invites"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      admin_create_invite: {
+        Args: { p_invitee_id: string }
+        Returns: {
+          created_at: string
+          email_sent_at: string | null
+          expires_at: string
+          id: string
+          invited_by: string | null
+          invitee_id: string
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["admin_invite_status"]
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "admin_invites"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      admin_get_overview: { Args: never; Returns: Json }
+      admin_get_user: { Args: { p_user_id: string }; Returns: Json }
+      admin_list_audit_logs: {
+        Args: {
+          p_action?: Database["public"]["Enums"]["audit_action"]
+          p_limit?: number
+          p_offset?: number
+          p_user_id?: string
+        }
+        Returns: {
+          action: Database["public"]["Enums"]["audit_action"]
+          actor_email: string
+          actor_id: string
+          actor_name: string
+          id: number
+          metadata: Json
+          occurred_at: string
+          target_email: string
+          target_name: string
+          target_user_id: string
+          total_count: number
+        }[]
+      }
+      admin_list_users: {
+        Args: {
+          p_limit?: number
+          p_offset?: number
+          p_role?: Database["public"]["Enums"]["app_role"]
+          p_search?: string
+        }
+        Returns: {
+          avatar_url: string
+          created_at: string
+          display_name: string
+          email: string
+          email_confirmed_at: string
+          last_sign_in_at: string
+          role: Database["public"]["Enums"]["app_role"]
+          total_count: number
+          user_id: string
+          vehicles_count: number
+        }[]
+      }
+      admin_revoke_admin_role: {
+        Args: { p_user_id: string }
+        Returns: {
+          created_at: string
+          granted_at: string | null
+          granted_by: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "user_roles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      admin_revoke_invite: {
+        Args: { p_invite_id: string }
+        Returns: {
+          created_at: string
+          email_sent_at: string | null
+          expires_at: string
+          id: string
+          invited_by: string | null
+          invitee_id: string
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["admin_invite_status"]
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "admin_invites"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      admin_signups_by_day: {
+        Args: { p_days?: number }
+        Returns: {
+          day: string
+          signups: number
+        }[]
+      }
+      decline_admin_invite: {
+        Args: { p_invite_id: string }
+        Returns: {
+          created_at: string
+          email_sent_at: string | null
+          expires_at: string
+          id: string
+          invited_by: string | null
+          invitee_id: string
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["admin_invite_status"]
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "admin_invites"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       get_vehicle_dashboard: { Args: { p_vehicle_id: string }; Returns: Json }
+      is_admin: { Args: never; Returns: boolean }
       owns_vehicle: { Args: { p_vehicle_id: string }; Returns: boolean }
       search_vehicle: {
         Args: { p_query: string; p_vehicle_id: string }
@@ -1282,7 +1573,14 @@ export type Database = {
       }
     }
     Enums: {
+      admin_invite_status:
+        | "pending"
+        | "accepted"
+        | "declined"
+        | "revoked"
+        | "expired"
       alert_severity: "warning" | "critical"
+      app_role: "gearhead" | "gearhead_admin"
       attachment_entity_type:
         | "expense"
         | "fuel_log"
@@ -1290,6 +1588,14 @@ export type Database = {
         | "issue"
         | "project_item"
         | "note"
+      audit_action:
+        | "user_signed_up"
+        | "role_changed"
+        | "admin_invite_created"
+        | "admin_invite_accepted"
+        | "admin_invite_declined"
+        | "admin_invite_revoked"
+        | "admin_invite_expired"
       document_type:
         | "invoice"
         | "receipt"
@@ -1314,6 +1620,12 @@ export type Database = {
         | "resolved"
         | "dismissed"
       maintenance_status_level: "overdue" | "due_soon" | "ok" | "planned"
+      notification_type:
+        | "admin_invite_received"
+        | "admin_invite_accepted"
+        | "admin_invite_declined"
+        | "admin_role_granted"
+        | "admin_role_revoked"
       obligation_kind:
         | "insurance"
         | "ipva"
@@ -1368,12 +1680,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1397,11 +1709,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1422,11 +1734,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends (DefaultSchemaTableNameOrOptions extends {
+  TableName extends DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1447,11 +1759,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never) = never,
+    : never = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1464,11 +1776,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never) = never,
+    : never = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1478,9 +1790,20 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {
+      admin_invite_status: [
+        "pending",
+        "accepted",
+        "declined",
+        "revoked",
+        "expired",
+      ],
       alert_severity: ["warning", "critical"],
+      app_role: ["gearhead", "gearhead_admin"],
       attachment_entity_type: [
         "expense",
         "fuel_log",
@@ -1488,6 +1811,15 @@ export const Constants = {
         "issue",
         "project_item",
         "note",
+      ],
+      audit_action: [
+        "user_signed_up",
+        "role_changed",
+        "admin_invite_created",
+        "admin_invite_accepted",
+        "admin_invite_declined",
+        "admin_invite_revoked",
+        "admin_invite_expired",
       ],
       document_type: [
         "invoice",
@@ -1516,6 +1848,13 @@ export const Constants = {
         "dismissed",
       ],
       maintenance_status_level: ["overdue", "due_soon", "ok", "planned"],
+      notification_type: [
+        "admin_invite_received",
+        "admin_invite_accepted",
+        "admin_invite_declined",
+        "admin_role_granted",
+        "admin_role_revoked",
+      ],
       obligation_kind: [
         "insurance",
         "ipva",
@@ -1563,3 +1902,4 @@ export const Constants = {
     },
   },
 } as const
+

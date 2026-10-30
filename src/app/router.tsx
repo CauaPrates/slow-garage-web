@@ -62,6 +62,37 @@ export const router = createBrowserRouter([
                 element: lazyPage(() => import("@/features/auth/SettingsPage"), "SettingsPage"),
               },
               {
+                path: "convites",
+                element: lazyPage(() => import("@/features/notification/MyInvitesPage"), "MyInvitesPage"),
+              },
+              {
+                // Fase 031: AdminLayout é o guard (`is_admin()`) — só UX; a RPC é quem barra.
+                path: "admin",
+                element: lazyPage(() => import("@/features/admin/AdminLayout"), "AdminLayout"),
+                children: [
+                  {
+                    index: true,
+                    element: lazyPage(() => import("@/features/admin/AdminDashboardPage"), "AdminDashboardPage"),
+                  },
+                  {
+                    path: "usuarios",
+                    element: lazyPage(() => import("@/features/admin/AdminUsersPage"), "AdminUsersPage"),
+                  },
+                  {
+                    path: "usuarios/:userId",
+                    element: lazyPage(() => import("@/features/admin/AdminUserDetailPage"), "AdminUserDetailPage"),
+                  },
+                  {
+                    path: "convites",
+                    element: lazyPage(() => import("@/features/admin/AdminInvitesPage"), "AdminInvitesPage"),
+                  },
+                  {
+                    path: "auditoria",
+                    element: lazyPage(() => import("@/features/admin/AdminAuditPage"), "AdminAuditPage"),
+                  },
+                ],
+              },
+              {
                 path: "v/:vehicleId",
                 element: lazyPage(() => import("@/features/vehicle/VehiclePage"), "VehiclePage"),
               },

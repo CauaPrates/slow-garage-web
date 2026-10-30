@@ -7,6 +7,8 @@ import { HeaderAlertsMenu } from "./HeaderAlertsMenu";
 import { HeaderActivityMenu } from "./HeaderActivityMenu";
 import { HeaderVehicleSwitcher } from "./HeaderVehicleSwitcher";
 import { HeaderUserMenu } from "./HeaderUserMenu";
+import { HeaderNotificationsMenu } from "./HeaderNotificationsMenu";
+import { RouteNotice } from "./RouteNotice";
 
 /**
  * Fase 15e: no desktop (`lg`+) o shell tem a altura exata da viewport e não
@@ -78,6 +80,7 @@ export function AppShell() {
           <div className="lg:hidden">
             <HeaderActivityMenu vehicles={vehicles ?? []} />
           </div>
+          <HeaderNotificationsMenu />
           <HeaderAlertsMenu vehicles={vehicles ?? []} />
           <HeaderUserMenu />
         </div>
@@ -85,6 +88,7 @@ export function AppShell() {
       <div className="flex flex-1 lg:min-h-0">
         <Sidebar vehicles={vehicles ?? []} />
         <main className="min-w-0 flex-1 pb-20 lg:overflow-y-auto lg:pb-0">
+          <RouteNotice />
           <Outlet />
         </main>
       </div>
