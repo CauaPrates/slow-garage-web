@@ -9,6 +9,7 @@ import { HeaderActivityMenu } from "./HeaderActivityMenu";
 import { HeaderVehicleSwitcher } from "./HeaderVehicleSwitcher";
 import { HeaderUserMenu } from "./HeaderUserMenu";
 import { HeaderNotificationsMenu } from "./HeaderNotificationsMenu";
+import { HeaderInboxMenu } from "./HeaderInboxMenu";
 import { RouteNotice } from "./RouteNotice";
 
 /**
@@ -36,13 +37,18 @@ export function AppShell() {
       <div className="flex min-w-0 flex-1 flex-col lg:min-h-0">
         {/* z-20: abaixo do z-30 da BottomNav e do z-50 de popover/diálogo. */}
         <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b border-border bg-bg px-2 sm:h-16 sm:gap-3 sm:px-6">
+          {/*
+            Etapa 02: logo completo também no celular (o símbolo sozinho não
+            dizia "Slow Garage"). 32px de altura dão ~69px de largura — com a
+            troca de veículo, cabe em 360px porque abaixo de `sm` notificações
+            e atividade dividem um botão só (`HeaderInboxMenu`).
+          */}
           <Link
             to={ROUTES.home}
             aria-label="Slow Garage — ir para Minha garagem"
-            className="flex h-11 min-w-11 shrink-0 items-center justify-center rounded-md lg:hidden"
+            className="flex h-11 min-w-11 shrink-0 items-center justify-center rounded-md px-1 lg:hidden"
           >
-            <BrandLogo variant="symbol" className="h-8 sm:hidden" />
-            <BrandLogo className="hidden h-10 sm:block" />
+            <BrandLogo className="h-8 sm:h-10" />
           </Link>
 
           <div className="flex min-w-0 flex-1 items-center">
@@ -50,11 +56,17 @@ export function AppShell() {
           </div>
 
           <div className="flex shrink-0 items-center sm:gap-1">
+            <div className="sm:hidden">
+              <HeaderInboxMenu vehicles={vehicleList} />
+            </div>
             {/* No desktop a atividade recente mora na sidebar (`SidebarActivityFeed`). */}
-            <div className="lg:hidden">
+            <div className="hidden sm:block lg:hidden">
               <HeaderActivityMenu vehicles={vehicleList} />
             </div>
-            <HeaderNotificationsMenu />
+            {/* Oculto abaixo de `sm`, mas montado: é ele que assina o tempo real das notificações. */}
+            <div className="hidden sm:block">
+              <HeaderNotificationsMenu />
+            </div>
             <HeaderAlertsMenu vehicles={vehicleList} />
             <span className="mx-1.5 hidden h-6 w-px bg-border sm:block" aria-hidden="true" />
             <HeaderUserMenu />

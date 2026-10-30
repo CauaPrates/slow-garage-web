@@ -43,8 +43,9 @@ abaixo continuam valendo. Decisão completa em `docs/DECISIONS.md`
   claro no escuro e escuro no claro (segue o tema **aplicado**, inclusive
   "seguir o sistema"); símbolo compacto (dois quadrados laranja) onde falta
   espaço. Aparece num lugar só por vez: topo da sidebar a partir de `lg`,
-  cabeçalho abaixo disso (símbolo abaixo de `sm`), e como `h1` das telas de
-  auth. O PNG antigo continua em `public/brand/`; favicon/ícones PWA não
+  cabeçalho abaixo disso, e como `h1` das telas de auth. (Etapa 02: o
+  cabeçalho do celular passou a usar o logo completo em vez do símbolo —
+  ver abaixo.) O PNG antigo continua em `public/brand/`; favicon/ícones PWA não
   mudaram.
 - **Navegação** — sidebar em altura total com três blocos: (A) destinos
   gerais, (B) veículo aberto identificado por nome + placa e as seções
@@ -81,6 +82,71 @@ Todos os pares de texto passam 4.5:1 sobre `bg`, `surface`,
 badge; borda forte e anel de foco passam 3:1. Calculado (fórmula WCAG,
 `color-mix` em sRGB como o navegador faz), não estimado. Raios: `sm` 4px,
 `md` 6px, `lg` 10px.
+
+## Redesign — etapa 02: Minha garagem
+
+Mesma direção e mesmos tokens da etapa 01; nenhuma cor nova. Decisão
+completa em `docs/DECISIONS.md` (ADR-085).
+
+- **Ordem da página**: cabeçalho curto ("Minha garagem" + "Seus carros.
+  Suas histórias." + uma única chamada "Cadastrar veículo", ao lado do
+  título também no celular — lá o rótulo visível é "Cadastrar" com ícone
+  "+", e "veículo" fica em `sr-only`; no estado vazio a chamada fica só no
+  painel), resumo operacional compacto e a grade de veículos. Nada de
+  banner nem foto de fundo. Critério medido: no celular (360 e 390) o nome
+  do primeiro carro termina acima da barra inferior na primeira tela.
+- **Resumo operacional** (`GarageOverview`): grade de instrumentos
+  (ADR-070). Com 2+ veículos: veículos, gasto no mês (dica "mês atual") e
+  pendências — no celular os três numa linha só (`1fr 1.5fr 1fr`, módulo
+  `px-3 py-2.5`), e o veículo das pendências só aparece a partir de `sm`.
+  A próxima manutenção entra na faixa a partir de `lg`; abaixo disso é o
+  primeiro bloco de "Detalhes da garagem", com veículo e data por extenso.
+  Com 1 veículo, só pendências e próxima manutenção (o resto já está no
+  card). Cada módulo tem estado próprio — carregando,
+  erro com "Tentar de novo" (nunca "nada pendente"), pronto. Valor em
+  `font-mono` só quando é medida; nome de manutenção fica na fonte de
+  interface. Dica longa quebra em até 2 linhas.
+- **Detalhes da garagem**: gatilho no rodapé do resumo (`aria-expanded` +
+  `aria-controls`), recolhido por padrão em **qualquer** largura. Abre o
+  resumo financeiro (5 totais + gráficos de mês e categoria) e o
+  comparativo (custo/km médio com "N de M com dado" + investimento por
+  veículo), como superfícies irmãs — não card dentro de card.
+- **Grade de veículos**: `repeat(auto-fill, minmax(min(100%, 20rem), 1fr))`,
+  `items-start`, `gap-5`. Três colunas só quando cabem três cards de 20rem
+  (1440 com sidebar); duas em tablet/notebook; uma no celular. Cards
+  alinhados ao topo: abrir a ficha de um não estica os vizinhos.
+- **Card de veículo** (`VehicleCard`): vertical, foto em cima em 4:3 (a
+  proporção do recorte, ADR-081), sem filtro; por cima, só dois selos
+  sólidos (`bg-bg`): baia à esquerda e status à direita (texto, só "Ativo"
+  no acento). Identificação: marca em sobrelinha pequena, modelo como
+  título `text-lg` (`h3`, quebra linha, nunca corta), ano · versão e placa
+  em tag mono numa linha só. Km e gasto no mês atual sempre visíveis; "Ficha técnica"
+  expande custo/km, total investido, combustível, câmbio, motor e
+  potência (os dois últimos só quando informados). Ausente = "—"; zero =
+  "R$ 0,00".
+- **Abrir o veículo**: link explícito "Abrir veículo →" na mesma linha da
+  "Ficha técnica" (texto neutro, só a seta no acento — laranja em todo
+  card viraria decoração), descrito pelo nome do veículo. É o caminho de
+  teclado. O título também é link, esticado (`after:absolute
+  after:inset-0`) sobre foto + identificação pra ponteiro e toque, mas com
+  `tabIndex={-1}`: um destino, uma parada de tabulação. Ficha, registros e
+  menu ficam fora da área — nenhum toque neles navega.
+- **Ações**: faixa de rodapé com os 4 registros (gasto, abastecimento,
+  manutenção, foto — ícone, `title` e `aria-label`, descritos pelo nome do
+  veículo via `aria-describedby`) e, à direita, "Mais ações" (⋯) com
+  "Editar veículo" e, separado por divisor e em carmim, "Excluir veículo".
+  Fechar o diálogo devolve o foco ao ⋯.
+- **Sem foto**: no celular a região encolhe (`h-32`, texto + "Adicionar
+  foto"); a partir de `sm` mantém 4:3 com ícone de carro, pra alinhar com
+  o card vizinho. Falha ao carregar a foto mostra "Foto indisponível no
+  momento." (sem oferecer adicionar — a foto existe).
+- **Cabeçalho do celular**: logo completo (`BrandLogo`, 32px de altura ≈
+  69px de largura) no lugar do símbolo. Abaixo de `sm`, notificações e
+  atividade recente dividem um botão (`HeaderInboxMenu`, abas
+  "Notificações"/"Atividade", setas trocam de aba, aba ativa com fio +
+  peso); alertas e menu do usuário seguem com botão próprio. Medido em
+  360px com troca de veículo: logo 8–85, troca 93–203, caixa 220–264,
+  alertas 264–308, usuário 308–352, altura igual à da etapa 01.
 
 As seções abaixo são o histórico das revisões anteriores. Onde contradizem
 esta etapa em cor, fonte de marca, separador do breadcrumb ou acabamento do

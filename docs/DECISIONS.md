@@ -2190,3 +2190,98 @@ mesmo tempo no desktop.
 **Pendências.** `FieldError` continua associado ao campo só por
 `role="alert"` (anunciado ao aparecer), não por `aria-describedby`. Ligar
 isso exige mexer em cada formulário, fora desta etapa.
+
+## ADR-085 — Redesign etapa 02: Minha garagem com veículos em primeiro plano
+
+**Contexto.** A etapa 01 trocou tokens, marca e navegação, e as páginas
+receberam só o efeito natural disso. Na Garagem, o painel de
+indicadores (`GarageComparisonDashboard`, só no desktop) e o resumo
+(`GarageSummary`, aberto a partir de `lg`) vinham antes dos veículos e
+empurravam os carros para fora da primeira tela. O card era a "baia"
+horizontal da Fase 14c, com a foto numa faixa estreita, e editar/excluir
+dividiam a mesma faixa dos registros do dia a dia. Na revisão das
+capturas da etapa 01, o símbolo laranja sozinho no cabeçalho do celular
+não dizia "Slow Garage".
+
+**Decisão.**
+
+- Ordem: cabeçalho curto → resumo operacional compacto
+  (`GarageOverview`) → grade de veículos. Totais, gráficos e comparativo
+  ficam em "Detalhes da garagem", recolhido por padrão em qualquer
+  largura, na mesma rota.
+- Resumo operacional: com 2+ veículos, mostra veículos (com quantos
+  ativos), gasto no mês atual (soma de `current_month_spend`), pendências
+  (mesma `useGarageAlerts` do sino) e próxima manutenção (mesma
+  `useGarageMaintenance`). Com 1 veículo, mostra só pendências e próxima
+  manutenção, porque o resto já está no card (mesma regra do ADR-051).
+  O comparativo, que antes aparecia com 1 veículo só no desktop, agora
+  existe só com 2+: com um veículo, cada número dele estava repetido no
+  próprio card.
+- Erro de consulta não vira zero. Pendências e próxima manutenção têm
+  estado próprio, com "—", "Não foi possível carregar." e "Tentar de
+  novo". Isso corrige dois defeitos do painel antigo: com erro em
+  alertas, a dica dizia "nada vencendo"; com erro em manutenção, dizia
+  "nenhuma prevista". Os gráficos ganharam "Tentar de novo".
+- Veículo sem linha em `vehicle_financial_summary` continua entrando
+  como 0 nas somas, que não mudaram. A diferença é que o painel agora diz
+  quantos veículos ficaram sem dado. Média de custo/km, investimento por
+  veículo e somas: mesmas fórmulas de antes.
+- Card vertical com foto 4:3 em cima (a proporção do recorte, ADR-081).
+  - Sempre visíveis: marca, modelo, ano · versão, placa, status, km e
+    gasto no mês atual.
+  - A "Ficha técnica" expansível, em qualquer largura, guarda custo/km,
+    total investido, combustível, câmbio, motor e potência. Antes, a
+    ficha só recolhia no mobile.
+  - O link do veículo é o título, esticado só sobre foto +
+    identificação. Ficha, registros e menu ficam fora dessa área.
+- Editar/excluir saem da faixa e vão para o menu "Mais ações" do card
+  (`VehicleCardMenu`, mesma forma do `HeaderUserMenu`). Excluir fica
+  separado por divisor e em carmim, a confirmação é a de sempre, e o foco
+  volta ao gatilho ao fechar. Os 4 registros ficam na faixa, descritos
+  pelo nome do veículo (`aria-describedby`). O diálogo de foto passou para
+  o card, porque o placeholder sem foto também o abre.
+- Foto que falha ao carregar (URL assinada expirada, rede) mostra
+  "Foto indisponível no momento." em vez de imagem quebrada.
+- Cabeçalho do celular: logo completo. Para caber em 360px junto com a
+  troca de veículo, abaixo de `sm` notificações e atividade recente
+  dividem um botão com duas abas (`HeaderInboxMenu`). Os painéis foram
+  extraídos dos menus existentes (`NotificationsPanel`,
+  `ActivityFeedPanel`), então as fontes continuam separadas.
+  `HeaderNotificationsMenu` fica montado (oculto) abaixo de `sm`, para
+  manter uma única assinatura de tempo real.
+
+**Alternativas descartadas.**
+
+- Manter o painel de indicadores aberto no desktop: ocupava a primeira
+  dobra antes dos carros.
+- Esconder a placa na troca de veículo em telas estreitas, para caber o
+  logo: tiraria a identificação do veículo aberto.
+- Juntar alertas ao menu de notificações: misturaria pendência do carro
+  com caixa de entrada.
+- Proporção 16:10 no card, para encurtar: cortaria o enquadramento que a
+  pessoa escolheu no recorte. A compactação veio do resto do card.
+- Busca, filtros, ordenação e seletor de mês do protótipo: não existem no
+  app, e controle decorativo não entra.
+
+**Refinamento após a primeira revisão visual.** A revisão das capturas
+apontou três problemas: no celular o resumo virava protagonista (a primeira
+tela terminava na foto, sem o nome do primeiro carro), os cards
+continuavam altos e não havia um acesso visível ao painel do veículo.
+
+- Resumo no celular: veículos, gasto e pendências numa linha. A próxima
+  manutenção vai para o topo de "Detalhes da garagem" abaixo de `lg` (no
+  desktop continua na faixa), e o veículo das pendências aparece só a
+  partir de `sm`. "Cadastrar" fica ao lado do título.
+- Card: o status foi para o canto da foto e o modelo cresceu para
+  `text-lg`. Os espaçamentos diminuíram. A foto continua 4:3.
+- Acesso explícito "Abrir veículo" (texto neutro, seta no acento) na linha
+  da "Ficha técnica", sem linha nova. O título esticado sai da ordem de
+  tabulação (`tabIndex={-1}`): o "Abrir veículo" é o caminho de teclado, e
+  cada card fica com uma parada por destino.
+- Medido nas capturas: o nome do primeiro carro termina em 649px (390) e
+  627px (360), acima da barra inferior (787/723). Antes ficava abaixo da
+  primeira tela.
+
+**Verificação.** Feita com dados simulados (ferramenta externa ao
+repositório, `redesign-capturas/`, cenários 23–42), sem tocar no
+Supabase real.

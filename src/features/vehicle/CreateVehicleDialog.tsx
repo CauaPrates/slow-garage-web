@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -13,10 +14,17 @@ import type { VehicleFormOutput } from "./schemas";
 
 type CreateVehicleDialogProps = {
   triggerLabel?: string;
+  /**
+   * Gatilho do cabeçalho da garagem (redesign etapa 02): abaixo de `sm` mostra
+   * só "Cadastrar" com o ícone, pra caber ao lado do título. "veículo" fica em
+   * `sr-only`, então o nome acessível é sempre "Cadastrar veículo".
+   */
+  compactOnMobile?: boolean;
 };
 
 export function CreateVehicleDialog({
   triggerLabel = "Cadastrar veículo",
+  compactOnMobile = false,
 }: CreateVehicleDialogProps) {
   const [open, setOpen] = useState(false);
   const createVehicle = useCreateVehicle();
@@ -51,7 +59,16 @@ export function CreateVehicleDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>{triggerLabel}</Button>
+        {compactOnMobile ? (
+          <Button>
+            <Plus className="h-4 w-4" aria-hidden="true" />
+            <span>
+              Cadastrar<span className="sr-only sm:not-sr-only"> veículo</span>
+            </span>
+          </Button>
+        ) : (
+          <Button>{triggerLabel}</Button>
+        )}
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
