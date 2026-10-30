@@ -1,4 +1,9 @@
-import { format as formatDateFns, parse as parseDateFns, parseISO } from "date-fns";
+import {
+  format as formatDateFns,
+  formatDistanceToNowStrict,
+  parse as parseDateFns,
+  parseISO,
+} from "date-fns";
 import { ptBR } from "date-fns/locale";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
@@ -40,6 +45,21 @@ export function formatDateOnly(isoDate: string): string {
   return formatDateFns(parseISO(isoDate), "dd/MM/yyyy", { locale: ptBR });
 }
 
+/** `"2026-10-29T21:05:00Z"` (coluna `timestamptz`) -> `"29/10/2026 18:05"`, no fuso local do navegador. */
+export function formatDateTime(isoTimestamp: string): string {
+  return formatDateFns(parseISO(isoTimestamp), "dd/MM/yyyy HH:mm", { locale: ptBR });
+}
+
+/** `"2026-10-29T21:05:00Z"` -> `"18:05"` — pra "atualizado às…". */
+export function formatTime(isoTimestamp: string): string {
+  return formatDateFns(parseISO(isoTimestamp), "HH:mm", { locale: ptBR });
+}
+
+/** `"2026-10-29T21:05:00Z"` -> `"há 5 minutos"` (ou `"em 3 dias"`, se for futuro). */
+export function formatRelativeTime(isoTimestamp: string): string {
+  return formatDistanceToNowStrict(parseISO(isoTimestamp), { addSuffix: true, locale: ptBR });
+}
+
 /**
  * "Hoje" em `yyyy-MM-dd` (formato de coluna `date` do Postgres e de
  * `<input type="date">`), usando o calendário **local**. `new
@@ -63,6 +83,11 @@ export function formatKm(value: number): string {
 
 /** `87400` -> `"87.400"` — sem unidade, pra quando o "km" já aparece num rótulo separado ao lado/embaixo (ex.: mostrador de odômetro). */
 export function formatKmValue(value: number): string {
+  return integerFormatter.format(value);
+}
+
+/** `1234` -> `"1.234"` — contagens (usuários, registros) sem unidade. */
+export function formatCount(value: number): string {
   return integerFormatter.format(value);
 }
 

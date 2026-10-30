@@ -2084,3 +2084,42 @@ erro da lista, com um único "Tentar de novo" que refaz as duas.
 Ela só existia via `seed.sql`, que o `db push` não aplica. O backend passou
 a criá-la por migration (backend, Fase 12 / ADR-012), então um projeto novo
 já nasce com ela.
+
+## ADR-083 — Painel admin: `is_admin` sem cache, 403 tratado num lugar só (Fase 031)
+
+**Contexto.** O backend (Fase 14) criou roles, convites para admin,
+notificações in-app e log de auditoria. Não existe role no JWT: `is_admin()`
+lê o banco a cada chamada, e toda RPC admin devolve `403` com
+`hint: 'not_admin'` para quem não é admin. Um admin pode ser rebaixado
+enquanto está com o painel aberto em outro dispositivo.
+
+**Decisão.**
+
+- `is_admin` é uma query do TanStack Query **sem `staleTime`**: rechecka ao
+  montar o painel e no foco da janela. Menu e rota escondidos são só UX.
+- O `QueryClient` ganhou `onError` em `QueryCache` e `MutationCache`: erro
+  com `hint === 'not_admin'` grava `false` no cache de `is_admin`. O
+  `AdminLayout` reage a esse `false` levando a pessoa para `/` com o aviso
+  "Você não tem mais acesso ao painel." (via `location.state`, exibido por
+  `RouteNotice`). A notificação `admin_role_revoked`, em tempo real, só
+  invalida `is_admin`, e o mesmo caminho faz o resto.
+- A mensagem de erro sai do `hint`, nunca do `message`
+  (`features/admin/errors.ts`). Para a Edge Function `admin-invite`, o corpo
+  `{ message, code, hint }` é lido de dentro do `FunctionsHttpError`, então
+  ela passa pelo mesmo tradutor.
+- O ícone das notificações é `Inbox`, não `Bell`. O sino do header já é dos
+  alertas de manutenção desde a Fase 14t, e dois sinos lado a lado não dizem
+  qual é qual.
+- `admin_invites` traz só `invitee_id`/`invited_by`. Para mostrar nome, cada
+  id distinto passa por `admin_get_user`, com cache do TanStack Query
+  (`UserLink`). É N chamadas por tela, aceitável porque convites e admins
+  são poucos.
+
+**Alternativas descartadas.** Tratar o 403 em cada hook: cinco lugares para
+esquecer um. `staleTime` longo em `is_admin`: o rebaixamento só valeria
+quando o cache vencesse. Usar `admin_list_users` (até 200 linhas) como
+dicionário de nomes: quebra acima de 200 usuários.
+
+**Pendência no backend.** Se a lista de convites crescer, o certo é uma RPC
+de listagem de convites que já traga nome e e-mail de convidado e de quem
+convidou, no lugar das N chamadas a `admin_get_user`.

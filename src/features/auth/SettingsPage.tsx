@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
-import { useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { ArrowLeft, ChevronRight, Mail, ShieldCheck } from "lucide-react";
+import { useIsAdmin } from "@/features/admin/useIsAdmin";
 import { Button } from "@/components/ui/button";
 import { ThemePreferenceSelect } from "@/components/shared/ThemePreferenceSelect";
 import { ROUTES } from "@/lib/routes";
@@ -28,8 +29,35 @@ function SettingsSection({
   );
 }
 
+function SettingsLink({
+  to,
+  icon,
+  title,
+  description,
+}: {
+  to: string;
+  icon: ReactNode;
+  title: string;
+  description: string;
+}) {
+  return (
+    <Link
+      to={to}
+      className="flex min-h-11 items-center gap-3 rounded-md border border-border px-3 py-2.5 transition-colors duration-150 hover:border-accent"
+    >
+      <span className="text-text-secondary">{icon}</span>
+      <span className="flex min-w-0 flex-1 flex-col">
+        <span className="text-sm font-medium text-text-primary">{title}</span>
+        <span className="text-xs text-text-secondary">{description}</span>
+      </span>
+      <ChevronRight className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden="true" />
+    </Link>
+  );
+}
+
 export function SettingsPage() {
   const { user, signOut } = useAuth();
+  const { data: isAdmin } = useIsAdmin();
   const navigate = useNavigate();
   const [signOutOpen, setSignOutOpen] = useState(false);
 
@@ -60,6 +88,30 @@ export function SettingsPage() {
               <p className="text-text-primary">{user?.email}</p>
             </div>
             <DisplayNameForm />
+          </div>
+        </SettingsSection>
+
+        {/*
+          Fase 031: no mobile a bottom nav não tem lugar pro painel, e o menu
+          do avatar não é onde se procura — Configurações está sempre na
+          barra. "Painel admin" só pra admin (UX; quem barra é a RPC).
+        */}
+        <SettingsSection title={isAdmin ? "Administração" : "Convites"}>
+          <div className="flex flex-col gap-2">
+            {isAdmin && (
+              <SettingsLink
+                to={ROUTES.admin}
+                icon={<ShieldCheck className="h-5 w-5" aria-hidden="true" />}
+                title="Painel admin"
+                description="Usuários, convites e log de auditoria"
+              />
+            )}
+            <SettingsLink
+              to={ROUTES.meusConvites}
+              icon={<Mail className="h-5 w-5" aria-hidden="true" />}
+              title="Meus convites"
+              description="Convites para virar Administrador Gearhead"
+            />
           </div>
         </SettingsSection>
 

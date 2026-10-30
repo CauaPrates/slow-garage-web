@@ -1,4 +1,5 @@
 import { NavLink } from "react-router-dom";
+import { ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentVehicleId } from "@/hooks/useCurrentVehicleId";
 import {
@@ -12,6 +13,10 @@ import {
   type NavItem,
 } from "@/lib/navigation";
 import { SidebarActivityFeed } from "./SidebarActivityFeed";
+import { useIsAdmin } from "@/features/admin/useIsAdmin";
+import { ROUTES } from "@/lib/routes";
+
+const ADMIN_NAV_ITEM: NavItem = { label: "Painel admin", icon: ShieldCheck, to: ROUTES.admin };
 
 type SidebarProps = {
   vehicles: VehicleWithSummary[];
@@ -46,6 +51,7 @@ function NavItemLink({ item, href }: { item: NavItem; href: string }) {
  */
 export function Sidebar({ vehicles }: SidebarProps) {
   const vehicleId = useCurrentVehicleId();
+  const { data: isAdmin } = useIsAdmin();
   const { vehicle } = useVehicle(vehicleId ?? "");
 
   const accountItems = SIDEBAR_NAV_ITEMS.filter(
@@ -74,6 +80,8 @@ export function Sidebar({ vehicles }: SidebarProps) {
         if (!href) return null;
         return <NavItemLink key={item.label} item={item} href={href} />;
       })}
+      {/* Fase 031: fora de SIDEBAR_NAV_ITEMS porque depende de `is_admin`, não de veículo. Só UX — a RPC é quem barra. */}
+      {isAdmin && <NavItemLink item={ADMIN_NAV_ITEM} href={ROUTES.admin} />}
 
       {vehicleId && (
         <div className="mt-2 flex shrink-0 flex-col gap-1 border-t border-border pt-2">
