@@ -2285,3 +2285,82 @@ continuavam altos e não havia um acesso visível ao painel do veículo.
 **Verificação.** Feita com dados simulados (ferramenta externa ao
 repositório, `redesign-capturas/`, cenários 23–42), sem tocar no
 Supabase real.
+
+## ADR-086 — Redesign etapa 03: formulários de cadastro, edição e exclusão do veículo
+
+**Contexto.** O formulário do veículo era uma lista de pares de campos num
+diálogo `max-w-md` que rolava inteiro, com o resto escondido em "Mais
+detalhes" (aberto sempre na edição). A FIPE aparecia como link de texto no
+meio dos campos, e a foto de capa ficava acima do formulário sem dizer que
+é salva fora do "Salvar alterações". Faltava ligar o erro ao campo
+(pendência do ADR-084). Esta etapa cobre só cadastro, edição, exclusão,
+FIPE e foto de capa; schema, hooks, rotas e banco não mudaram.
+
+**Decisão.**
+
+- Diálogo com cabeçalho e rodapé fixos e um único corpo rolável:
+  `max-w-2xl` centrado no desktop; folha presa à base no celular, com
+  `safe-area` no rodapé. "Cancelar" (`DialogClose`) entra ao lado da ação
+  principal e fecha como o X.
+- Seções: Identificação (sempre aberta) e quatro recolhíveis opcionais
+  (Uso e características, Compra e valores, Detalhes técnicos, Notas), com
+  resumo do que está preenchido. No cadastro, fechadas; na edição, abre a
+  que tem dado. Status continua só na edição (no cadastro vale o default do
+  banco, como antes). Campos FIPE seguem fora da tela.
+- Acessibilidade dos campos (`FormField`): `id` estável (os mesmos de
+  antes), rótulo associado, `aria-invalid`, `aria-describedby` pra ajuda e
+  erro, `aria-required` em marca e modelo. Envio inválido abre as seções
+  com erro e foca o primeiro campo inválido (`shouldFocusError: false` +
+  foco próprio, porque o do `react-hook-form` não alcança campo em seção
+  recolhida). `FieldError` ganhou `id` e `announce` (padrão `true`, então
+  os outros formulários não mudam); aqui o erro do campo não é
+  `role="alert"`, pra não ser anunciado duas vezes.
+- `ComboboxInput` aceita `aria-describedby` e `aria-required` (aditivo).
+  `DialogContent` só segura o Escape quando o foco está num **combobox**
+  aberto: antes qualquer `aria-expanded="true"` servia, e o botão de uma
+  seção aberta impediria o Escape de fechar o diálogo.
+- Ao abrir, o foco vai pro diálogo, não pra Marca (abria a lista de
+  sugestões e o teclado virtual por cima do formulário).
+- FIPE: status da identificação logo abaixo de marca/modelo (inclui o caso
+  "catálogo não carregou — digite à mão", que antes não aparecia); a
+  consulta virou painel próprio com ano, valor, mês, código e o aviso de
+  que é referência, não avaliação; "Usar como valor estimado" só copia o
+  número e abre "Compra e valores". O painel ganhou `key` por marca+modelo:
+  trocar de modelo pela lista sem digitar reaproveitava o ano escolhido pro
+  modelo anterior.
+- Exclusão: o texto lista só o que as FKs `on delete cascade` do backend
+  apagam (conferido nas migrations): gastos, abastecimentos, manutenções,
+  problemas, projetos, notas, documentos, obrigações, financiamento, fotos
+  e anexos. Depois do sucesso, quando o card sai da lista, o foco vai pro
+  título "Seus veículos (N)" ou, sem veículo, pro `h1`.
+
+**Diferenças funcionais (registradas, todas de apresentação/estado de
+tela).**
+
+- Falha no insert/update antes escapava sem mensagem; agora aparece no
+  rodapé (`translatePostgresError`, como nos outros diálogos) e o diálogo
+  continua aberto com os dados.
+- Envio duplicado: além do `disabled`, um ref barra o segundo envio (Enter
+  repetido num campo chegava a chamar o `handleSubmit` de novo).
+- Foto: se o envio falha, a miniatura volta pra foto salva (antes a prévia
+  local ficava como se a troca tivesse acontecido).
+- Exclusão com duplo clique no mesmo quadro também barrada por ref.
+
+**Pendências (não alteradas, fora do escopo).**
+
+- `horsepower` e `torque_nm` são `integer` no banco, mas o schema aceita
+  decimal e o torque usa `step="0.1"`: um torque decimal falharia no
+  update. Regra de schema, preservada.
+- Mensagens dos helpers numéricos saem como "o valor estimado atual
+  inválido." (minúscula, sem verbo). Texto vem de `schemaHelpers`,
+  compartilhado com outros formulários.
+- Arquivos no storage (foto, anexo, documento) não são apagados com o
+  veículo; só as linhas. O texto da exclusão diz "sai do app", que é o que
+  a pessoa vê.
+- `FieldError` dos outros formulários continua só com `role="alert"`.
+
+**Verificação.** Dados simulados (ferramenta externa ao repositório,
+`redesign-capturas/`, cenários 22–30), incluindo escritas e FIPE
+interceptadas; nenhuma chamada ao Supabase real nem à API FIPE real.
+Teclado virtual só emulado (viewport 390×380); leitor de tela real e
+upload real não foram testados.

@@ -148,6 +148,66 @@ completa em `docs/DECISIONS.md` (ADR-085).
   360px com troca de veículo: logo 8–85, troca 93–203, caixa 220–264,
   alertas 264–308, usuário 308–352, altura igual à da etapa 01.
 
+## Redesign — etapa 03: formulários do veículo
+
+Cadastro, edição e exclusão do veículo, com a FIPE e a foto de capa que já
+moravam nesses fluxos. Mesmos tokens e componentes; nenhuma cor nova.
+Decisão completa em `docs/DECISIONS.md` (ADR-086).
+
+- **Diálogo de formulário** (`VEHICLE_FORM_DIALOG_CLASSNAME`): no desktop,
+  centrado com `max-w-2xl` (duas colunas sem apertar); no celular, folha
+  presa à base em largura cheia, com `safe-area` no rodapé. Cabeçalho
+  (título + uma linha de apoio) e rodapé ("Cancelar" + ação principal)
+  ficam fixos; **só o corpo rola** — uma região rolável, ação sempre à
+  vista. Ao abrir, o foco vai pro próprio diálogo, não pro primeiro campo:
+  focar a Marca abria as sugestões e o teclado virtual antes de a pessoa
+  ler como começar. Tab leva à Marca.
+- **Seções** (`FormSection`): separadas só por um fio, sem caixa dentro de
+  caixa. "Identificação" fica sempre aberta (marca e modelo — os únicos
+  obrigatórios —, ano, placa, versão, cor); "Uso e características",
+  "Compra e valores", "Detalhes técnicos" e "Notas" são recolhíveis, com
+  "· opcional" no título e, fechadas, uma linha com o que já foi preenchido
+  ("87.400 km · Gasolina · Manual") ou com o que guardam. No cadastro todas
+  começam fechadas; na edição abre a que tem algum dado. Recolher só
+  esconde (`hidden`), nunca desmonta nem limpa campo. Sem etapas, sem
+  barra de progresso.
+- **Campos** (`FormField`): rótulo sempre visível; "(opcional)" em cinza
+  dentro do rótulo na Identificação; obrigatório sem marca extra (convenção
+  da Fase 11) e com `aria-required`. Unidade **dentro** do campo (`R$` à
+  esquerda; `km`, `cc`, `cv`, `Nm` à direita, `UnitAffix`), lida pelo
+  leitor de tela no rótulo; o valor salvo continua o número puro. Setinhas
+  do `type="number"` escondidas pra não cobrir a unidade. Ano e placa,
+  versão e cor ficam lado a lado até no celular (são curtos); `<select>`
+  continua empilhando abaixo de `sm`. Placeholder só como exemplo ("Ex.:
+  1996").
+- **Erros**: cada campo tem `id` estável, `aria-invalid` e
+  `aria-describedby` apontando pra ajuda e erro (`{id}-hint`,
+  `{id}-error`). No envio inválido, toda seção com erro abre e o foco vai
+  pro primeiro campo inválido na ordem da tela. Nesses campos o
+  `FieldError` não usa `role="alert"` (`announce={false}`): o erro é lido
+  com o campo focado, sem anunciar tudo de uma vez. Erro do envio (banco)
+  aparece no rodapé, junto da ação, com `role="alert"`.
+- **FIPE**: três coisas visualmente distintas — (1) identificação: os
+  campos Marca/Modelo com sugestões e uma linha de status logo abaixo
+  ("identificados na tabela FIPE", "só a marca", "sugestões não
+  carregaram — digite à mão"); (2) consulta de referência: botão "Consultar
+  valor de referência FIPE" que abre um painel rebaixado (`bg-bg`) com o
+  ano, o valor em mono, o mês da tabela, o código e o aviso de que é
+  referência de mercado, não avaliação; (3) valor salvo: "Valor estimado
+  atual", em "Compra e valores", com a ajuda "informado por você". "Usar
+  como valor estimado" copia o número e abre essa seção.
+- **Foto de capa** (só na edição, como antes): miniatura 4:3 ao lado do
+  texto "salva assim que você confirma o recorte, sem esperar 'Salvar
+  alterações'. Também entra em Fotos." e do botão "Trocar/Adicionar foto".
+  Enviando, um selo sólido sobre a miniatura; deu certo, "Foto de capa
+  atualizada."; falhou, a miniatura volta pra foto salva e o erro diz que
+  a capa não mudou.
+- **Exclusão**: título "Excluir veículo?", cartão neutro com marca, modelo
+  (quebra linha, nunca corta), ano e placa, e só as consequências que o
+  contrato confirma. "Cancelar" recebe o foco e, no celular, fica embaixo.
+  Depois de excluir, o foco vai pro título "Seus veículos (N)" (ou pro
+  título da página, sem veículo nenhum) quando o card some.
+
 As seções abaixo são o histórico das revisões anteriores. Onde contradizem
 esta etapa em cor, fonte de marca, separador do breadcrumb ou acabamento do
 cabeçalho, vale esta etapa; regras de densidade, hierarquia, motion

@@ -36,6 +36,34 @@ export function VehicleCardMenu({ vehicle, vehicleNameId }: VehicleCardMenuProps
     requestAnimationFrame(() => triggerRef.current?.focus());
   }
 
+  /**
+   * Etapa 03: depois da exclusão o foco volta pro ⋯ como sempre, mas o card
+   * inteiro some quando a lista recarrega — e o foco cairia no `<body>`. Este
+   * acompanhamento sobrevive ao card: quando o gatilho sai do DOM e ninguém
+   * moveu o foco, ele vai pro título da lista ("Seus veículos (N)", que já diz
+   * a contagem nova) ou, sem veículo nenhum, pro título da página.
+   */
+  function focusAfterRemoval() {
+    const trigger = triggerRef.current;
+    if (!trigger) return;
+    const startedAt = performance.now();
+    const check = () => {
+      if (trigger.isConnected) {
+        // Recarregar a lista pode falhar ou demorar; depois de 10s, desiste.
+        if (performance.now() - startedAt < 10_000) requestAnimationFrame(check);
+        return;
+      }
+      if (document.activeElement && document.activeElement !== document.body) return;
+      const target =
+        document.getElementById("garage-vehicles-title") ??
+        document.querySelector<HTMLElement>("main h1");
+      if (!target) return;
+      target.tabIndex = -1;
+      target.focus();
+    };
+    requestAnimationFrame(check);
+  }
+
   return (
     <>
       <Popover open={menuOpen} onOpenChange={setMenuOpen}>
@@ -90,6 +118,7 @@ export function VehicleCardMenu({ vehicle, vehicleNameId }: VehicleCardMenuProps
       <DeleteVehicleDialog
         vehicle={vehicle}
         open={deleteOpen}
+        onDeleted={focusAfterRemoval}
         onOpenChange={(open) => {
           setDeleteOpen(open);
           if (!open) focusTrigger();

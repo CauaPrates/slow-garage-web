@@ -26,9 +26,16 @@ export function DialogContent({
 
             Precisa ser aqui: o Radix escuta Escape no document em fase de
             captura, então nenhum `stopPropagation` lá dentro chega a tempo.
+
+            Só combobox: um botão de seção recolhível aberto também tem
+            `aria-expanded="true"` (etapa 03, formulário do veículo), e ali o
+            Escape tem que continuar fechando o diálogo.
           */
           const foco = document.activeElement;
-          if (foco?.getAttribute("aria-expanded") === "true") {
+          if (
+            foco?.getAttribute("role") === "combobox" &&
+            foco.getAttribute("aria-expanded") === "true"
+          ) {
             event.preventDefault();
           }
           onEscapeKeyDown?.(event);

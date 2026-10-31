@@ -18,6 +18,9 @@ type ComboboxInputProps = {
   disabled?: boolean;
   loading?: boolean;
   "aria-invalid"?: boolean;
+  /** Ajuda e erro do campo (etapa 03) — o input é o que recebe o foco. */
+  "aria-describedby"?: string;
+  "aria-required"?: boolean;
 };
 
 /** Acima disso a lista vira parede; quem procura algo específico digita. */
@@ -56,6 +59,8 @@ export function ComboboxInput({
   disabled,
   loading,
   "aria-invalid": ariaInvalid,
+  "aria-describedby": ariaDescribedBy,
+  "aria-required": ariaRequired,
 }: ComboboxInputProps) {
   const [open, setOpen] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -100,6 +105,8 @@ export function ComboboxInput({
         disabled={disabled}
         placeholder={placeholder}
         aria-invalid={ariaInvalid}
+        aria-describedby={ariaDescribedBy}
+        aria-required={ariaRequired}
         aria-expanded={aberta}
         aria-controls={listboxId}
         aria-autocomplete="list"
