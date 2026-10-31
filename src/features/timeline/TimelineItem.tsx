@@ -17,9 +17,16 @@ import { DeleteNoteDialog } from "./DeleteNoteDialog";
 type TimelineItemProps = {
   vehicleId: string;
   event: TimelineEventRow;
+  /**
+   * Etapa 04: `row` é a linha compacta da "Atividade recente" do dashboard —
+   * sem caixa própria (a lista já mora num painel com divisores), título um
+   * passo menor e "Ver" com alvo de 44px e nome completo pro leitor de tela.
+   * O conteúdo e as ações são os mesmos do `card` da tela de Histórico.
+   */
+  variant?: "card" | "row";
 };
 
-export function TimelineItem({ vehicleId, event }: TimelineItemProps) {
+export function TimelineItem({ vehicleId, event, variant = "card" }: TimelineItemProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -32,15 +39,25 @@ export function TimelineItem({ vehicleId, event }: TimelineItemProps) {
     : (event.source_table ?? eventType ?? "Evento");
   const isNote = event.event_type === "note";
   const targetHref = resolveTimelineLink(vehicleId, event);
+  const isRow = variant === "row";
 
   return (
-    <div className="flex items-start gap-3 rounded-lg border border-border bg-surface p-4">
+    <div
+      className={
+        isRow
+          ? "flex items-start gap-3 px-4 py-3"
+          : "flex items-start gap-3 rounded-lg border border-border bg-surface p-4"
+      }
+    >
       <Icon className="mt-0.5 h-5 w-5 shrink-0 text-text-secondary" aria-hidden="true" />
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <p className="font-medium text-text-primary">{event.title ?? "Sem título"}</p>
-          <span className="text-xs text-text-secondary">{typeLabel}</span>
+          <p className={isRow ? "text-sm font-medium break-words text-text-primary" : "font-medium text-text-primary"}>
+            {event.title ?? "Sem título"}
+          </p>
+          {/* Na linha compacta, abastecimento já se chama "Abastecimento" na view — não repete o tipo. */}
+          {!(isRow && event.title === typeLabel) && <span className="text-xs text-text-secondary">{typeLabel}</span>}
         </div>
         <p className="text-xs text-text-secondary">
           {event.occurred_on ? formatDateOnly(event.occurred_on) : "—"}
@@ -51,9 +68,11 @@ export function TimelineItem({ vehicleId, event }: TimelineItemProps) {
         )}
       </div>
 
-      <div className="flex shrink-0 flex-col items-end gap-2">
+      <div className={isRow ? "-my-2.5 flex shrink-0 items-center gap-1" : "flex shrink-0 flex-col items-end gap-2"}>
         {event.amount != null && (
-          <span className="font-medium text-text-primary">{formatMoney(event.amount)}</span>
+          <span className={isRow ? "text-sm font-medium whitespace-nowrap text-text-primary" : "font-medium text-text-primary"}>
+            {formatMoney(event.amount)}
+          </span>
         )}
         {isNote ? (
           <div className="flex gap-1">
@@ -78,9 +97,15 @@ export function TimelineItem({ vehicleId, event }: TimelineItemProps) {
           targetHref && (
             <Link
               to={targetHref}
-              className="inline-flex items-center gap-1 text-xs text-accent underline"
+              className={
+                isRow
+                  ? "-mr-2 inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-md px-2 text-xs text-accent underline"
+                  : "inline-flex items-center gap-1 text-xs text-accent underline"
+              }
             >
-              Ver <ExternalLink className="h-3 w-3" aria-hidden="true" />
+              Ver
+              {isRow && <span className="sr-only"> {event.title ?? "registro"} ({typeLabel})</span>}
+              <ExternalLink className="h-3 w-3" aria-hidden="true" />
             </Link>
           )
         )}

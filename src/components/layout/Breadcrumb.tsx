@@ -12,6 +12,8 @@ export type BreadcrumbSegment = {
 type BreadcrumbProps = {
   /** Segmentos depois de "Garagem" e do nome do veículo, que este componente já resolve sozinho. O último nunca deveria ter `href` — é a página atual. */
   items: BreadcrumbSegment[];
+  /** Etapa 04: o dashboard já tem o nome completo no `h1` logo abaixo — lá a trilha fica "Garagem › Dashboard", sem repetir o nome. */
+  showVehicle?: boolean;
 };
 
 function Separator() {
@@ -23,7 +25,8 @@ function Crumb({ segment, isLast }: { segment: BreadcrumbSegment; isLast: boolea
     return (
       <Link
         to={segment.href}
-        className="max-w-[16rem] truncate rounded-sm text-text-secondary transition-colors duration-(--duration-fast) hover:text-text-primary"
+        // Etapa 04: `min-h-11` com margem negativa — alvo de 44px sem mudar a altura da linha.
+        className="-my-3 inline-flex min-h-11 max-w-[16rem] items-center truncate rounded-sm text-text-secondary transition-colors duration-(--duration-fast) hover:text-text-primary"
       >
         {segment.label}
       </Link>
@@ -40,13 +43,13 @@ function Crumb({ segment, isLast }: { segment: BreadcrumbSegment; isLast: boolea
 }
 
 /** Fase 14: jeito de voltar de qualquer subtela de veículo sem depender da navegação global. Etapa 01: separador neutro (o laranja fica pra ação/estado) e segmento longo trunca em vez de quebrar a linha. */
-export function Breadcrumb({ items }: BreadcrumbProps) {
+export function Breadcrumb({ items, showVehicle = true }: BreadcrumbProps) {
   const vehicleId = useCurrentVehicleId();
   const { vehicle } = useVehicle(vehicleId ?? "");
 
   const segments: BreadcrumbSegment[] = [
     { label: "Garagem", href: ROUTES.home },
-    ...(vehicleId && vehicle
+    ...(showVehicle && vehicleId && vehicle
       ? [{ label: `${vehicle.make} ${vehicle.model}`, href: ROUTES.vehicle(vehicleId) }]
       : []),
     ...items,

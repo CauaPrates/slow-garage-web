@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { useFlashOnChange } from "@/hooks/useFlashOnChange";
 import { cn } from "@/lib/utils";
 
 export type GarageTileState =
@@ -20,8 +21,28 @@ type GarageTileProps = {
   hintDetail?: string;
   /** Com `wrap`, a dica fica em até 2 linhas; `fullHint` mostra inteira (painel de detalhes). */
   fullHint?: boolean;
+  /** Etapa 04: `lg` é o indicador principal do dashboard do veículo — mesmo módulo, número maior. */
+  size?: "default" | "lg";
+  /** Realce de 400ms quando o valor muda (sistema de resposta, `useFlashOnChange`). Só com `motion-safe`. */
+  flashOnChange?: boolean;
   className?: string;
 };
+
+/**
+ * Só monta com o módulo pronto: a chegada do primeiro dado (carregando →
+ * pronto) não pisca; uma mudança depois dela (novo registro, refetch), sim.
+ */
+function TileValue({ value, flash, className }: { value: ReactNode; flash: boolean; className: string }) {
+  const flashing = useFlashOnChange(flash ? value : null);
+  return (
+    <span
+      className={cn(className, flash && "w-fit max-w-full rounded-sm", flashing && "motion-safe:animate-value-flash")}
+      title={typeof value === "string" ? value : undefined}
+    >
+      {value}
+    </span>
+  );
+}
 
 /**
  * Módulo da grade de instrumentos (ADR-070): rótulo, valor em `font-mono`,
@@ -37,6 +58,8 @@ export function GarageTile({
   mono = true,
   hintDetail,
   fullHint = false,
+  size = "default",
+  flashOnChange = false,
   className,
 }: GarageTileProps) {
   return (
@@ -74,16 +97,16 @@ export function GarageTile({
         )}
         {state.status === "ready" && (
           <>
-            <span
+            <TileValue
+              value={value}
+              flash={flashOnChange}
               className={cn(
                 "block text-text-primary",
+                size === "lg" && "text-xl leading-tight font-medium sm:text-2xl",
                 mono ? "font-mono" : "font-medium",
                 wrap ? "break-words" : "truncate",
               )}
-              title={typeof value === "string" ? value : undefined}
-            >
-              {value}
-            </span>
+            />
             {hint && (
               <span
                 className={cn(

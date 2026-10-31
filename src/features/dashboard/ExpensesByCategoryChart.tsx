@@ -54,13 +54,26 @@ export function ExpensesByCategoryChart({
 
   return (
     <div className="rounded-lg border border-border bg-surface p-4">
-      <h3 className="mb-3 text-sm font-medium text-text-primary">
-        Gasto por categoria
-      </h3>
+      {/*
+        Etapa 04: a view (`vehicle_expenses_by_category`) é acumulada e só lê a
+        tabela de gastos — abastecimento, manutenção e item de projeto não
+        entram. O subtítulo diz isso, pra não ser lido como "gastos do mês".
+      */}
+      <div className="mb-3 flex flex-col gap-0.5">
+        <h3 className="text-sm font-medium text-text-primary">
+          Gasto por categoria
+        </h3>
+        <p className="text-xs text-text-secondary">
+          Acumulado de todo o histórico, só lançamentos da tela Gastos.
+        </p>
+      </div>
       <div className="flex flex-col gap-3">
         {rows.map((row, index) => {
+          // Etapa 04: sem largura mínima pra valor zero (parecia gasto); valor real pequeno ainda aparece com 1%.
           const widthPct =
-            maxAmount > 0 ? (row.total_amount / maxAmount) * 100 : 0;
+            maxAmount > 0 && row.total_amount > 0
+              ? Math.max((row.total_amount / maxAmount) * 100, 1)
+              : 0;
           const color =
             row.category_slug === "other"
               ? "var(--color-text-secondary)"
@@ -68,10 +81,10 @@ export function ExpensesByCategoryChart({
           return (
             <div key={row.category_slug} className="flex flex-col gap-1">
               <div className="flex items-baseline justify-between gap-2 text-xs">
-                <span className="min-w-0 truncate text-text-primary">
+                <span className="min-w-0 break-words text-text-primary">
                   {row.category_label}
                 </span>
-                <span className="shrink-0 text-text-secondary">
+                <span className="shrink-0 font-mono text-text-primary">
                   {formatMoney(row.total_amount)}
                 </span>
               </div>
@@ -86,7 +99,7 @@ export function ExpensesByCategoryChart({
                 <div
                   className="h-1.5"
                   style={{
-                    width: `${Math.max(widthPct, 3)}%`,
+                    width: `${widthPct}%`,
                     backgroundColor: color,
                   }}
                   title={`${row.category_label}: ${formatMoney(row.total_amount)} (${row.expense_count} gasto${row.expense_count === 1 ? "" : "s"})`}

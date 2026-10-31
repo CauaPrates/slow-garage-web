@@ -2364,3 +2364,96 @@ tela).**
 interceptadas; nenhuma chamada ao Supabase real nem à API FIPE real.
 Teclado virtual só emulado (viewport 390×380); leitor de tela real e
 upload real não foram testados.
+
+## ADR-087 — Redesign etapa 04: dashboard do veículo
+
+**Contexto.** O dashboard (`VehiclePage`) abria com a foto 4:3 em largura
+inteira no celular, um `<select>` "Trocar de veículo" que repetia o seletor
+do cabeçalho (desabilitado com 1 veículo), a FIPE antes de tudo, um arco de
+odômetro que mostrava "% até o próximo múltiplo de 10.000 km" (ADR-050) e as
+ações rápidas só depois que o RPC carregava. As pendências não levavam a
+lugar nenhum e diziam "Venceu em" também para o que ainda ia vencer. O
+gráfico por mês rolava na horizontal, e barras de valor zero ganhavam
+largura mínima.
+
+**Fontes conferidas antes de redesenhar** (migrations do backend, não nomes
+de campo):
+
+| Indicador | Fonte | Período / regra |
+|---|---|---|
+| Gasto no mês / ano | `vehicle_financial_summary` | mês/ano de `current_date`; gastos + combustível + manutenção + itens de projeto instalados; sem a compra |
+| Total investido | idem | compra (nula conta 0) + as 4 fontes, todo o histórico |
+| Custo/km | idem | total investido ÷ `current_odometer_km`; nulo sem odômetro. Vitalício, não mensal |
+| Consumo médio/melhor/pior | `vehicle_fuel_summary` ← `fuel_log_metrics` | trechos de tanque cheio a tanque cheio sem abastecimento esquecido; histórico inteiro; `fuel_summary` nulo sem abastecimento |
+| Preço médio/L, litros | idem | média por abastecimento / soma |
+| Gasto por mês | `vehicle_expenses_by_month` | 4 fontes, só meses com registro |
+| Gasto por categoria | `vehicle_expenses_by_category` | só a tabela `expenses`, acumulado |
+| Pendências | `vehicle_alerts` | manutenção, obrigação, documento; `critical` = vencido, `warning` = até 30 dias |
+
+**Decisão.**
+
+- Ordem: identificação → ações → indicadores → pendências | atividade →
+  financeiro | combustível → gráficos → FIPE. As ações deixam de esperar o
+  RPC. Cada bloco tem carregando/erro/vazio próprio; o RPC continua uma
+  chamada só (RN-1).
+- Troca de veículo: só o seletor global. O `<select>` do corpo saiu. O
+  conteúdo é montado com `key={vehicle.id}`, então expansões e diálogos
+  não atravessam a troca; os dados já eram por `vehicleId`.
+- Trilha "Garagem › Dashboard" (`Breadcrumb showVehicle={false}`): o nome
+  está no `h1` logo abaixo e no seletor do cabeçalho. O link da trilha ganhou
+  alvo de 44px com margem negativa (altura da linha igual, vale pra todas as
+  telas).
+- Indicadores principais: gasto no mês, consumo médio e custo/km, cada um
+  com o período na dica. O odômetro vira texto no cabeçalho. **Supera o
+  ADR-050**: o arco media uma meta inventada.
+- Pendências com destino existente: manutenção → Manutenção; obrigação →
+  Documentos `?aba=obrigacoes`; documento → Documentos. Vencido/próximo em
+  texto + ícone + cor. Distância em km só quando o alerta traz o km previsto
+  e o veículo tem odômetro ("previsto aos 92.400 km (faltam 5.000 km)").
+  Sem botão de concluir/dispensar. Problemas e projetos ficam no rodapé do
+  painel, com contagem e destino próprios, sem somar com pendência.
+- Financeiro: gasto no ano e total investido abertos; "Detalhes
+  financeiros" com compra, gastos, combustível, manutenção e itens de
+  projeto (os 5 que formam o total), com a regra escrita. A compra entra
+  porque `purchase_price` já vem no RPC e é o que explica o total; nula
+  aparece "—" com "conta R$ 0,00 no total".
+- Combustível: melhor/pior abertos; preço médio, litros e a regra do
+  consumo em "Detalhes de combustível". Litros com `formatLiters` (antes saía
+  `30.5 L`, com ponto).
+- Gráficos (compartilhados com a garagem): mês em linhas com subgrid, mais
+  recente primeiro, 6 + "Ver todos"; zero sem largura mínima; subtítulos
+  com a fonte. Categoria: zero sem mínimo, rótulo quebra em vez de cortar.
+- FIPE: mesma lógica, casca do dashboard, por último, com "Referência, não
+  preço de venda garantido".
+- `TimelineItem` ganhou `variant="row"` (só apresentação) e `GarageTile`
+  ganhou `size="lg"` e `flashOnChange`; os usos antigos não mudam.
+- Realce de valor alterado (sistema de resposta, Fase 14) mantido: gasto no
+  mês, consumo, custo/km, total investido e odômetro piscam 400ms quando o
+  número muda depois de carregado. O valor só monta com o dado pronto, então
+  a primeira carga e a troca de veículo não piscam; com movimento reduzido,
+  nada pisca (`motion-safe`).
+
+**Alternativas descartadas.** Seletor de mês e "Gastos do mês" por
+categoria do protótipo: as fontes não têm período selecionável e a
+categoria é acumulada. "Últimos 3 tanques", "km no mês", "Atualizado hoje":
+sem fonte. Juntar problemas abertos às pendências num número só: são
+entidades diferentes. Manter colunas no gráfico por mês: precisava de rolagem
+horizontal e espremia rótulos no celular.
+
+**Pendências registradas (fora do escopo, não alteradas).**
+
+- No diálogo de abastecimento, os dois checkboxes ("Tanque cheio", "Perdi o
+  abastecimento anterior") têm 44×24 e a medição não acha rótulo associado
+  ao `input` (o axe não reclama; o rótulo envolve o campo). Formulário de
+  outro domínio.
+- `AlertBanner` (Manutenção, Documentos, sino) ainda escreve "Venceu em"
+  para aviso que ainda não venceu. O dashboard não usa mais esse componente.
+- No desktop o `<main>` é quem rola (Fase 15e) e o shell não volta ao topo
+  ao trocar de rota: trocar de veículo com a página rolada abre o outro
+  veículo na mesma altura (sem dado do anterior, mas fora do topo). É
+  comportamento do `AppShell` em todas as rotas.
+
+**Verificação.** Dados simulados (ferramenta externa ao repositório,
+`redesign-capturas/`, cenários 31–48, arquivos 79–117). Rede trancada: o que
+não tem mock no cenário é bloqueado e listado, incluindo o WebSocket do tempo
+real e a API FIPE. Nenhum leitor de tela real, aparelho físico ou dado real.

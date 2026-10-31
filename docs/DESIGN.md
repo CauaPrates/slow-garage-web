@@ -208,6 +208,57 @@ Decisão completa em `docs/DECISIONS.md` (ADR-086).
   Depois de excluir, o foco vai pro título "Seus veículos (N)" (ou pro
   título da página, sem veículo nenhum) quando o card some.
 
+## Redesign — etapa 04: dashboard do veículo
+
+Mesma direção e tokens; nenhuma cor nova. Decisão completa em
+`docs/DECISIONS.md` (ADR-087).
+
+- **Ordem**: trilha curta ("Garagem › Dashboard", sem repetir o nome) →
+  identificação → 4 ações → 3 indicadores → Pendências | Atividade recente
+  → Financeiro | Combustível → gráficos → Referência FIPE. No celular, a
+  mesma ordem em uma coluna; pendências começam na primeira tela (390: 599px,
+  barra em 787).
+- **Identificação** (`VehicleDashboardHeader`): miniatura 4:3 (96px no
+  celular, 160–192px acima), marca em sobrelinha + modelo no `h1` (quebra,
+  nunca corta), ano · versão + placa em tag mono, status em selo (só "Ativo"
+  no acento), odômetro em texto ("Odômetro 87.400 km" / "— não informado").
+  "Editar veículo" abre o diálogo da etapa 03; abaixo de `sm` vira só o
+  lápis (44×44, nome acessível) pra não ganhar linha própria com nome longo.
+  Sem foto: placeholder "Sem foto"; foto que falha: "Foto indisponível".
+- **Ações** (`QuickActionsRow`): Abastecimento primeiro e cheio (`primary`),
+  as outras em contorno. Celular: ícone sobre rótulo, 11px, alvo de 56px,
+  "Abastecer" como rótulo curto; acima de `sm`, faixa de 44px. Fechar o
+  diálogo devolve o foco ao botão.
+- **Indicadores** (`VehicleMetricsRow`): grade de instrumentos (ADR-070) com
+  `GarageTile size="lg"`. Cada um diz o período real na dica — gasto no mês
+  (mês corrente, 4 fontes), consumo médio (histórico, tanque cheio a tanque
+  cheio), custo por km (total investido ÷ odômetro, **não** mensal). Ausente
+  = "—" + motivo. O arco do odômetro e a sparkline saíram. O realce de
+  valor alterado (`value-flash`, 400ms, só `motion-safe`) continua nos
+  indicadores, no total investido e no odômetro do cabeçalho — nunca na
+  primeira carga nem na troca de veículo.
+- **Painéis** (`DashboardPanel`): cabeçalho `text-sm` + linha de contexto +
+  fio, conteúdo colado nas bordas com divisores de 1px (sem card dentro de
+  card). Link de cabeçalho em texto neutro com seta no acento.
+  Expansões (`PanelDisclosure`): rodapé do painel, `aria-expanded` +
+  `aria-controls`, fechadas por padrão, fechar só esconde.
+- **Pendências**: vencidos primeiro, depois por prazo; cada linha leva
+  ícone + "Vencida/Próxima" em texto + origem (Manutenção, Obrigação,
+  Documento) + prazo ("Venceu em"/"Vence em") e km previsto com "faltam/passou
+  N km" quando há odômetro. A linha inteira é link pra tela que já trata
+  aquilo. Vencidos nunca ficam escondidos; avisos além de 3 vão pra "Mostrar
+  mais N próximas". Problemas abertos e projetos ativos ficam no rodapé, com
+  rótulo próprio, fora da contagem.
+- **Atividade recente**: `TimelineItem variant="row"` — mesma informação e
+  ações do Histórico, sem caixa própria, "Ver" com 44px e nome completo pro
+  leitor de tela.
+- **Gráficos**: gasto por mês virou linhas (mês · trilho · valor), mais
+  recente primeiro, 6 meses + "Ver todos"; colunas da lista em subgrid pra
+  todo trilho ter o mesmo comprimento. Valor zero = trilho vazio (antes,
+  mínimo de 3–4% parecia gasto). Subtítulos dizem a fonte: mês = 4 fontes,
+  só meses com registro; categoria = acumulado, só a tela Gastos. Vale
+  também na garagem (componentes compartilhados).
+
 As seções abaixo são o histórico das revisões anteriores. Onde contradizem
 esta etapa em cor, fonte de marca, separador do breadcrumb ou acabamento do
 cabeçalho, vale esta etapa; regras de densidade, hierarquia, motion

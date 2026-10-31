@@ -96,6 +96,11 @@ export function formatConsumption(value: number): string {
   return `${oneDecimalFormatter.format(value)} km/L`;
 }
 
+/** `1234.56` -> `"1.234,6 L"` — litros abastecidos, uma casa como na bomba. */
+export function formatLiters(value: number): string {
+  return `${oneDecimalFormatter.format(value)} L`;
+}
+
 /**
  * `45.7` -> `"45,7"` — para exibir em campo de formulário editável.
  * O usuário digita vírgula como separador decimal; ver `parseDecimalInput`.

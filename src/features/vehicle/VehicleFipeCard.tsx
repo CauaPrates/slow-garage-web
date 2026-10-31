@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { FipeError, type FipeYear } from "@/lib/fipe/fipeExternal";
+import { DashboardPanel } from "@/features/dashboard/DashboardPanel";
 import { EditVehicleDialog } from "./EditVehicleDialog";
 import { useFipeEstimatedValue, useFipeModel, useFipeYears } from "./useFipe";
 import { useUpdateVehicle, type VehicleWithSummary } from "./useVehicles";
@@ -41,18 +42,20 @@ function pickYear(
   return doAno[0];
 }
 
-/** Caixa comum às variações, pra que loading, erro e sucesso ocupem o mesmo lugar. */
+/**
+ * Caixa comum às variações, pra que loading, erro e sucesso ocupem o mesmo lugar.
+ * Etapa 04: mesma casca dos outros blocos do dashboard (`DashboardPanel`), no
+ * fim da página, e o subtítulo diz o que o número é — referência de mercado,
+ * não preço de venda garantido. A lógica do card não mudou.
+ */
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <section
-      aria-labelledby="fipe-card-titulo"
-      className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4"
+    <DashboardPanel
+      title="Referência FIPE"
+      description="Valor médio de mercado da tabela FIPE. Referência, não preço de venda garantido."
     >
-      <h2 id="fipe-card-titulo" className="text-xs text-text-secondary">
-        Valor na tabela FIPE
-      </h2>
-      {children}
-    </section>
+      <div className="flex flex-col gap-2 p-4">{children}</div>
+    </DashboardPanel>
   );
 }
 
