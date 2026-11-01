@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import { Info } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useFlashOnChange } from "@/hooks/useFlashOnChange";
 import { cn } from "@/lib/utils";
 
@@ -25,8 +27,32 @@ type GarageTileProps = {
   size?: "default" | "lg";
   /** Realce de 400ms quando o valor muda (sistema de resposta, `useFlashOnChange`). Só com `motion-safe`. */
   flashOnChange?: boolean;
+  /**
+   * Etapa 05: explicação completa do número, aberta por clique/toque/teclado
+   * num botão "i" ao lado do rótulo (nunca só no hover). Com ela, a `hint`
+   * pode ficar curta.
+   */
+  help?: ReactNode;
   className?: string;
 };
+
+/** Botão de ajuda do módulo: alvo de 44px com margem negativa, pra não aumentar a altura da linha do rótulo. */
+function TileHelp({ label, help }: { label: string; help: ReactNode }) {
+  return (
+    <Popover>
+      <PopoverTrigger
+        aria-label={`Como é calculado: ${label}`}
+        className="-my-3 -mr-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-text-secondary transition-colors duration-(--duration-fast) hover:bg-state-hover hover:text-text-primary data-[state=open]:bg-state-active data-[state=open]:text-text-primary"
+      >
+        <Info className="h-4 w-4" aria-hidden="true" />
+      </PopoverTrigger>
+      <PopoverContent align="start" aria-label={label} className="w-72 text-sm">
+        <p className="mb-1 font-medium text-text-primary">{label}</p>
+        <div className="text-text-secondary">{help}</div>
+      </PopoverContent>
+    </Popover>
+  );
+}
 
 /**
  * Só monta com o módulo pronto: a chegada do primeiro dado (carregando →
@@ -60,6 +86,7 @@ export function GarageTile({
   fullHint = false,
   size = "default",
   flashOnChange = false,
+  help,
   className,
 }: GarageTileProps) {
   return (
@@ -69,7 +96,14 @@ export function GarageTile({
         className,
       )}
     >
-      <dt className="text-xs text-text-secondary">{label}</dt>
+      {help ? (
+        <dt className="flex items-center justify-between gap-2 text-xs text-text-secondary">
+          <span className="min-w-0">{label}</span>
+          <TileHelp label={label} help={help} />
+        </dt>
+      ) : (
+        <dt className="text-xs text-text-secondary">{label}</dt>
+      )}
       <dd className="min-w-0">
         {state.status === "loading" && (
           <>

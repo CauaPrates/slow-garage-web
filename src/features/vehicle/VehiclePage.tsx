@@ -1,9 +1,10 @@
 import { AlertCircle } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ROUTES } from "@/lib/routes";
 import { useMaintenanceItems } from "@/features/maintenance/useMaintenanceItems";
+import { CriticalAlertsNotice } from "@/features/dashboard/CriticalAlertsNotice";
 import { ExpensesByCategoryChart } from "@/features/dashboard/ExpensesByCategoryChart";
 import { ExpensesByMonthChart } from "@/features/dashboard/ExpensesByMonthChart";
 import { FinancialSummaryCard } from "@/features/dashboard/FinancialSummaryCard";
@@ -66,12 +67,85 @@ export function VehiclePage() {
   return <VehicleDashboard key={vehicle.id} vehicle={vehicle} />;
 }
 
+const PENDING_TITLE_ID = "dashboard-pending-title";
+
+/**
+ * Etapa 05: os gráficos sobem pra logo depois dos indicadores — viram a
+ * camada de análise da página, em vez de ficar depois de atividade e
+ * resumos. As pendências vencidas não somem do topo: um aviso compacto
+ * (`CriticalAlertsNotice`) fica entre indicadores e gráficos e leva ao
+ * painel completo. Os gráficos usam os mesmos dados do RPC do painel.
+ */
+function DashboardCharts({
+  vehicleId,
+  query,
+}: {
+  vehicleId: string;
+  query: ReturnType<typeof useVehicleDashboard>;
+}) {
+  const dashboard = query.data;
+  const registerExpense = (
+    <Link to={`${ROUTES.vehicleExpenses(vehicleId)}?novo=1`} className={buttonVariants({ variant: "outline" })}>
+      Registrar gasto
+    </Link>
+  );
+
+  return (
+    <section aria-labelledby="dashboard-charts-title" className="flex flex-col gap-3">
+      <h2
+        id="dashboard-charts-title"
+        className="text-xs font-medium tracking-[0.08em] text-text-secondary uppercase"
+      >
+        Análise de gastos
+      </h2>
+
+      {query.isLoading && (
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2" aria-busy="true">
+          <span className="sr-only">Carregando gráficos…</span>
+          <div className="h-72 animate-pulse rounded-lg border border-border bg-surface" aria-hidden="true" />
+          <div className="h-72 animate-pulse rounded-lg border border-border bg-surface" aria-hidden="true" />
+        </div>
+      )}
+
+      {query.isError && !dashboard && (
+        <div className="flex flex-col items-start gap-2 rounded-lg border border-border bg-surface p-4">
+          <p className="flex items-center gap-2 text-sm text-text-secondary">
+            <AlertCircle className="h-4 w-4 shrink-0 text-error" aria-hidden="true" />
+            Não foi possível carregar os gráficos de gastos.
+          </p>
+          <Button variant="outline" onClick={() => void query.refetch()}>
+            Tentar de novo
+          </Button>
+        </div>
+      )}
+
+      {dashboard &&
+        (dashboard.expenses_by_month.length === 0 && dashboard.expenses_by_category.length === 0 ? (
+          // Sem nenhum registro com valor: um estado vazio só, em vez de dois quadros vazios lado a lado.
+          <div className="flex flex-col items-start gap-3 rounded-lg border border-border bg-surface p-4">
+            <p className="text-sm text-text-secondary">
+              Nenhum registro com valor ainda. Gasto por mês e por categoria aparecem a partir do primeiro
+              lançamento.
+            </p>
+            {registerExpense}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <ExpensesByMonthChart data={dashboard.expenses_by_month} emptyAction={registerExpense} />
+            <ExpensesByCategoryChart data={dashboard.expenses_by_category} emptyAction={registerExpense} />
+          </div>
+        ))}
+    </section>
+  );
+}
+
 /**
  * Etapa 04: identificação compacta → ações → indicadores → pendências e
- * atividade → financeiro e combustível → gráficos → FIPE. Cada bloco carrega
- * e falha sozinho; o RPC do painel continua sendo uma chamada só (RN-1), e
- * as consultas são as mesmas de antes, todas por `vehicleId` — dado de um
- * veículo nunca aparece no outro durante a troca.
+ * atividade → financeiro e combustível → gráficos → FIPE. Etapa 05: os
+ * gráficos (e o aviso de vencidas) sobem pra antes de pendências e
+ * atividade. Cada bloco carrega e falha sozinho; o RPC do painel continua
+ * sendo uma chamada só (RN-1), e as consultas são as mesmas de antes, todas
+ * por `vehicleId` — dado de um veículo nunca aparece no outro durante a troca.
  */
 function VehicleDashboard({ vehicle }: { vehicle: VehicleWithSummary }) {
   const dashboardQuery = useVehicleDashboard(vehicle.id);
@@ -103,9 +177,14 @@ function VehicleDashboard({ vehicle }: { vehicle: VehicleWithSummary }) {
             : { status: "loading" as const })}
       />
 
+      {dashboard && <CriticalAlertsNotice alerts={dashboard.alerts} targetId={PENDING_TITLE_ID} />}
+
+      <DashboardCharts vehicleId={vehicle.id} query={dashboardQuery} />
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <PendingAlertsPanel
           vehicleId={vehicle.id}
+          titleId={PENDING_TITLE_ID}
           currentOdometerKm={vehicle.current_odometer_km}
           query={
             dashboard
@@ -140,22 +219,10 @@ function VehicleDashboard({ vehicle }: { vehicle: VehicleWithSummary }) {
       )}
 
       {dashboard && (
-        <>
-          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
-            <FinancialSummaryCard summary={dashboard.financial_summary} />
-            <FuelSummarySection summary={dashboard.fuel_summary} />
-          </div>
-
-          <section aria-labelledby="dashboard-charts-title">
-            <h2 id="dashboard-charts-title" className="sr-only">
-              Gráficos de gastos
-            </h2>
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
-              <ExpensesByMonthChart data={dashboard.expenses_by_month} />
-              <ExpensesByCategoryChart data={dashboard.expenses_by_category} />
-            </div>
-          </section>
-        </>
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 lg:items-start">
+          <FinancialSummaryCard summary={dashboard.financial_summary} />
+          <FuelSummarySection summary={dashboard.fuel_summary} />
+        </div>
       )}
 
       {/* Por último: é referência de mercado, não dado operacional. Não depende do RPC do painel pra aparecer. */}

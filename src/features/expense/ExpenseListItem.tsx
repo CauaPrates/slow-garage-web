@@ -19,6 +19,7 @@ type ExpenseListItemProps = {
   categories: NonNullable<ReturnType<typeof useExpenseCategories>["data"]>;
 };
 
+/** Item da lista de Modificações (modo upgrade). A tela Gastos usa `ExpenseRow` desde a etapa 05; os diálogos são os mesmos. */
 export function ExpenseListItem({ vehicleId, expense, categories, upgradeCategoryId }: ExpenseListItemProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -84,6 +85,9 @@ export function ExpenseListItem({ vehicleId, expense, categories, upgradeCategor
       <DeleteExpenseDialog
         vehicleId={vehicleId}
         expense={expense}
+        categoryLabel={category?.label ?? null}
+        isUpgrade={category?.slug === "upgrade" && category.user_id === null}
+        upgradeMode={!!upgradeCategoryId}
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
       />

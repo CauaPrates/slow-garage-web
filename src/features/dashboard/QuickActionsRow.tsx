@@ -21,40 +21,59 @@ type QuickActionsRowProps = {
 
 type DialogKey = "expense" | "fuel" | "maintenance" | "photo";
 
+type ActionLabels = {
+  /** Visível a partir de `xl`, onde cabe inteiro — e o nome acessível em toda largura. */
+  full: string;
+  /** Visível de `sm` a `xl`: com 4 por linha no tablet e no notebook, o texto inteiro não cabe. */
+  medium: string;
+  /** Visível abaixo de `sm`. */
+  short: string;
+  /** Nome no celular quando o rótulo curto não está contido no completo ("Abastecer"). */
+  shortName?: string;
+};
+
 type ActionButtonProps = {
   icon: LucideIcon;
-  /** Rótulo do celular, quando o completo não cabe em 1/4 de 360px. */
-  shortLabel?: string;
-  label: string;
-  primary?: boolean;
+  labels: ActionLabels;
   onClick: (event: MouseEvent<HTMLButtonElement>) => void;
 };
 
+/** Texto visível + o nome completo pro leitor de tela, sem repetir quando os dois são iguais. */
+function ActionLabel({ visible, name, className }: { visible: string; name: string; className: string }) {
+  if (visible === name) return <span className={cn("max-w-full truncate", className)}>{visible}</span>;
+  return (
+    <span className={cn("max-w-full truncate", className)}>
+      <span aria-hidden="true">{visible}</span>
+      <span className="sr-only">{name}</span>
+    </span>
+  );
+}
+
 /**
  * Celular: ícone sobre rótulo, 4 por linha, alvo de 56px. A partir de `sm`:
- * ícone ao lado do rótulo, faixa de 44px. O rótulo curto só troca o texto
- * visível — o nome acessível é sempre o texto que está na tela.
+ * ícone ao lado do rótulo, faixa de 44px.
+ *
+ * Etapa 05: são ações, não abas — as quatro têm o mesmo contorno neutro e
+ * nenhuma fica "acesa". Hover, pressionado e foco são os do botão (`outline`
+ * + o contorno laranja global de `:focus-visible`). O texto visível encurta
+ * com a largura, mas o nome acessível é sempre a ação inteira e contém o que
+ * está escrito na tela.
  */
-function ActionButton({ icon: Icon, shortLabel, label, primary = false, onClick }: ActionButtonProps) {
+function ActionButton({ icon: Icon, labels, onClick }: ActionButtonProps) {
   return (
     <button
       type="button"
       onClick={onClick}
       className={cn(
-        buttonVariants({ variant: primary ? "primary" : "outline" }),
+        buttonVariants({ variant: "outline" }),
         // 11px no celular, como a barra inferior: "Manutenção" em 12px não cabia em 1/4 de 360px.
         "h-auto min-h-14 min-w-0 flex-col gap-1 px-0.5 py-2 text-[11px] sm:min-h-11 sm:flex-row sm:gap-2 sm:px-3 sm:text-sm",
       )}
     >
-      <Icon className="h-5 w-5 shrink-0" aria-hidden="true" />
-      {shortLabel ? (
-        <>
-          <span className="sm:hidden">{shortLabel}</span>
-          <span className="hidden truncate sm:inline">{label}</span>
-        </>
-      ) : (
-        <span className="max-w-full truncate">{label}</span>
-      )}
+      <Icon className="h-5 w-5 shrink-0 text-text-secondary" aria-hidden="true" />
+      <ActionLabel className="sm:hidden" visible={labels.short} name={labels.shortName ?? labels.full} />
+      <ActionLabel className="hidden sm:inline xl:hidden" visible={labels.medium} name={labels.full} />
+      <ActionLabel className="hidden xl:inline" visible={labels.full} name={labels.full} />
     </button>
   );
 }
@@ -63,9 +82,9 @@ function ActionButton({ icon: Icon, shortLabel, label, primary = false, onClick 
  * Fase 13: cada botão abre o diálogo já existente da entidade, direto por
  * cima da VehiclePage — nunca navega (decisão do clarify).
  *
- * Etapa 04: abastecimento vem primeiro e é a única ação cheia (o registro do
- * dia a dia, como no protótipo); as outras três ficam em contorno, com nome
- * visível. Os diálogos, defaults e campos são os mesmos de antes.
+ * Etapa 04: abastecimento vem primeiro (o registro do dia a dia). Etapa 05:
+ * deixou de ser a única ação cheia — o laranja parecia uma aba selecionada.
+ * Os diálogos, defaults e campos são os mesmos de antes.
  */
 export function QuickActionsRow({
   vehicleId,
@@ -95,10 +114,31 @@ export function QuickActionsRow({
         Registrar
       </h2>
       <div className="grid grid-cols-4 gap-1.5 sm:gap-3">
-        <ActionButton icon={Fuel} label="Abastecimento" shortLabel="Abastecer" primary onClick={(e) => handleOpen("fuel", e)} />
-        <ActionButton icon={Receipt} label="Gasto" onClick={(e) => handleOpen("expense", e)} />
-        <ActionButton icon={Wrench} label="Manutenção" onClick={(e) => handleOpen("maintenance", e)} />
-        <ActionButton icon={Camera} label="Foto" onClick={(e) => handleOpen("photo", e)} />
+        <ActionButton
+          icon={Fuel}
+          labels={{
+            full: "Registrar abastecimento",
+            medium: "Abastecimento",
+            short: "Abastecer",
+            shortName: "Abastecer: registrar abastecimento",
+          }}
+          onClick={(e) => handleOpen("fuel", e)}
+        />
+        <ActionButton
+          icon={Receipt}
+          labels={{ full: "Registrar gasto", medium: "Gasto", short: "Gasto" }}
+          onClick={(e) => handleOpen("expense", e)}
+        />
+        <ActionButton
+          icon={Wrench}
+          labels={{ full: "Registrar manutenção", medium: "Manutenção", short: "Manutenção" }}
+          onClick={(e) => handleOpen("maintenance", e)}
+        />
+        <ActionButton
+          icon={Camera}
+          labels={{ full: "Adicionar foto", medium: "Foto", short: "Foto" }}
+          onClick={(e) => handleOpen("photo", e)}
+        />
       </div>
 
       <CreateExpenseDialog

@@ -8,6 +8,10 @@ type DashboardPanelProps = {
   description?: ReactNode;
   /** Link ou ação curta à direita do título ("Ver histórico"). */
   action?: ReactNode;
+  /** Etapa 05: gráfico dentro de uma seção que já tem `h2` (dashboard, "Detalhes da garagem") usa `h3`. */
+  headingLevel?: "h2" | "h3";
+  /** `id` fixo do título, quando outro bloco precisa apontar pra ele (âncora do aviso de pendências). */
+  titleId?: string;
   className?: string;
   children: ReactNode;
 };
@@ -18,8 +22,17 @@ type DashboardPanelProps = {
  * embaixo) e conteúdo colado nas bordas, pra lista e grade de instrumentos
  * usarem divisor de 1px em vez de card dentro de card.
  */
-export function DashboardPanel({ title, description, action, className, children }: DashboardPanelProps) {
-  const titleId = useId();
+export function DashboardPanel({
+  title,
+  description,
+  action,
+  headingLevel: Heading = "h2",
+  titleId: fixedTitleId,
+  className,
+  children,
+}: DashboardPanelProps) {
+  const generatedId = useId();
+  const titleId = fixedTitleId ?? generatedId;
   return (
     <section
       aria-labelledby={titleId}
@@ -27,9 +40,9 @@ export function DashboardPanel({ title, description, action, className, children
     >
       <div className="flex items-start justify-between gap-3 border-b border-border px-4 py-3">
         <div className="flex min-w-0 flex-col gap-0.5">
-          <h2 id={titleId} className="text-sm font-medium text-text-primary">
+          <Heading id={titleId} className="text-sm font-medium text-text-primary">
             {title}
-          </h2>
+          </Heading>
           {description && <p className="text-xs text-text-secondary">{description}</p>}
         </div>
         {action}

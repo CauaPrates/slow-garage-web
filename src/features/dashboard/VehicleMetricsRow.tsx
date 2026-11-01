@@ -13,17 +13,29 @@ type VehicleMetricsRowProps =
       fuel: DashboardFuelSummary | null;
     };
 
+/*
+  Etapa 05: sob o número fica só o contexto curto (período e fonte); a regra
+  inteira vai pra ajuda do módulo ("i", abre por clique/toque/teclado). Quando
+  o valor é "—", o motivo continua escrito sob ele — é o que explica o traço.
+*/
 function consumptionHint(fuel: DashboardFuelSummary | null): string {
   if (fuel == null) return "Nenhum abastecimento registrado.";
   if (fuel.avg_km_per_liter == null) return "Precisa de dois tanques cheios seguidos.";
-  return "Média do histórico, de tanque cheio a tanque cheio.";
+  return "Histórico · tanques cheios";
 }
 
 function costPerKmHint(financial: DashboardFinancialSummary | null): string {
   if (financial == null) return "Sem dado financeiro.";
   if (financial.cost_per_km == null) return "Sem quilometragem registrada.";
-  return "Total investido ÷ odômetro atual.";
+  return "Investimento ÷ odômetro";
 }
+
+const MONTH_SPEND_HELP =
+  "Soma do mês do calendário atual: gastos, combustível, manutenção e itens de projeto instalados. A compra do veículo não entra.";
+const CONSUMPTION_HELP =
+  "Média de todos os trechos entre dois tanques cheios seguidos, no histórico inteiro. Trecho com abastecimento esquecido no meio não entra.";
+const COST_PER_KM_HELP =
+  "Total investido (compra + todos os registros) dividido pelo odômetro atual. Vale pro histórico inteiro, não é custo do mês.";
 
 /**
  * Etapa 04: os três indicadores do topo, cada um com o período que a fonte
@@ -78,11 +90,8 @@ export function VehicleMetricsRow(props: VehicleMetricsRowProps) {
           flashOnChange
           state={state}
           value={monthSpend != null ? formatMoney(monthSpend) : "—"}
-          hint={
-            financial
-              ? "Mês corrente, somando gastos, combustível, manutenção e itens de projeto."
-              : "Sem dado financeiro."
-          }
+          hint={financial ? "Mês atual · 4 fontes" : "Sem dado financeiro."}
+          help={MONTH_SPEND_HELP}
           wrap
           fullHint
         />
@@ -93,6 +102,7 @@ export function VehicleMetricsRow(props: VehicleMetricsRowProps) {
           state={state}
           value={avg != null ? formatConsumption(avg) : "—"}
           hint={consumptionHint(fuel)}
+          help={CONSUMPTION_HELP}
           wrap
           fullHint
         />
@@ -103,6 +113,7 @@ export function VehicleMetricsRow(props: VehicleMetricsRowProps) {
           state={state}
           value={costPerKm != null ? `${formatMoney(costPerKm)}/km` : "—"}
           hint={costPerKmHint(financial)}
+          help={COST_PER_KM_HELP}
           wrap
           fullHint
         />

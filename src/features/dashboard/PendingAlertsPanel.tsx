@@ -10,6 +10,8 @@ import type { VehicleAlert } from "./types";
 
 type PendingAlertsPanelProps = {
   vehicleId: string;
+  /** `id` fixo do título — o aviso de vencidas do topo aponta pra ele. */
+  titleId?: string;
   currentOdometerKm: number | null;
   query:
     | { status: "loading" }
@@ -139,7 +141,7 @@ function CountLink({ to, label, count }: { to: string; label: string; count: num
  * rótulo e destino — são outra natureza de informação e não entram na
  * contagem de pendências.
  */
-export function PendingAlertsPanel({ vehicleId, currentOdometerKm, query }: PendingAlertsPanelProps) {
+export function PendingAlertsPanel({ vehicleId, titleId, currentOdometerKm, query }: PendingAlertsPanelProps) {
   const [showAll, setShowAll] = useState(false);
   const moreId = useId();
 
@@ -159,6 +161,7 @@ export function PendingAlertsPanel({ vehicleId, currentOdometerKm, query }: Pend
 
   return (
     <DashboardPanel
+      titleId={titleId}
       title={
         <span className="flex items-center gap-2">
           Pendências

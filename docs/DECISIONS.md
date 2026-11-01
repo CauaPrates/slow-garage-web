@@ -2457,3 +2457,103 @@ horizontal e espremia rótulos no celular.
 `redesign-capturas/`, cenários 31–48, arquivos 79–117). Rede trancada: o que
 não tem mock no cenário é bloqueado e listado, incluindo o WebSocket do tempo
 real e a API FIPE. Nenhum leitor de tela real, aparelho físico ou dado real.
+
+## ADR-088 — Redesign etapa 05: Gastos + refinamentos do dashboard
+
+**Contexto.** A tela Gastos era uma pilha de cards com dois ícones soltos
+(editar, excluir), o formulário era o diálogo `max-w-md` com "Mais detalhes"
+em `<details>`, e o anexo era uma linha de texto com três botões. Na revisão da
+etapa 04 apareceram dois problemas no dashboard: "Abastecimento" cheio de
+laranja parecia aba selecionada, e o gasto por mês em linhas perdeu a leitura
+de evolução no tempo — além de os gráficos ficarem no fim da página. Esta
+etapa cobre só Gastos e esses ajustes; banco, hooks, queries, fórmulas e
+rotas não mudaram.
+
+**Fontes e regras conferidas (migrations do backend).**
+
+| Ponto | Regra |
+|---|---|
+| `expenses.occurred_on` | NOT NULL com default `current_date`: data em branco no cadastro grava hoje; na edição, `undefined` sai do PATCH e a data salva fica. Não existe gasto sem data. |
+| Gasto sem categoria | `vehicle_expenses_by_category` agrupa em `uncategorized` / "Sem categoria" (left join). |
+| Filtros | Os mesmos: categoria e período de `period.ts`, aplicados no servidor (`gte`/`lte` em `occurred_on`). |
+| Paginação | Nenhuma; o PostgREST corta em `max_rows = 1000` (`supabase/config.toml`). |
+| Modificações | Lista os gastos da categoria de sistema `upgrade`; o mesmo diálogo grava `upgradeCategoryId`. |
+
+**Decisão.**
+
+- Gastos em lista estruturada (não `<table>`): colunas alinhadas a partir de
+  `md`, linha em três níveis no celular. O conteúdo varia (descrição longa,
+  detalhes opcionais, anexo) e uma tabela no celular perderia a semântica ao
+  ser reempilhada. Editar/excluir num menu "⋯" por linha.
+- "Total da seleção" (com a contagem): soma do que a lista já carregou com o
+  filtro — mesma consulta, nenhuma nova. Não é o gasto do veículo e não
+  aparece com 1000 linhas (resposta possivelmente cortada). É a única soma
+  no cliente; a regra "não recalcular o que o banco calcula" não se aplica
+  porque não há view de soma por filtro arbitrário.
+- Formulário no padrão da etapa 03 (`FormSection`/`FormField`/`UnitAffix`
+  reaproveitados de `VehicleFormParts`): mesmos campos, schema, limites,
+  enums e defaults; categoria e data seguem opcionais. Envio inválido abre
+  "Detalhes" se o erro estiver lá e foca o primeiro campo inválido; erro de
+  banco no rodapé; ref contra envio duplicado.
+- `AttachmentField` (compartilhado com Problema, Item de projeto e
+  Manutenção): arquivo salvo e envio pendente em blocos separados, formatos e
+  limite escritos. O fluxo (só na edição, substituir, remover com
+  confirmação) é o mesmo.
+- Ações rápidas: as quatro em `outline`, sem estado selecionado; nada de
+  `aria-pressed`/`aria-selected`. O rótulo visível encurta com a largura e o
+  nome acessível é sempre a ação completa.
+- Dashboard: gráficos logo depois dos indicadores, sob o título "Análise de
+  gastos", com o aviso de vencidas antes deles (o painel de pendências desceu).
+  O aviso usa os mesmos `alerts` do RPC e não conta nada novo.
+- Gasto por mês em colunas (supera a parte "linhas" do ADR-087): HTML/CSS, sem
+  biblioteca; valor exato por coluna em `sr-only`, tabela "Ver valores
+  exatos" com todos os meses (o acesso aos meses fora do recorte do
+  celular). Meses sem registro continuam fora, nunca zero inventado.
+- Gasto por categoria: cor neutra e só a maior em laranja; o balde "Outras"
+  (soma no cliente) saiu — as categorias além de 6 ficam em "Ver todas".
+- Indicadores: dica curta + ajuda completa num popover (`GarageTile` ganhou
+  `help`, aditivo).
+
+**Correções funcionais localizadas (registradas).**
+
+- Substituir anexo: o arquivo novo sobe **antes** de o antigo ser apagado
+  (`useUploadAttachment`). Antes, um envio que falhava deixava o registro sem
+  anexo e a tela mostrando o antigo. Se algo falha depois do envio, o arquivo
+  novo é removido (não fica órfão) e a lista recarrega também no erro
+  (`onSettled`). Path, bucket e tabela iguais.
+- Exclusão sem descrição dizia `Excluir ""?`; agora "Excluir gasto?" com o
+  cartão do registro. Erro de remoção do anexo aparece dentro da confirmação,
+  que não fecha.
+- Diálogos de gasto e a confirmação de remover anexo abrem por estado, sem
+  `DialogTrigger`: o Radix devolvia o foco ao `<body>`. `useReturnFocus`
+  devolve ao que estava focado ao abrir, se ainda existir. Depois de excluir
+  um gasto, o foco vai pro título "Lançamentos" (o gatilho é guardado ao pedir
+  a exclusão, porque a mutação só termina depois do refetch, quando a linha já
+  saiu).
+
+**Alternativas descartadas.** Tabela semântica com reempilhamento no celular
+(perde a semântica). Linha inteira clicável pra editar (interativo dentro de
+interativo com o menu). Biblioteca de gráficos (o HTML/CSS cobre colunas com
+alternativa textual). Rolagem horizontal no gráfico mensal (o motivo do ADR-087
+pra abandonar coluna). Novo número de "saúde do veículo" e tendência
+percentual (sem fonte).
+
+**Pendências registradas (fora do escopo, não alteradas).**
+
+- Mensagens dos helpers numéricos ("a quilometragem inválido.") vêm de
+  `schemaHelpers`, compartilhado.
+- Modificações (`ExpenseListItem`, `ModificationsPage`) não foi redesenhada:
+  ganha só o formulário, a confirmação e a devolução de foco novos. A página
+  ainda soma "nesta seleção" e o "investimento por mês" no cliente.
+- `AlertBanner` ainda escreve "Venceu em" pra aviso que não venceu (ADR-087).
+- Se a remoção do anexo antigo falhar no meio (arquivo apagado, linha não),
+  o comportamento é o de antes; a nova ordem só cobre falha no envio e no
+  insert.
+- O botão "i" dos indicadores só ganha `aria-controls` com o popover aberto
+  (comportamento do Radix).
+
+**Verificação.** Dados simulados (ferramenta externa ao repositório,
+`redesign-capturas/`, cenários 49–72, arquivos 118–178), com escritas de
+gastos, anexos e Storage interceptadas e o LEDGER do mock acompanhando as
+escritas. Rede trancada. Nenhum leitor de tela real, aparelho físico, dado
+real ou exclusão real.

@@ -2,12 +2,19 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FieldError } from "@/components/ui/field-error";
-import { translatePostgresError } from "@/lib/postgresErrors";
 import { AttachmentField } from "@/features/attachment/AttachmentField";
+import {
+  VEHICLE_FORM_DIALOG_HEADER_CLASSNAME,
+  focusDialogOnOpen,
+} from "@/features/vehicle/VehicleFormParts";
+import { useReturnFocus } from "@/hooks/useReturnFocus";
+import { formatDateOnly, formatMoney } from "@/lib/format";
+import { translatePostgresError } from "@/lib/postgresErrors";
+import { EXPENSE_FORM_DIALOG_CLASSNAME } from "./CreateExpenseDialog";
 import { ExpenseForm } from "./ExpenseForm";
 import { useUpdateExpense } from "./useExpenses";
 import type { useExpenseCategories } from "./useExpenseCategories";
@@ -36,6 +43,11 @@ function toFormDefaults(expense: ExpenseWithAttachment): Partial<ExpenseFormInpu
   };
 }
 
+/**
+ * Os valores iniciais só entram na montagem (`useForm`): a lista recarregar
+ * com o diálogo aberto — por exemplo depois de anexar um arquivo — atualiza
+ * o anexo, mas não sobrescreve o que está sendo digitado.
+ */
 export function EditExpenseDialog({
   vehicleId,
   upgradeCategoryId,
@@ -46,6 +58,12 @@ export function EditExpenseDialog({
 }: EditExpenseDialogProps) {
   const updateExpense = useUpdateExpense(vehicleId);
   const [error, setError] = useState<string | null>(null);
+  const returnFocus = useReturnFocus();
+
+  function handleOpenChange(next: boolean) {
+    if (!next) setError(null);
+    onOpenChange(next);
+  }
 
   async function handleSubmit(values: ExpenseFormOutput) {
     setError(null);
@@ -61,17 +79,34 @@ export function EditExpenseDialog({
         payment_method: values.paymentMethod ?? null,
         notes: values.notes ?? null,
       });
-      onOpenChange(false);
+      handleOpenChange(false);
     } catch (mutationError) {
       setError(translatePostgresError(mutationError));
     }
   }
 
+  // Qual registro está sendo editado: descrição (ou a falta dela), data e valor salvos.
+  const identity = [
+    expense.description || "Sem descrição",
+    expense.occurred_on ? formatDateOnly(expense.occurred_on) : null,
+    formatMoney(expense.amount),
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className={EXPENSE_FORM_DIALOG_CLASSNAME}
+        onOpenAutoFocus={(event) => {
+          returnFocus.capture();
+          focusDialogOnOpen(event);
+        }}
+        onCloseAutoFocus={returnFocus.onCloseAutoFocus}
+      >
+        <DialogHeader className={VEHICLE_FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>{upgradeCategoryId ? "Editar upgrade" : "Editar gasto"}</DialogTitle>
+          <DialogDescription className="break-words">{identity}</DialogDescription>
         </DialogHeader>
         <ExpenseForm
           mode="edit"
@@ -80,15 +115,16 @@ export function EditExpenseDialog({
           defaultValues={toFormDefaults(expense)}
           onSubmit={handleSubmit}
           submitLabel="Salvar alterações"
-        >
-          <AttachmentField
-            vehicleId={vehicleId}
-            entityType="expense"
-            entityId={expense.id}
-            attachment={expense.attachment}
-          />
-        </ExpenseForm>
-        <FieldError>{error}</FieldError>
+          submitError={error}
+          attachment={
+            <AttachmentField
+              vehicleId={vehicleId}
+              entityType="expense"
+              entityId={expense.id}
+              attachment={expense.attachment}
+            />
+          }
+        />
       </DialogContent>
     </Dialog>
   );

@@ -257,7 +257,75 @@ Mesma direção e tokens; nenhuma cor nova. Decisão completa em
   todo trilho ter o mesmo comprimento. Valor zero = trilho vazio (antes,
   mínimo de 3–4% parecia gasto). Subtítulos dizem a fonte: mês = 4 fontes,
   só meses com registro; categoria = acumulado, só a tela Gastos. Vale
-  também na garagem (componentes compartilhados).
+  também na garagem (componentes compartilhados). (Etapa 05: o mês voltou
+  a ser coluna — ver abaixo.)
+
+## Redesign — etapa 05: Gastos + refinamentos do dashboard
+
+Mesma direção e tokens; nenhuma cor nova. Decisão completa em
+`docs/DECISIONS.md` (ADR-088).
+
+- **Gastos — página**: cabeçalho com `h1` e uma linha de contexto ("Lançamentos
+  avulsos do {veículo}. Abastecimento, manutenção e itens de projeto ficam nas
+  próprias telas.") + "Registrar gasto" (no celular "Registrar" + "+", nome
+  completo pro leitor de tela). Largura toda, como as outras telas (um
+  `max-w-6xl` deixava uma faixa vazia à direita em monitor largo); a partir de
+  `2xl` as colunas da lista dividem a largura em proporção. Filtros (categoria e período, os mesmos)
+  lado a lado também no celular, com largura fixa a partir de `sm`; "Limpar
+  filtros" só com filtro ativo.
+- **Lista**: painel "Lançamentos" com fio sob o título e, à direita, "N
+  lançamentos · Total da seleção R$ X" (soma do que a lista carregou; some se
+  a resposta pode ter sido cortada pelo `max_rows`). A partir de `md`, colunas
+  alinhadas (descrição e detalhes · categoria · data · valor · ⋯) com cabeçalho
+  em `xs`; no celular, descrição + valor em cima, categoria · data, e
+  fornecedor · pagamento · km · "Anexo" embaixo. Descrição quebra em até 2
+  linhas; vazia = "Sem descrição" em cinza; sem categoria = "Sem categoria" em
+  cinza, ícone neutro. Valor sempre em mono, alinhado à direita.
+- **Ações da linha**: menu "⋯" (mesma forma do card de veículo) com "Editar
+  gasto" e, separado por divisor e em carmim, "Excluir gasto". O botão é
+  descrito pelo lançamento (descrição, categoria, data, valor). A linha não é
+  clicável.
+- **Estados**: vazio de verdade (sem filtro) = painel próprio com "Registrar
+  primeiro gasto" e sem filtros; sem resultado = mensagem dentro da lista com a
+  seleção atual e "Limpar filtros", filtros intactos; erro = alerta com
+  "Tentar de novo", filtros intactos; carregando = esqueleto na lista.
+- **Formulário de gasto**: casca da etapa 03 (`max-w-xl`), foco no diálogo ao
+  abrir. "Valor e identificação" (valor com R$ dentro do campo, descrição),
+  "Categoria e data" (data com ajuda: "Em branco, vale a data de hoje" /
+  "mantém a data salva"; upgrade do sistema mostra "Também aparece em
+  Modificações") e "Detalhes · opcional" recolhível com resumo. No cadastro, uma
+  linha diz que o comprovante entra depois de salvar; na edição, a seção
+  "Anexo" fecha o corpo. Modo upgrade (Modificações): sem categoria,
+  "Modificação" no lugar de "Descrição", títulos "Registrar/Editar upgrade".
+- **Anexo** (`AttachmentField`, compartilhado): bloco do arquivo salvo (nome,
+  tipo, tamanho, "salvo neste registro") com "Abrir", "Substituir" e
+  "Remover" (carmim); envio em andamento num bloco tracejado separado; erro
+  abaixo, com o salvo ainda aberto. Formatos e limite escritos sob o título.
+- **Exclusão do gasto**: "Excluir gasto?", consequências verificadas e cartão
+  neutro com descrição, categoria, data, valor e anexo.
+- **Ações rápidas do dashboard**: as quatro em contorno neutro, ícone em
+  cinza, nenhuma "acesa". Rótulo visível por largura: "Abastecer / Gasto /
+  Manutenção / Foto" no celular, "Abastecimento / Gasto / Manutenção / Foto"
+  de `sm` a `xl`, "Registrar abastecimento / Registrar gasto / Registrar
+  manutenção / Adicionar foto" a partir de `xl`; nome acessível sempre
+  completo e contendo o texto visível.
+- **Ordem do dashboard**: identificação → ações → indicadores → aviso de
+  vencidas (só com `critical`) → "Análise de gastos" → pendências | atividade
+  → financeiro | combustível → FIPE. O aviso tem fio carmim à esquerda, nomes
+  das vencidas e "Ver pendências", que rola e foca o título do painel.
+- **Gasto por mês**: colunas verticais, cronológicas, a partir de zero,
+  laranja sem efeito, coluna de no máximo 40px, valor curto em cima ("1,2
+  mil"; abaixo de mil, inteiro) e mês curto embaixo. Até 12 colunas a partir
+  de `sm`, as 6 mais recentes no celular — recorte escrito no subtítulo. "Ver
+  valores exatos" abre a tabela de todos os meses. Sem rolagem horizontal.
+- **Gasto por categoria**: barras horizontais de 8px, maior primeiro, cinza
+  (`text-secondary`) e só a maior em laranja; quantidade de lançamentos ao
+  lado do rótulo; 6 à vista + "Ver todas as N categorias". Paleta categórica
+  deixou de ser usada aqui.
+- **Indicadores**: sob o número só o contexto curto ("Mês atual · 4 fontes",
+  "Histórico · tanques cheios", "Investimento ÷ odômetro"); a regra inteira
+  num botão "i" de 44px ao lado do rótulo (popover por clique/teclado). Ausente
+  continua "—" com o motivo escrito.
 
 As seções abaixo são o histórico das revisões anteriores. Onde contradizem
 esta etapa em cor, fonte de marca, separador do breadcrumb ou acabamento do

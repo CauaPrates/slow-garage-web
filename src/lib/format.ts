@@ -23,6 +23,28 @@ export function formatMoney(value: number): string {
   return currencyFormatter.format(value);
 }
 
+const compactFormatter = new Intl.NumberFormat("pt-BR", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+/**
+ * `1240.5` -> `"1,2 mil"`, `850` -> `"850"` — rótulo curto de coluna de
+ * gráfico, sem "R$" (a unidade fica escrita no subtítulo). O valor exato
+ * continua acessível pelo `formatMoney` ao lado.
+ */
+export function formatMoneyCompact(value: number): string {
+  // Abaixo de mil, sem centavos ("582", não "582,3") — o rótulo é de leitura rápida.
+  if (Math.abs(value) < 1000) return integerFormatter.format(Math.round(value));
+  return compactFormatter.format(value);
+}
+
+/** `245760` -> `"240 KB"`, `3145728` -> `"3,0 MB"` — tamanho de anexo. */
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${integerFormatter.format(Math.max(1, Math.round(bytes / 1024)))} KB`;
+  return `${oneDecimalFormatter.format(bytes / (1024 * 1024))} MB`;
+}
+
 /** `new Date(2026, 0, 5)` -> `"05/01/2026"` */
 export function formatDate(date: Date): string {
   return formatDateFns(date, "dd/MM/yyyy", { locale: ptBR });
