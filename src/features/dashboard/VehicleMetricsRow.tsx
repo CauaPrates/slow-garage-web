@@ -90,7 +90,7 @@ export function VehicleMetricsRow(props: VehicleMetricsRowProps) {
           flashOnChange
           state={state}
           value={monthSpend != null ? formatMoney(monthSpend) : "—"}
-          hint={financial ? "Mês atual · 4 fontes" : "Sem dado financeiro."}
+          hint={financial ? "Mês atual" : "Sem dado financeiro."}
           help={MONTH_SPEND_HELP}
           wrap
           fullHint

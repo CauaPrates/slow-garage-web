@@ -2557,3 +2557,89 @@ percentual (sem fonte).
 gastos, anexos e Storage interceptadas e o LEDGER do mock acompanhando as
 escritas. Rede trancada. Nenhum leitor de tela real, aparelho físico, dado
 real ou exclusão real.
+
+## ADR-089 — Redesign etapa 06: Abastecimentos + dois ajustes de texto
+
+**Contexto.** A tela Abastecimentos era uma pilha de cards com lápis e
+lixeira soltos, um resumo de quatro números (médio, melhor, pior e um
+"Custo/km" que na verdade é o do veículo inteiro) e um formulário
+`max-w-md` com "Mais detalhes" em `<details>`. O resumo com erro de consulta
+aparecia como "—", igual a "sem base". Os dois interruptores do formulário
+tinham 44×24 (pendência do ADR-087) e as mensagens dos campos numéricos saíam
+"a quilometragem inválido." (pendência do ADR-086/088). Esta etapa cobre só
+Abastecimentos e dois textos da revisão anterior; banco, hooks, queries,
+chaves, invalidações, fórmulas e rotas não mudaram.
+
+**Fontes e regras conferidas (migrations do backend).**
+
+| Ponto | Regra |
+|---|---|
+| Lista | `fuel_log_metrics`, `order=occurred_on.desc,odometer_km.desc` (sem mudança). Preço/L é coluna gerada (`round(total/litros, 3)`). |
+| Trecho | `lag` por veículo em ordem de `odometer_km` (nulos no fim), depois `occurred_on`, `created_at`. `km_since_previous` nulo sem anterior com km. |
+| km/L do trecho | Só com anterior com km, **este e o anterior** de tanque cheio e sem "perdi o anterior". `round(dist/litros, 2)`. |
+| Custo/km do trecho | Anterior com km, sem "perdi o anterior" e distância > 0 — não exige tanque cheio (ADR-030). |
+| Resumo | `vehicle_fuel_summary`: avg/max/min dos km/L não nulos, média simples do preço/L, soma de litros; histórico inteiro, sem linha quando não há registro. |
+| Total em combustível | `vehicle_financial_summary.total_fuel` (já vinha com o veículo); custo/km do veículo = total investido ÷ odômetro. |
+| Campos | Litros e valor obrigatórios (≥ 0 no schema; o banco exige litros > 0). Km opcional, inteiro ≥ 0, único por veículo (`23505`, já traduzido). Data: hoje por padrão; em branco, o banco grava hoje / a edição mantém. Combustível: o do veículo. Tanque cheio `true`, "perdi o anterior" `false`. |
+
+**Decisão.**
+
+- Lista estruturada (não `<table>`), pelo mesmo motivo do ADR-088: colunas
+  alinhadas a partir de `md` (números em mono à direita), linha em dois blocos
+  no celular (valor · litros | consumo | ⋯ e, embaixo, o resto em largura
+  inteira). Cada número leva a unidade no próprio texto, então a linha se
+  entende sem o cabeçalho (que é `aria-hidden`).
+- Consumo ausente: "—" e o motivo da linha, derivado dos campos da própria
+  linha na ordem do `case` da view (`missingConsumptionReason`). Nada é
+  recalculado: o número continua sendo só `km_per_liter`. "Anterior parcial"
+  sai por exclusão (este cheio, anterior com km, nada perdido e mesmo assim
+  nulo ⇒ o anterior era parcial), sem olhar a linha vizinha.
+- Resumo: os 4 números da view + o total em combustível, todos rotulados
+  "histórico"; melhor/pior e o custo/km **do veículo** (renomeado) em
+  "Detalhes". Erro de consulta é estado próprio, separado de "sem base".
+  Resumo e lista falham cada um por si.
+- Formulário no padrão das etapas 03/05 (`FormSection`/`FormField`/
+  `UnitAffix`), sem wizard: "Abastecimento", "Cálculo do consumo" (os dois
+  interruptores com a regra escrita) e "Detalhes" recolhível. Mesmos campos,
+  ids, defaults, payload e `?novo=1`. Foco no 1º inválido (abre "Detalhes"
+  se preciso), erro do banco no rodapé com os dados mantidos, ref contra envio
+  duplicado, diálogos por estado com `useReturnFocus`.
+- Interruptores (`FuelToggleField`, local): o próprio `role="switch"` virou um
+  botão de 56×44 com o trilho de 44×24 dentro; o rótulo é `label htmlFor`
+  irmão (não envolve o botão, então não há clique duplicado) com 44px de
+  altura. O `Switch` compartilhado (usado também em Manutenção) não mudou.
+- Exclusão no padrão do gasto, com as consequências que a view garante,
+  inclusive a mudança no trecho do abastecimento seguinte.
+- Mensagens: `schemaHelpers` ganhou um segundo parâmetro opcional com o texto
+  do valor inválido (padrão igual ao de antes). Só o combustível passa texto
+  próprio ("Quilometragem inválida.", "Litros inválidos.", "Valor total
+  inválido."); regra e demais formulários iguais.
+- Formatação: `formatLitersExact` (até 3 casas, um registro) e
+  `formatPricePerLiter` (até 3 casas, como a coluna). Aditivos em
+  `lib/format.ts`; o dashboard continua com os de antes.
+- Ajustes de texto: Gastos abre com "Gastos avulsos deste veículo." e a
+  explicação de onde ficam abastecimento, manutenção e itens de projeto num
+  "i" ao lado; o indicador do dashboard diz "Mês atual" (a composição segue na
+  ajuda do próprio indicador).
+
+**Alternativas descartadas.** Recalcular consumo no cliente para mostrar algo
+nos trechos parciais (fórmula diferente da view). Etiqueta "Tanque cheio" em
+toda linha (o normal; poluiria). Classificar consumo como bom/ruim (sem
+referência). Mexer no `Switch` compartilhado (afetaria Manutenção). Mostrar o
+resumo com traços quando não há registro (o vazio explica melhor).
+
+**Pendências registradas (fora do escopo, não alteradas).**
+
+- O schema aceita litros = 0, o banco recusa (`23514` → "Valor inválido para
+  este campo."). Regra preservada.
+- No celular, uma linha de abastecimento tem 103–131px (390/360); o nome de
+  posto muito longo corta em 2 linhas.
+- `FuelSummarySection` do dashboard continua mostrando preço médio com 2 casas.
+- Mensagens "x inválido." dos outros formulários continuam como estavam.
+
+**Verificação.** Dados simulados (ferramenta externa, `redesign-capturas/`,
+cenários 73–83, arquivos 179–189), com `fuel_log_metrics`, `vehicle_fuel_summary`
+e as escritas em `fuel_logs` interceptadas (incluindo a constraint única de
+odômetro) e o LEDGER do dashboard acompanhando. Rede trancada; nenhuma
+chamada ao Supabase real, nenhuma exclusão real. Teclado virtual só emulado
+(390×380); nenhum aparelho físico nem leitor de tela real.

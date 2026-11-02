@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
-import { AlertCircle, Plus, Receipt } from "lucide-react";
+import { AlertCircle, Info, Plus, Receipt } from "lucide-react";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { formatCount, formatMoney } from "@/lib/format";
 import { PERIOD_LABELS } from "@/lib/period";
 import { ROUTES } from "@/lib/routes";
@@ -122,10 +123,28 @@ export function ExpensesPage() {
       <header className="flex items-start justify-between gap-3 sm:items-end sm:gap-4">
         <div className="flex min-w-0 flex-col gap-1">
           <h1 className="text-2xl font-semibold tracking-tight text-text-primary">Gastos</h1>
-          <p className="text-sm break-words text-text-secondary">
-            {/* Modelo que já termina em ponto ("5p Aut.") não ganha outro. */}
-            Lançamentos avulsos do {`${vehicle.make} ${vehicle.model}`.replace(/\.+$/, "")}. Abastecimento,
-            manutenção e itens de projeto ficam nas próprias telas.
+          {/*
+            Etapa 06: só a frase curta à vista; onde ficam os outros registros, na
+            ajuda logo depois dela (alvo de 44px; a margem negativa não aumenta a
+            altura da linha).
+          */}
+          <p className="text-sm text-text-secondary">
+            {/* Última palavra e "i" juntos: no celular o botão não cai sozinho na linha de baixo. */}
+            Gastos avulsos deste{" "}
+            <span className="whitespace-nowrap">
+              veículo.
+              <Popover>
+                <PopoverTrigger
+                  aria-label="O que não entra em Gastos"
+                  className="-my-3 -ml-1 inline-flex h-11 w-11 items-center justify-center rounded-md align-middle text-text-secondary transition-colors duration-(--duration-fast) hover:bg-state-hover hover:text-text-primary data-[state=open]:bg-state-active data-[state=open]:text-text-primary"
+                >
+                  <Info className="h-4 w-4" aria-hidden="true" />
+                </PopoverTrigger>
+                <PopoverContent align="start" aria-label="O que não entra em Gastos" className="w-72 text-sm text-text-secondary">
+                  Abastecimento, manutenção e itens de projeto ficam nas próprias telas.
+                </PopoverContent>
+              </Popover>
+            </span>
           </p>
         </div>
         {!noExpensesAtAll && (

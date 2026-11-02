@@ -123,6 +123,32 @@ export function formatLiters(value: number): string {
   return `${oneDecimalFormatter.format(value)} L`;
 }
 
+const litersExactFormatter = new Intl.NumberFormat("pt-BR", {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 3,
+});
+
+/**
+ * `45.237` -> `"45,237 L"`, `40` -> `"40,0 L"` — litros de **um**
+ * abastecimento, com as casas que foram gravadas (até 3, como a coluna do
+ * banco). `formatLiters` arredonda pra uma casa e serve pra soma.
+ */
+export function formatLitersExact(value: number): string {
+  return `${litersExactFormatter.format(value)} L`;
+}
+
+const pricePerLiterFormatter = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 3,
+});
+
+/** `5.899` -> `"R$ 5,899/L"`, `6.1` -> `"R$ 6,10/L"` — preço por litro com até 3 casas, como na bomba e na coluna gerada do banco. */
+export function formatPricePerLiter(value: number): string {
+  return `${pricePerLiterFormatter.format(value)}/L`;
+}
+
 /**
  * `45.7` -> `"45,7"` — para exibir em campo de formulário editável.
  * O usuário digita vírgula como separador decimal; ver `parseDecimalInput`.

@@ -322,10 +322,72 @@ Mesma direção e tokens; nenhuma cor nova. Decisão completa em
   (`text-secondary`) e só a maior em laranja; quantidade de lançamentos ao
   lado do rótulo; 6 à vista + "Ver todas as N categorias". Paleta categórica
   deixou de ser usada aqui.
-- **Indicadores**: sob o número só o contexto curto ("Mês atual · 4 fontes",
+- **Indicadores** (etapa 06: o gasto no mês passou a dizer só "Mês atual"): sob o número só o contexto curto ("Mês atual · 4 fontes",
   "Histórico · tanques cheios", "Investimento ÷ odômetro"); a regra inteira
   num botão "i" de 44px ao lado do rótulo (popover por clique/teclado). Ausente
   continua "—" com o motivo escrito.
+
+## Redesign — etapa 06: Abastecimentos + dois ajustes de texto
+
+Mesma direção e tokens; nenhuma cor nova. Decisão completa em
+`docs/DECISIONS.md` (ADR-089).
+
+- **Página**: trilha → cabeçalho (`h1` "Abastecimentos" + "Litros, valores e
+  consumo deste veículo." + "Registrar abastecimento"; no celular "Registrar"
+  + "+", nome completo pro leitor de tela) → painel "Resumo" → painel
+  "Histórico". Largura toda, como Gastos. Sem registro nenhum: só o painel
+  vazio ("Registrar primeiro abastecimento"), sem resumo de traços.
+- **Resumo** (`FuelSummaryPanel`, casca `DashboardPanel` + `GarageTile size="lg"`):
+  consumo médio (km/L), preço médio (R$/L), litros e total em combustível
+  (R$), todos "histórico" — nada é mensal. 2×2 até `xl`, 4 numa linha a partir
+  dele (em 640–1279px o valor grande quebrava). "Detalhes" (fechado): melhor e
+  pior trecho e o **custo por km do veículo** (total investido ÷ odômetro — o
+  rótulo diz que não é só combustível). Ajuda "i" no consumo, no preço e no
+  total. Sem base: "—" + "Precisa de dois tanques cheios seguidos, com km.";
+  erro: cada módulo diz que não carregou e oferece "Tentar de novo", e a
+  linha de contexto avisa que o histórico é independente.
+- **Histórico** (`FuelLogRow`): a partir de `md`, colunas alinhadas
+  (abastecimento · odômetro · litros · valor · preço/L · consumo · ⋯), números
+  em mono alinhados à direita; o odômetro leva o trecho embaixo ("+640 km"), o
+  consumo leva o custo por km do trecho. No celular: valor · litros | consumo
+  | ⋯ na primeira linha e, em largura inteira embaixo, data · odômetro, posto
+  · combustível, preço/L · trecho · custo/km e as condições. O consumo fica
+  sempre no mesmo lugar (borda direita medida igual em todas as linhas). Só o
+  nome do posto corta (2 linhas); número nunca.
+- **Consumo ausente**: "—" e o motivo curto só naquela linha ("sem
+  quilometragem", "primeiro com km", "anterior parcial", "tanque parcial",
+  "anterior não registrado"), na ordem do `case` da view. No celular, quando a
+  etiqueta já diz o motivo, ele não se repete. **Condições** em etiqueta de
+  texto com borda neutra: "Tanque parcial", "Anterior não registrado"; tanque
+  cheio é o normal, sem etiqueta (o leitor de tela ouve "tanque cheio" na
+  identificação do registro).
+- **Ações da linha**: menu "⋯" (forma do gasto) com "Editar abastecimento" e,
+  em carmim depois do divisor, "Excluir abastecimento". Linha não clicável.
+- **Formulário**: casca da etapa 03 em `max-w-xl`. "Abastecimento" (litros com
+  "L" e valor com "R$" lado a lado também no celular; quilometragem opcional
+  com "km" e a ajuda "Sem ela, este registro fica sem consumo calculado."),
+  "Cálculo do consumo" (os dois interruptores, cada um com a regra escrita) e
+  "Detalhes · opcional" recolhível (data, combustível, posto, notas), com
+  resumo "02/11/2026 · Gasolina · Posto…". Na edição, "Detalhes" abre se há
+  posto ou notas.
+- **Interruptores** (`FuelToggleField`): o `role="switch"` é um botão de 56×44
+  com o trilho de 44×24 desenhado dentro; o rótulo ao lado é `label htmlFor`
+  de 44px de altura e a ajuda fica embaixo, sem sobrepor. Toque no rótulo ou
+  em qualquer ponto do botão aciona o controle uma vez. `Switch` compartilhado
+  não mudou.
+- **Exclusão**: "Excluir abastecimento?", consequências verificadas (sai do
+  histórico, do resumo e dos totais; o trecho do abastecimento seguinte passa
+  a contar do registro anterior) e cartão com data, odômetro, posto,
+  combustível, valor e litros.
+- **Números**: litros de um registro com até 3 casas (`formatLitersExact`,
+  "41,237 L"); soma com uma (`formatLiters`). Preço por litro com até 3 casas,
+  como a coluna do banco (`formatPricePerLiter`, "R$ 6,358/L"); o painel do
+  dashboard continua com 2.
+- **Ajustes de texto**: Gastos abre com "Gastos avulsos deste veículo." e um
+  "i" (44px, popover por clique/teclado) com "Abastecimento, manutenção e itens
+  de projeto ficam nas próprias telas."; "veículo." e o "i" não se separam na
+  quebra. O indicador "Gasto no mês" diz só "Mês atual" — a composição (4
+  fontes, sem a compra) segue na ajuda.
 
 As seções abaixo são o histórico das revisões anteriores. Onde contradizem
 esta etapa em cor, fonte de marca, separador do breadcrumb ou acabamento do

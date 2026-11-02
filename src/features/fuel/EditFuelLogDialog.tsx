@@ -2,11 +2,18 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FieldError } from "@/components/ui/field-error";
+import {
+  VEHICLE_FORM_DIALOG_HEADER_CLASSNAME,
+  focusDialogOnOpen,
+} from "@/features/vehicle/VehicleFormParts";
+import { useReturnFocus } from "@/hooks/useReturnFocus";
+import { formatDateOnly, formatKm, formatMoney } from "@/lib/format";
 import { translatePostgresError } from "@/lib/postgresErrors";
+import { FUEL_FORM_DIALOG_CLASSNAME } from "./CreateFuelLogDialog";
 import { FuelLogForm } from "./FuelLogForm";
 import { useUpdateFuelLog } from "./useFuelLogs";
 import type { FuelLogFormInput, FuelLogFormOutput } from "./schemas";
@@ -33,6 +40,10 @@ function toFormDefaults(log: FuelLogMetric): Partial<FuelLogFormInput> {
   };
 }
 
+/**
+ * Os valores iniciais só entram na montagem (`useForm`): a lista recarregar
+ * com o diálogo aberto não sobrescreve o que está sendo digitado.
+ */
 export function EditFuelLogDialog({
   vehicleId,
   log,
@@ -41,6 +52,12 @@ export function EditFuelLogDialog({
 }: EditFuelLogDialogProps) {
   const updateFuelLog = useUpdateFuelLog(vehicleId);
   const [error, setError] = useState<string | null>(null);
+  const returnFocus = useReturnFocus();
+
+  function handleOpenChange(next: boolean) {
+    if (!next) setError(null);
+    onOpenChange(next);
+  }
 
   async function handleSubmit(values: FuelLogFormOutput) {
     setError(null);
@@ -57,25 +74,42 @@ export function EditFuelLogDialog({
         missed_previous_fill: values.missedPreviousFill,
         notes: values.notes ?? null,
       });
-      onOpenChange(false);
+      handleOpenChange(false);
     } catch (mutationError) {
       setError(translatePostgresError(mutationError));
     }
   }
 
+  // Qual registro está sendo editado: data, odômetro (se houver) e valor salvos.
+  const identity = [
+    log.occurred_on ? formatDateOnly(log.occurred_on) : null,
+    log.odometer_km != null ? formatKm(log.odometer_km) : "sem quilometragem",
+    log.total_amount != null ? formatMoney(log.total_amount) : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className={FUEL_FORM_DIALOG_CLASSNAME}
+        onOpenAutoFocus={(event) => {
+          returnFocus.capture();
+          focusDialogOnOpen(event);
+        }}
+        onCloseAutoFocus={returnFocus.onCloseAutoFocus}
+      >
+        <DialogHeader className={VEHICLE_FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>Editar abastecimento</DialogTitle>
+          <DialogDescription className="break-words">{identity}</DialogDescription>
         </DialogHeader>
         <FuelLogForm
           mode="edit"
           defaultValues={toFormDefaults(log)}
           onSubmit={handleSubmit}
           submitLabel="Salvar alterações"
+          submitError={error}
         />
-        <FieldError>{error}</FieldError>
       </DialogContent>
     </Dialog>
   );
