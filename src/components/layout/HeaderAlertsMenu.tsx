@@ -76,7 +76,21 @@ export function HeaderAlertsMenu({ vehicles }: HeaderAlertsMenuProps) {
         )}
 
         {alertsQuery.data && count > 0 && (
-          <div className="flex max-h-96 flex-col gap-3 overflow-y-auto">
+          /*
+            Etapa 07: com muitos alertas a lista rola, e nada dentro dela recebe
+            foco (os alertas são texto) — sem `tabIndex`, quem usa teclado não
+            alcançava o fim (axe `scrollable-region-focusable`). Focável e
+            nomeada, as setas e o Page Down rolam a lista.
+          */
+          <div
+            // Região rolável sem nada focável dentro é a exceção que o próprio WCAG/axe pede pra esta regra.
+            // eslint-disable-next-line jsx-a11y/no-noninteractive-tabindex
+            tabIndex={0}
+            role="region"
+            aria-label="Lista de alertas"
+            // `overscroll-contain`: chegar ao fim da lista pelo teclado não passa a rolar a página por trás.
+            className="flex max-h-96 flex-col gap-3 overflow-y-auto overscroll-contain rounded-md"
+          >
             {[...alertsByVehicle.entries()].map(([vehicleId, vehicleAlerts]) => (
               <div key={vehicleId} className="flex flex-col gap-2">
                 {showVehicleLabel && (

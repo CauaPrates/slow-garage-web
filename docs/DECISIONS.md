@@ -2643,3 +2643,115 @@ e as escritas em `fuel_logs` interceptadas (incluindo a constraint única de
 odômetro) e o LEDGER do dashboard acompanhando. Rede trancada; nenhuma
 chamada ao Supabase real, nenhuma exclusão real. Teclado virtual só emulado
 (390×380); nenhum aparelho físico nem leitor de tela real.
+
+## ADR-090 — Redesign etapa 07: Manutenção + texto de vencimento do AlertBanner
+
+**Contexto.** Manutenção era uma pilha de cards com lápis e lixeira soltos,
+dois botões de rótulo parecido ("Novo item do plano" / "Registrar execução"),
+nenhuma próxima data ou quilometragem na tela, itens inativos filtrados sem
+aviso e o `AlertBanner` no topo repetindo as vencidas. O `AlertBanner`
+escrevia "Venceu em" pra qualquer data, inclusive futuras (pendência dos
+ADR-087/088), em Manutenção, Documentos e no sino. Esta etapa cobre só
+Manutenção e esse texto; banco, hooks, queries, chaves, invalidações e rotas
+não mudaram.
+
+**Fontes e regras conferidas (migrations do backend).**
+
+| Ponto | Regra |
+|---|---|
+| Situação | `maintenance_status`: `planned` sem execução; `overdue` se odômetro ≥ última km + intervalo **ou** hoje ≥ última data + N meses; `due_soon` a 500 km ou 30 dias; senão `ok`. Calculada a cada consulta. |
+| Alertas | `vehicle_alerts` = vencidas (`critical`) e próximas (`warning`) **ativas** da mesma view, + obrigações e documentos. |
+| Plano | Nome obrigatório; `interval_km` e/ou `interval_months` (o banco recusa os dois nulos e exige > 0); prioridade `medium`; ativo `true`; categoria texto livre. |
+| Serviço | Nome obrigatório; item opcional (avulso); km opcional; `performed_on` NOT NULL com default hoje (em branco no cadastro grava hoje; na edição o PATCH omite e mantém); custo opcional. |
+| Trigger | `sync_maintenance_record` roda **só no insert** e **só com km**: avança `last_service_*` do item vinculado (se a km for maior) e o odômetro do veículo. Editar ou excluir serviço não mexe em nada disso. |
+| Excluir item | Exclusão real (ADR-031); FK `on delete set null` — os serviços ficam no histórico, sem vínculo. |
+| Excluir serviço | O hook apaga o anexo antes; o custo sai de `total_maintenance` e dos gastos por mês. |
+
+**Decisão.**
+
+- Ordem da página: vencidas → plano → histórico, com "Registrar serviço"
+  (execução, primária) e "Adicionar ao plano" (planejamento, contorno) no
+  topo. Os diálogos usam os mesmos nomes ("Registrar serviço", "Editar
+  serviço", "Excluir serviço?"; "Adicionar ao plano", "Editar item do plano",
+  "Excluir item do plano?").
+- Vencidas/próximas saem do `status` de `maintenance_status`, como antes. O
+  `AlertBanner` daqui mostra só os alertas que as listas não cobrem
+  (`source_table` diferente de `maintenance_items` — hoje documentos e
+  obrigações), num bloco compacto "Documentos e obrigações" depois das
+  vencidas, com "Ver em Documentos". Os de manutenção não se repetem. Falha de
+  `vehicle_alerts` vira uma linha com "Tentar de novo", nunca "nada pendente".
+  (Ajuste da revisão: a primeira versão tirava o banner inteiro e, com ele,
+  documentos e obrigações que a página mostrava antes.)
+- Próxima referência = `next_service_date`/`next_service_odometer_km` como a
+  view entrega, só dos intervalos acompanhados. "faltam/passou X km" usa o
+  `current_odometer_km` do veículo — a mesma comparação da view e a mesma
+  conta do painel de pendências (ADR-087). Sem execução: nenhum prazo; o texto
+  diz quando começa a contar. Nenhuma previsão por média de rodagem, nenhuma
+  porcentagem de vida útil. Item vencido com a data ainda por vir (ou sem
+  data) só pode ter vencido pela km: a linha diz "Vencida por quilometragem",
+  depois "Aos X km · passou Y km" e a data em tom secundário ("Data prevista …"),
+  em vez de "Vence em …" ao lado do selo "Vencida" (ajuste da revisão).
+- Prioridade como texto neutro na linha da periodicidade; situação em selo de
+  cor + texto; inativo em selo neutro e referência sem "venceu/passou".
+- Inativos recolhidos no fim do plano, com editar/excluir — resolve o "se isso
+  mudar" do ADR-031 sem segundo fluxo de arquivar.
+- Diálogos de editar/excluir **item** ficam na página, não na linha: a linha
+  troca de grupo (vencidas → plano → inativos) e desmonta quando a lista
+  recarrega. Foco volta ao "⋯" se ele ainda existe; senão ao título do plano.
+  Registro de serviço aberto por uma linha que muda de grupo devolve o foco ao
+  título do histórico.
+- Formulários no padrão das etapas 03/05/06: foco no 1º inválido (abre
+  "Detalhes" se preciso), erro do banco no rodapé com os dados mantidos, ref
+  contra envio duplicado, valores iniciais só na montagem. A falta dos dois
+  intervalos é um erro único lido pelos dois campos (`aria-describedby`), sem
+  `role="alert"`. "Item ativo" reusa o `FuelToggleField` (56×44); o `Switch`
+  compartilhado não mudou.
+- Exclusões com as consequências da tabela acima, sem prometer recálculo.
+- Mensagens: só o texto mudou ("Intervalo em km inválido.", "Custo estimado
+  inválido.", "Quilometragem inválida.", "Custo inválido.", "Informe o
+  intervalo em km, em meses ou os dois."), pelo 2º parâmetro dos helpers.
+- `AlertBanner`: data passada "Venceu em", hoje "Vence hoje", futura "Vence
+  em"; km "previsto aos X". Alerta `critical` cuja data ainda não chegou só
+  pode ter vencido pela quilometragem (a view tem só esses dois critérios;
+  obrigação e documento não têm km) → "Venceu aos X km · data prevista …".
+  Fonte, severidade, cor, ordem e contagens iguais. Consumidores conferidos:
+  Documentos, sino e o bloco de Manutenção.
+- Sino (`HeaderAlertsMenu`, ajuste da revisão): a lista rolável virou
+  `role="region"` "Lista de alertas" com `tabIndex={0}` (o axe acusava
+  `scrollable-region-focusable`, `serious`, com muitos alertas — nada dentro
+  dela recebe foco) e `overscroll-contain` (chegar ao fim pelo teclado não
+  rola a página por trás). A regra `jsx-a11y/no-noninteractive-tabindex` fica
+  desligada só nessa linha, com o motivo: é a exceção que o próprio WCAG prevê.
+
+**Alternativas descartadas.** Manter o banner inteiro em Manutenção (duas
+respostas para "o que venceu"). Tirar o banner sem repor documentos e
+obrigações (a página perdia informação que mostrava — primeira versão, revista).
+Desligar a regra de lint no projeto todo (o caso é um só). Calcular "próxima revisão" quando a view não
+tem referência (inventaria prazo). Coluna de situação separada do nome (no
+desktop sobrava pouco para o nome). Grade do plano a partir de `md` (a coluna
+do item ficava com ~150px em 820–1279px). Mexer no `Switch` compartilhado.
+
+**Pendências registradas (fora do escopo, não alteradas).**
+
+- O schema aceita intervalo 0; o banco exige > 0 (`23514` → "Valor inválido
+  para este campo."). Regra preservada.
+- Excluir serviço apaga o anexo antes da linha (ordem do hook, igual ao gasto):
+  se a exclusão da linha falha, o anexo já foi.
+- Excluir ou editar um serviço não recalcula a última execução do item nem o
+  odômetro do veículo (o trigger só roda no insert): o item pode continuar
+  contando a partir de um serviço que não existe mais. A confirmação diz isso;
+  a correção é do backend.
+- `PendingAlertsPanel` do dashboard tem a própria frase: "Venceu em" para todo
+  `critical`, inclusive vencido por km com data futura. Não usa o
+  `AlertBanner` e não foi alterado.
+- A ação rápida de manutenção do dashboard abre o registro sem a quilometragem
+  do veículo (o card da garagem passa); comportamento de antes.
+
+**Verificação.** Dados simulados (ferramenta externa, `redesign-capturas/`,
+cenários 84–92, arquivos 190–199; ajustes da revisão no cenário 93, arquivos
+200–201, relatório próprio): `maintenance_items`, `maintenance_status`
+(regra da view), `maintenance_records` (trigger de insert), `vehicle_alerts`
+derivados, anexos e Storage interceptados, LEDGER do dashboard acompanhando os
+custos. Rede trancada; nenhuma chamada ao Supabase real, nenhuma exclusão real.
+Teclado virtual só emulado (390×380); nenhum aparelho físico nem leitor de tela
+real.

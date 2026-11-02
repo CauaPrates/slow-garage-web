@@ -2,11 +2,18 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FieldError } from "@/components/ui/field-error";
+import {
+  VEHICLE_FORM_DIALOG_CLASSNAME,
+  VEHICLE_FORM_DIALOG_HEADER_CLASSNAME,
+  focusDialogOnOpen,
+} from "@/features/vehicle/VehicleFormParts";
+import { useReturnFocus } from "@/hooks/useReturnFocus";
 import { translatePostgresError } from "@/lib/postgresErrors";
+import { cn } from "@/lib/utils";
 import { MaintenanceRecordForm } from "./MaintenanceRecordForm";
 import { useCreateMaintenanceRecord } from "./useMaintenanceRecords";
 import type { MaintenanceRecordFormOutput } from "./schemas";
@@ -21,7 +28,16 @@ type CreateMaintenanceRecordDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-/** Sem `DialogTrigger` próprio — controlado externamente (cabeçalho, estado vazio, `?novo=1`, "Registrar execução" de um item específico todos abrem a mesma instância). */
+/** Etapa 07: a casca do formulário do veículo (cabeçalho e rodapé fixos, só o corpo rola), na largura do gasto. */
+export const MAINTENANCE_FORM_DIALOG_CLASSNAME = cn(VEHICLE_FORM_DIALOG_CLASSNAME, "max-w-xl");
+
+/**
+ * Sem `DialogTrigger` próprio — controlado externamente (cabeçalho, estado
+ * vazio, `?novo=1`, "Registrar serviço" de um item do plano e as ações rápidas
+ * do dashboard e do card da garagem abrem a mesma instância). Etapa 07:
+ * "Registrar serviço" no lugar de "Registrar execução", o mesmo nome do botão
+ * que abre; payload, defaults e pré-seleção do item iguais.
+ */
 export function CreateMaintenanceRecordDialog({
   vehicleId,
   items,
@@ -32,9 +48,16 @@ export function CreateMaintenanceRecordDialog({
 }: CreateMaintenanceRecordDialogProps) {
   const createRecord = useCreateMaintenanceRecord(vehicleId);
   const [error, setError] = useState<string | null>(null);
+  const returnFocus = useReturnFocus();
   const preselectedItem = preselectedItemId
     ? items.find((i) => i.id === preselectedItemId)
     : undefined;
+
+  function handleOpenChange(next: boolean) {
+    // O formulário desmonta ao fechar; o erro do envio anterior vai junto.
+    if (!next) setError(null);
+    onOpenChange(next);
+  }
 
   async function handleSubmit(values: MaintenanceRecordFormOutput) {
     setError(null);
@@ -48,17 +71,29 @@ export function CreateMaintenanceRecordDialog({
         vendor: values.vendor ?? null,
         notes: values.notes ?? null,
       });
-      onOpenChange(false);
+      handleOpenChange(false);
     } catch (mutationError) {
       setError(translatePostgresError(mutationError));
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Registrar execução</DialogTitle>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className={MAINTENANCE_FORM_DIALOG_CLASSNAME}
+        onOpenAutoFocus={(event) => {
+          returnFocus.capture();
+          focusDialogOnOpen(event);
+        }}
+        onCloseAutoFocus={returnFocus.onCloseAutoFocus}
+      >
+        <DialogHeader className={VEHICLE_FORM_DIALOG_HEADER_CLASSNAME}>
+          <DialogTitle>Registrar serviço</DialogTitle>
+          <DialogDescription className="break-words">
+            {preselectedItem
+              ? `Serviço feito para “${preselectedItem.name}”, do plano.`
+              : "Um serviço feito no veículo, ligado ou não a um item do plano."}
+          </DialogDescription>
         </DialogHeader>
         <MaintenanceRecordForm
           mode="create"
@@ -69,9 +104,9 @@ export function CreateMaintenanceRecordDialog({
             name: preselectedItem?.name,
           }}
           onSubmit={handleSubmit}
-          submitLabel="Registrar execução"
+          submitLabel="Registrar serviço"
+          submitError={error}
         />
-        <FieldError>{error}</FieldError>
       </DialogContent>
     </Dialog>
   );

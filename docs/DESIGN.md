@@ -389,6 +389,66 @@ Mesma direção e tokens; nenhuma cor nova. Decisão completa em
   quebra. O indicador "Gasto no mês" diz só "Mês atual" — a composição (4
   fontes, sem a compra) segue na ajuda.
 
+## Redesign — etapa 07: Manutenção + texto de vencimento do AlertBanner
+
+Mesma direção e tokens; nenhuma cor nova. Decisão completa em
+`docs/DECISIONS.md` (ADR-090).
+
+- **Página**: trilha → cabeçalho (`h1` "Manutenção" + "Plano preventivo e
+  serviços feitos neste veículo · odômetro 87.400 km") → as duas ações,
+  distintas: "Registrar serviço" (laranja, execução) e "Adicionar ao plano"
+  (contorno, planejamento). No celular empilham em largura cheia, serviço
+  primeiro. Depois: **Vencidas** (só com item vencido; fio carmim à esquerda e
+  contagem) → **Documentos e obrigações** (só com alerta dessas fontes) →
+  **Plano** → **Histórico de serviços**. Largura toda, uma coluna. O bloco de
+  documentos e obrigações é o `AlertBanner` só com o que as listas não cobrem,
+  com "Ver em Documentos" (link de painel, 44px); os alertas de manutenção não
+  se repetem. "nada vencido" aparece no resumo do plano.
+- **Item do plano** (`MaintenancePlanRow`): nome + situação em selo (Vencida
+  carmim, Próxima âmbar, Em dia verde, Sem execução e Inativo neutros, este
+  tracejado) e, embaixo, "A cada 10.000 km ou 6 meses · Prioridade média ·
+  Motor" — prioridade em texto neutro, nunca na cor do prazo. Próxima
+  referência só dos intervalos acompanhados: "Venceu em / Vence hoje / Vence
+  em" e "Aos 93.900 km · faltam 6.500 km" (com odômetro). Vencida só pela km:
+  "Vencida por quilometragem", "Aos 87.300 km · passou 100 km" e "Data
+  prevista …" em `xs` secundário. Sem execução:
+  "Começa a contar quando um serviço vinculado for registrado com
+  quilometragem". Inativo: "Data prevista …", sem "venceu"/"passou". Ações:
+  "Detalhes" (`aria-expanded`: última execução, custo estimado, categoria,
+  acompanhamento, descrição, notas), "Registrar serviço" (já vinculado) e "⋯"
+  (editar/excluir). Colunas item · referência · ações a partir de `xl`;
+  abaixo, empilhado.
+- **Plano**: próximas, em dia e sem execução, nessa ordem (dentro de cada uma,
+  por nome). Inativos recolhidos no fim ("Mostrar N inativos — fora das
+  vencidas, das próximas e dos alertas"). Antes eram filtrados sem aviso.
+- **Histórico** (`MaintenanceRecordRow`): a partir de `md`, colunas serviço
+  (vínculo "Plano: …"/"Avulso" e "Anexo" embaixo) · fornecedor · data ·
+  quilometragem · custo · ⋯, números em mono à direita. No celular: nome |
+  custo | ⋯ e, embaixo, data · km, fornecedor, vínculo e anexo. Custo ausente
+  "—" ("sem custo informado" pro leitor de tela); zero salvo é R$ 0,00.
+- **Formulário do plano**: casca da etapa 03 em `max-w-xl`. "Item e
+  periodicidade" (nome; a regra "km, meses ou os dois — vence pelo que chegar
+  primeiro"; intervalo em km e em meses lado a lado, com a unidade no campo e
+  um erro só para os dois), "Prioridade e acompanhamento" (prioridade com
+  "Não muda quando o item vence"; "Item ativo" no interruptor de 56×44 da
+  etapa 06) e "Detalhes · opcional" (categoria livre, custo estimado,
+  descrição, notas).
+- **Formulário de serviço**: "Serviço" (item do plano opcional — "Nenhum —
+  serviço avulso", inativos marcados — com a ajuda do que o vínculo faz;
+  nome), "Data e quilometragem" e "Detalhes · opcional" (custo, fornecedor,
+  notas). Edição: anexo no fim (`AttachmentField`); cadastro: "dá pra anexar
+  depois de salvar".
+- **Exclusões**: "Excluir item do plano?" (serviços vinculados ficam, sem
+  vínculo; sugere desativar) e "Excluir serviço?" (sai do histórico e dos
+  totais; anexo apagado; a última execução do item e o odômetro não voltam),
+  cada uma com o cartão do registro.
+- **AlertBanner**: "Venceu em" só para data passada; "Vence hoje"; "Vence em"
+  para futura; km "previsto aos X"; crítico sem data alcançada "Venceu aos X km
+  · data prevista …". Estrutura e cores iguais (Documentos, sino, bloco de
+  Manutenção). No sino, a lista rolável é uma região focável ("Lista de
+  alertas", contorno de foco global) que rola com setas/Page Down sem arrastar
+  a página.
+
 As seções abaixo são o histórico das revisões anteriores. Onde contradizem
 esta etapa em cor, fonte de marca, separador do breadcrumb ou acabamento do
 cabeçalho, vale esta etapa; regras de densidade, hierarquia, motion

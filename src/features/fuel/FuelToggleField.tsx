@@ -20,6 +20,9 @@ type FuelToggleFieldProps = {
  * então não há clique em dobro). O nome acessível vem do rótulo; a ajuda, do
  * `aria-describedby`; o estado, do `aria-checked` do Radix. Espaço e Enter
  * alternam pelo teclado.
+ *
+ * Etapa 07: também é o "Item ativo" do plano de manutenção (mesmo alvo, em vez
+ * de mexer no `Switch` compartilhado).
  */
 export function FuelToggleField({ id, label, hint, checked, onCheckedChange }: FuelToggleFieldProps) {
   const hintId = `${id}-hint`;

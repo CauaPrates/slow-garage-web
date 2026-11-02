@@ -2,12 +2,19 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FieldError } from "@/components/ui/field-error";
 import { AttachmentField } from "@/features/attachment/AttachmentField";
+import {
+  VEHICLE_FORM_DIALOG_HEADER_CLASSNAME,
+  focusDialogOnOpen,
+} from "@/features/vehicle/VehicleFormParts";
+import { useReturnFocus } from "@/hooks/useReturnFocus";
+import { formatDateOnly, formatKm } from "@/lib/format";
 import { translatePostgresError } from "@/lib/postgresErrors";
+import { MAINTENANCE_FORM_DIALOG_CLASSNAME } from "./CreateMaintenanceRecordDialog";
 import { MaintenanceRecordForm } from "./MaintenanceRecordForm";
 import { useUpdateMaintenanceRecord } from "./useMaintenanceRecords";
 import type { MaintenanceRecordFormInput, MaintenanceRecordFormOutput } from "./schemas";
@@ -34,6 +41,13 @@ function toFormDefaults(record: MaintenanceRecordRow): Partial<MaintenanceRecord
   };
 }
 
+/**
+ * Etapa 07: "Editar serviço", com qual registro está aberto (nome, data, km)
+ * na descrição e o anexo no fim do corpo (`AttachmentField`, o mesmo fluxo da
+ * etapa 05). Os valores iniciais só entram na montagem (`useForm`): a lista
+ * recarregar com o diálogo aberto atualiza o anexo, mas não sobrescreve o que
+ * está sendo digitado.
+ */
 export function EditMaintenanceRecordDialog({
   vehicleId,
   record,
@@ -43,6 +57,12 @@ export function EditMaintenanceRecordDialog({
 }: EditMaintenanceRecordDialogProps) {
   const updateRecord = useUpdateMaintenanceRecord(vehicleId);
   const [error, setError] = useState<string | null>(null);
+  const returnFocus = useReturnFocus();
+
+  function handleOpenChange(next: boolean) {
+    if (!next) setError(null);
+    onOpenChange(next);
+  }
 
   async function handleSubmit(values: MaintenanceRecordFormOutput) {
     setError(null);
@@ -57,17 +77,33 @@ export function EditMaintenanceRecordDialog({
         vendor: values.vendor ?? null,
         notes: values.notes ?? null,
       });
-      onOpenChange(false);
+      handleOpenChange(false);
     } catch (mutationError) {
       setError(translatePostgresError(mutationError));
     }
   }
 
+  const identity = [
+    record.name,
+    record.performed_on ? formatDateOnly(record.performed_on) : null,
+    record.odometer_km != null ? formatKm(record.odometer_km) : "sem quilometragem",
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Editar execução</DialogTitle>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className={MAINTENANCE_FORM_DIALOG_CLASSNAME}
+        onOpenAutoFocus={(event) => {
+          returnFocus.capture();
+          focusDialogOnOpen(event);
+        }}
+        onCloseAutoFocus={returnFocus.onCloseAutoFocus}
+      >
+        <DialogHeader className={VEHICLE_FORM_DIALOG_HEADER_CLASSNAME}>
+          <DialogTitle>Editar serviço</DialogTitle>
+          <DialogDescription className="break-words">{identity}</DialogDescription>
         </DialogHeader>
         <MaintenanceRecordForm
           mode="edit"
@@ -75,15 +111,16 @@ export function EditMaintenanceRecordDialog({
           defaultValues={toFormDefaults(record)}
           onSubmit={handleSubmit}
           submitLabel="Salvar alterações"
-        >
-          <AttachmentField
-            vehicleId={vehicleId}
-            entityType="maintenance_record"
-            entityId={record.id}
-            attachment={record.attachment}
-          />
-        </MaintenanceRecordForm>
-        <FieldError>{error}</FieldError>
+          submitError={error}
+          attachment={
+            <AttachmentField
+              vehicleId={vehicleId}
+              entityType="maintenance_record"
+              entityId={record.id}
+              attachment={record.attachment}
+            />
+          }
+        />
       </DialogContent>
     </Dialog>
   );
