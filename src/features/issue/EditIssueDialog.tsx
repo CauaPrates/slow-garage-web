@@ -2,15 +2,22 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FieldError } from "@/components/ui/field-error";
 import { AttachmentField } from "@/features/attachment/AttachmentField";
+import {
+  VEHICLE_FORM_DIALOG_HEADER_CLASSNAME,
+  focusDialogOnOpen,
+} from "@/features/vehicle/VehicleFormParts";
+import { useReturnFocus } from "@/hooks/useReturnFocus";
+import { formatDateOnly } from "@/lib/format";
 import { translatePostgresError } from "@/lib/postgresErrors";
+import { ISSUE_FORM_DIALOG_CLASSNAME } from "./CreateIssueDialog";
 import { IssueForm } from "./IssueForm";
 import { useUpdateIssue } from "./useIssues";
-import type { IssueFormInput, IssueFormOutput } from "./schemas";
+import { ISSUE_STATUS_LABELS, type IssueFormInput, type IssueFormOutput } from "./schemas";
 import type { IssueRow } from "./useIssues";
 
 type EditIssueDialogProps = {
@@ -18,6 +25,8 @@ type EditIssueDialogProps = {
   issue: IssueRow;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Depois de salvar: o status gravado (a página decide pra onde o foco vai se a linha trocou de grupo). */
+  onSaved?: (status: IssueFormOutput["status"]) => void;
 };
 
 function toFormDefaults(issue: IssueRow): Partial<IssueFormInput> {
@@ -35,9 +44,22 @@ function toFormDefaults(issue: IssueRow): Partial<IssueFormInput> {
   };
 }
 
-export function EditIssueDialog({ vehicleId, issue, open, onOpenChange }: EditIssueDialogProps) {
+/**
+ * Etapa 08: "Editar problema" com qual registro está aberto na descrição e o
+ * anexo no fim do corpo (`AttachmentField`, o fluxo da etapa 05). A página
+ * guarda o problema aberto — a linha pode trocar de grupo (abertos ↔
+ * resolvidos) e desmontar quando a lista recarrega. Os valores iniciais só
+ * entram na montagem: o refetch atualiza o anexo, não o que está digitado.
+ */
+export function EditIssueDialog({ vehicleId, issue, open, onOpenChange, onSaved }: EditIssueDialogProps) {
   const updateIssue = useUpdateIssue(vehicleId);
   const [error, setError] = useState<string | null>(null);
+  const returnFocus = useReturnFocus();
+
+  function handleOpenChange(next: boolean) {
+    if (!next) setError(null);
+    onOpenChange(next);
+  }
 
   async function handleSubmit(values: IssueFormOutput) {
     setError(null);
@@ -55,32 +77,44 @@ export function EditIssueDialog({ vehicleId, issue, open, onOpenChange }: EditIs
         odometer_km: values.odometerKm ?? null,
         cost: values.cost ?? null,
       });
-      onOpenChange(false);
+      onSaved?.(values.status);
+      handleOpenChange(false);
     } catch (mutationError) {
       setError(translatePostgresError(mutationError));
     }
   }
 
+  const identity = [issue.title, ISSUE_STATUS_LABELS[issue.status], `relatado em ${formatDateOnly(issue.reported_on)}`].join(" · ");
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className={ISSUE_FORM_DIALOG_CLASSNAME}
+        onOpenAutoFocus={(event) => {
+          returnFocus.capture();
+          focusDialogOnOpen(event);
+        }}
+        onCloseAutoFocus={returnFocus.onCloseAutoFocus}
+      >
+        <DialogHeader className={VEHICLE_FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>Editar problema</DialogTitle>
+          <DialogDescription className="break-words">{identity}</DialogDescription>
         </DialogHeader>
         <IssueForm
           mode="edit"
           defaultValues={toFormDefaults(issue)}
           onSubmit={handleSubmit}
           submitLabel="Salvar alterações"
-        >
-          <AttachmentField
-            vehicleId={vehicleId}
-            entityType="issue"
-            entityId={issue.id}
-            attachment={issue.attachment}
-          />
-        </IssueForm>
-        <FieldError>{error}</FieldError>
+          submitError={error}
+          attachment={
+            <AttachmentField
+              vehicleId={vehicleId}
+              entityType="issue"
+              entityId={issue.id}
+              attachment={issue.attachment}
+            />
+          }
+        />
       </DialogContent>
     </Dialog>
   );

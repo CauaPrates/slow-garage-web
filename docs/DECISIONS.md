@@ -2755,3 +2755,71 @@ derivados, anexos e Storage interceptados, LEDGER do dashboard acompanhando os
 custos. Rede trancada; nenhuma chamada ao Supabase real, nenhuma exclusão real.
 Teclado virtual só emulado (390×380); nenhum aparelho físico nem leitor de tela
 real.
+
+## ADR-091 — Redesign etapa 08: Problemas
+
+**Contexto.** Problemas era uma pilha de cards com lápis e lixeira soltos, os
+quatro status em andamento todos em âmbar, "Descartado" com cara de concluído
+discreto, o formulário `max-w-md` com "Mais detalhes" em `<details>` e a
+exclusão com o título `Excluir "{título}"?`. Esta etapa cobre só Problemas;
+banco, hooks, queries, chaves, invalidações e rotas não mudaram.
+
+**Fontes e regras conferidas (migrations e DATABASE.md do backend).**
+
+| Ponto | Regra |
+|---|---|
+| Status | Enum `issue_status` de seis valores; transição livre (RN-2, sem máquina de estado). |
+| Grupos | Abertos = `open`, `investigating`, `waiting_part`, `in_repair` (`OPEN_ISSUE_STATUSES`); Resolvidos = `resolved`, `dismissed`. Mesmo corte do `open_issues_count` (`status not in ('resolved','dismissed')`). |
+| Campos | Título obrigatório; prioridade `medium` e status `open` por padrão; `reported_on` NOT NULL com default `current_date` (em branco no cadastro grava hoje; na edição o PATCH omite e mantém); descrição, diagnóstico, resolução, data de resolução, km (inteiro ≥ 0) e custo (≥ 0) opcionais. |
+| Status × data | Independentes: nada força `resolved_on` ao mudar para resolvido (ADR-005). |
+| Custo | `issues.cost` não entra em `total_invested`, gastos do mês/ano nem gráficos (RN-1 da Fase 8). |
+| Fora da página | `open_issues_count` do dashboard, `vehicle_timeline` (`occurred_on = reported_on`), busca. |
+| Excluir | O hook apaga o anexo antes da linha. |
+
+**Decisão.**
+
+- Página: cabeçalho com "Relatar problema", painéis Abertos e Resolvidos com
+  contagem por status, ordem da consulta (relato mais recente primeiro). Sem
+  busca, filtro, kanban nem `?novo=1` — a página não tinha.
+- Situação em selo: só "Aberto" em âmbar; os três em andamento neutros com
+  borda forte; "Resolvido" verde; "Descartado" tracejado e neutro, em
+  Resolvidos. Prioridade em texto neutro na linha de relato.
+- Linha estruturada (não `<table>`, pelo motivo do ADR-088), colunas a partir
+  de `lg` com a coluna de ações em largura fixa (cabeçalho alinhado, lição da
+  etapa 07); "Detalhes" com o conteúdo inteiro; editar/excluir no "⋯".
+- Diálogos de editar/excluir ficam na página: mudar o status troca a linha de
+  grupo e a desmonta. Foco volta ao "⋯" se ele existe; senão ao título do
+  grupo onde o problema ficou (o diálogo de edição informa o status salvo).
+- Formulário no padrão das etapas 03–07, mesmos campos, defaults e payload.
+  Nada é exigido para mudar de status; mudar para Resolvido não preenche a
+  data; nenhum campo é limpo; recolher só esconde; valores iniciais só na
+  montagem. Foco no 1º inválido (abre "Diagnóstico e resolução" se preciso),
+  erro do banco no rodapé com os dados mantidos, ref contra envio duplicado.
+- Custo: rótulo "Custo informado", com a ressalva de que fica só no problema;
+  zero é R$ 0,00 e ausente é "—". Nada é criado em Gastos ou Manutenção.
+- Exclusão com as consequências da tabela, sem prometer recuperação. No
+  cartão, custo ausente é "Custo não informado" e zero é R$ 0,00 (ajuste da
+  revisão: antes "Sem custo", que se confundia com zero).
+- Mensagens: só o texto mudou ("Quilometragem inválida.", "Custo inválido."),
+  pelo 2º parâmetro dos helpers.
+
+**Alternativas descartadas.** Cores por status de trabalho (quatro tons
+competindo; âmbar para todos repetia o problema antigo). Pôr "Descartado" num
+grupo próprio (mudaria o corte usado pelo dashboard). Preencher a data de
+resolução ao escolher Resolvido (regra que o banco deliberadamente não tem).
+Linha inteira clicável (interativo dentro de interativo com o menu).
+
+**Pendências registradas (fora do escopo, não alteradas).**
+
+- Excluir problema apaga o anexo antes da linha (ordem do hook, igual a gasto e
+  manutenção): se a exclusão da linha falha, o anexo já foi. Conferido no mock
+  (falha do DELETE depois de Storage e `attachments`).
+- Abaixo de `lg` a linha empilha; com título longo e as quatro informações de
+  relato, uma linha no celular fica alta (perto de 190px na captura 203).
+
+**Verificação.** Dados simulados (ferramenta externa, `redesign-capturas/`,
+cenários 94–101, arquivos 202–208): `issues` com os seis status, escritas,
+anexos e Storage interceptados; `open_issues_count` do RPC e `vehicle_timeline`
+derivados do mesmo estado, conferidos depois de criar, resolver e excluir.
+Rede trancada; nenhuma chamada ao Supabase real, nenhuma exclusão real.
+Nenhum aparelho físico nem leitor de tela real.

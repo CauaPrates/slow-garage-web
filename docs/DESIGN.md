@@ -449,6 +449,44 @@ Mesma direção e tokens; nenhuma cor nova. Decisão completa em
   alertas", contorno de foco global) que rola com setas/Page Down sem arrastar
   a página.
 
+## Redesign — etapa 08: Problemas
+
+Mesma direção e tokens; nenhuma cor nova. Decisão completa em
+`docs/DECISIONS.md` (ADR-091).
+
+- **Página**: trilha → cabeçalho (`h1` "Problemas" + "Defeitos relatados neste
+  veículo, do relato à resolução." + "Relatar problema"; no celular "Relatar"
+  + "+", nome completo pro leitor de tela) → painel **Abertos** → painel
+  **Resolvidos**, cada um com a contagem por status no cabeçalho ("4 problemas ·
+  1 aberto · 1 investigando · 1 aguardando peça · 1 em reparo"). Grupo sem
+  registro diz isso dentro do painel; sem problema nenhum, só o painel vazio
+  com "Relatar primeiro problema".
+- **Situação** (selo, texto + cor): "Aberto" âmbar (o único que pede atenção),
+  "Investigando", "Aguardando peça" e "Em reparo" neutros com borda forte,
+  "Resolvido" verde, "Descartado" tracejado e neutro — fica em Resolvidos sem
+  parecer reparo concluído. Nenhum vermelho para problema aberto.
+- **Linha** (`IssueListRow`): título (quebra, nunca corta) e a linha de relato
+  — "Relatado em … · km · Prioridade alta · resolvido em …" (prioridade em
+  texto neutro) e "Anexo". A partir de `lg`, colunas problema · situação ·
+  custo informado · ações, com cabeçalho alinhado; no celular, o selo sob o
+  título e o custo na linha de relato. "Detalhes" (`aria-expanded`) abre
+  descrição, diagnóstico, resolução, data de resolução, km, custo e anexo, por
+  inteiro. Editar/excluir no "⋯".
+- **Custo informado**: "—" ausente ("sem custo informado"), R$ 0,00 quando zero;
+  sempre com a ressalva de que não entra nos totais do veículo (ajuda do campo,
+  detalhes).
+- **Formulário**: casca da etapa 03 em `max-w-xl`. "Problema" (título,
+  descrição), "Situação" (status — "Qualquer mudança vale. Resolvido não
+  preenche a data de resolução." — e prioridade — "não é a situação"),
+  "Relato" (data opcional — "Em branco, vale a data de hoje" / "mantém a data
+  salva" — e km) e "Diagnóstico e resolução · opcional" (diagnóstico,
+  resolução, data de resolução, custo). Edição: anexo no fim; cadastro: "dá pra
+  anexar depois de salvar".
+- **Exclusão**: "Excluir problema?", consequências verificadas (sai da lista e
+  do histórico; aberto, sai da contagem do painel; anexo apagado) e cartão com
+  título, situação, relato, km, anexo e custo ("Custo não informado" quando
+  ausente; R$ 0,00 só quando zero).
+
 As seções abaixo são o histórico das revisões anteriores. Onde contradizem
 esta etapa em cor, fonte de marca, separador do breadcrumb ou acabamento do
 cabeçalho, vale esta etapa; regras de densidade, hierarquia, motion
