@@ -2,19 +2,27 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FieldError } from "@/components/ui/field-error";
 import { AttachmentField } from "@/features/attachment/AttachmentField";
+import {
+  VEHICLE_FORM_DIALOG_HEADER_CLASSNAME,
+  focusDialogOnOpen,
+} from "@/features/vehicle/VehicleFormParts";
+import { useReturnFocus } from "@/hooks/useReturnFocus";
 import { translatePostgresError } from "@/lib/postgresErrors";
+import { PROJECT_FORM_DIALOG_CLASSNAME } from "./CreateProjectDialog";
 import { ProjectItemForm } from "./ProjectItemForm";
 import { useUpdateProjectItem } from "./useProjectItems";
-import type { ProjectItemFormInput, ProjectItemFormOutput } from "./schemas";
+import { PROJECT_ITEM_STATUS_LABELS, type ProjectItemFormInput, type ProjectItemFormOutput } from "./schemas";
 import type { ProjectItemRow } from "./useProjectItems";
 
 type EditProjectItemDialogProps = {
   item: ProjectItemRow;
+  /** Nome do projeto do item, mostrado no seletor travado (antes "Este projeto"). */
+  projectName: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
@@ -35,15 +43,23 @@ function toFormDefaults(item: ProjectItemRow): Partial<ProjectItemFormInput> {
   };
 }
 
-/** O projeto do item é fixo na edição (select desabilitado, uma opção) — mudar de projeto não é um caso previsto. */
-export function EditProjectItemDialog({
-  item,
-  open,
-  onOpenChange,
-}: EditProjectItemDialogProps) {
+/**
+ * O projeto do item é fixo na edição (select desabilitado, uma opção) — mudar
+ * de projeto não é um caso previsto, e o PATCH continua filtrando pelo
+ * `project_id` salvo. Etapa 09: casca nova e o anexo no fim do corpo
+ * (`AttachmentField`, fluxo da etapa 05, mesma invalidação extra de antes).
+ * A página guarda o item aberto; valores iniciais só na montagem.
+ */
+export function EditProjectItemDialog({ item, projectName, open, onOpenChange }: EditProjectItemDialogProps) {
   const updateItem = useUpdateProjectItem();
   const [error, setError] = useState<string | null>(null);
-  const projectOptions = [{ id: item.project_id, name: "Este projeto" }];
+  const returnFocus = useReturnFocus();
+  const projectOptions = [{ id: item.project_id, name: projectName }];
+
+  function handleOpenChange(next: boolean) {
+    if (!next) setError(null);
+    onOpenChange(next);
+  }
 
   async function handleSubmit(values: ProjectItemFormOutput) {
     setError(null);
@@ -62,17 +78,27 @@ export function EditProjectItemDialog({
         description: values.description ?? null,
         notes: values.notes ?? null,
       });
-      onOpenChange(false);
+      handleOpenChange(false);
     } catch (mutationError) {
       setError(translatePostgresError(mutationError));
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className={PROJECT_FORM_DIALOG_CLASSNAME}
+        onOpenAutoFocus={(event) => {
+          returnFocus.capture();
+          focusDialogOnOpen(event);
+        }}
+        onCloseAutoFocus={returnFocus.onCloseAutoFocus}
+      >
+        <DialogHeader className={VEHICLE_FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>Editar item</DialogTitle>
+          <DialogDescription className="break-words">
+            {item.name} · {PROJECT_ITEM_STATUS_LABELS[item.status]}
+          </DialogDescription>
         </DialogHeader>
         <ProjectItemForm
           mode="edit"
@@ -81,16 +107,17 @@ export function EditProjectItemDialog({
           defaultValues={toFormDefaults(item)}
           onSubmit={handleSubmit}
           submitLabel="Salvar alterações"
-        >
-          <AttachmentField
-            vehicleId={item.vehicle_id}
-            entityType="project_item"
-            entityId={item.id}
-            attachment={item.attachment}
-            extraInvalidateKeys={[["project-items", item.project_id]]}
-          />
-        </ProjectItemForm>
-        <FieldError>{error}</FieldError>
+          submitError={error}
+          attachment={
+            <AttachmentField
+              vehicleId={item.vehicle_id}
+              entityType="project_item"
+              entityId={item.id}
+              attachment={item.attachment}
+              extraInvalidateKeys={[["project-items", item.project_id]]}
+            />
+          }
+        />
       </DialogContent>
     </Dialog>
   );

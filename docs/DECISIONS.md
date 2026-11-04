@@ -2823,3 +2823,100 @@ anexos e Storage interceptados; `open_issues_count` do RPC e `vehicle_timeline`
 derivados do mesmo estado, conferidos depois de criar, resolver e excluir.
 Rede trancada; nenhuma chamada ao Supabase real, nenhuma exclusão real.
 Nenhum aparelho físico nem leitor de tela real.
+
+## ADR-092 — Redesign etapa 09: Projetos e itens de projeto
+
+**Contexto.** Projetos era uma grade de cards com "% dos itens concluídos" e
+lápis/lixeira soltos; o detalhe tinha um `dl` de duas linhas ("Itens
+concluídos", "Orçamento usado") e itens em cards com um único valor —
+`actual_cost ?? estimated_cost`, sem dizer qual dos dois era. Os formulários
+eram `max-w-md` com "Mais detalhes" em `<details>`; o item editado mostrava
+"Este projeto" no seletor; as exclusões tinham título `Excluir "{nome}"?`.
+Esta etapa cobre Projetos e um texto da exclusão de serviço em Manutenção;
+banco, hooks, queries, chaves, invalidações, rotas e payloads não mudaram.
+
+**Fontes e regras conferidas (migrations do backend).**
+
+| Ponto | Regra |
+|---|---|
+| Status | Enums `project_status` (6) e `project_item_status` (5); transição livre, nenhum trigger muda status nem conclui projeto. |
+| Campos | Projeto: nome obrigatório, status `idea` por padrão; orçamento, 3 datas, descrição e notas opcionais, sem regra entre datas. Item: projeto e nome obrigatórios, `wishlist` e `medium` por padrão, o resto opcional. Item ↔ veículo do projeto checado por trigger. |
+| Progresso | `project_progress`: denominador = itens **não cancelados**; concluído = só `installed`; `pct_items_completed` nulo sem denominador; `total_estimated`/`total_actual` = soma dos não cancelados com `coalesce(…, 0)`; `pct_budget_used` = real ÷ orçamento, nulo sem orçamento ou com orçamento 0. |
+| Financeiro | `vehicle_financial_summary`: só `installed`, pelo `actual_cost` (estimado nunca); total investido com ou sem data; mês/ano e `vehicle_expenses_by_month` só com `occurred_on`. Nenhum item vira gasto. |
+| Histórico | `vehicle_timeline` só traz item com `occurred_on`; o link leva ao detalhe pelo `metadata.project_id`. |
+| Painel | `active_projects_count` = ideia, planejado, em andamento, pausado. |
+| Excluir projeto | `project_items.project_id` `on delete cascade` (ADR-033). `attachments` é polimórfica, sem FK nem trigger: os anexos dos itens **ficam** (linha e arquivo). |
+| Excluir item | O hook apaga Storage → linha de `attachments` → item, nessa ordem. |
+
+**Decisão.**
+
+- Lista em dois painéis, Ativos e Encerrados, com o corte do
+  `active_projects_count`; nada some — os dois aparecem sempre que há projeto.
+  Ordem da consulta dentro de cada um. Sem busca, filtro, ordenação, kanban.
+- Linha estruturada (não card grande): nome, selo, descrição em 2 linhas,
+  datas; progresso e os três valores da view à direita. "Abrir projeto" é o
+  caminho de teclado; o nome é link de ponteiro fora do Tab (ADR-085).
+- Selos: projeto em andamento no acento, pausado âmbar, concluído verde,
+  cancelado tracejado; item comprado no acento, instalado verde, cancelado
+  tracejado; prioridade só em texto.
+- Progresso **lido** da view, nunca refeito: barra + "N de M itens instalados"
+  + %; sem denominador, o motivo em texto. O que vem dos itens carregados é só
+  contagem (comprados, cancelados, quantos têm valor); com ela o painel troca
+  o R$ 0,00 do `coalesce` por "Nenhum informado" quando nenhum item tem valor.
+  O % do orçamento é o `pct_budget_used`, sem saldo, sem "restante".
+- Item com estimado e real em colunas separadas e rotulados no celular; o
+  "Detalhes" diz que o estimado não entra em total do veículo e se o real
+  entra (instalado) ou fica só no projeto.
+- Link externo só vira `<a>` para http/https (antes qualquer texto ia para o
+  `href`); o texto salvo aparece inteiro em "Detalhes".
+- Detalhe ganha "Editar projeto" (o mesmo diálogo da lista). A exclusão do
+  projeto fica só na lista, como antes: excluir pelo detalhe exigiria um fluxo
+  novo de navegação depois da exclusão.
+- Formulários no padrão das etapas 03–08: foco no diálogo ao abrir, foco no 1º
+  inválido (abre a seção recolhida), erro do banco no rodapé com os dados
+  mantidos, ref contra envio duplicado, valores iniciais só na montagem,
+  recolher só esconde. Nada muda status, data ou custo sozinho.
+- Diálogos de editar/excluir ficam na página. Foco: volta ao "⋯"; se a linha
+  trocou de grupo ou sumiu, vai pro título do grupo (lista) ou de "Itens"
+  (detalhe). Excluir item manda o foco direto para "Itens": o hook não espera o
+  refetch, e voltar ao "⋯" deixava o foco no `<body>` quando a linha sumia.
+- Exclusões com as consequências da tabela, sem prometer recuperação nem
+  limpeza de anexo do projeto.
+- Mensagens: só o texto ("Orçamento inválido.", "Custo estimado inválido.",
+  "Custo real inválido."), pelo 2º parâmetro dos helpers.
+- Manutenção: "Excluir serviço?" mostra "Custo não informado" para custo
+  ausente (antes "Sem custo"); zero continua R$ 0,00.
+
+**Alternativas descartadas.** Kanban por status (pedido explícito contra).
+Grupo por status de projeto em seis painéis (fragmenta e esconde a ordem).
+Somar no detalhe a parte do projeto que entra nos totais do veículo (conta
+nova, sem fonte). Copiar o real do estimado ao marcar comprado/instalado.
+Concluir o projeto quando todos os itens estão instalados. Medidor circular.
+
+**Pendências registradas (fora do escopo, não alteradas).**
+
+- **Anexos órfãos ao excluir projeto**: a cascata apaga os itens, mas não as
+  linhas de `attachments` nem os arquivos no Storage. Conferido no mock
+  (os dois anexos do "Motor" ficam). A confirmação não promete limpeza.
+- **Excluir item apaga o anexo antes da linha** (mesma ordem de gasto,
+  manutenção e problema): se a exclusão do item falha, o anexo já foi.
+  Conferido no mock.
+- **`?novo=1` em Projetos**: continua tratado (com projeto, "Adicionar item"
+  com seletor; sem projeto, o aviso), mas nada no app aponta mais para ele — o
+  "Upgrade" da folha Registrar vai para Modificações. O aviso ainda diz "atalho
+  'Upgrade'". Comportamento e texto preservados até decisão funcional.
+- **Lista: custo real/estimado ausente × zero**: a view devolve 0 quando nenhum
+  item tem valor; sem os itens, a lista não distingue "nenhum informado" de
+  R$ 0,00 (o detalhe distingue).
+- Falha de `project_progress` derruba a lista inteira (o `fetchProjects` lança),
+  como antes.
+- A ordem dos itens é `sort_order, created_at`; não há como reordenar na tela.
+
+**Verificação.** Dados simulados (ferramenta externa, `redesign-capturas/`,
+cenários 103–112, arquivos 209–216): seis projetos do Gol (um por status;
+orçamento ausente, zero e estourado; sem item; só cancelados) e nove itens no
+"Motor" com os cinco status, valores ausentes e zero, instalado sem data,
+links e dois anexos. `project_progress` com a regra da view, LEDGER e
+`active_projects_count` reescritos a cada escrita, `vehicle_timeline` com os
+itens datados, cascata no mock. Rede trancada; nenhuma chamada ao Supabase
+real, nenhuma exclusão real. Nenhum aparelho físico nem leitor de tela real.

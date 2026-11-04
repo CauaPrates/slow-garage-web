@@ -487,6 +487,70 @@ Mesma direção e tokens; nenhuma cor nova. Decisão completa em
   título, situação, relato, km, anexo e custo ("Custo não informado" quando
   ausente; R$ 0,00 só quando zero).
 
+## Redesign — etapa 09: Projetos e itens de projeto
+
+Mesma direção e tokens; nenhuma cor nova, nenhuma imagem. Decisão completa em
+`docs/DECISIONS.md` (ADR-092).
+
+- **Lista**: trilha → cabeçalho (`h1` "Projetos" + "Planos de evolução deste
+  veículo, do item desejado ao instalado." + "Novo projeto"; no celular "Novo"
+  + "+") → painel **Ativos** (ideia, planejado, em andamento, pausado — o corte
+  de "Projetos ativos" do dashboard) → painel **Encerrados** (concluídos e
+  cancelados), cada um com a contagem por status. Os dois aparecem sempre que
+  há projeto; sem filtro, busca nem ordenação nova. Sem projeto nenhum, só o
+  painel vazio com "Criar meu primeiro projeto".
+- **Linha do projeto** (`ProjectListRow`): nome (quebra, nunca corta) + selo;
+  descrição em até 2 linhas; datas preenchidas ("Início · Data alvo ·
+  Conclusão", ou "Sem datas definidas"). A partir de `lg`, à direita: barra de
+  progresso + "N de M itens instalados · %" e orçamento, custo real e estimado
+  em linhas rótulo/valor (números à direita). "Abrir projeto →" é o caminho de
+  teclado; o nome também abre o detalhe, fora do Tab, com alvo de 44px. Editar
+  e excluir no "⋯".
+- **Situação do projeto** (selo, texto + cor): Ideia e Planejado neutros,
+  **Em andamento** no acento (o papel de "Ativo" do veículo), **Pausado**
+  âmbar, **Concluído** verde, **Cancelado** tracejado e neutro — nunca parece
+  concluído.
+- **Situação do item**: Lista de desejos e Planejado neutros, **Comprado** no
+  acento, **Instalado** verde (o único que conta no progresso), **Cancelado**
+  tracejado. Prioridade sempre em texto neutro ("Prioridade alta").
+- **Detalhe**: trilha → nome, selo, descrição inteira e datas, com "Adicionar
+  item" (laranja; no celular "Adicionar") e "Editar projeto" (contorno; no
+  celular só o lápis, 44px) → painel **Progresso e custos** → **Itens** →
+  **Notas do projeto** (só com notas). A exclusão do projeto continua só na
+  lista.
+- **Progresso e custos** (`ProjectProgress`): "Itens instalados" com "4 de 8",
+  o % da view e uma barra simples verde, sem mínimo artificial; embaixo, o
+  que não conta ("1 comprado ainda não conta · 1 cancelado fica fora da
+  conta") e a regra escrita. Sem item: "Nenhum item ainda…"; só cancelados:
+  "Todos os itens estão cancelados…" — nunca 0% nem 100%. À direita,
+  orçamento ("Não definido" quando ausente), custo real (com "N de M itens com
+  valor" e o % do orçamento da view) e estimado. Sem nenhum valor informado,
+  "Nenhum informado" em vez de R$ 0,00. Rodapé: no total do veículo entra só o
+  real dos instalados.
+- **Itens** (`ProjectItemRow`): a partir de `xl`, colunas item · situação ·
+  estimado · real · ações, com cabeçalho alinhado (abaixo disso empilha). Sob o
+  nome: prioridade · fornecedor · data, "Anexo" e "Link externo ↗" (`<a>`
+  próprio, 44px, "abre em nova aba", só para endereço http/https). No celular,
+  "Estimado R$ X · Real não informado" escritos. Ausente "—"/"não informado",
+  zero R$ 0,00. "Detalhes" abre descrição, notas, fornecedor, data, os dois
+  custos com o que cada um significa, link e anexo. No celular, "Adicionar
+  item" também no fim da lista.
+- **Formulários**: casca da etapa 03 em `max-w-xl`. Projeto: "Projeto" (nome,
+  status — "Concluído não preenche a data de conclusão") + "Orçamento e datas"
+  e "Descrição e notas" recolhíveis. Item: "Item" (projeto — travado e com o
+  nome real no detalhe e na edição; seletor no `?novo=1` — e nome), "Situação"
+  (status — "Só Instalado conta no progresso" — e prioridade), "Custos e
+  compra" (estimado "não entra em total do veículo", real "entra nos totais só
+  com o item Instalado", fornecedor, data "aparece no histórico", link) e
+  "Descrição e notas". Edição: anexo no fim; cadastro: "dá pra anexar depois de
+  salvar".
+- **Exclusões**: "Excluir projeto?" (itens vão junto, histórico e totais,
+  contagem de ativos) e "Excluir item?" (progresso, histórico, totais, anexo),
+  cada uma com o cartão do registro; no item, "Estimado"/"Real" com "Custo não
+  informado" quando ausente e R$ 0,00 quando zero.
+- **Manutenção**: na confirmação de "Excluir serviço?", custo ausente passou de
+  "Sem custo" para "Custo não informado"; zero continua R$ 0,00.
+
 As seções abaixo são o histórico das revisões anteriores. Onde contradizem
 esta etapa em cor, fonte de marca, separador do breadcrumb ou acabamento do
 cabeçalho, vale esta etapa; regras de densidade, hierarquia, motion

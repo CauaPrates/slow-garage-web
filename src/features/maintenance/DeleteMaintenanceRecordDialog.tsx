@@ -108,7 +108,12 @@ export function DeleteMaintenanceRecordDialog({
             )}
           </div>
           <p className="shrink-0 font-mono text-sm text-text-primary">
-            {record.cost != null ? formatMoney(record.cost) : <span className="text-text-secondary">Sem custo</span>}
+            {/* Etapa 09: ausente não é zero — "Custo não informado" (antes "Sem custo"); zero salvo continua R$ 0,00. */}
+            {record.cost != null ? (
+              formatMoney(record.cost)
+            ) : (
+              <span className="font-sans text-text-secondary">Custo não informado</span>
+            )}
           </p>
         </div>
         {error && (
