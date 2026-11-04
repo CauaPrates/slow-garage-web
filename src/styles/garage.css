@@ -1,0 +1,899 @@
+/*
+ * Minha garagem — proposta A3 + capa A3.1 (ADR-094).
+ *
+ * Fica fora das classes utilitárias porque a composição depende de áreas de
+ * grade e de container queries que, escritas inline, virariam dezenas de
+ * classes arbitrárias por elemento. Só tokens: nenhuma cor, raio ou sombra
+ * literal (exceção: o `black` da máscara, que é alfa e não cor visível).
+ *
+ * Três decisões de layout carregam o resto:
+ * - capa, resumo e coleção começam na mesma margem depois da sidebar
+ *   (`--garage-gutter`), sem largura máxima nem centralização;
+ * - a coleção decide quantas colunas tem pela própria largura (2 spreads por
+ *   linha a partir de 1100 px de coleção), não pela viewport;
+ * - o card decide a própria composição pela largura dele (vertical < 540 px,
+ *   spread compacto até 999 px, spread largo com ficha aberta a partir de 1000).
+ */
+
+@layer components {
+  /* ---------- Página ---------- */
+  .garage-page {
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 2rem;
+  }
+  .garage-gutter {
+    padding-inline: 1rem;
+  }
+  .garage-inset {
+    margin-inline: 1rem;
+  }
+  @media (min-width: 40rem) {
+    .garage-gutter {
+      padding-inline: 1.5rem;
+    }
+    .garage-inset {
+      margin-inline: 1.5rem;
+    }
+  }
+  @media (min-width: 64rem) {
+    .garage-page {
+      padding-bottom: 3rem;
+    }
+    .garage-gutter {
+      padding-inline: var(--garage-gutter);
+    }
+    .garage-inset {
+      margin-inline: var(--garage-gutter);
+    }
+  }
+
+  /* ---------- Capa ----------
+   * Celular: cabeçalho compacto, sem foto — sobrelinha com o slogan, "Minha
+   * garagem" grande e o botão ao lado. Desktop (lg+): página dupla, texto no
+   * grafite à esquerda e colagem à direita.
+   */
+  .garage-cover {
+    position: relative;
+  }
+  .garage-cover__art {
+    display: none;
+  }
+  .garage-cover__text {
+    position: relative;
+    z-index: 1;
+    padding-block: 1rem 0.875rem;
+  }
+  .garage-cover__titles {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "slogan slogan"
+      "title action";
+    align-items: center;
+    column-gap: 0.75rem;
+    row-gap: 0.625rem;
+  }
+  .garage-cover__title {
+    grid-area: title;
+    font-family: var(--font-display);
+    font-size: 1.6875rem;
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+  }
+  .garage-cover__slogan {
+    grid-area: slogan;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-size: 0.65625rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
+  .garage-cover__slogan::before {
+    content: "";
+    width: 0.875rem;
+    height: 2px;
+    flex-shrink: 0;
+    background: var(--color-accent);
+  }
+  .garage-cover__slogan::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--color-hairline);
+  }
+  .garage-cover__slogan br {
+    display: none;
+  }
+  .garage-cover__actions {
+    grid-area: action;
+    display: flex;
+    align-items: center;
+    gap: 1.375rem;
+  }
+  .garage-cover__lede {
+    display: none;
+  }
+
+  @media (min-width: 64rem) {
+    .garage-cover {
+      --garage-title-size: clamp(2.25rem, calc(2.25rem + 10 * (100vw - 1024px) / 416), 2.875rem);
+      display: flex;
+      min-height: var(--garage-cover-h);
+      overflow: hidden;
+    }
+    .garage-cover__art {
+      display: block;
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    /* Até 1280 a colagem tem um recorte só; o texto ganha mais da metade. */
+    .garage-cover__text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 56%;
+      padding: 1.5rem 0 1.5rem var(--garage-gutter);
+    }
+    .garage-cover__titles {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    /* "Minha garagem" vira a sobrelinha com o traço laranja e o filete até a borda da coluna. */
+    .garage-cover__title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1.2;
+      letter-spacing: 0.24em;
+    }
+    .garage-cover__title::before {
+      content: "";
+      width: 1.125rem;
+      height: 2px;
+      flex-shrink: 0;
+      background: var(--color-accent);
+    }
+    .garage-cover__title::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--color-hairline);
+    }
+    .garage-cover__slogan {
+      display: block;
+      margin-top: 1rem;
+      font-family: var(--font-display);
+      font-size: var(--garage-title-size);
+      font-weight: 800;
+      line-height: 0.9;
+      letter-spacing: -0.022em;
+      color: var(--color-text-primary);
+    }
+    .garage-cover__slogan::before,
+    .garage-cover__slogan::after {
+      content: none;
+    }
+    .garage-cover__slogan br {
+      display: inline;
+    }
+    .garage-cover__actions {
+      flex-wrap: wrap;
+      row-gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+    .garage-cover__lede {
+      display: block;
+      max-width: 27ch;
+      font-size: 0.9375rem;
+      line-height: 1.42;
+      color: var(--color-text-secondary);
+    }
+  }
+  @media (min-width: 80rem) {
+    /* A coluna do texto termina onde começa o 2º spread da coleção (50% − meio vão). */
+    .garage-cover__text {
+      width: calc(50% - var(--garage-gap) / 2 - 0.75rem);
+    }
+  }
+  @media (min-width: 90rem) {
+    .garage-cover {
+      --garage-title-size: var(--garage-title);
+    }
+    .garage-cover__slogan {
+      margin-top: clamp(1rem, calc(1rem + 4 * (100vw - 1440px) / 1120), 1.25rem);
+    }
+    .garage-cover__actions {
+      margin-top: clamp(1.25rem, calc(1.25rem + 6 * (100vw - 1440px) / 1120), 1.625rem);
+    }
+    .garage-cover__lede {
+      font-size: clamp(0.9375rem, calc(0.9375rem + 1 * (100vw - 1440px) / 1120), 1rem);
+    }
+  }
+
+  /* Colagem (A3.1): fundo escurecido + recortes. Alturas proporcionais à capa; posições
+     contadas da margem direita, então nada invade a coluna do texto nem sai da capa. */
+  .garage-cover__base {
+    position: absolute;
+    inset-block: 0;
+    right: 0;
+    left: max(40%, 32.5rem);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, black 26%);
+    mask-image: linear-gradient(90deg, transparent 0, black 26%);
+  }
+  .garage-cover__base img,
+  .garage-cover__base picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: 62% 52%;
+  }
+  .garage-cover__clip {
+    --H: var(--garage-cover-h);
+    position: absolute;
+    margin: 0;
+  }
+  .garage-cover__clip picture {
+    display: contents;
+  }
+  .garage-cover__clip img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border: 1px solid var(--color-collage-frame);
+    box-shadow: var(--shadow-collage);
+  }
+  .garage-cover__clip--garage {
+    --h: calc(var(--H) * 0.62);
+    z-index: 2;
+    top: calc(var(--H) * 0.16);
+    right: calc(var(--garage-gutter) + 0.5rem);
+    width: calc(var(--h) * 1.5);
+    height: var(--h);
+    transform: rotate(-1.2deg);
+  }
+  /* Deslocamento entre planos: um filete solto atrás do recorte principal. */
+  .garage-cover__clip--garage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border: 1px solid var(--color-collage-frame-loose);
+    transform: translate(-12px, 11px);
+  }
+  .garage-cover__clip--engine,
+  .garage-cover__clip--cage {
+    display: none;
+  }
+  @media (min-width: 80rem) {
+    .garage-cover__clip--garage {
+      --h: calc(var(--H) * 0.74);
+      top: calc(var(--H) * 0.09);
+    }
+    .garage-cover__clip--engine {
+      --h: calc(var(--H) * 0.5);
+      display: block;
+      z-index: 3;
+      top: calc(var(--H) * 0.43);
+      right: calc(var(--garage-gutter) + 0.5rem + var(--H) * 0.74 * 1.5 - 30px);
+      width: calc(var(--h) * 4 / 3);
+      height: var(--h);
+      transform: rotate(2deg);
+    }
+  }
+  /* Largo: três recortes; a capa ganha largura de composição, não altura. */
+  @media (min-width: 112.5rem) {
+    .garage-cover__base {
+      left: max(36%, 32.5rem);
+    }
+    .garage-cover__clip--cage {
+      --h: calc(var(--H) * 0.6);
+      display: block;
+      z-index: 1;
+      top: calc(var(--H) * 0.27);
+      right: calc(var(--garage-gutter) + 0.25rem);
+      width: calc(var(--h) * 1.5);
+      height: var(--h);
+      transform: rotate(1.4deg);
+    }
+    .garage-cover__clip--garage {
+      --h: calc(var(--H) * 0.82);
+      top: calc(var(--H) * 0.07);
+      right: calc(var(--garage-gutter) + 0.25rem + var(--H) * 0.6 * 1.5 - 44px);
+    }
+    .garage-cover__clip--engine {
+      --h: calc(var(--H) * 0.54);
+      top: calc(var(--H) * 0.38);
+      right: calc(
+        var(--garage-gutter) + 0.25rem + var(--H) * 0.6 * 1.5 - 44px + var(--H) * 0.82 * 1.5 - 40px
+      );
+    }
+  }
+
+  /* ---------- Resumo: ficha de dados da garagem ---------- */
+  /* Filete à esquerda de cada célula; o da primeira célula visível fica fora da caixa
+     (margem negativa + overflow) — célula escondida por largura não deixa filete órfão. */
+  .garage-summary {
+    --stat-pad: 0.875rem;
+    display: flex;
+    align-items: stretch;
+    gap: 0.5rem;
+    min-height: 3.625rem;
+    border-block: 1px solid var(--color-hairline);
+  }
+  .garage-summary__cells {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    min-width: 0;
+    margin-left: calc(-1 * var(--stat-pad) - 1px);
+    clip-path: inset(0 0 0 calc(var(--stat-pad) + 1px));
+  }
+  /* Rótulos alinhados no topo: com ou sem dica embaixo, os valores ficam na mesma linha. */
+  .garage-stat {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0.1875rem;
+    min-width: 0;
+    padding: 0.625rem var(--stat-pad) 0.5rem;
+    border-left: 1px solid var(--color-hairline);
+  }
+  .garage-stat__label {
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-text-secondary);
+  }
+  .garage-stat__value {
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--color-text-primary);
+  }
+  .garage-stat__value--text {
+    max-width: 18rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.3;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .garage-stat__ok {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--color-text-primary);
+  }
+  .garage-stat__ok svg {
+    color: var(--color-success);
+  }
+  .garage-stat__hint {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--color-text-secondary);
+  }
+  .garage-summary__details {
+    margin-left: auto;
+    align-self: center;
+    flex-shrink: 0;
+  }
+  @media (min-width: 64rem) {
+    .garage-summary {
+      min-height: var(--garage-summary-h);
+      border-top: 0;
+    }
+    .garage-summary {
+      --stat-pad: clamp(1.75rem, calc(1.75rem + 12 * (100vw - 1440px) / 1120), 2.5rem);
+    }
+    .garage-summary__cells {
+      flex-wrap: nowrap;
+    }
+    .garage-stat {
+      flex-shrink: 0;
+      gap: 0.3125rem;
+      padding-block: clamp(0.875rem, calc(0.875rem + 4 * (100vw - 1440px) / 1120), 1.125rem) 0.625rem;
+    }
+    /* Manutenção prevista é a única que encolhe: nome e dica cortam com reticências, nunca quebram a faixa. */
+    .garage-stat:has(.garage-stat__value--text) {
+      flex-shrink: 1;
+    }
+    .garage-stat__value--text {
+      -webkit-line-clamp: 1;
+    }
+    .garage-stat__label {
+      font-size: 0.65625rem;
+      letter-spacing: 0.14em;
+    }
+    .garage-stat__value {
+      font-size: var(--garage-stat);
+      line-height: 1.05;
+    }
+    .garage-stat__ok,
+    .garage-stat__value--text {
+      font-size: 0.9375rem;
+    }
+  }
+
+  /* ---------- Coleção ---------- */
+  .garage-collection {
+    container: garage-collection / inline-size;
+    padding-top: 1.125rem;
+  }
+  .garage-collection__title {
+    display: flex;
+    align-items: baseline;
+    gap: 0.625rem;
+    margin-bottom: 0.75rem;
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: var(--color-text-primary);
+  }
+  .garage-collection__title::after {
+    content: "";
+    flex: 1;
+    align-self: center;
+    height: 1px;
+    background: var(--color-hairline);
+  }
+  .garage-collection__count {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 400;
+    letter-spacing: 0.08em;
+    color: var(--color-text-secondary);
+  }
+  .garage-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 62.5rem);
+    gap: 1.125rem;
+  }
+  @media (min-width: 64rem) {
+    .garage-collection {
+      padding-top: clamp(1.875rem, calc(1.875rem + 10 * (100vw - 1440px) / 1120), 2.5rem);
+    }
+    .garage-collection__title {
+      gap: 0.875rem;
+      margin-bottom: clamp(1rem, calc(1rem + 4 * (100vw - 1440px) / 1120), 1.25rem);
+      font-size: clamp(1.375rem, calc(1.375rem + 2 * (100vw - 1440px) / 1120), 1.5rem);
+    }
+    .garage-grid {
+      gap: var(--garage-gap);
+    }
+  }
+  @container garage-collection (min-width: 68.75rem) {
+    .garage-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  /* Com uma ficha aberta, o card cresce sozinho: o vizinho da linha não estica (senão a foto
+     dele viraria retrato). Fechada, os cards da linha têm a mesma altura e a régua alinhada. */
+  .garage-grid:has(.garage-card__specs[data-open="true"]) {
+    align-items: start;
+  }
+  /* Um veículo: um spread de destaque (até 1320 px), não meia linha vazia. */
+  .garage-grid:has(> :only-child) {
+    grid-template-columns: minmax(0, 82.5rem);
+  }
+
+  /* ---------- Card ---------- */
+  .garage-card {
+    container: garage-card / inline-size;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    background: var(--color-surface);
+  }
+  /* Vertical (< 540 px): foto, identificação, números + seta, régua de ações. */
+  .garage-card__grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-rows: auto auto 1fr auto auto;
+    grid-template-areas:
+      "photo photo"
+      "head menu"
+      "body body"
+      "foot foot"
+      "specs specs";
+  }
+  /* Largura presa à coluna e altura esticada até a área: a proporção 4:3 só dá a altura mínima
+     da linha — sem largura explícita, a foto esticada alargaria e cobriria o texto. */
+  .garage-card__photo {
+    grid-area: photo;
+    align-self: stretch;
+    width: 100%;
+    min-width: 0;
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 4 / 3;
+    background: var(--color-bg);
+  }
+  /* Sem foto, no vertical a região encolhe (não há vizinho na linha pra desalinhar). */
+  .garage-card__photo[data-empty] {
+    aspect-ratio: auto;
+    min-height: 9rem;
+  }
+  .garage-card__head {
+    grid-area: head;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-width: 0;
+    padding: 0.25rem 0 0 1rem;
+  }
+  .garage-card__menu {
+    grid-area: menu;
+    position: relative;
+    z-index: 10;
+    align-self: center;
+    padding: 0.25rem 0.25rem 0 0;
+  }
+  .garage-card__num {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 300;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-secondary);
+  }
+  .garage-card__make {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
+  .garage-card__head .garage-card__make {
+    flex: 1;
+  }
+  .garage-card__rule {
+    display: none;
+    flex: 1;
+    height: 1px;
+    background: var(--color-hairline);
+  }
+  .garage-card__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4375rem;
+    flex-shrink: 0;
+    white-space: nowrap;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--color-text-secondary);
+  }
+  .garage-card__body {
+    grid-area: body;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 0 1rem;
+  }
+  .garage-card__body > .garage-card__make {
+    display: none;
+  }
+  .garage-card__model {
+    margin-top: 0.125rem;
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    color: var(--color-text-primary);
+  }
+  .garage-card__sub {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.625rem;
+    margin-top: 0.4375rem;
+    font-size: 0.84375rem;
+    color: var(--color-text-secondary);
+  }
+  .garage-card__figures {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-block: 0.875rem;
+  }
+  .garage-card__metrics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.375rem;
+    flex: 1;
+    min-width: 0;
+  }
+  .garage-card__metric {
+    display: flex;
+    flex-direction: column-reverse;
+    min-width: 0;
+  }
+  .garage-card__metric dd {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.25;
+    font-variant-numeric: tabular-nums;
+    overflow-wrap: anywhere;
+    color: var(--color-text-primary);
+  }
+  .garage-card__metric dd[data-missing] {
+    font-weight: 500;
+    color: var(--color-text-secondary);
+  }
+  .garage-card__metric dt {
+    margin-top: 0.125rem;
+    font-size: 0.71875rem;
+    color: var(--color-text-secondary);
+  }
+  /* Display destes três fica aqui, não em utilitário: a composição do card é que liga e desliga. */
+  .garage-card__go-square {
+    position: relative;
+    z-index: 10;
+    display: grid;
+    place-items: center;
+  }
+  .garage-card__go {
+    display: none;
+    align-items: center;
+  }
+  .garage-card__ficha-toggle {
+    display: inline-flex;
+    align-items: center;
+  }
+  .garage-card__foot {
+    grid-area: foot;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    padding: 0 0.25rem 0 0.5rem;
+    border-top: 1px solid var(--color-hairline);
+  }
+  .garage-card__actions {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+  }
+  .garage-card__qa-label {
+    display: none;
+  }
+  .garage-card__specs {
+    grid-area: specs;
+    position: relative;
+    z-index: 10;
+    padding: 0.75rem 1rem;
+    border-top: 1px solid var(--color-hairline);
+  }
+  .garage-card__specs[data-open="false"] {
+    display: none;
+  }
+  .garage-card__specs-title {
+    display: none;
+  }
+  .garage-card__specs dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem;
+  }
+  .garage-card__specs dt {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+  }
+  .garage-card__specs dd {
+    font-size: 0.875rem;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+    color: var(--color-text-primary);
+  }
+
+  /* Spread compacto (540–999 px): foto 4:3 | texto; ações numa régua inferior. */
+  @container garage-card (min-width: 33.75rem) {
+    .garage-card__grid {
+      grid-template-columns: 50% minmax(0, 1fr) auto;
+      grid-template-rows: auto 1fr auto auto;
+      grid-template-areas:
+        "photo head menu"
+        "photo body body"
+        "foot foot foot"
+        "specs specs specs";
+    }
+    .garage-card__photo[data-empty] {
+      aspect-ratio: 4 / 3;
+      min-height: 0;
+    }
+    .garage-card__head {
+      padding: 0.5rem 0 0 1.375rem;
+    }
+    .garage-card__head .garage-card__make {
+      display: none;
+    }
+    .garage-card__rule {
+      display: block;
+    }
+    .garage-card__num {
+      font-size: 1.625rem;
+    }
+    .garage-card__menu {
+      padding: 0.5rem 0.375rem 0 0.25rem;
+    }
+    .garage-card__body {
+      padding: 0 1rem 0.875rem 1.375rem;
+    }
+    .garage-card__body > .garage-card__make {
+      display: block;
+      margin-top: 0.25rem;
+    }
+    .garage-card__model {
+      margin-top: 0.3125rem;
+      font-size: 1.1875rem;
+      line-height: 1.14;
+    }
+    .garage-card__figures {
+      margin-top: auto;
+      padding: 0.875rem 0 0;
+    }
+    .garage-card__go-square {
+      display: none;
+    }
+    .garage-card__go {
+      display: inline-flex;
+    }
+    .garage-card__actions {
+      margin-left: 0;
+    }
+    .garage-card__foot {
+      padding: 0.125rem 0.5rem 0.125rem 0.625rem;
+    }
+  }
+
+  /* Spread largo (≥ 1000 px): foto | identificação + números | ficha técnica aberta.
+     A largura vira composição, não letra maior: nome e números têm teto. */
+  @container garage-card (min-width: 62.5rem) {
+    .garage-card__grid {
+      grid-template-columns: 40% minmax(0, 1fr) auto 16.5rem;
+      grid-template-rows: auto 1fr auto;
+      grid-template-areas:
+        "photo head menu specs"
+        "photo body body specs"
+        "photo foot foot foot";
+    }
+    .garage-card__head {
+      padding: 1rem 0 0 2rem;
+    }
+    .garage-card__num {
+      font-size: 2.25rem;
+    }
+    .garage-card__menu {
+      padding: 0.875rem 1rem 0 0.25rem;
+    }
+    .garage-card__body {
+      padding: 0 1.75rem 0 2rem;
+    }
+    .garage-card__body > .garage-card__make {
+      margin-top: 0.625rem;
+    }
+    .garage-card__model {
+      font-size: 1.5rem;
+    }
+    .garage-card__figures {
+      margin-top: 0;
+      padding: 1.25rem 0 1rem;
+    }
+    .garage-card__metrics {
+      gap: 0.5rem 2.5rem;
+    }
+    .garage-card__metric dd {
+      font-size: 1.25rem;
+    }
+    .garage-card__metric dt {
+      font-size: 0.75rem;
+    }
+    .garage-card__ficha-toggle {
+      display: none;
+    }
+    .garage-card__foot {
+      margin: 0 1.75rem 0 2rem;
+      padding: 0.375rem 0 0.5rem;
+    }
+    .garage-card__specs,
+    .garage-card__specs[data-open="false"] {
+      display: flex;
+      flex-direction: column;
+      margin-top: 1rem;
+      padding: 1.25rem 1.25rem 0.75rem 1.5rem;
+      border-top: 0;
+      border-left: 1px solid var(--color-hairline);
+    }
+    .garage-card__specs-title {
+      display: block;
+      padding-bottom: 0.625rem;
+      border-bottom: 1px solid var(--color-hairline-strong);
+      font-size: 0.65625rem;
+      font-weight: 600;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--color-text-secondary);
+    }
+    .garage-card__specs dl {
+      display: block;
+    }
+    .garage-card__specs dl > div {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding-block: 0.5rem;
+      border-bottom: 1px solid var(--color-hairline);
+    }
+    .garage-card__specs dt {
+      font-size: 0.8125rem;
+    }
+    .garage-card__specs dd {
+      text-align: right;
+      white-space: nowrap;
+      font-size: 0.8125rem;
+    }
+  }
+}
+
+/*
+ * Fora de camada de propósito: precisa vencer o `w-11` do botão de ícone
+ * (camada utilities) para os registros ganharem rótulo no spread largo.
+ * Com ≥ 1060 px de card as quatro ações e "Abrir veículo" cabem numa linha.
+ */
+@container garage-card (min-width: 66.25rem) {
+  .garage-card__qa {
+    width: auto;
+    gap: 0.4375rem;
+    padding-inline: 0.625rem;
+  }
+  .garage-card__actions > .garage-card__qa:first-child {
+    margin-left: -0.625rem;
+  }
+  .garage-card__qa-label {
+    display: inline;
+    font-size: 0.8125rem;
+    font-weight: 500;
+  }
+}

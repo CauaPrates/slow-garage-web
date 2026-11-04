@@ -11,6 +11,8 @@
 @import "@fontsource-variable/archivo/wght.css";
 
 @import "./tokens.css";
+/* Garagem A3 (ADR-094): capa em colagem e card em três composições por container query. */
+@import "./garage.css";
 
 @theme inline {
   --color-bg: var(--color-bg);
@@ -33,6 +35,8 @@
   --color-state-active: var(--color-state-active);
   --color-focus-ring: var(--color-focus-ring);
   --color-overlay: var(--color-overlay);
+  --color-hairline: var(--color-hairline);
+  --color-hairline-strong: var(--color-hairline-strong);
 
   --shadow-overlay: var(--shadow-overlay);
 

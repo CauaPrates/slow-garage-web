@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Plus } from "lucide-react";
 import {
   Dialog,
@@ -20,7 +20,8 @@ import { useCreateVehicle } from "./useVehicles";
 import type { VehicleFormOutput } from "./schemas";
 
 type CreateVehicleDialogProps = {
-  triggerLabel?: string;
+  /** Garagem A3: pode trazer trecho `sr-only` (rótulo curto no celular, nome acessível inteiro). */
+  triggerLabel?: ReactNode;
   /**
    * Recalibração visual 01: o gatilho da capa da garagem leva o ícone "+" e
    * ocupa a largura toda no celular (ação principal clara, como na referência).

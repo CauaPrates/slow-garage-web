@@ -1,5 +1,5 @@
-import { useId, useState, type ReactNode } from "react";
-import { ChevronDown } from "lucide-react";
+import { useId } from "react";
+import { Check, ChevronDown } from "lucide-react";
 import { formatDateOnly, formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useGarageAlerts } from "./useGarageAlerts";
@@ -27,41 +27,46 @@ function queryState(query: {
   return { status: "ready" };
 }
 
+type StatValue =
+  /** Número em fonte display (contagem, dinheiro). `spoken` é o que o leitor de tela lê, quando o visual é estilizado ("02"). */
+  | { kind: "number"; value: string; spoken?: string }
+  /** Texto (nome de manutenção): fonte de interface, até duas linhas. */
+  | { kind: "text"; value: string }
+  /** "Nada pendente": ícone de confirmação + texto curto. */
+  | { kind: "ok"; value: string };
+
 /**
- * Número do resumo da garagem (recalibração visual 01). Mesmo contrato do
- * `GarageTile` — carregando, erro com "Tentar de novo" (nunca vira zero nem
- * "nada pendente"), pronto —, mas sem caixa nem fio por módulo: o número
- * grande em fonte display carrega a hierarquia sozinho. Fica só na Garagem;
- * o `GarageTile` dos outros painéis não mudou.
+ * Célula do resumo da garagem — Garagem A3 (ADR-094): rótulo pequeno em
+ * caixa-alta sobre o valor, filete vertical entre células, como a ficha de
+ * dados de uma revista. Mesmo contrato de estados de antes (carregando, erro
+ * com "Tentar de novo" — nunca vira zero nem "nada pendente" —, pronto).
+ * Fica só na Garagem; o `GarageTile` dos outros painéis não mudou.
  */
 function GarageStat({
   label,
   value,
   hint,
   state = { status: "ready" },
-  text = false,
   className,
 }: {
   label: string;
-  value: ReactNode;
+  value: StatValue;
   hint?: string;
   state?: GarageTileState;
-  /** Valor em texto (nome de manutenção): fonte de interface, quebra linha, sem o tamanho de número. */
-  text?: boolean;
   className?: string;
 }) {
   return (
-    <div className={cn("flex min-w-0 flex-col gap-0.5", className)}>
-      <dt className="truncate text-xs font-medium text-text-secondary">{label}</dt>
-      <dd className="min-w-0">
+    <div className={cn("garage-stat", className)}>
+      <dt className="garage-stat__label">{label}</dt>
+      <dd className="flex min-w-0 flex-col items-start">
         {state.status === "loading" && (
           <>
             <span className="sr-only">Carregando…</span>
-            <span className="mt-1 block h-6 w-16 animate-pulse rounded-sm bg-state-hover" aria-hidden="true" />
+            <span className="mt-1 block h-5 w-16 animate-pulse rounded-sm bg-state-hover" aria-hidden="true" />
           </>
         )}
         {state.status === "error" && (
-          <span className="flex flex-col items-start">
+          <>
             <span className="text-xs text-error">Não foi possível carregar.</span>
             <button
               type="button"
@@ -70,23 +75,35 @@ function GarageStat({
             >
               Tentar de novo
             </button>
-          </span>
+          </>
         )}
         {state.status === "ready" && (
           <>
-            <span
-              className={cn(
-                "block text-text-primary",
-                text
-                  ? "line-clamp-2 text-[0.9375rem] leading-snug font-semibold break-words"
-                  : "truncate font-display text-xl leading-tight font-bold tabular-nums tracking-tight lg:text-[1.75rem]",
-              )}
-              title={typeof value === "string" ? value : undefined}
-            >
-              {value}
-            </span>
+            {value.kind === "number" && (
+              <span className="garage-stat__value">
+                {value.spoken ? (
+                  <>
+                    <span aria-hidden="true">{value.value}</span>
+                    <span className="sr-only">{value.spoken}</span>
+                  </>
+                ) : (
+                  value.value
+                )}
+              </span>
+            )}
+            {value.kind === "text" && (
+              <span className="garage-stat__value garage-stat__value--text" title={value.value}>
+                {value.value}
+              </span>
+            )}
+            {value.kind === "ok" && (
+              <span className="garage-stat__ok">
+                <Check className="h-4 w-4" aria-hidden="true" />
+                {value.value}
+              </span>
+            )}
             {hint && (
-              <span className="block truncate text-xs text-text-secondary" title={hint}>
+              <span className="garage-stat__hint max-w-full" title={hint}>
                 {hint}
               </span>
             )}
@@ -141,81 +158,108 @@ function useGarageOverviewData(vehicles: VehicleWithSummary[]) {
   };
 }
 
+type GarageDetailsControl = {
+  open: boolean;
+  onToggle: () => void;
+  /** `id` do painel de detalhes (`GarageDetails`) que este botão abre e fecha. */
+  controlsId: string;
+};
+
 /**
- * Resumo curto do topo da garagem (recalibração visual 01). Só o que ajuda a
- * escolher por onde começar: com 2+ veículos, quantos são, o gasto do mês
- * corrente (soma de `current_month_spend`) e as pendências; a próxima
- * manutenção entra a partir de `lg`. Com 1 veículo, só pendências e próxima
- * manutenção — o resto já está no card (ADR-051).
+ * Resumo do topo da garagem — Garagem A3 (ADR-094): uma faixa de dados logo
+ * abaixo da capa, com o botão "Detalhes e comparativo" no fim. Mesmas
+ * consultas e contas da recalibração 01 (ADR-093); mudou a apresentação.
  *
- * Saiu daqui (e não se perdeu): "1 ativo" (o status está em cada card), "em N
- * veículos" (o sino lista por veículo) e o "mês atual" repetido embaixo de
- * "Gasto no mês". Totais, gráficos e comparativo moram em `GarageDetails`,
- * depois da grade.
+ * - 2+ veículos, desktop: Veículos, Gasto no mês, Pendências, Manutenção
+ *   prevista. No celular só Gasto no mês e Pendências (a contagem já está no
+ *   título "Seus veículos", e a próxima manutenção abre nos detalhes).
+ * - 1 veículo: Pendências e Manutenção prevista — o resto já está no card
+ *   (ADR-051) —, sem botão de detalhes (não há o que comparar).
+ *
+ * Zero pendência e nenhuma manutenção prevista viram "Nenhuma" com o ícone
+ * de confirmação; com pendência, o número e a dica de vencidas.
  */
-export function GarageOverview({ vehicles, className }: GarageOverviewProps & { className?: string }) {
+export function GarageOverview({
+  vehicles,
+  details,
+}: GarageOverviewProps & { details?: GarageDetailsControl }) {
   const titleId = useId();
   const d = useGarageOverviewData(vehicles);
-
-  const nextServiceStat = (extra?: string) => (
-    <GarageStat
-      label="Próxima manutenção"
-      value={d.nextService?.name ?? "Nenhuma prevista"}
-      hint={d.nextService ? [d.nextServiceDate, d.nextServiceVehicle].filter(Boolean).join(" · ") : undefined}
-      state={queryState(d.maintenanceQuery)}
-      text
-      className={extra}
-    />
-  );
+  const count = vehicles.length;
 
   return (
-    <section aria-labelledby={titleId} className={className}>
+    <section aria-labelledby={titleId} className="garage-summary garage-inset">
       <h2 id={titleId} className="sr-only">
         Resumo da garagem
       </h2>
-      <dl
-        className={cn(
-          "grid gap-x-5 gap-y-4 rounded-lg bg-surface px-4 py-3.5 sm:px-5 sm:py-4",
-          d.isGarage
-            ? // Celular: valor em reais com mais largura; a partir de `lg`, 2×2 ao lado do título (xl) ou 4 em linha.
-              "grid-cols-[auto_minmax(0,1fr)_auto] sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-2"
-            : "grid-cols-2",
-        )}
-      >
+      <dl className="garage-summary__cells">
         {d.isGarage && (
           <>
-            <GarageStat label="Veículos" value={vehicles.length} />
+            <GarageStat
+              label="Veículos"
+              value={{ kind: "number", value: String(count).padStart(2, "0"), spoken: String(count) }}
+              className="hidden lg:flex"
+            />
             <GarageStat
               label="Gasto no mês"
-              value={d.withSummary.length > 0 ? formatMoney(d.monthSpend) : "—"}
+              value={{ kind: "number", value: d.withSummary.length > 0 ? formatMoney(d.monthSpend) : "—" }}
               hint={d.missingSummary > 0 ? `sem dado de ${plural(d.missingSummary, "veículo", "veículos")}` : undefined}
             />
           </>
         )}
         <GarageStat
           label="Pendências"
-          value={d.alerts.length}
-          hint={d.alertsHint}
+          value={
+            d.alerts.length === 0
+              ? { kind: "ok", value: "Nenhuma" }
+              : { kind: "number", value: String(d.alerts.length) }
+          }
+          hint={d.alerts.length > 0 ? d.alertsHint : undefined}
           state={queryState(d.alertsQuery)}
         />
-        {/* Com 2+ veículos, abaixo de `lg` a próxima manutenção mora nos detalhes (a faixa do celular é curta). */}
-        {nextServiceStat(d.isGarage ? "hidden lg:flex" : undefined)}
+        <GarageStat
+          label="Manutenção prevista"
+          value={d.nextService?.name ? { kind: "text", value: d.nextService.name } : { kind: "ok", value: "Nenhuma" }}
+          hint={d.nextService ? [d.nextServiceDate, d.nextServiceVehicle].filter(Boolean).join(" · ") : undefined}
+          state={queryState(d.maintenanceQuery)}
+          className={d.isGarage ? "hidden lg:flex" : undefined}
+        />
       </dl>
+      {d.isGarage && details && (
+        <button
+          type="button"
+          onClick={details.onToggle}
+          aria-expanded={details.open}
+          aria-controls={details.controlsId}
+          className="garage-summary__details inline-flex min-h-11 items-center gap-1.5 rounded-md pl-2 text-sm font-medium text-text-primary transition-colors duration-(--duration-fast) hover:bg-state-hover lg:border lg:border-border-strong/60 lg:px-3.5"
+        >
+          {/* No celular o rótulo encurta; o nome acessível é sempre o inteiro. Um só filho flex: sem vão duplo. */}
+          <span>
+            Detalhes<span className="sr-only lg:not-sr-only"> e comparativo</span>
+          </span>
+          <ChevronDown
+            aria-hidden="true"
+            className={cn(
+              "h-4 w-4 text-text-secondary motion-safe:transition-transform motion-safe:duration-150",
+              details.open && "rotate-180",
+            )}
+          />
+        </button>
+      )}
     </section>
   );
 }
 
 /**
- * Detalhes da garagem (recalibração visual 01): a mesma área recolhida da
- * etapa 02 — resumo financeiro, gráficos e comparativo, sem mudar conta
- * nenhuma —, agora depois da grade de veículos. O gatilho é o próprio título
- * da seção (`h2 > button`, `aria-expanded` + `aria-controls`), recolhido por
- * padrão em qualquer largura. Abaixo de `lg` a próxima manutenção abre aqui,
- * com veículo e data por extenso.
+ * Detalhes e comparativo — o mesmo conteúdo recolhido da recalibração 01
+ * (resumo financeiro, gráficos, comparativo, e no celular a próxima
+ * manutenção por extenso), sem mudar conta nenhuma. Garagem A3: o gatilho
+ * saiu do título desta seção e foi para a faixa de resumo
+ * (`GarageOverview`); o painel abre logo abaixo dela, recolhido por padrão.
+ * O conteúdo só monta aberto (os gráficos não consultam à toa).
  */
-export function GarageDetails({ vehicles }: GarageOverviewProps) {
-  const [open, setOpen] = useState(false);
-  const detailsId = useId();
+export function GarageDetails({ vehicles, id, open }: GarageOverviewProps & { id: string; open: boolean }) {
+  const titleId = useId();
   const d = useGarageOverviewData(vehicles);
 
   if (!d.isGarage) return null;
@@ -225,55 +269,29 @@ export function GarageDetails({ vehicles }: GarageOverviewProps) {
     : undefined;
 
   return (
-    <section className="flex flex-col gap-4 border-t border-border pt-2">
-      <h2>
-        <button
-          type="button"
-          onClick={() => setOpen((value) => !value)}
-          aria-expanded={open}
-          aria-controls={detailsId}
-          className="-mx-2 flex min-h-12 w-[calc(100%+1rem)] items-center justify-between gap-3 rounded-md px-2 text-left transition-colors duration-(--duration-fast) hover:bg-state-hover"
-        >
-          <span className="flex min-w-0 flex-col">
-            <span className="font-display text-lg leading-tight font-bold tracking-tight text-text-primary">
-              Detalhes da garagem
-            </span>
-            <span className="text-sm text-text-secondary">
-              <span className="lg:hidden">Próxima manutenção, totais, gráficos e comparativo</span>
-              <span className="hidden lg:inline">Totais, gráficos e comparativo</span>
-            </span>
-          </span>
-          <ChevronDown
-            aria-hidden="true"
-            className={cn(
-              "h-5 w-5 shrink-0 text-text-secondary motion-safe:transition-transform motion-safe:duration-150",
-              open && "rotate-180",
-            )}
-          />
-        </button>
+    <section id={id} hidden={!open} aria-labelledby={titleId} className="garage-inset flex flex-col gap-4 pt-5">
+      <h2 id={titleId} className="font-display text-lg leading-tight font-bold tracking-tight text-text-primary">
+        Detalhes e comparativo
       </h2>
-
-      <div id={detailsId} hidden={!open} className="flex flex-col gap-4">
-        {open && (
-          <>
-            <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-surface lg:hidden">
-              <GarageTileGrid className="grid-cols-1">
-                <GarageTile
-                  label="Próxima manutenção"
-                  value={d.nextService?.name ?? "Nenhuma prevista"}
-                  hint={nextServiceHint}
-                  state={queryState(d.maintenanceQuery)}
-                  wrap
-                  fullHint
-                  mono={false}
-                />
-              </GarageTileGrid>
-            </div>
-            <GarageSummary vehicles={vehicles} />
-            <GarageComparisonDashboard vehicles={vehicles} />
-          </>
-        )}
-      </div>
+      {open && (
+        <>
+          <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-surface lg:hidden">
+            <GarageTileGrid className="grid-cols-1">
+              <GarageTile
+                label="Próxima manutenção"
+                value={d.nextService?.name ?? "Nenhuma prevista"}
+                hint={nextServiceHint}
+                state={queryState(d.maintenanceQuery)}
+                wrap
+                fullHint
+                mono={false}
+              />
+            </GarageTileGrid>
+          </div>
+          <GarageSummary vehicles={vehicles} />
+          <GarageComparisonDashboard vehicles={vehicles} />
+        </>
+      )}
     </section>
   );
 }

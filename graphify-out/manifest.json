@@ -1065,8 +1065,8 @@
     "semantic_hash": ""
   },
   "src/features/vehicle/CreateVehicleDialog.tsx": {
-    "mtime": 1793810523.328055,
-    "ast_hash": "538229a1321d11c9c63ce0f3add05a61",
+    "mtime": 1793821373.1675506,
+    "ast_hash": "e1ff014111f65a8c09a74eb252981e7f",
     "semantic_hash": ""
   },
   "src/features/vehicle/DeleteVehicleDialog.tsx": {
@@ -1090,8 +1090,8 @@
     "semantic_hash": ""
   },
   "src/features/vehicle/GarageOverview.tsx": {
-    "mtime": 1793810560.0967784,
-    "ast_hash": "1212756a343dc48c5e2d1cdfa6d53c9e",
+    "mtime": 1793822592.07608,
+    "ast_hash": "f86fdd4b18cb81be7fe4725acea5d436",
     "semantic_hash": ""
   },
   "src/features/vehicle/GarageSummary.tsx": {
@@ -1105,8 +1105,8 @@
     "semantic_hash": ""
   },
   "src/features/vehicle/VehicleCard.tsx": {
-    "mtime": 1793814900.3570638,
-    "ast_hash": "2cbfb32f3dc3c38f284fb70721d4a020",
+    "mtime": 1793822526.138684,
+    "ast_hash": "7391643ee6a878f039746f25ea3823a5",
     "semantic_hash": ""
   },
   "src/features/vehicle/VehicleCardMenu.tsx": {
@@ -1115,8 +1115,8 @@
     "semantic_hash": ""
   },
   "src/features/vehicle/VehicleCardPhoto.tsx": {
-    "mtime": 1793810633.380308,
-    "ast_hash": "79cc7146cd2d76337daf586de04845a4",
+    "mtime": 1793822526.138684,
+    "ast_hash": "440e91fdbc3db0b799e01838585668a3",
     "semantic_hash": ""
   },
   "src/features/vehicle/VehicleFipeCard.tsx": {
@@ -1135,8 +1135,8 @@
     "semantic_hash": ""
   },
   "src/features/vehicle/VehicleListPage.tsx": {
-    "mtime": 1793814834.5369506,
-    "ast_hash": "7d451a44910689f7f40438ed6a1ae1ee",
+    "mtime": 1793821389.4858537,
+    "ast_hash": "460d69674f395d53b6b5410141818a2d",
     "semantic_hash": ""
   },
   "src/features/vehicle/VehiclePage.tsx": {
@@ -1150,8 +1150,8 @@
     "semantic_hash": ""
   },
   "src/features/vehicle/VehicleQuickActions.tsx": {
-    "mtime": 1793378235.4701908,
-    "ast_hash": "fd6e6decaa45cb30f00e09056eed728d",
+    "mtime": 1793821197.3388076,
+    "ast_hash": "1d60ec3b2b433d00141d558ce09c213e",
     "semantic_hash": ""
   },
   "src/features/vehicle/schemas.ts": {
@@ -1435,13 +1435,13 @@
     "semantic_hash": ""
   },
   "docs/DECISIONS.md": {
-    "mtime": 1793815133.1775389,
-    "ast_hash": "ae4a3018c4f23dcbcc17721e9dd95f58",
+    "mtime": 1793822672.5947433,
+    "ast_hash": "ea2a13ee1b453e47231737ee20e36ebf",
     "semantic_hash": ""
   },
   "docs/DESIGN.md": {
-    "mtime": 1793815131.6172826,
-    "ast_hash": "dea6c9ba102078c7f327a792b17a1cfb",
+    "mtime": 1793822374.7113404,
+    "ast_hash": "317bf819518ea685cd24878fda175952",
     "semantic_hash": ""
   },
   "index.html": {
@@ -1882,6 +1882,31 @@
   "slowicon.svg": {
     "mtime": 1789077887.743318,
     "ast_hash": "9846f552fd270f5bf76a078212d20241",
+    "semantic_hash": ""
+  },
+  "src/features/vehicle/GarageCover.tsx": {
+    "mtime": 1793822629.0491526,
+    "ast_hash": "d704cdd2cdd4f7959bae5c5247b3a3f6",
+    "semantic_hash": ""
+  },
+  "src/assets/garage/collage-cage.webp": {
+    "mtime": 1793820918.101,
+    "ast_hash": "2f81a8e1cfe55e87311878f958c96eba",
+    "semantic_hash": ""
+  },
+  "src/assets/garage/collage-engine.webp": {
+    "mtime": 1793820918.07,
+    "ast_hash": "91811f06ee5c67886f4ffceffaf7e224",
+    "semantic_hash": ""
+  },
+  "src/assets/garage/collage-garage.webp": {
+    "mtime": 1793820918.039,
+    "ast_hash": "221b37d09f80db80e3aee089a571bcff",
+    "semantic_hash": ""
+  },
+  "src/assets/garage/cover-base.webp": {
+    "mtime": 1793820917.988,
+    "ast_hash": "ee06b54381accbcd3b1769d24126a51a",
     "semantic_hash": ""
   }
 }

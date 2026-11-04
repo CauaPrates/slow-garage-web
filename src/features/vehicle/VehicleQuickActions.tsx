@@ -19,8 +19,18 @@ type VehicleQuickActionsProps = {
   onAddPhoto: () => void;
 };
 
+/** `garage-card__qa`: no spread largo do card (≥ 1060 px) o botão ganha o rótulo curto ao lado do ícone (`garage.css`). */
 const ACTION_BUTTON_CLASSNAME =
-  "text-text-secondary hover:text-text-primary";
+  "garage-card__qa text-text-secondary hover:text-text-primary";
+
+/** Rótulo visível só no spread largo; o nome acessível continua o `aria-label` completo (que contém este texto). */
+function ActionLabel({ children }: { children: string }) {
+  return (
+    <span className="garage-card__qa-label" aria-hidden="true">
+      {children}
+    </span>
+  );
+}
 
 /**
  * Versão compacta do `QuickActionsRow` (Fase 13, `VehiclePage`) pra cada card
@@ -33,6 +43,9 @@ const ACTION_BUTTON_CLASSNAME =
  *
  * Redesign etapa 02: editar/excluir saíram desta faixa (foram pro menu "Mais
  * ações" do card) — aqui ficam só os registros do dia a dia.
+ *
+ * Garagem A3 (ADR-094): os mesmos quatro botões; no spread largo do card
+ * aparecem com rótulo ("Gasto", "Abastecimento", "Manutenção", "Foto").
  */
 export function VehicleQuickActions({
   vehicleId,
@@ -64,6 +77,7 @@ export function VehicleQuickActions({
         onClick={() => setExpenseOpen(true)}
       >
         <Receipt className="h-4 w-4" aria-hidden="true" />
+        <ActionLabel>Gasto</ActionLabel>
       </Button>
       <Button
         variant="ghost"
@@ -75,6 +89,7 @@ export function VehicleQuickActions({
         onClick={() => setFuelOpen(true)}
       >
         <Fuel className="h-4 w-4" aria-hidden="true" />
+        <ActionLabel>Abastecimento</ActionLabel>
       </Button>
       <Button
         variant="ghost"
@@ -89,6 +104,7 @@ export function VehicleQuickActions({
         }}
       >
         <Wrench className="h-4 w-4" aria-hidden="true" />
+        <ActionLabel>Manutenção</ActionLabel>
       </Button>
       <Button
         variant="ghost"
@@ -100,6 +116,7 @@ export function VehicleQuickActions({
         onClick={onAddPhoto}
       >
         <Camera className="h-4 w-4" aria-hidden="true" />
+        <ActionLabel>Foto</ActionLabel>
       </Button>
 
       {categories && (

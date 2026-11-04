@@ -1,6 +1,6 @@
-import { useId, useState, type ComponentType } from "react";
+import { useId, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, ChevronDown, Gauge, Wallet } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { formatKm, formatMoney } from "@/lib/format";
 import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,8 @@ import type { VehicleWithSummary } from "./useVehicles";
 
 type VehicleCardProps = {
   vehicle: VehicleWithSummary;
+  /** Posição na coleção (0, 1, 2…) — vira a numeração editorial "01", "02". Não é ID. */
+  index: number;
   /** Buscado uma vez só em `VehicleListPage` (categoria não é por veículo) — repassado pra cada card. */
   categories: ReturnType<typeof useExpenseCategories>["data"];
 };
@@ -26,9 +28,9 @@ type VehicleCardProps = {
 type VehicleStatus = Database["public"]["Enums"]["vehicle_status"];
 
 /**
- * Ponto do selo de status. Nunca é o único sinal — o rótulo vem escrito ao
- * lado. Ativo em verde (em uso), Projeto no laranja da marca (é o assunto do
- * app), Guardado neutro, Vendido só com contorno (fora da garagem).
+ * Ponto do status. Nunca é o único sinal — o rótulo vem escrito ao lado.
+ * Ativo em verde (em uso), Projeto no laranja da marca (é o assunto do app),
+ * Guardado neutro, Vendido só com contorno (fora da garagem).
  */
 const STATUS_DOT_CLASSNAME: Record<VehicleStatus, string> = {
   active: "bg-success",
@@ -37,34 +39,12 @@ const STATUS_DOT_CLASSNAME: Record<VehicleStatus, string> = {
   sold: "border border-text-secondary bg-transparent",
 };
 
-/** Item da ficha técnica: rótulo pequeno, valor na fonte de interface com algarismos tabulares (`dd`). */
-function Spec({ label, value }: { label: string; value: string }) {
+/** Indicador principal: valor claro em cima, rótulo embaixo (`dt` depois do `dd` só visualmente). */
+function Metric({ label, value }: { label: string; value: string | null }) {
   return (
-    <div className="min-w-0">
-      <dt className="text-xs text-text-secondary">{label}</dt>
-      <dd className="text-sm font-medium break-words text-text-primary">{value}</dd>
-    </div>
-  );
-}
-
-/** Indicador principal do card: ícone discreto, valor claro, rótulo embaixo. Quebra linha em vez de cortar. */
-function Metric({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean | "true" }>;
-  label: string;
-  value: string;
-}) {
-  // `dt`/`dd` são filhos diretos do `div` (regra de `dl`); o ícone mora dentro do `dd`, na coluna da esquerda.
-  return (
-    <div className="relative flex min-w-0 flex-col-reverse min-[400px]:pl-6.5">
-      <dt className="text-xs text-text-secondary">{label}</dt>
-      <dd className="text-[0.9375rem] leading-snug font-semibold break-words text-text-primary">
-        <Icon className="absolute top-0.5 left-0 hidden h-4.5 w-4.5 text-text-secondary min-[400px]:block" aria-hidden="true" />
-        {value}
-      </dd>
+    <div className="garage-card__metric">
+      <dt>{label}</dt>
+      <dd data-missing={value == null ? "" : undefined}>{value ?? "—"}</dd>
     </div>
   );
 }
@@ -75,23 +55,36 @@ function moneyOrDash(value: number | null | undefined) {
 }
 
 /**
- * Card de veículo — recalibração visual 01 (referência "Dashboard Garage
- * Automotiva em Tema Escuro"): a foto é o elemento principal, a marca fica
- * discreta e o modelo ganha peso e tamanho (fonte display), com ano/versão e
- * placa numa linha secundária. Dois indicadores fixos em todo card —
- * odômetro e total investido — e a seta laranja de abrir o veículo, a única
- * cor de marca do card.
+ * Card de veículo — Garagem A3 (ADR-094): ficha editorial de revista.
  *
- * Continua sem aninhar interativo dentro de interativo: o título é um link
- * esticado (`after:inset-0`) só sobre a zona da foto + identificação, fora da
- * ordem de tabulação; a seta "Abrir veículo" é o acesso explícito (e o de
- * teclado). Indicadores, ficha, registros e menu ficam fora dessa zona.
+ * Uma marcação, três composições, decididas pela largura do próprio card
+ * (`garage.css`, container query — não pela viewport):
+ * - vertical (< 540 px, celular): foto, linha "01 · MARCA · status · ⋯",
+ *   modelo, ano/versão/placa, os dois indicadores com a seta laranja ao lado,
+ *   e a régua "Ficha técnica" + registros;
+ * - spread compacto (540–999 px): foto 4:3 à esquerda, texto à direita, e a
+ *   régua de ações embaixo com "Abrir veículo" escrito;
+ * - spread largo (≥ 1000 px): foto | identificação + indicadores | ficha
+ *   técnica aberta numa coluna; os registros ganham rótulo. A largura vira
+ *   composição, não letra maior — modelo para em 24px.
  *
- * Nada some: custo/km, gasto do mês atual, combustível, câmbio, motor e
- * potência estão na "Ficha técnica"; registrar gasto, abastecimento,
- * manutenção e foto na faixa de baixo; editar e excluir no "⋯".
+ * A numeração "01", "02" é a posição na coleção, decorativa (`aria-hidden`).
+ * Indicadores fixos em todo card: Odômetro e Total investido. Nada some:
+ * custo/km, gasto do mês, combustível, câmbio, motor e potência na ficha;
+ * gasto, abastecimento, manutenção e foto na régua; editar e excluir no "⋯".
+ *
+ * Sem interativo dentro de interativo: o título é um link esticado
+ * (`after:inset-0`) sobre o card, fora da ordem de tabulação; "Abrir veículo"
+ * é o acesso explícito e o de teclado (existe em duas formas — seta no
+ * vertical, rótulo no spread —, uma só visível por vez). Régua, ficha, seta e
+ * "⋯" ficam acima do link (`z-10`). O "⋯" é o último no DOM (vem depois dos
+ * registros na tabulação) e a grade o posiciona na linha do número.
+ *
+ * `relative overflow-hidden` também em utilitário (no card e na foto): se a
+ * folha da Garagem faltar (CSS velho em cache, HMR), a foto e o link esticado
+ * continuam presos ao card em vez de cobrir a página.
  */
-export function VehicleCard({ vehicle, categories }: VehicleCardProps) {
+export function VehicleCard({ vehicle, index, categories }: VehicleCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [photoOpen, setPhotoOpen] = useState(false);
   const navigate = useNavigate();
@@ -103,61 +96,68 @@ export function VehicleCard({ vehicle, categories }: VehicleCardProps) {
     vehicle.trim,
   ].filter((part): part is string => Boolean(part));
 
-  const optionalSpecs = [
-    vehicle.engine_description
-      ? { label: "Motor", value: vehicle.engine_description }
-      : null,
-    vehicle.horsepower != null
-      ? { label: "Potência", value: `${vehicle.horsepower} cv` }
-      : null,
+  const specs = [
+    {
+      label: "Custo/km",
+      value: summary?.cost_per_km != null ? `${formatMoney(summary.cost_per_km)}/km` : "—",
+    },
+    { label: "Gasto no mês atual", value: moneyOrDash(summary?.current_month_spend) },
+    { label: "Combustível", value: FUEL_TYPE_LABELS[vehicle.fuel_type] },
+    { label: "Câmbio", value: TRANSMISSION_LABELS[vehicle.transmission] },
+    vehicle.engine_description ? { label: "Motor", value: vehicle.engine_description } : null,
+    vehicle.horsepower != null ? { label: "Potência", value: `${vehicle.horsepower} cv` } : null,
   ].filter((spec): spec is { label: string; value: string } => spec != null);
 
   return (
-    <article
-      aria-labelledby={nameId}
-      className="group relative flex flex-col overflow-hidden rounded-xl border border-border bg-surface transition-colors duration-(--duration-fast) hover:border-border-strong"
-    >
-      {/* Zona clicável: o `after:` do link do título cobre foto + identificação. */}
-      <div className="relative">
+    <article aria-labelledby={nameId} className="garage-card group relative overflow-hidden">
+      <div className="garage-card__grid">
         <VehicleCardPhoto
           photoUrl={vehicle.photoUrl}
           vehicleNameId={nameId}
           onAddPhoto={() => setPhotoOpen(true)}
-          statusBadge={
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-bg px-2.5 py-1 text-xs font-medium text-text-primary">
-              <span
-                aria-hidden="true"
-                className={cn("h-2 w-2 shrink-0 rounded-full", STATUS_DOT_CLASSNAME[vehicle.status])}
-              />
-              <span className="sr-only">Status: </span>
-              {VEHICLE_STATUS_LABELS[vehicle.status]}
-            </span>
-          }
         />
 
-        <div className="flex flex-col px-4 pt-2 pb-4">
-          <p className="truncate text-[0.8125rem] font-medium text-text-secondary">{vehicle.make}</p>
-          <h3
-            id={nameId}
-            className="mt-0.5 font-display text-[1.375rem] leading-[1.1] font-extrabold tracking-tight break-words text-text-primary"
-          >
+        <div className="garage-card__head">
+          <span className="garage-card__num" aria-hidden="true">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          {/* Marca na linha do número só no card vertical; no spread ela desce para cima do modelo. */}
+          <span className="garage-card__make" aria-hidden="true">
+            {vehicle.make}
+          </span>
+          <span className="garage-card__rule" aria-hidden="true" />
+          <span className="garage-card__status">
+            <span
+              aria-hidden="true"
+              className={cn("h-2 w-2 shrink-0 rounded-full", STATUS_DOT_CLASSNAME[vehicle.status])}
+            />
+            <span className="sr-only">Status: </span>
+            {VEHICLE_STATUS_LABELS[vehicle.status]}
+          </span>
+        </div>
+
+        <div className="garage-card__body">
+          <p className="garage-card__make" aria-hidden="true">
+            {vehicle.make}
+          </p>
+          <h3 id={nameId} className="garage-card__model">
             {/*
-              Fora da ordem de tabulação: o caminho de teclado é a seta "Abrir
-              veículo" abaixo — um destino, uma parada. Pra ponteiro e toque, o
-              `after:` estica o link sobre foto + identificação.
+              Fora da ordem de tabulação: o caminho de teclado é "Abrir
+              veículo" — um destino, uma parada. Pra ponteiro e toque, o
+              `after:` estica o link sobre o card.
             */}
             <Link
               to={ROUTES.vehicle(vehicle.id)}
               tabIndex={-1}
               className="after:absolute after:inset-0 group-hover:underline group-hover:decoration-border-strong group-hover:decoration-2 group-hover:underline-offset-4"
             >
-              {/* A marca já aparece logo acima; aqui ela fica só pro leitor de tela, pro nome do link ser o veículo inteiro. */}
+              {/* A marca aparece acima só para quem vê; aqui ela entra pro nome do link ser o veículo inteiro. */}
               <span className="sr-only">{vehicle.make} </span>
               {vehicle.model}
             </Link>
           </h3>
           {(subtitle.length > 0 || vehicle.plate) && (
-            <div className="mt-1.5 flex flex-wrap items-center gap-x-2.5 gap-y-1 text-sm text-text-secondary">
+            <div className="garage-card__sub">
               {subtitle.length > 0 && <span>{subtitle.join(" · ")}</span>}
               {vehicle.plate && (
                 <span className="rounded-sm border border-border px-1.5 py-px font-mono text-xs tracking-wider">
@@ -167,92 +167,93 @@ export function VehicleCard({ vehicle, categories }: VehicleCardProps) {
               )}
             </div>
           )}
+          <div className="garage-card__figures">
+            <dl className="garage-card__metrics">
+              <Metric
+                label="Odômetro"
+                value={vehicle.current_odometer_km != null ? formatKm(vehicle.current_odometer_km) : null}
+              />
+              <Metric
+                label="Total investido"
+                value={summary?.total_invested != null ? formatMoney(summary.total_invested) : null}
+              />
+            </dl>
+            {/* Card vertical: a seta laranja ao lado dos números. */}
+            <Link
+              to={ROUTES.vehicle(vehicle.id)}
+              aria-label="Abrir veículo"
+              aria-describedby={nameId}
+              title="Abrir veículo"
+              className="garage-card__go-square h-11 w-11 shrink-0 rounded-md bg-accent text-accent-foreground transition-colors duration-(--duration-fast) hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+            >
+              <ArrowRight className="h-5 w-5" aria-hidden="true" />
+            </Link>
+          </div>
         </div>
-      </div>
 
-      <div className="flex items-center gap-3 border-t border-border px-4 py-3">
-        <dl className="grid min-w-0 flex-1 grid-cols-[minmax(0,1fr)_minmax(0,1.25fr)] gap-3">
-          <Metric
-            icon={Gauge}
-            label="Odômetro"
-            value={vehicle.current_odometer_km != null ? formatKm(vehicle.current_odometer_km) : "—"}
-          />
-          <Metric icon={Wallet} label="Total investido" value={moneyOrDash(summary?.total_invested)} />
-        </dl>
-        {/* Acesso explícito ao painel do veículo — não depende de descobrir que a foto é clicável. */}
-        <Link
-          to={ROUTES.vehicle(vehicle.id)}
-          aria-label="Abrir veículo"
-          aria-describedby={nameId}
-          title="Abrir veículo"
-          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-accent text-accent-foreground transition-colors duration-(--duration-fast) hover:bg-accent-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
-        >
-          <ArrowRight className="h-5 w-5" aria-hidden="true" />
-        </Link>
-      </div>
-
-      {/*
-        Acordeão no padrão do app: `aria-expanded` + `aria-controls`, alvo de
-        44px. Fica fora da zona do link, então abrir a ficha nunca navega.
-      */}
-      <div className="mt-auto flex flex-wrap items-center gap-0.5 border-t border-border px-1">
-        <button
-          type="button"
-          onClick={() => setDetailsOpen((open) => !open)}
-          aria-expanded={detailsOpen}
-          aria-controls={specsId}
-          aria-describedby={nameId}
-          className="flex min-h-11 items-center gap-1 rounded-md px-1.5 text-[0.8125rem] font-medium text-text-secondary transition-colors duration-(--duration-fast) hover:bg-state-hover hover:text-text-primary"
-        >
-          Ficha técnica
-          <ChevronDown
-            aria-hidden="true"
-            className={cn(
-              "h-4 w-4 motion-safe:transition-transform motion-safe:duration-150",
-              detailsOpen && "rotate-180",
-            )}
-          />
-        </button>
-        <div className="ml-auto flex items-center">
-          <VehicleQuickActions
-            vehicleId={vehicle.id}
-            vehicleNameId={nameId}
-            categories={categories}
-            defaultFuelType={vehicle.fuel_type}
-            defaultOdometerKm={vehicle.current_odometer_km ?? undefined}
-            onAddPhoto={() => setPhotoOpen(true)}
-          />
+        {/*
+          Ficha técnica: acordeão no vertical e no spread compacto (fechado por
+          padrão); coluna aberta no spread largo, onde o botão some.
+        */}
+        <div id={specsId} className="garage-card__specs" data-open={detailsOpen ? "true" : "false"}>
+          <p className="garage-card__specs-title" aria-hidden="true">
+            Ficha técnica
+          </p>
+          <dl>
+            {specs.map((spec) => (
+              <div key={spec.label} className="min-w-0">
+                <dt>{spec.label}</dt>
+                <dd>{spec.value}</dd>
+              </div>
+            ))}
+          </dl>
         </div>
-      </div>
 
-      <dl
-        id={specsId}
-        hidden={!detailsOpen}
-        className="grid grid-cols-2 gap-x-3 gap-y-3 border-t border-border px-4 py-3"
-      >
-        <Spec
-          label="Custo/km"
-          value={summary?.cost_per_km != null ? `${formatMoney(summary.cost_per_km)}/km` : "—"}
-        />
-        <Spec label="Gasto no mês atual" value={moneyOrDash(summary?.current_month_spend)} />
-        <Spec label="Combustível" value={FUEL_TYPE_LABELS[vehicle.fuel_type]} />
-        <Spec label="Câmbio" value={TRANSMISSION_LABELS[vehicle.transmission]} />
-        {optionalSpecs.map((spec) => (
-          <Spec key={spec.label} label={spec.label} value={spec.value} />
-        ))}
-      </dl>
+        <div className="garage-card__foot">
+          <button
+            type="button"
+            onClick={() => setDetailsOpen((open) => !open)}
+            aria-expanded={detailsOpen}
+            aria-controls={specsId}
+            aria-describedby={nameId}
+            className="garage-card__ficha-toggle min-h-11 gap-1 rounded-md px-1.5 text-[0.8125rem] font-medium text-text-secondary transition-colors duration-(--duration-fast) hover:bg-state-hover hover:text-text-primary"
+          >
+            Ficha técnica
+            <ChevronDown
+              aria-hidden="true"
+              className={cn(
+                "h-4 w-4 motion-safe:transition-transform motion-safe:duration-150",
+                detailsOpen && "rotate-180",
+              )}
+            />
+          </button>
+          <div className="garage-card__actions">
+            <VehicleQuickActions
+              vehicleId={vehicle.id}
+              vehicleNameId={nameId}
+              categories={categories}
+              defaultFuelType={vehicle.fuel_type}
+              defaultOdometerKm={vehicle.current_odometer_km ?? undefined}
+              onAddPhoto={() => setPhotoOpen(true)}
+            />
+          </div>
+          {/* Spread: "Abrir veículo" escrito, com a seta laranja, no fim da régua. */}
+          <Link
+            to={ROUTES.vehicle(vehicle.id)}
+            aria-describedby={nameId}
+            className="garage-card__go group/go ml-auto min-h-11 gap-2.5 rounded-md pl-3 text-sm font-semibold whitespace-nowrap text-text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus-ring"
+          >
+            Abrir veículo
+            <span className="flex h-9.5 w-9.5 items-center justify-center rounded-md bg-accent text-accent-foreground transition-colors duration-(--duration-fast) group-hover/go:bg-accent-hover">
+              <ArrowRight className="h-4.5 w-4.5" aria-hidden="true" />
+            </span>
+          </Link>
+        </div>
 
-      {/*
-        "Mais ações" (editar, excluir) no canto da foto, como na referência — fora
-        da zona do link (z-10) e por último no DOM: na tabulação vem depois dos
-        registros, a ordem de sempre. Fundo sólido pra contrastar com qualquer foto.
-      */}
-      <div className="absolute top-2 right-2 z-10">
-        <VehicleCardMenu
-          vehicle={vehicle}
-          vehicleNameId={nameId}
-          triggerClassName="rounded-full border border-border bg-bg text-text-primary hover:bg-surface-raised"
-        />
+        {/* Último no DOM (depois dos registros na tabulação); a grade o põe na linha do número. */}
+        <div className="garage-card__menu">
+          <VehicleCardMenu vehicle={vehicle} vehicleNameId={nameId} />
+        </div>
       </div>
 
       {/* Foto enviada daqui só é vista na galeria do veículo — leva o usuário até ela (ADR-080). */}

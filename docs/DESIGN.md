@@ -1,5 +1,85 @@
 # DESIGN.md — Identidade visual do Slow Garage
 
+## Garagem A3 + capa A3.1 — revista automotiva japonesa (implementada)
+
+Estudo estático aprovado (propostas A3 e A3.1, `redesign-capturas/
+estudos-garagem-v2/`) levado ao app. **Vale só para a Minha garagem**; marca,
+shell e as outras telas não mudaram. Decisão completa em `docs/DECISIONS.md`
+(ADR-094). Onde contradiz a recalibração 01 abaixo (capa, resumo, card,
+grade), vale esta seção.
+
+A linguagem de revista japonesa de preparação aparece na **composição e na
+edição da informação**, não em adereço: fotografia protagonista, título forte,
+numeração editorial, fichas técnicas compactas, filetes finos, alinhamento
+rígido e contraste entre área expressiva (capa) e informação precisa (ficha).
+Nada de katakana, sol nascente, neon, carbono, selo "JDM" ou tipografia
+inclinada — e funciona com carro brasileiro de qualquer marca.
+
+- **Margens**: capa, resumo e coleção começam na mesma margem depois da
+  sidebar — `--garage-gutter` 40px (1440) → 56px (2560), travado; 24px no
+  tablet, 16px no celular. Sem largura máxima nem centralização.
+- **Escala**: medidas fluidas entre 1440 e 2560 e travadas nos extremos
+  (`tokens.css`, `--garage-*`): capa 264 → 380px, título 46 → 64px (36px em
+  1024), resumo 72 → 84px, vão da grade 24 → 32px. Nada cresce sem limite.
+- **Capa (desktop, `lg`+)**: página dupla. Esquerda no grafite: "Minha
+  garagem" é o `h1`, em sobrelinha com traço laranja e filete até a borda da
+  coluna; "Seus carros. Suas histórias." em Archivo 800 caixa-alta; "Cadastrar
+  veículo" e uma linha de apoio. A partir de 1280 a coluna do texto termina
+  onde começa o 2º card da coleção. Direita: **colagem** — a foto de oficina
+  escurecida como fundo (entra em degradê) e recortes retangulares com
+  moldura de 1px, sombra curta e inclinação discreta (−1,2°, 2°, 1,4°), com
+  pequena sobreposição e um filete solto deslocado atrás do principal. Um
+  recorte até 1280px, dois até 1800, três acima. Posições contadas da margem
+  direita: nada invade o texto nem sai da capa. Nenhum crédito sobre a imagem.
+- **Capa (celular/tablet)**: sem foto — sobrelinha com o slogan, "Minha
+  garagem" 27px 800 caixa-alta e "Cadastrar" ao lado (nome acessível
+  "Cadastrar veículo"). As imagens da capa não são baixadas abaixo de `lg`
+  (`<picture>` com `media`).
+- **Resumo**: faixa colada à capa, rótulo 10–11px caixa-alta espaçada sobre o
+  valor (Archivo 700, 22 → 26px), filete vertical entre células. 2+ veículos:
+  Veículos ("02"), Gasto no mês, Pendências, Manutenção prevista (as duas
+  primeiras e a última só no desktop); 1 veículo: Pendências e Manutenção
+  prevista. Zero vira "✓ Nenhuma". No fim, **Detalhes e comparativo**
+  ("Detalhes" no celular), que abre o painel logo abaixo da faixa — o mesmo
+  conteúdo de antes (resumo financeiro, gráficos, comparativo; próxima
+  manutenção no celular).
+- **Coleção**: "Seus veículos" + contagem "02" em mono + filete. 2 cards por
+  linha quando a coleção tem ≥ 1100px, senão 1 (até 1000px); 1 veículo vira
+  um spread de destaque (até 1320px).
+- **Card — ficha editorial**, três composições pela largura do próprio card
+  (container query):
+  - *vertical* (< 540px, celular): foto 4:3, linha "01 · MARCA · ● Status ·
+    ⋯", modelo 20px, ano · versão + placa, Odômetro e Total investido com a
+    seta laranja ao lado, régua "Ficha técnica" + 4 registros;
+  - *spread compacto* (540–999px): foto 50% à esquerda; número "01" em
+    Archivo 300 cinza + filete + status + ⋯; marca em caixa-alta espaçada,
+    modelo 19px, indicadores; régua inferior com a ficha, os registros e
+    "Abrir veículo →" escrito;
+  - *spread largo* (≥ 1000px): foto 40% | identificação + indicadores (20px)
+    | **ficha técnica aberta** numa coluna de 264px (rótulo à esquerda,
+    valor à direita, filetes); registros com rótulo (Gasto, Abastecimento,
+    Manutenção, Foto). Modelo para em 24px.
+  - Nada por cima da foto (o status e o ⋯ saíram dela; o degradê da base
+    também). A numeração é posição na coleção, decorativa. Cards da mesma
+    linha têm a régua de ações alinhada no fundo.
+- **Imagens editoriais** (`src/assets/garage/`, WebP): fotos reais do
+  Unsplash, **CC0** (atribuição dispensada), tratadas para grafite com luz
+  quente — ilustrativas, não representam veículo do usuário.
+  - `cover-base.webp`: "Car Restoration Workshop", Igor Ovsyannykov
+    (commons.wikimedia.org/wiki/File:Car_Restoration_Workshop_(Unsplash).jpg);
+  - `collage-garage.webp`: "Vintage car garage", Logan Meis
+    (…/File:Vintage_car_garage_(Unsplash).jpg);
+  - `collage-engine.webp`: "Engine block", Garett Mizunaka
+    (…/File:Engine_block_(Unsplash).jpg);
+  - `collage-cage.webp`: "Race car roll cage", Lloyd Dirks
+    (…/File:Race_car_roll_cage_(Unsplash).jpg) — recorte sem o céu e sem o
+    logotipo do volante.
+  Recortes e tratamento registrados em `redesign-capturas/estudos-garagem-v2/
+  fonte/assets/CREDITOS.txt`.
+- **Tokens aditivos**: `--color-hairline`, `--color-hairline-strong`,
+  `--color-collage-frame(-loose)`, `--shadow-collage` e a escala `--garage-*`.
+  Composição em `src/styles/garage.css` (áreas de grade e container queries).
+
 ## Recalibração visual 01 — identidade + Minha garagem (aguardando aprovação)
 
 Corrige a direção do redesign, que ficou administrativa demais e distante da
