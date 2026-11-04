@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 
 type VehicleCardPhotoProps = {
   photoUrl: string | null;
-  bayNumber: number;
   /** `id` do título do card — o botão "Adicionar foto" do placeholder é descrito por ele. */
   vehicleNameId: string;
   onAddPhoto: () => void;
@@ -12,23 +11,21 @@ type VehicleCardPhotoProps = {
   statusBadge: ReactNode;
 };
 
-/** Baia à esquerda e status à direita, ambos sólidos (`bg-bg`) — legíveis sobre qualquer foto, sem vidro nem sombra. */
-function PhotoTags({ bayNumber, statusBadge }: { bayNumber: number; statusBadge: ReactNode }) {
-  return (
-    <div className="absolute inset-x-2 top-2 flex items-start justify-between gap-2">
-      <span className="rounded-sm border border-border bg-bg px-1.5 py-0.5 font-mono text-xs text-text-secondary">
-        baia {String(bayNumber).padStart(2, "0")}
-      </span>
-      {statusBadge}
-    </div>
-  );
+/** Selo sólido (`bg-bg`) no canto superior esquerdo — legível sobre foto clara, escura ou ausente. */
+function PhotoTags({ statusBadge }: { statusBadge: ReactNode }) {
+  return <div className="absolute top-3 left-3 flex">{statusBadge}</div>;
 }
 
 /**
- * Região da foto do card da garagem (redesign etapa 02). Proporção 4:3 — a
- * mesma do recorte (`PHOTO_ASPECT_RATIO`, ADR-081), então o que a pessoa
- * enquadrou é o que aparece aqui, sem filtro; por cima, só os dois selos
- * sólidos (baia e status).
+ * Região da foto do card da garagem. Proporção 4:3 — a mesma do recorte
+ * (`PHOTO_ASPECT_RATIO`, ADR-081), então o que a pessoa enquadrou é o que
+ * aparece aqui, sem filtro nem escurecimento.
+ *
+ * Recalibração visual 01: a foto é o elemento principal do card. Por cima,
+ * só o selo de status (a "baia 01" saiu — era decoração, não dado) e, na
+ * base, um degradê curto (40px) até a cor do card, pra foto e identificação
+ * formarem um bloco só. O degradê é localizado: não passa por cima do texto
+ * nem escurece o carro, e não existe sem foto.
  *
  * Três estados, nenhum inventado:
  * - foto carregada: a foto real, `object-cover`;
@@ -44,7 +41,6 @@ function PhotoTags({ bayNumber, statusBadge }: { bayNumber: number; statusBadge:
  */
 export function VehicleCardPhoto({
   photoUrl,
-  bayNumber,
   vehicleNameId,
   onAddPhoto,
   statusBadge,
@@ -63,15 +59,19 @@ export function VehicleCardPhoto({
           onError={() => setFailedUrl(photoUrl)}
           className="absolute inset-0 h-full w-full object-cover"
         />
+        <div
+          className="absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-surface to-transparent"
+          aria-hidden="true"
+        />
         {/* Depois da imagem no DOM: as duas são absolutas, e quem vem depois pinta por cima. */}
-        <PhotoTags bayNumber={bayNumber} statusBadge={statusBadge} />
+        <PhotoTags statusBadge={statusBadge} />
       </div>
     );
   }
 
   return (
-    <div className="relative flex h-32 flex-col items-center justify-center gap-2 border-b border-border bg-bg px-4 pt-6 text-center sm:aspect-4/3 sm:h-auto sm:pt-0">
-      <PhotoTags bayNumber={bayNumber} statusBadge={statusBadge} />
+    <div className="relative flex h-36 flex-col items-center justify-center gap-2 bg-bg px-4 pt-8 text-center sm:aspect-4/3 sm:h-auto sm:pt-0">
+      <PhotoTags statusBadge={statusBadge} />
       {failed ? (
         <>
           <ImageOff className="h-6 w-6 text-text-secondary" aria-hidden="true" />
@@ -80,7 +80,7 @@ export function VehicleCardPhoto({
       ) : (
         <>
           {/* No mobile a região é compacta: o ícone sai pra caber texto + botão sem apertar. */}
-          <Car className="hidden h-8 w-8 text-border-strong sm:block" aria-hidden="true" />
+          <Car className="hidden h-10 w-10 text-border-strong sm:block" strokeWidth={1.5} aria-hidden="true" />
           <p className="text-sm text-text-secondary">Sem foto deste veículo</p>
           <Button
             variant="outline"

@@ -46,6 +46,11 @@
   --shadow-overlay: 0 16px 40px -12px rgb(0 0 0 / 0.6), 0 2px 6px rgb(0 0 0 / 0.3);
 
   --font-hero: "Rajdhani", sans-serif;
+  /*
+   * Recalibração visual 01 (só na Garagem por enquanto): grotesca pesada pra
+   * título, nome do veículo e número de resumo — nunca em campo nem texto longo.
+   */
+  --font-display: "Archivo Variable", var(--font-sans);
   --font-sans:
     "Space Grotesk", ui-sans-serif, system-ui, -apple-system, sans-serif;
   --font-jp: "Noto Sans JP", var(--font-sans);

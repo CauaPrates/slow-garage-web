@@ -108,7 +108,7 @@ export function Sidebar({ vehicles }: SidebarProps) {
           aria-label="Slow Garage — ir para Minha garagem"
           className="-mx-1 flex items-center rounded-md px-1 py-1"
         >
-          <BrandLogo className="h-11" />
+          <BrandLogo version={2} className="h-12" />
         </Link>
       </div>
 

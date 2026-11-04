@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { EditVehicleDialog } from "./EditVehicleDialog";
 import { DeleteVehicleDialog } from "./DeleteVehicleDialog";
 import type { VehicleWithSummary } from "./useVehicles";
@@ -10,6 +11,8 @@ type VehicleCardMenuProps = {
   vehicle: VehicleWithSummary;
   /** `id` do título do card — dá o contexto do veículo ao botão e ao menu. */
   vehicleNameId: string;
+  /** Recalibração 01: no card da garagem o gatilho fica sobre a foto, com fundo sólido. */
+  triggerClassName?: string;
 };
 
 const MENU_ITEM_CLASSNAME =
@@ -26,7 +29,7 @@ const MENU_ITEM_CLASSNAME =
  * diálogo o foco volta explicitamente pro gatilho "Mais ações" — sem isso
  * caía no `<body>` (mesma correção do "Sair" no `HeaderUserMenu`).
  */
-export function VehicleCardMenu({ vehicle, vehicleNameId }: VehicleCardMenuProps) {
+export function VehicleCardMenu({ vehicle, vehicleNameId, triggerClassName }: VehicleCardMenuProps) {
   const [menuOpen, setMenuOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -75,7 +78,10 @@ export function VehicleCardMenu({ vehicle, vehicleNameId }: VehicleCardMenuProps
             aria-label="Mais ações"
             aria-describedby={vehicleNameId}
             title="Mais ações"
-            className="text-text-secondary hover:text-text-primary data-[state=open]:bg-state-active data-[state=open]:text-text-primary"
+            className={cn(
+              "text-text-secondary hover:text-text-primary data-[state=open]:bg-state-active data-[state=open]:text-text-primary",
+              triggerClassName,
+            )}
           >
             <MoreHorizontal className="h-5 w-5" aria-hidden="true" />
           </Button>

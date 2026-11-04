@@ -22,16 +22,18 @@ import type { VehicleFormOutput } from "./schemas";
 type CreateVehicleDialogProps = {
   triggerLabel?: string;
   /**
-   * Gatilho do cabeçalho da garagem (redesign etapa 02): abaixo de `sm` mostra
-   * só "Cadastrar" com o ícone, pra caber ao lado do título. "veículo" fica em
-   * `sr-only`, então o nome acessível é sempre "Cadastrar veículo".
+   * Recalibração visual 01: o gatilho da capa da garagem leva o ícone "+" e
+   * ocupa a largura toda no celular (ação principal clara, como na referência).
+   * O rótulo é sempre o inteiro — o nome acessível continua "Cadastrar veículo".
    */
-  compactOnMobile?: boolean;
+  withIcon?: boolean;
+  triggerClassName?: string;
 };
 
 export function CreateVehicleDialog({
   triggerLabel = "Cadastrar veículo",
-  compactOnMobile = false,
+  withIcon = false,
+  triggerClassName,
 }: CreateVehicleDialogProps) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,16 +81,10 @@ export function CreateVehicleDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        {compactOnMobile ? (
-          <Button>
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            <span>
-              Cadastrar<span className="sr-only sm:not-sr-only"> veículo</span>
-            </span>
-          </Button>
-        ) : (
-          <Button>{triggerLabel}</Button>
-        )}
+        <Button className={triggerClassName}>
+          {withIcon && <Plus className="h-4 w-4" aria-hidden="true" />}
+          {triggerLabel}
+        </Button>
       </DialogTrigger>
       <DialogContent
         className={VEHICLE_FORM_DIALOG_CLASSNAME}

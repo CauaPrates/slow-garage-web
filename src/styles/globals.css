@@ -7,6 +7,8 @@
 @import "@fontsource/space-grotesk/latin-600.css";
 @import "@fontsource/space-grotesk/latin-700.css";
 @import "@fontsource/jetbrains-mono/latin-400.css";
+/* Recalibração visual 01: fonte display da Garagem (título, modelo, números do resumo). Eixo de peso só; OFL, servida localmente. */
+@import "@fontsource-variable/archivo/wght.css";
 
 @import "./tokens.css";
 
@@ -35,6 +37,7 @@
   --shadow-overlay: var(--shadow-overlay);
 
   --font-hero: var(--font-hero);
+  --font-display: var(--font-display);
   --font-sans: var(--font-sans);
   --font-jp: var(--font-jp);
   --font-mono: var(--font-mono);

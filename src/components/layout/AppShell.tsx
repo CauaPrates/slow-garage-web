@@ -48,7 +48,8 @@ export function AppShell() {
             aria-label="Slow Garage — ir para Minha garagem"
             className="flex h-11 min-w-11 shrink-0 items-center justify-center rounded-md px-1 lg:hidden"
           >
-            <BrandLogo className="h-8 sm:h-10" />
+            {/* Recalibração 01: marca v2 (≈ 2,5:1) — 32px de altura dão ~81px de largura. */}
+            <BrandLogo version={2} className="h-8 sm:h-10" />
           </Link>
 
           <div className="flex min-w-0 flex-1 items-center">

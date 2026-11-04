@@ -2944,3 +2944,63 @@ real, nenhuma exclusão real. Nenhum aparelho físico nem leitor de tela real.
   1024, 820, 390 e 360, claro e escuro — axe sem violações, nenhum alvo menor
   que 44px, sem rolagem horizontal; build e lint limpos. Os cenários 103–112
   não rodaram de novo.
+
+## ADR-093 — Recalibração visual 01: identidade + Minha garagem
+
+**Status.** Implementada só na Garagem e na marca do shell; **aguardando
+aprovação visual** antes de chegar a outras telas. A etapa 10 do redesign
+está pausada.
+
+**Contexto.** Comparadas com a referência aprovada ("Dashboard Garage
+Automotiva em Tema Escuro"), as etapas 01–09 deixaram a Garagem com cara de
+sistema administrativo: título de 24px/600 e modelo de 18px/600 (pouca
+diferença de peso), valores em JetBrains Mono, faixa de quatro módulos com
+fio entre eles e dicas longas, "Detalhes da garagem" ocupando uma linha antes
+dos carros, card com "baia 01", divisores e "Abrir veículo" por extenso, e
+uma marca vetorial de traço fino de 9px, mais fina e angular que o lettering
+encorpado da referência.
+
+**Decisão.**
+
+- Marca v2 desenhada como polígonos numa grade (não fonte, não traço de
+  bitmap), salva ao lado da v1 (`slow-garage-logo-v2-*.svg`). `BrandLogo`
+  ganhou `version` (padrão 1); o shell autenticado (`Sidebar`, `AppShell`)
+  passa `2`. Consumidores e efeitos: sidebar (todas as telas `lg`+) e
+  cabeçalho do celular (todas as telas) — a marca é uma só no app autenticado,
+  então trocá-la só na Garagem criaria duas marcas. Login segue na v1.
+  Favicon, manifest e ícones PWA intactos.
+- Fonte display local (Archivo variável, OFL) num token aditivo
+  `--font-display`, usado só pelos componentes da Garagem. Nenhum token
+  existente mudou de valor.
+- Garagem recomposta: capa editorial compacta no desktop (sem foto),
+  cabeçalho curto e ação em largura cheia no celular, resumo curto sem caixa
+  por módulo (`GarageOverview`), detalhes depois da grade (`GarageDetails`),
+  card no idioma da referência (`VehicleCard`, `VehicleCardPhoto`). O
+  `GarageTile` compartilhado com dashboard, combustível e financeiro **não**
+  mudou — o número do resumo da Garagem é um componente local (`GarageStat`)
+  com o mesmo contrato de estados.
+- Indicadores do card: Odômetro e Total investido (os mesmos em todo card,
+  como na referência). Gasto do mês atual foi para a Ficha técnica; nada saiu
+  do card.
+
+**Diferenças deliberadas em relação à referência.** Sem foto no hero (não há
+asset licenciado, e foto genérica não seria do usuário); sem busca, abas de
+filtro, ordenação e grade/lista (não existem no produto); sem logos de
+fabricante; sem katakana; status são os quatro reais (Ativo, Projeto,
+Guardado, Vendido), não "Uso diário"; nenhuma borda laranja fixa de card
+"selecionado"; o "⋯" sobre a foto tem fundo sólido; os 4 registros rápidos
+continuam no card (ADR-053).
+
+**Não mudou.** Rotas, schemas, hooks, queries, chaves e invalidações,
+fórmulas (somas do resumo e do comparativo iguais), regras de status, banco,
+autenticação, permissões.
+
+**Verificação.** Capturas e relatórios em
+`redesign-capturas/recalibracao-visual-01/` (cenários `rv1`–`rv5` do
+`inspect.mjs`, antes e depois). Axe sem violações em 24 estados (1920, 2560,
+1440 claro, 1366, 1280, 1024, 820 claro/escuro, 390, 360 claro/escuro, 320;
+ficha, menu e detalhes abertos; um veículo; vazio); nenhum alvo menor que
+44px; sem rolagem horizontal; sem interativo aninhado; foco laranja visível
+na seta; build e lint limpos. Limitação: em 320×640 o nome do primeiro carro
+fica logo abaixo da dobra (621 × 583px), e o rodapé do card quebra em duas
+linhas.

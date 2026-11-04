@@ -1,5 +1,68 @@
 # DESIGN.md — Identidade visual do Slow Garage
 
+## Recalibração visual 01 — identidade + Minha garagem (aguardando aprovação)
+
+Corrige a direção do redesign, que ficou administrativa demais e distante da
+referência aprovada ("Dashboard Garage Automotiva em Tema Escuro"). Conceito:
+revista automotiva + garagem pessoal + performance minimalism. **Vale só para a
+Minha garagem e para a marca no shell**; as outras telas continuam como nas
+etapas 01–09 até a aprovação visual. Decisão completa em `docs/DECISIONS.md`
+(ADR-093). Onde contradiz as etapas abaixo na Garagem (cabeçalho, resumo,
+card), vale esta seção.
+
+- **Marca v2** (`public/brand/slow-garage-logo-v2-{dark,light}.svg`,
+  594×234): SLOW / GARAGE em duas linhas, letras de polígono desenhadas numa
+  grade (haste 30, barra 22, caixa-alta 100), chanfro no canto superior
+  esquerdo e inferior direito (direção do movimento), inclinação de 11°. Único
+  detalhe de cor: grade 3×3 laranja em ✕ no fim de SLOW (eco da bandeira
+  quadriculada do adesivo original). Sem fonte, sem traço automático de
+  bitmap, sem marca de terceiro; katakana fora nesta rodada. Laranja
+  `#EF792D` no escuro, `#D9661C` no claro (decorativo, não texto). Usada pelo
+  shell autenticado (`BrandLogo version={2}`: sidebar `h-12`, cabeçalho do
+  celular `h-8` ≈ 81px). Login (`AuthLayout`) segue na v1. v1, símbolo,
+  favicon, manifest e ícones PWA não mudaram.
+- **Fonte display**: Archivo (variável, eixo de peso; OFL;
+  `@fontsource-variable/archivo`, local, ~35 KB no subset latin), token
+  aditivo `--font-display`. Grotesca pesada que dá a presença da referência
+  sem o desenho excêntrico do Space Grotesk em tamanho grande. Usada **só** em:
+  chamada da capa, título da página no celular, nome do veículo, títulos de
+  seção e números do resumo da Garagem. Nunca em campo, rótulo ou texto longo.
+- **Escala da Garagem**: chamada da capa 44px (`lg`) / 60px (`xl`) 800
+  caixa-alta; título no celular 30px 800; modelo 22px 800 (era 18px 600);
+  marca do veículo 13px 500 em caixa normal; números do resumo 20px → 28px 700
+  com algarismos tabulares; valores do card 15px 600 na fonte de interface.
+  **Monoespaçada só na placa** — saiu dos valores do card e do resumo.
+- **Capa (desktop, `lg`+)**: sobrelinha "Minha garagem" (é o `h1`), chamada
+  "Seus carros. Suas histórias.", uma linha de apoio (`xl`+) e "Cadastrar
+  veículo" com "+". A partir de `xl` os números da garagem ficam ao lado, num
+  painel único. Sem foto: não há imagem editorial licenciada, e a foto do
+  carro do usuário já é protagonista no card. **Celular**: título curto,
+  "Cadastrar veículo" em largura cheia, faixa de três números e o primeiro
+  carro (nome visível na primeira tela em 360×780 e 390×844).
+- **Resumo**: com 2+ veículos, Veículos, Gasto no mês e Pendências (+
+  Próxima manutenção a partir de `lg`), sem caixa nem fio por número. Saíram
+  as contagens que não ajudam a escolher o carro ("1 ativo", "em N veículos")
+  e o "mês atual" repetido. Estados de carregando/erro/"Tentar de novo"
+  mantidos.
+- **Detalhes da garagem** desceram para depois da grade: título da seção é o
+  gatilho (`h2 > button`, `aria-expanded`), recolhido por padrão; conteúdo
+  igual (próxima manutenção abaixo de `lg`, resumo financeiro, gráficos,
+  comparativo).
+- **Card**: foto 4:3 sem filtro com degradê de 40px só na base, até a cor do
+  card (não existe sem foto); selo de status em pílula sólida com ponto
+  (Ativo verde, Projeto laranja, Guardado cinza, Vendido contorno) + texto;
+  "⋯" sólido no canto da foto (último na ordem de Tab). Identificação: marca,
+  modelo, ano · versão + placa. Dois indicadores fixos: **Odômetro** e
+  **Total investido**, com ícone discreto, e a seta "Abrir veículo" num botão
+  laranja de 44px (o laranja do card é a ação de abrir). Rodapé: "Ficha
+  técnica" (custo/km, gasto no mês atual, combustível, câmbio, motor,
+  potência) e os 4 registros. A "baia 01" saiu (decoração, não dado). Borda
+  do card neutra; muda só no hover.
+- **Grade**: card de no mínimo 19rem, conteúdo com no máximo 76rem
+  centralizado — 3 colunas de 1280 a 2560, 2 em 1024/820, 1 no celular.
+
+## Redesign — etapa 01: Automotive Editorial (sistema visual + navegação)
+
 ## Redesign — etapa 01: Automotive Editorial (sistema visual + navegação)
 
 Direção aprovada: **Automotive Editorial + Performance Minimalism** —
