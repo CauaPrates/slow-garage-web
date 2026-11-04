@@ -100,10 +100,16 @@ export function ProjectProgress({ progress, items }: ProjectProgressPanelProps) 
   if (items && items.length === 0) emptyText = "Nenhum item ainda. O progresso começa a contar com o primeiro item.";
   else if (items && items.length > 0 && cancelled === items.length) emptyText = "Todos os itens estão cancelados — não há o que medir.";
 
-  const notes = [
-    purchased > 0 ? `${purchased} ${purchased === 1 ? "comprado ainda não conta" : "comprados ainda não contam"}` : null,
-    cancelled > 0 ? `${cancelled} ${cancelled === 1 ? "cancelado fica" : "cancelados ficam"} fora da conta` : null,
+  // Uma explicação só (a regra completa), com a contagem deste projeto pendurada nela — antes eram duas
+  // frases seguidas dizendo a mesma coisa (revisão da etapa 09).
+  const counts = [
+    purchased > 0 ? `${purchased} ${purchased === 1 ? "comprado" : "comprados"}` : null,
+    cancelled > 0 ? `${cancelled} ${cancelled === 1 ? "cancelado" : "cancelados"}` : null,
   ].filter(Boolean);
+  const rule = "Conta só o que está Instalado; comprado ainda não conta e cancelado sai da conta";
+  // Sem número a explicar (sem item, todos cancelados), a contagem só repetiria o texto do estado vazio.
+  const ruleText =
+    state.kind === "ready" && counts.length > 0 ? `${rule} — aqui, ${counts.join(" e ")}.` : `${rule}.`;
 
   const activeCount = active?.length ?? 0;
   const actualNote =
@@ -145,16 +151,13 @@ export function ProjectProgress({ progress, items }: ProjectProgressPanelProps) 
                 <span className="font-mono text-sm text-text-secondary tabular-nums">{formatPercent(state.pct)}</span>
               </p>
               <ProgressBar pct={state.pct} className="h-2" />
-              {notes.length > 0 && <p className="text-xs text-text-secondary">{notes.join(" · ")}</p>}
             </>
           ) : (
             <p className="text-sm text-text-secondary">
               {state.kind === "unknown" ? "Progresso indisponível no momento." : emptyText}
             </p>
           )}
-          <p className="text-xs text-text-secondary">
-            Conta só o que está Instalado. Comprado não conta; cancelado sai da conta.
-          </p>
+          <p className="text-xs text-text-secondary">{ruleText}</p>
         </div>
 
         <div className="flex flex-col gap-3 px-4 py-4 text-sm">

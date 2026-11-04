@@ -22,13 +22,33 @@ type ProjectListRowProps = {
   onDelete: (project: ProjectWithProgress, trigger: HTMLElement | null) => void;
 };
 
-function Figure({ label, value, emptyText, srEmpty }: { label: string; value: string | null; emptyText: string; srEmpty?: string }) {
+type FigureProps = {
+  label: string;
+  value: string | null;
+  emptyText: string;
+  srEmpty?: string;
+  /** Soma da view que deu 0: zero aqui pode ser "nenhum valor informado" — a view soma ausente como 0. */
+  maybeMissing?: boolean;
+};
+
+function Figure({ label, value, emptyText, srEmpty, maybeMissing }: FigureProps) {
   return (
     // Rótulo à esquerda, número à direita: os três valores alinham pela borda direita.
     <div className="flex min-w-0 items-baseline justify-between gap-3">
       <dt className="text-xs text-text-secondary">{label}</dt>
       <dd className="text-right text-sm break-words">
-        {value ? (
+        {value && maybeMissing ? (
+          <>
+            <span className="font-mono text-text-primary tabular-nums">{value}</span>
+            <span className="block text-xs text-text-secondary">
+              <span className="sr-only">, </span>
+              valores podem não estar informados
+              <span className="sr-only">
+                : a lista soma como zero o item sem valor; o projeto mostra quais itens têm valor
+              </span>
+            </span>
+          </>
+        ) : value ? (
           <span className="font-mono text-text-primary tabular-nums">{value}</span>
         ) : srEmpty ? (
           <span className="text-text-secondary">
@@ -48,7 +68,9 @@ function Figure({ label, value, emptyText, srEmpty }: { label: string; value: st
  * descrição em até duas linhas (inteira no detalhe); datas preenchidas. À
  * direita (a partir de `lg`; embaixo no celular) o progresso da
  * `project_progress` — barra + "N de M itens instalados" — e orçamento, custo
- * real e estimado como a view soma (itens não cancelados).
+ * real e estimado como a view soma (itens não cancelados). A view soma valor
+ * ausente como 0 e a lista não tem os itens pra distinguir: soma 0 sai como
+ * "R$ 0,00" com "valores podem não estar informados", nunca como certeza.
  *
  * "Abrir projeto →" é o caminho de teclado; o nome também abre o detalhe pro
  * ponteiro, fora da ordem de Tab (um destino, uma parada — padrão do card de
@@ -60,15 +82,19 @@ export function ProjectListRow({ vehicleId, project, onEdit, onDelete }: Project
   const state = readProgress(project.progress);
   const href = ROUTES.vehicleProject(vehicleId, project.id);
   const dates = projectDateParts(project, formatDateOnly);
-  const hasSums = state.kind !== "unknown" && project.progress != null;
+  const hasSums = state.kind === "ready" && project.progress != null;
+  const totalActual = hasSums ? (project.progress?.total_actual ?? null) : null;
+  const totalEstimated = hasSums ? (project.progress?.total_estimated ?? null) : null;
 
   return (
-    <li className="flex flex-col gap-3 px-4 py-4 lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:gap-x-8 lg:gap-y-2">
+    // A partir de `lg`: identificação e ações empilhadas à esquerda (sem vão entre elas), progresso e
+    // valores à direita ocupando as duas linhas; a sobra de altura vai pra baixo das ações (`1fr`).
+    <li className="flex flex-col gap-3 px-4 py-4 lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:grid-rows-[auto_1fr] lg:gap-x-8 lg:gap-y-1">
       <span id={identityId} className="sr-only">
         {project.name}, {status.label}
       </span>
 
-      <div className="flex min-w-0 flex-col gap-1.5">
+      <div className="flex min-w-0 flex-col gap-1.5 lg:col-start-1 lg:row-start-1">
         <h3 className="flex flex-wrap items-center gap-x-2 gap-y-1">
           <Link
             to={href}
@@ -88,19 +114,22 @@ export function ProjectListRow({ vehicleId, project, onEdit, onDelete }: Project
         </p>
       </div>
 
-      <div className="flex min-w-0 flex-col gap-3">
+      <div className="flex min-w-0 flex-col gap-3 lg:col-start-2 lg:row-span-2 lg:row-start-1">
         <ProgressSummary state={state} />
         <dl className="flex flex-col gap-1">
+          {/* Orçamento é coluna do projeto: zero salvo é zero de verdade, sem aviso. */}
           <Figure label="Orçamento" value={moneyOrNull(project.budget)} emptyText="Não definido" />
           <Figure
             label="Custo real"
-            value={hasSums && state.kind === "ready" ? moneyOrNull(project.progress?.total_actual) : null}
+            value={moneyOrNull(totalActual)}
+            maybeMissing={totalActual === 0}
             emptyText="—"
             srEmpty="sem itens a somar"
           />
           <Figure
             label="Estimado"
-            value={hasSums && state.kind === "ready" ? moneyOrNull(project.progress?.total_estimated) : null}
+            value={moneyOrNull(totalEstimated)}
+            maybeMissing={totalEstimated === 0}
             emptyText="—"
             srEmpty="sem itens a somar"
           />
@@ -108,7 +137,7 @@ export function ProjectListRow({ vehicleId, project, onEdit, onDelete }: Project
       </div>
 
       {/* Margens negativas: os alvos de 44px não somam um vão em branco embaixo da linha. */}
-      <div className="-mx-2 -mb-2 flex items-center gap-1 lg:col-span-2">
+      <div className="-mx-2 -mb-2 flex items-center gap-1 lg:col-start-1 lg:row-start-2 lg:self-start">
         <Link
           to={href}
           aria-describedby={identityId}
@@ -120,7 +149,8 @@ export function ProjectListRow({ vehicleId, project, onEdit, onDelete }: Project
             aria-hidden="true"
           />
         </Link>
-        <span className="flex-1" aria-hidden="true" />
+        {/* Celular: "⋯" na borda direita. Desktop: logo depois de "Abrir projeto", sem flutuar no meio da linha. */}
+        <span className="flex-1 lg:hidden" aria-hidden="true" />
         <RowActionsMenu
           label="Ações do projeto"
           editLabel="Editar projeto"

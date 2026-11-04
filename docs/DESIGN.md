@@ -503,9 +503,14 @@ Mesma direção e tokens; nenhuma cor nova, nenhuma imagem. Decisão completa em
   descrição em até 2 linhas; datas preenchidas ("Início · Data alvo ·
   Conclusão", ou "Sem datas definidas"). A partir de `lg`, à direita: barra de
   progresso + "N de M itens instalados · %" e orçamento, custo real e estimado
-  em linhas rótulo/valor (números à direita). "Abrir projeto →" é o caminho de
-  teclado; o nome também abre o detalhe, fora do Tab, com alvo de 44px. Editar
-  e excluir no "⋯".
+  em linhas rótulo/valor (números à direita), ocupando a altura da linha;
+  "Abrir projeto →" e "⋯" ficam logo abaixo da identificação, à esquerda (no
+  celular, embaixo de tudo, "⋯" na borda direita). Soma 0 de custo real ou
+  estimado sai como "R$ 0,00" + "valores podem não estar informados" (a view
+  soma ausente como 0 e a lista não tem os itens; o leitor de tela ouve o
+  porquê); orçamento zero é zero de verdade, sem aviso. "Abrir projeto →" é o
+  caminho de teclado; o nome também abre o detalhe, fora do Tab, com alvo de
+  44px. Editar e excluir no "⋯".
 - **Situação do projeto** (selo, texto + cor): Ideia e Planejado neutros,
   **Em andamento** no acento (o papel de "Ativo" do veículo), **Pausado**
   âmbar, **Concluído** verde, **Cancelado** tracejado e neutro — nunca parece
@@ -519,9 +524,11 @@ Mesma direção e tokens; nenhuma cor nova, nenhuma imagem. Decisão completa em
   **Notas do projeto** (só com notas). A exclusão do projeto continua só na
   lista.
 - **Progresso e custos** (`ProjectProgress`): "Itens instalados" com "4 de 8",
-  o % da view e uma barra simples verde, sem mínimo artificial; embaixo, o
-  que não conta ("1 comprado ainda não conta · 1 cancelado fica fora da
-  conta") e a regra escrita. Sem item: "Nenhum item ainda…"; só cancelados:
+  o % da view e uma barra simples verde, sem mínimo artificial; embaixo, uma
+  frase só com a regra e a contagem deste projeto ("Conta só o que está
+  Instalado; comprado ainda não conta e cancelado sai da conta — aqui, 1
+  comprado e 1 cancelado."; a contagem só aparece quando há progresso a
+  medir). Sem item: "Nenhum item ainda…"; só cancelados:
   "Todos os itens estão cancelados…" — nunca 0% nem 100%. À direita,
   orçamento ("Não definido" quando ausente), custo real (com "N de M itens com
   valor" e o % do orçamento da view) e estimado. Sem nenhum valor informado,

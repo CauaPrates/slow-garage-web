@@ -2907,7 +2907,8 @@ Concluir o projeto quando todos os itens estão instalados. Medidor circular.
   'Upgrade'". Comportamento e texto preservados até decisão funcional.
 - **Lista: custo real/estimado ausente × zero**: a view devolve 0 quando nenhum
   item tem valor; sem os itens, a lista não distingue "nenhum informado" de
-  R$ 0,00 (o detalhe distingue).
+  R$ 0,00 (o detalhe distingue). Depois da revisão, a lista avisa a dúvida
+  (abaixo); a distinção exata continua só no detalhe.
 - Falha de `project_progress` derruba a lista inteira (o `fetchProjects` lança),
   como antes.
 - A ordem dos itens é `sort_order, created_at`; não há como reordenar na tela.
@@ -2920,3 +2921,26 @@ links e dois anexos. `project_progress` com a regra da view, LEDGER e
 `active_projects_count` reescritos a cada escrita, `vehicle_timeline` com os
 itens datados, cascata no mock. Rede trancada; nenhuma chamada ao Supabase
 real, nenhuma exclusão real. Nenhum aparelho físico nem leitor de tela real.
+
+**Ajustes da revisão (04/11/2026).**
+
+- **Progresso**: o painel dizia a regra duas vezes seguidas ("1 comprado ainda
+  não conta · 1 cancelado fica fora da conta" e "Conta só o que está
+  Instalado…"). Agora é uma frase só, completa, com a contagem deste projeto
+  no fim ("— aqui, 1 comprado e 1 cancelado."); sem progresso a medir, só a
+  regra, porque a contagem repetiria o texto do estado vazio.
+- **Soma zero na lista**: custo real ou estimado igual a 0 sai como "R$ 0,00"
+  com "valores podem não estar informados" embaixo, e o leitor de tela ouve o
+  porquê (a lista soma como zero o item sem valor; o projeto mostra quais têm
+  valor). Sem consulta nova, sem mudar a fórmula; o orçamento, que é coluna do
+  projeto, continua sem aviso. Descartado: um botão de ajuda por linha (mais
+  uma parada de Tab em cada projeto para um texto que cabe visível).
+- **Linha da lista mais compacta** (acabamento, não bloqueio): a partir de
+  `lg`, "Abrir projeto" e "⋯" sobem para logo abaixo da identificação e o
+  bloco de progresso e valores ocupa a altura da linha à direita
+  (`grid-rows-[auto_1fr]`). O vão entre datas e ações caiu para 4px; abaixo de
+  `lg` a linha continua empilhada. Ordem de Tab inalterada.
+- Verificação: cenário 113 (arquivos 217–220, `relatorio-ajustes.txt`) em 1440,
+  1024, 820, 390 e 360, claro e escuro — axe sem violações, nenhum alvo menor
+  que 44px, sem rolagem horizontal; build e lint limpos. Os cenários 103–112
+  não rodaram de novo.
