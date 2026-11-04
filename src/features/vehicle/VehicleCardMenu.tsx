@@ -77,7 +77,8 @@ export function VehicleCardMenu({ vehicle, vehicleNameId, triggerClassName }: Ve
             size="icon"
             aria-label="Mais ações"
             aria-describedby={vehicleNameId}
-            title="Mais ações"
+            data-tip="Mais ações"
+            data-tip-side="bottom"
             className={cn(
               "text-text-secondary hover:text-text-primary data-[state=open]:bg-state-active data-[state=open]:text-text-primary",
               triggerClassName,

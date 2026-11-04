@@ -79,6 +79,30 @@
   --garage-title: clamp(2.875rem, calc(2.875rem + 18 * (100vw - 1440px) / 1120), 4rem);
   --garage-summary-h: clamp(4.5rem, calc(4.5rem + 12 * (100vw - 1440px) / 1120), 5.25rem);
   --garage-stat: clamp(1.375rem, calc(1.375rem + 4 * (100vw - 1440px) / 1120), 1.625rem);
+  /*
+   * Revisão dos cards (A3, cards verticais): faixa de largura de um card da
+   * coleção. A grade põe quantas colunas couberem com o mínimo e para cada
+   * card no máximo — 336–440px no notebook, 384–488px no largo.
+   */
+  --garage-card-min: clamp(21rem, calc(21rem + 48 * (100vw - 1440px) / 1120), 24rem);
+  --garage-card-max: clamp(27.5rem, calc(27.5rem + 48 * (100vw - 1440px) / 1120), 30.5rem);
+  /*
+   * Selo de status e "⋯" sobre a foto: chapa escura nos dois temas — fica
+   * sobre fotografia, que não muda com o tema. Texto 4.5:1+ mesmo com o
+   * pixel mais claro atrás da transparência.
+   */
+  --garage-chip-bg: rgb(17 19 21 / 0.8);
+  --garage-chip-bg-hover: rgb(17 19 21 / 0.92);
+  --garage-chip-fg: #f2f0e9;
+  /* Altura do cabeçalho do shell no desktop (`sm:h-16`): a capa da garagem começa por trás dele (ADR-096). */
+  --shell-header-h: 4rem;
+  /*
+   * Placa no padrão Mercosul (ADR-097): chapa branca, faixa azul em cima,
+   * caracteres pretos. Iguais nos dois temas — é um objeto, não interface.
+   */
+  --plate-paper: #fbfbf8;
+  --plate-ink: #141619;
+  --plate-band: #12399b;
 
   /* Movimento: só resposta a ação, nunca decoração (docs/DESIGN.md, "Sistema de resposta"). */
   --duration-fast: 120ms;

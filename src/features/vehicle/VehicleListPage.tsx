@@ -1,5 +1,5 @@
-import { useId, useState } from "react";
-import { AlertCircle } from "lucide-react";
+import { useId, useMemo, useState } from "react";
+import { AlertCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useExpenseCategories } from "@/features/expense/useExpenseCategories";
 import { useVehicles } from "./useVehicles";
@@ -7,6 +7,36 @@ import { VehicleCard } from "./VehicleCard";
 import { CreateVehicleDialog } from "./CreateVehicleDialog";
 import { GarageCover } from "./GarageCover";
 import { GarageDetails, GarageOverview } from "./GarageOverview";
+import { GarageToolbar, type GarageView } from "./GarageToolbar";
+import {
+  matchesSearch,
+  sortVehicles,
+  STATUS_TABS,
+  useGarageSearch,
+  type SortOption,
+  type StatusFilter,
+} from "./garageFilters";
+
+/** Preferência só deste navegador (ordem e grade/lista); sem armazenamento, volta ao padrão. */
+function useStoredChoice<T extends string>(key: string, allowed: readonly T[], fallback: T) {
+  const [value, setValue] = useState<T>(() => {
+    try {
+      const stored = localStorage.getItem(key);
+      return stored && (allowed as readonly string[]).includes(stored) ? (stored as T) : fallback;
+    } catch {
+      return fallback;
+    }
+  });
+  const update = (next: T) => {
+    setValue(next);
+    try {
+      localStorage.setItem(key, next);
+    } catch {
+      /* sem armazenamento: vale só nesta visita */
+    }
+  };
+  return [value, update] as const;
+}
 
 /**
  * Minha garagem — Garagem A3 + capa A3.1 (ADR-094): composição de revista
@@ -17,9 +47,13 @@ import { GarageDetails, GarageOverview } from "./GarageOverview";
  *   colagem fotográfica à direita.
  * - Resumo (`GarageOverview`): faixa de dados colada à capa, com
  *   "Detalhes e comparativo" — o painel (`GarageDetails`) abre logo abaixo.
- * - Coleção: "Seus veículos" com filete e contagem; 2 spreads por linha
- *   quando a coleção tem ≥ 1100 px, senão 1 (até 1000 px); 1 veículo vira um
- *   spread de destaque (até 1320 px).
+ * - Coleção (ADR-096): barra com busca (no celular; no desktop ela fica no
+ *   cabeçalho), abas por status com contagem, ordenação e grade/lista, como
+ *   na referência. "Seus veículos (N)" continua como título, só para leitor
+ *   de tela. Cards verticais
+ *   (revisão dos cards, ADR-095) em quantas colunas couberem com ~336 px,
+ *   cada um até ~440 px (488 no largo). Com poucos veículos só a grade
+ *   encolhe e fica na margem, embaixo do título (alinhada à capa e ao resumo).
  *
  * Capa, resumo e coleção começam na mesma margem depois da sidebar (40 px no
  * notebook, 56 px no largo), sem largura máxima nem centralização.
@@ -30,6 +64,23 @@ export function VehicleListPage() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const detailsId = useId();
   const hasVehicles = !isLoading && !isError && vehicles && vehicles.length > 0;
+  const [query, setQuery] = useGarageSearch();
+  const [status, setStatus] = useState<StatusFilter>("all");
+  const [sort, setSort] = useStoredChoice<SortOption>("slow-garage:garage-sort", ["recent", "oldest", "name", "invested", "odometer"], "recent");
+  const [view, setView] = useStoredChoice<GarageView>("slow-garage:garage-view", ["grid", "list"], "grid");
+
+  const searched = useMemo(() => (vehicles ?? []).filter((v) => matchesSearch(v, query)), [vehicles, query]);
+  const counts = useMemo(() => {
+    const result = { all: searched.length, active: 0, project: 0, stored: 0, sold: 0 } as Record<StatusFilter, number>;
+    for (const v of searched) result[v.status] += 1;
+    return result;
+  }, [searched]);
+  const visible = useMemo(
+    () => sortVehicles(status === "all" ? searched : searched.filter((v) => v.status === status), sort),
+    [searched, status, sort],
+  );
+  const filtering = query.trim() !== "" || status !== "all";
+  const statusTab = STATUS_TABS.find((tab) => tab.value === status)!;
 
   return (
     <div className="garage-page">
@@ -87,20 +138,70 @@ export function VehicleListPage() {
 
       {hasVehicles && (
         <section aria-labelledby="garage-vehicles-title" className="garage-collection garage-gutter">
-          <h2 id="garage-vehicles-title" className="garage-collection__title">
-            {vehicles.length === 1 ? "Seu veículo" : "Seus veículos"}
-            {vehicles.length > 1 && (
-              <span className="garage-collection__count">
-                <span aria-hidden="true">{String(vehicles.length).padStart(2, "0")}</span>
-                <span className="sr-only">({vehicles.length})</span>
-              </span>
-            )}
+          {/* Visualmente a contagem está em "Todos (N)"; o título fica para leitor de tela e é o alvo do foco depois de excluir. */}
+          <h2 id="garage-vehicles-title" className="sr-only">
+            {vehicles.length === 1 ? "Seu veículo" : `Seus veículos (${vehicles.length})`}
           </h2>
-          <div className="garage-grid">
-            {vehicles.map((vehicle, index) => (
-              <VehicleCard key={vehicle.id} vehicle={vehicle} index={index} categories={categories} />
-            ))}
-          </div>
+          <GarageToolbar
+            counts={counts}
+            status={status}
+            onStatusChange={setStatus}
+            sort={sort}
+            onSortChange={setSort}
+            view={view}
+            onViewChange={setView}
+          />
+          <p className="sr-only" aria-live="polite">
+            {filtering
+              ? `${visible.length} ${visible.length === 1 ? "veículo encontrado" : "veículos encontrados"}`
+              : ""}
+          </p>
+          {visible.length > 0 ? (
+            <div className="garage-grid" data-view={view}>
+              {visible.map((vehicle) => (
+                <VehicleCard key={vehicle.id} vehicle={vehicle} categories={categories} />
+              ))}
+              {/*
+                "Vaga livre" (ADR-097): o último lugar da grade é o próprio cadastro —
+                o mesmo diálogo do botão da capa, não um card fictício. Só sem
+                busca e sem filtro (no meio de um resultado filtrado não faz sentido).
+                Nome acessível: "Estacionar veículo" (o diálogo é o de cadastro).
+              */}
+              {!filtering && (
+                <CreateVehicleDialog
+                  triggerClassName="garage-slot"
+                  triggerLabel={
+                    <>
+                      <span className="garage-slot__plus" aria-hidden="true">
+                        <Plus className="h-5 w-5" />
+                      </span>
+                      <span className="garage-slot__eyebrow" aria-hidden="true">
+                        Vaga livre
+                      </span>
+                      <span className="garage-slot__title">Estacionar veículo</span>
+                    </>
+                  }
+                />
+              )}
+            </div>
+          ) : (
+            <div className="garage-filter-empty">
+              <p className="text-sm text-text-secondary">
+                {query.trim()
+                  ? `Nenhum veículo encontrado para “${query.trim()}”${status !== "all" ? ` em ${statusTab.label}` : ""}.`
+                  : `${statusTab.empty}.`}
+              </p>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setQuery("");
+                  setStatus("all");
+                }}
+              >
+                {query.trim() ? "Limpar busca e filtros" : "Ver todos"}
+              </Button>
+            </div>
+          )}
         </section>
       )}
     </div>

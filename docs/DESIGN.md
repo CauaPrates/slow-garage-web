@@ -48,26 +48,49 @@ inclinada — e funciona com carro brasileiro de qualquer marca.
   ("Detalhes" no celular), que abre o painel logo abaixo da faixa — o mesmo
   conteúdo de antes (resumo financeiro, gráficos, comparativo; próxima
   manutenção no celular).
-- **Coleção**: "Seus veículos" + contagem "02" em mono + filete. 2 cards por
-  linha quando a coleção tem ≥ 1100px, senão 1 (até 1000px); 1 veículo vira
-  um spread de destaque (até 1320px).
-- **Card — ficha editorial**, três composições pela largura do próprio card
-  (container query):
-  - *vertical* (< 540px, celular): foto 4:3, linha "01 · MARCA · ● Status ·
-    ⋯", modelo 20px, ano · versão + placa, Odômetro e Total investido com a
-    seta laranja ao lado, régua "Ficha técnica" + 4 registros;
-  - *spread compacto* (540–999px): foto 50% à esquerda; número "01" em
-    Archivo 300 cinza + filete + status + ⋯; marca em caixa-alta espaçada,
-    modelo 19px, indicadores; régua inferior com a ficha, os registros e
-    "Abrir veículo →" escrito;
-  - *spread largo* (≥ 1000px): foto 40% | identificação + indicadores (20px)
-    | **ficha técnica aberta** numa coluna de 264px (rótulo à esquerda,
-    valor à direita, filetes); registros com rótulo (Gasto, Abastecimento,
-    Manutenção, Foto). Modelo para em 24px.
-  - Nada por cima da foto (o status e o ⋯ saíram dela; o degradê da base
-    também). Sem foto, a região tem superfície própria (um degrau acima do
-    card, filete de 1px) — com o fundo da página parecia um vão entre cards. A numeração é posição na coleção, decorativa. Cards da mesma
-    linha têm a régua de ações alinhada no fundo.
+- **Coleção** (revisão dos cards, ADR-095 — implementada, revisão visual
+  pendente): "Seus veículos" + contagem "02" em mono + filete, na margem da
+  página. Grade de cards verticais: colunas pela largura útil (cabem quantas
+  tiverem `--garage-card-min`, 336px no notebook → 384px no largo), cada card
+  até `--garage-card-max` (440 → 488px). Teto da grade = min(nº de veículos,
+  colunas da faixa) × largura máxima: com poucos veículos **só a grade**
+  encolhe e fica na margem, embaixo do título — alinhada à capa e ao
+  resumo (centralizar foi rejeitado: os cards ficavam soltos no meio). Faixas (container
+  query na coleção): 1 coluna < 688px, 2 até 1055, 3 até 1503, 4 até 2047,
+  5 acima. Medido: 390 → 1 × 358; 768 → 2 × 351; 1024 → 2 × 340; 1280 → 2 ×
+  440; 1440 → 2 × 440 (2 veículos) ou 3 × 357 (4); 1920 → 2 ×
+  461 (2) ou 4 × 376 (4); 2560 → 2 × 488 (2) ou 4 × 488 (4); 1 veículo → 1
+  card de 440–488px na margem. Último lugar da grade: **vaga livre** tracejada, "Estacionar veículo", que abre o cadastro (ADR-097; só sem busca/filtro). Placa no padrão **Mercosul** (chapa branca, faixa azul, caracteres pretos).
+- **Barra da coleção e cabeçalho** (ADR-096 — implementada, revisão visual
+  pendente): abas Todos/Ativos/Projetos/Guardados/Vendidos com contagem
+  (14px, ativa em 600 com traço laranja de 2px, filete embaixo), "Mais
+  recente" e grade/lista (botões 44px, ativo com borda e ícone laranja) à
+  direita; no celular busca + ordenação numa linha e as abas rolando
+  embaixo. "Buscar na garagem…" no cabeçalho a partir de `lg` (⌘K / Ctrl K),
+  que na garagem flutua sobre a capa: transparente no topo, sólido ao rolar.
+  A capa começa no topo; a foto sobe atrás do cabeçalho só a partir de 1440
+  no escuro. Lista: o card deitado, miniatura 16:10 à esquerda, até 1200px.
+- **Card vertical** (ADR-095), a mesma composição em toda largura, perto da
+  referência original:
+  1. foto 16:9 na largura toda (fotos 4:3 do app perdem ~12% em cima e
+     embaixo); pílula escura de status no canto superior esquerdo (Ativo,
+     Projeto, Guardado, Vendido) e "⋯" no direito (alvo 44px, chapa de
+     28px) — também sem foto e na falha; no escuro, o terço de baixo da foto
+     se funde na cor do card, sem texto sobre o carro; no claro, borda seca;
+  2. marca em texto normal, 14px cinza, modelo Archivo 700 22px (20px em card
+     < 320px) que quebra e fica completo, ano · versão + placa;
+  3. filete, Odômetro e Total investido com ícone à esquerda (rótulo
+     pequeno embaixo) e a seta
+     laranja 44px "Abrir veículo" à direita; se os valores não cabem lado a
+     lado, o segundo desce;
+  4. faixa secundária: "Ficha técnica" (recolhida por padrão; abre embaixo,
+     2 colunas) e os 4 registros só com ícone, com dica no hover e no foco.
+  Superfície do card com borda `--color-border` e raio `--radius-lg`; borda
+  laranja só no hover. Sem numeração "01". Cards da mesma linha têm a mesma
+  altura e a faixa alinhada no fundo; com uma ficha aberta, o vizinho não
+  estica. Sem foto: superfície um degrau acima do card com filete; 16:10 em
+  grade de várias colunas, 168px de altura em uma coluna. Tokens novos:
+  `--garage-card-min`, `--garage-card-max`, `--garage-chip-*`.
 - **Imagem da capa** (`src/assets/garage/cover.webp`, 2172×724, 88 KB):
   imagem editorial **gerada** para o estudo A3.1 e fornecida pelo usuário
   (original em `redesign-capturas/estudos-garagem-v2/fonte/assets/

@@ -3161,3 +3161,196 @@ indisponível no momento.". `npm run lint` e `npm run build` limpos.
 Limitações: em 320×640 o nome do primeiro carro termina em 637px, logo
 abaixo da dobra (583px) — como na ADR-093; em 1280 a coleção tem 960px e
 fica com 1 card por linha.
+
+## ADR-095 — Revisão dos cards da Minha garagem: cards verticais da referência
+
+**Status.** Implementada na Minha garagem, antes da etapa 10. **Revisão
+visual do usuário pendente.** Capa, resumo, "Detalhes e comparativo", shell e
+outras telas não mudaram.
+
+**Contexto.** Na ADR-094 os cards viraram fichas horizontais (spread) com
+numeração "01" e, no desktop largo, uma coluna de ficha técnica sempre
+aberta. O usuário apontou que isso se afastou da referência original
+("Dashboard Garage Automotiva em Tema Escuro.png"), onde o card é vertical,
+fotográfico e compacto.
+
+**Decisão.**
+
+- Um só arranjo vertical em toda largura: foto 16:10 → marca, modelo,
+  ano · versão + placa → Odômetro e Total investido com a seta laranja
+  "Abrir veículo" à direita → faixa secundária com "Ficha técnica" e os
+  quatro registros. Saíram o spread, a coluna técnica aberta e a numeração.
+- Status volta para cima da foto (pílula escura, canto superior esquerdo) e
+  o "⋯" para o canto direito, desenhados na mesma área de grade da foto —
+  aparecem também sem foto e na falha. Chapa escura nos dois temas
+  (`--garage-chip-*`): fica sobre fotografia, que não muda com o tema.
+- Ficha técnica recolhida por padrão em toda largura; abre embaixo da faixa.
+- Grade por largura útil: auto-fit com `--garage-card-min` e teto
+  min(nº de veículos, colunas da faixa) × `--garage-card-max`; com poucos
+  veículos a grade encolhe e fica na margem da página, embaixo do título.
+  Rejeitado (na revisão visual): centralizar a grade — com 2 veículos no
+  desktop largo os cards ficavam soltos no meio, desalinhados do título, da
+  capa e do resumo.
+  Rejeitado: `auto-fit` com `minmax(min, max)` fixo — o navegador conta as
+  colunas pelo máximo (1440 ficaria com 2 colunas para 4 carros). Rejeitado:
+  esticar os cards (1fr) — 2 veículos em 2560 viravam painéis de 1100px.
+- Dicas visíveis dos botões só com ícone (registros, seta, "⋯") em CSS
+  (`data-tip`), no hover e no foco de teclado; o `title` nativo saiu (não
+  aparecia no foco). Ancoradas pela direita do botão, nunca passam da borda
+  do card. O nome acessível continua sendo o `aria-label`.
+- Sem `overflow: hidden` no card (a foto arredonda os próprios cantos) para
+  as dicas não serem cortadas.
+- Ordem de tabulação mantida: Abrir veículo, Ficha técnica, 4 registros,
+  Mais ações. A foto e o selo abrem o veículo pelo link esticado do título.
+
+**Diferenças deliberadas da referência.** Sem logo de fabricante; sem ícones
+ao lado dos indicadores (tirariam ~50px e empurrariam o segundo valor para
+baixo nos cards de 336–360px); sem "Uso diário" (os status são os reais);
+faixa de registros e ficha técnica a mais (funcionalidade existente); a
+transição escura na base da foto é bem mais leve que a da referência, para
+não escurecer fotos comuns de celular.
+
+**Não mudou.** Rotas, consultas, fórmulas, status, regras de negócio,
+formulários, upload, editar/excluir (diálogos, confirmação e retorno do foco
+ao "⋯"), capa (medidas iguais às da r8 em 1024–2560), resumo, painel de
+detalhes, rolagem do `<main>`. `VehicleCard`, `VehicleCardPhoto`,
+`VehicleCardMenu` e `VehicleQuickActions` só são usados na Garagem.
+
+**Verificação.** Cenário `a3c` do `inspect.mjs` (Supabase simulado, nada
+gravado), relatório e 6 capturas da região dos cards em
+`redesign-capturas/garagem-a3/cards-r2/` (a `cards-r1` é a versão centralizada,
+recusada). Larguras 320, 360, 390, 768, 1024,
+1280, 1440, 1920 e 2560 com 1, 2 e 4 veículos: sem rolagem horizontal, sem
+segunda rolagem da janela, nenhum elemento fora do card, nenhum valor sob a
+seta, faixa em uma linha (inclusive 320px), linhas da grade com a faixa
+alinhada, título na margem da página. Nome e versão longos quebram
+completos; ausente ("—") distinto de zero ("0 km", "R$ 0,00");
+"R$ 1.236.402,89" e "1.234.567 km" descem para a segunda linha em vez de
+comprimir. Foto com erro ("Foto indisponível no momento.", sem "Adicionar
+foto") e sem foto ("Adicionar foto"), com status e "⋯" nos dois. Teclado:
+dica visível no foco; menu abre pelo Enter, Escape fecha e devolve o foco ao
+"⋯"; editar e excluir abrem, Escape devolve o foco ao "⋯". Celular: última
+ação do último card acima da barra inferior (rolagem real da janela). Axe
+sem violações em 24 estados (claro e escuro; ficha e menu abertos; limites;
+erro de foto). `npm run lint` e `npm run build` limpos. Primeiro carro na
+primeira tela também em 320×640 (nome termina em 570px, barra em 583px).
+
+**Limitações.** Em 320px os dois indicadores empilham (o segundo desce) e a
+faixa mostra "Ficha" — " técnica" fica fora da vista, mas continua no nome
+acessível. Com um nome de 3 linhas na mesma linha da grade, os vizinhos
+ganham um vão entre a identificação e os números (a faixa fica alinhada). Com
+uma ficha aberta a grade inteira deixa de esticar os cards (`:has` na grade,
+não por linha). As faixas da container query são aproximadas: entre 688 e
+695px de coleção (viewport ~720–735px) cabe 1 coluna, mas o teto é o de 2 —
+o card ocupa a largura toda e o placeholder sem foto fica em 16:10.
+
+## ADR-096 — Minha garagem: busca, abas, ordenação, grade/lista e cabeçalho sobre a capa
+
+**Status.** Implementada. **Revisão visual do usuário pendente.** Só a Minha
+garagem e o cabeçalho do shell quando ela está aberta.
+
+**Contexto.** Na revisão da ADR-095 o usuário apontou o que a referência
+original tem e a tela não tinha: busca "Buscar na garagem…" no cabeçalho, abas
+por status com contagem, "Mais recente" e alternância grade/lista, e o
+cabeçalho flutuando sobre a capa (a capa vai até o topo).
+
+**Decisão.**
+
+- **Busca** (`GarageSearchField`): no cabeçalho a partir de `lg`, com ⌘K /
+  Ctrl K; abaixo de `lg`, na barra da coleção. Filtra veículos por marca,
+  modelo, versão, ano e placa, sem caixa nem acento, placa sem hífen; cada
+  palavra precisa aparecer. Só veículos (não registros). Estado em memória
+  compartilhado (`useGarageSearch`, `useSyncExternalStore`). Rejeitado:
+  texto na URL (`?busca=`) — o campo controlado relia a URL, que atualiza
+  com atraso, e perdia letras com digitação rápida (medido: "opala" virou
+  "a").
+- **Abas** Todos/Ativos/Projetos/Guardados/Vendidos com contagem já com a
+  busca aplicada: botões de alternância (`aria-pressed`) num grupo, não
+  `tablist` (filtram a mesma lista). Aba vazia continua clicável e mostra
+  "Nenhum veículo guardado." com "Ver todos". Resultado anunciado em região
+  `aria-live`. No celular as abas rolam dentro da própria faixa.
+- **Ordenação**: mais recente (padrão, a ordem de antes), mais antigo, nome,
+  maior investimento, maior quilometragem (ausente vai para o fim).
+- **Grade/lista**: a lista é o mesmo card deitado (miniatura 16:10 à
+  esquerda, indicadores e seta à direita, faixa embaixo do texto), até
+  1200px. Some quando a coleção só comporta uma coluna (celular). Ordem e
+  visualização ficam no `localStorage` do navegador.
+- **Título "Seus veículos"** passa a ser só para leitor de tela (a contagem
+  está em "Todos (N)"); continua o alvo do foco depois de excluir.
+- **Indicadores com ícone** (odômetro e cifrão), como na referência: máscara
+  em CSS (`data-icon`) porque dentro de `<dl>` só cabem `<dt>`/`<dd>`;
+  menores em cards até 368px. Revoga a diferença deliberada da ADR-095.
+- **Cabeçalho sobre a capa** (`lg`+, só na garagem): o cabeçalho sai do
+  fluxo, transparente com um véu curto do fundo enquanto o `<main>` está no
+  topo e sólido quando rola; para antes da barra de rolagem do `<main>`. A
+  capa começa no topo e o texto desce 64px. A foto sobe até o topo só a
+  partir de 1440 no escuro — subir com a proporção 3:1 aumenta o carro, e
+  entre 1280 e 1439 ele passaria por baixo do título; no claro (chapa de
+  borda seca) a folga cairia de 161 para 32px. Nesses casos a foto mantém a
+  geometria anterior, logo abaixo do cabeçalho.
+
+**Não mudou.** Rotas, consultas, regras, formulários, cards (além dos ícones),
+resumo, detalhes, sidebar, barra inferior, cabeçalho das outras telas.
+
+**Verificação.** Cenários `a3c` e `a3d` do `inspect.mjs`, relatório e capturas
+em `redesign-capturas/garagem-a3/barra-r1/`. Axe sem violações em 36 estados;
+sem rolagem horizontal; cabeçalho nunca cobre a barra de rolagem; título da
+capa sempre abaixo do cabeçalho; folga texto × carro 81px (1440), 85 (1280),
+454 (1920), 870 (2560), 161 (1440 claro). Busca: Ctrl+K foca; "opala",
+"frt-2e45", "edicao especial" acham o veículo certo; sem resultado mostra o
+vazio; Escape limpa. Abas e as cinco ordenações conferidas. Lista em 1440 e
+768 sem transbordo; no celular volta à grade. `npm run lint` e
+`npm run build` limpos.
+
+**Limitações.** Em 320×640 o primeiro carro fica abaixo da dobra (nome em
+648px, barra em 583px) — a barra da coleção ocupa 99px. Em 1440 escuro a
+folga entre texto e carro caiu de 200 para 81px. A busca zera ao recarregar.
+
+**ADR-096, ajuste do card (pedido "mais parecido com a referência").** Foto
+16:9 (fotos 4:3 perdem ~12% em cima e embaixo); no escuro o terço de baixo da
+foto escurece até a cor do card, sem borda entre os dois — nenhum texto sobre
+a foto; no claro continua chapa seca. Marca em texto normal (14px, cinza) em
+vez de caixa-alta espaçada. Filete vertical entre os indicadores; valor 15px,
+rótulo 11px. Pílula de status com contorno fino; chapa do "⋯" de 28px (alvo
+continua 44px). Faixa de ficha e registros mantida. Verificação em
+`redesign-capturas/garagem-a3/cards-r3/` (cenários `a3c` e `a3d`): axe sem
+violações em 36 estados, sem transbordo nem rolagem horizontal; os
+indicadores só empilham em 320px, com 6 dígitos de km em 360px e nos valores
+de R$ 1,2 milhão dos casos-limite.
+
+## ADR-097 — Minha garagem: "vaga livre" e placa no padrão Mercosul
+
+**Status.** Implementada a pedido do usuário. **Revisão visual pendente.**
+
+**Decisão.**
+
+- **Vaga livre**: o último lugar da grade é um espaço tracejado com "+",
+  "Vaga livre" e **"Estacionar veículo"** (texto pedido pelo usuário). É o
+  gatilho do mesmo `CreateVehicleDialog` da capa — não um card fictício. Só
+  aparece sem busca e sem filtro de status. Ocupa uma coluna como um card
+  (a regra de largura da grade conta a vaga). No celular, 136px de altura;
+  na lista, uma faixa baixa. Laranja só no hover. **Revoga** o "Rejeitado:
+  vaga livre" das ADR-094 e ADR-095.
+- **Placa Mercosul**: chapa branca, faixa azul em cima, caracteres pretos
+  (Archivo 700), nos dois temas — tokens `--plate-paper`, `--plate-ink`,
+  `--plate-band`. Continua ao lado de ano · versão, só quando o veículo tem
+  placa cadastrada.
+- **Filete entre os indicadores** (ADR-096): cada indicador tem filete à
+  esquerda e o de quem começa a linha fica fora da caixa (margem negativa +
+  `clip-path`, a técnica da faixa de resumo) — quando o segundo valor desce,
+  não sobra filete solto.
+
+**Verificação.** Cenários `a3c` e `a3d`, relatório e capturas em
+`redesign-capturas/garagem-a3/vaga-placa-r1/`: axe sem violações em 36
+estados (inclui contraste da placa e da vaga), sem transbordo, nenhum alvo
+menor que 44px, última ação acima da barra inferior. `npm run lint` e
+`npm run build` limpos.
+
+**ADR-097, sem linha no cabeçalho da garagem.** A pedido do usuário, na Minha
+garagem (desktop) o cabeçalho não tem borda em nenhum estado (no topo e
+rolado), o filete sob o logo da sidebar some (ficava solto na altura do fim
+do cabeçalho) e, entre 1024 e 1439 no escuro, a foto da capa entra em
+degradê de 24px no topo em vez de corte seco logo abaixo do cabeçalho. As
+outras telas mantêm a borda do cabeçalho e o filete do logo. Verificação em
+`redesign-capturas/garagem-a3/sem-borda-r1/` (cenário `a3d`, axe sem
+violações em 12 estados).

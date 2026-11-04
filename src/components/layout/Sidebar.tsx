@@ -1,5 +1,5 @@
 import { useId } from "react";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useMatch } from "react-router-dom";
 import { ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useCurrentVehicleId } from "@/hooks/useCurrentVehicleId";
@@ -96,13 +96,15 @@ export function Sidebar({ vehicles }: SidebarProps) {
   const { data: isAdmin } = useIsAdmin();
   const { vehicle, isLoading: vehicleLoading } = useVehicle(vehicleId ?? "");
   const vehicleSectionId = useId();
+  // ADR-097: na Minha garagem o cabeçalho flutua sem borda sobre a capa — o filete sob o logo ficaria solto.
+  const onGarage = useMatch({ path: ROUTES.home, end: true }) != null;
 
   const vehicleName = vehicle ? `${vehicle.make} ${vehicle.model}` : vehicleLoading ? "Carregando…" : "Veículo";
   const accountItems = isAdmin ? [...ACCOUNT_NAV_ITEMS, ADMIN_NAV_ITEM] : ACCOUNT_NAV_ITEMS;
 
   return (
     <aside className="hidden h-full min-h-0 w-60 shrink-0 flex-col border-r border-border bg-surface lg:flex">
-      <div className="flex h-16 shrink-0 items-center border-b border-border px-5">
+      <div className={cn("flex h-16 shrink-0 items-center px-5", !onGarage && "border-b border-border")}>
         <Link
           to={ROUTES.home}
           aria-label="Slow Garage — ir para Minha garagem"

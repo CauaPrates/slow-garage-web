@@ -19,18 +19,7 @@ type VehicleQuickActionsProps = {
   onAddPhoto: () => void;
 };
 
-/** `garage-card__qa`: no spread largo do card (≥ 1060 px) o botão ganha o rótulo curto ao lado do ícone (`garage.css`). */
-const ACTION_BUTTON_CLASSNAME =
-  "garage-card__qa text-text-secondary hover:text-text-primary";
-
-/** Rótulo visível só no spread largo; o nome acessível continua o `aria-label` completo (que contém este texto). */
-function ActionLabel({ children }: { children: string }) {
-  return (
-    <span className="garage-card__qa-label" aria-hidden="true">
-      {children}
-    </span>
-  );
-}
+const ACTION_BUTTON_CLASSNAME = "text-text-secondary hover:text-text-primary";
 
 /**
  * Versão compacta do `QuickActionsRow` (Fase 13, `VehiclePage`) pra cada card
@@ -44,8 +33,10 @@ function ActionLabel({ children }: { children: string }) {
  * Redesign etapa 02: editar/excluir saíram desta faixa (foram pro menu "Mais
  * ações" do card) — aqui ficam só os registros do dia a dia.
  *
- * Garagem A3 (ADR-094): os mesmos quatro botões; no spread largo do card
- * aparecem com rótulo ("Gasto", "Abastecimento", "Manutenção", "Foto").
+ * Revisão dos cards A3 (ADR-095): os mesmos quatro botões, só ícone, na
+ * faixa secundária do card vertical. O nome acessível é o `aria-label`; o
+ * `data-tip` repete o texto numa dica visível no hover e no foco de teclado
+ * (`garage.css` — o `title` nativo não aparecia no foco).
  */
 export function VehicleQuickActions({
   vehicleId,
@@ -71,32 +62,30 @@ export function VehicleQuickActions({
         size="icon"
         aria-label="Registrar gasto"
         aria-describedby={vehicleNameId}
-        title="Registrar gasto"
+        data-tip="Registrar gasto"
         className={ACTION_BUTTON_CLASSNAME}
         disabled={!categories}
         onClick={() => setExpenseOpen(true)}
       >
         <Receipt className="h-4 w-4" aria-hidden="true" />
-        <ActionLabel>Gasto</ActionLabel>
       </Button>
       <Button
         variant="ghost"
         size="icon"
         aria-label="Registrar abastecimento"
         aria-describedby={vehicleNameId}
-        title="Registrar abastecimento"
+        data-tip="Registrar abastecimento"
         className={ACTION_BUTTON_CLASSNAME}
         onClick={() => setFuelOpen(true)}
       >
         <Fuel className="h-4 w-4" aria-hidden="true" />
-        <ActionLabel>Abastecimento</ActionLabel>
       </Button>
       <Button
         variant="ghost"
         size="icon"
         aria-label="Registrar manutenção"
         aria-describedby={vehicleNameId}
-        title="Registrar manutenção"
+        data-tip="Registrar manutenção"
         className={ACTION_BUTTON_CLASSNAME}
         onClick={() => {
           setMaintenanceEverOpened(true);
@@ -104,19 +93,17 @@ export function VehicleQuickActions({
         }}
       >
         <Wrench className="h-4 w-4" aria-hidden="true" />
-        <ActionLabel>Manutenção</ActionLabel>
       </Button>
       <Button
         variant="ghost"
         size="icon"
         aria-label="Adicionar foto"
         aria-describedby={vehicleNameId}
-        title="Adicionar foto"
+        data-tip="Adicionar foto"
         className={ACTION_BUTTON_CLASSNAME}
         onClick={onAddPhoto}
       >
         <Camera className="h-4 w-4" aria-hidden="true" />
-        <ActionLabel>Foto</ActionLabel>
       </Button>
 
       {categories && (

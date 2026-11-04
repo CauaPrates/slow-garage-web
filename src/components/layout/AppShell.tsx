@@ -1,5 +1,8 @@
-import { Link, Outlet } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, Outlet, useMatch } from "react-router-dom";
 import { ROUTES } from "@/lib/routes";
+import { cn } from "@/lib/utils";
+import { GarageSearchField } from "@/features/vehicle/GarageSearchField";
 import { useVehicles } from "@/features/vehicle/useVehicles";
 import { Sidebar } from "./Sidebar";
 import { BottomNav } from "./BottomNav";
@@ -29,14 +32,52 @@ import { RouteNotice } from "./RouteNotice";
 export function AppShell() {
   const { data: vehicles } = useVehicles();
   const vehicleList = vehicles ?? [];
+  /*
+   * ADR-096: na Minha garagem (desktop, `lg`+) a capa sobe até o topo e o
+   * cabeçalho flutua sobre ela, transparente, com a busca da garagem — como
+   * na referência. Assim que o `<main>` rola, o cabeçalho volta a ser a barra
+   * sólida de sempre (o conteúdo não passa por baixo dos ícones). Fora da
+   * garagem e abaixo de `lg` nada muda. O cabeçalho para antes da barra de
+   * rolagem do `<main>` (`--shell-scrollbar`), senão cobriria o topo dela.
+   */
+  const onGarage = useMatch({ path: ROUTES.home, end: true }) != null;
+  const mainRef = useRef<HTMLElement>(null);
+  const columnRef = useRef<HTMLDivElement>(null);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const main = mainRef.current;
+    const column = columnRef.current;
+    if (!main || !column || !onGarage) return;
+    const update = () => {
+      setScrolled(main.scrollTop > 4);
+      column.style.setProperty("--shell-scrollbar", `${main.offsetWidth - main.clientWidth}px`);
+    };
+    update();
+    main.addEventListener("scroll", update, { passive: true });
+    const observer = new ResizeObserver(update);
+    observer.observe(main);
+    return () => {
+      main.removeEventListener("scroll", update);
+      observer.disconnect();
+    };
+  }, [onGarage]);
+
+  const overlay = onGarage && !scrolled;
 
   return (
     <div className="flex min-h-dvh bg-bg text-text-primary lg:h-dvh lg:min-h-0 lg:overflow-hidden">
       <Sidebar vehicles={vehicleList} />
 
-      <div className="flex min-w-0 flex-1 flex-col lg:min-h-0">
+      <div ref={columnRef} className="relative flex min-w-0 flex-1 flex-col lg:min-h-0">
         {/* z-20: abaixo do z-30 da BottomNav e do z-50 de popover/diálogo. */}
-        <header className="sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b border-border bg-bg px-2 sm:h-16 sm:gap-3 sm:px-6">
+        <header
+          data-overlay={overlay ? "" : undefined}
+          className={cn(
+            "sticky top-0 z-20 flex h-14 shrink-0 items-center gap-2 border-b border-border bg-bg px-2 sm:h-16 sm:gap-3 sm:px-6",
+            onGarage && "shell-header--garage",
+          )}
+        >
           {/*
             Etapa 02: logo completo também no celular (o símbolo sozinho não
             dizia "Slow Garage"). 32px de altura dão ~69px de largura — com a
@@ -54,6 +95,10 @@ export function AppShell() {
 
           <div className="flex min-w-0 flex-1 items-center">
             <HeaderVehicleSwitcher vehicles={vehicleList} />
+            {/* Busca da garagem no cabeçalho só no desktop; no celular ela fica na barra da coleção. */}
+            {onGarage && (
+              <GarageSearchField shortcut className="ml-auto hidden w-full max-w-sm lg:flex" />
+            )}
           </div>
 
           <div className="flex shrink-0 items-center sm:gap-1">
@@ -75,8 +120,14 @@ export function AppShell() {
         </header>
 
         {/* Folga de baixo = altura da BottomNav + safe area: o último conteúdo da página nunca fica embaixo da barra. */}
-        <main className="min-w-0 flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:overflow-y-auto lg:pb-0">
-          <RouteNotice />
+        <main
+          ref={mainRef}
+          className="min-w-0 flex-1 pb-[calc(5rem+env(safe-area-inset-bottom))] lg:overflow-y-auto lg:pb-0"
+        >
+          {/* Na garagem o cabeçalho flutua sobre o topo do <main>: o aviso desce para não ficar embaixo dele. */}
+          <div className={onGarage ? "lg:pt-16 lg:empty:hidden" : "contents"}>
+            <RouteNotice />
+          </div>
           <Outlet />
         </main>
       </div>
