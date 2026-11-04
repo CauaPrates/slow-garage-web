@@ -67,10 +67,6 @@
    */
   --color-hairline: color-mix(in srgb, var(--color-text-primary) 11%, transparent);
   --color-hairline-strong: color-mix(in srgb, var(--color-text-primary) 20%, transparent);
-  /* Moldura e sombra dos recortes da colagem da capa: as fotos são sempre escuras, então não mudam com o tema. */
-  --color-collage-frame: rgb(242 239 232 / 0.24);
-  --color-collage-frame-loose: rgb(242 239 232 / 0.16);
-  --shadow-collage: 0 8px 18px -8px rgb(0 0 0 / 0.65);
 
   /*
    * Escala fluida da Garagem A3, só a partir de `lg`: cada medida vai do valor

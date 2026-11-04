@@ -3023,8 +3023,11 @@ estudo foi aprovado visualmente antes desta implementação.
   da sidebar, com escala fluida travada entre 1440 e 2560 (tokens
   `--garage-*`). A recalibração 01 centralizava em 76rem e deixava faixa
   vazia junto à sidebar no largo.
-- Capa desktop com colagem (fundo escurecido + até três recortes CC0) e
-  coluna de texto alinhada à grade da coleção; celular sem foto.
+- Capa desktop com a imagem da A3.1 (uma imagem já composta: carro +
+  recortes de roda e motor, 3:1) e coluna de texto alinhada à grade da
+  coleção; celular sem foto. Rejeitado: remontar a colagem em CSS com fotos
+  CC0 avulsas (primeira versão desta ADR) — o usuário apontou que não era a
+  capa aprovada.
 - Resumo em faixa colada à capa, com "Detalhes e comparativo" no fim; o
   painel abre logo abaixo dela. Rejeitado: manter o gatilho no título da
   seção depois da grade (ADR-093) com o botão novo só rolando até ela — dois
@@ -3046,6 +3049,87 @@ estudo foi aprovado visualmente antes desta implementação.
   classes arbitrárias por elemento. Exceção consciente à regra "tudo em
   utilitário"; a regra de tokens continua valendo.
 
+**Ajustes da revisão visual.** Região sem foto com superfície própria (não o
+fundo da página); "Minha garagem" numa linha no celular de 360px pra cima;
+no tema claro a foto de fundo da capa é chapa de borda seca em vez de
+degradê do claro para o escuro.
+
+**Imagem.** Uma imagem editorial gerada para o estudo A3.1 e fornecida pelo
+usuário (`src/assets/garage/cover.webp`, 88 KB). Decorativa (`alt=""`,
+`aria-hidden`), ilustrativa, sem crédito sobre a imagem. Servida por
+`<picture>` com `media` de `lg`: abaixo disso o navegador usa um pixel vazio e
+não baixa nada (`loading="lazy"` em bloco oculto não bastou — o Chrome baixava
+no celular). Fora do precache do PWA (o Workbox só pega js, css, html e
+woff2).
+
+**Rolagem dupla.** No desktop quem rola é o `<main>`; textos só para leitor de
+tela (`sr-only`, posição absoluta) sem ancestral posicionado se posicionavam
+pelo documento e esticavam a janela — aparecia uma segunda barra. A página
+da Garagem (`.garage-page`) é `position: relative`.
+
+**Não mudou.** Rotas, schemas, hooks, queries, chaves e invalidações,
+fórmulas (somas do resumo e do comparativo iguais), regras de status, banco,
+autenticação, permissões.
+
+**Verificação.** Capturas e relatórios em
+`redesign-capturas/recalibracao-visual-01/` (cenários `rv1`–`rv5` do
+`inspect.mjs`, antes e depois). Axe sem violações em 24 estados (1920, 2560,
+1440 claro, 1366, 1280, 1024, 820 claro/escuro, 390, 360 claro/escuro, 320;
+ficha, menu e detalhes abertos; um veículo; vazio); nenhum alvo menor que
+44px; sem rolagem horizontal; sem interativo aninhado; foco laranja visível
+na seta; build e lint limpos. Limitação: em 320×640 o nome do primeiro carro
+fica logo abaixo da dobra (621 × 583px), e o rodapé do card quebra em duas
+linhas.
+
+## ADR-094 — Garagem A3 + capa A3.1: revista automotiva japonesa
+
+**Status.** Implementada na Minha garagem, a partir do estudo estático
+aprovado (propostas A3 e A3.1). Outras telas, marca e shell não mudaram.
+
+**Contexto.** A recalibração 01 (ADR-093) aproximou a Garagem da referência,
+mas o usuário definiu a inspiração como revista automotiva japonesa de
+preparação — cultura de garagem e de projeto pessoal. Os estudos A → A2 →
+A3 → A3.1 (fora do repositório, `redesign-capturas/estudos-garagem-v2/`)
+fixaram a composição; a A3.1 trocou a capa por uma colagem fotográfica. O
+estudo foi aprovado visualmente antes desta implementação.
+
+**Decisão.**
+
+- Página sem largura máxima: capa, resumo e coleção na mesma margem depois
+  da sidebar, com escala fluida travada entre 1440 e 2560 (tokens
+  `--garage-*`). A recalibração 01 centralizava em 76rem e deixava faixa
+  vazia junto à sidebar no largo.
+- Capa desktop com a imagem da A3.1 (uma imagem já composta: carro +
+  recortes de roda e motor, 3:1) e coluna de texto alinhada à grade da
+  coleção; celular sem foto. Rejeitado: remontar a colagem em CSS com fotos
+  CC0 avulsas (primeira versão desta ADR) — o usuário apontou que não era a
+  capa aprovada.
+- Resumo em faixa colada à capa, com "Detalhes e comparativo" no fim; o
+  painel abre logo abaixo dela. Rejeitado: manter o gatilho no título da
+  seção depois da grade (ADR-093) com o botão novo só rolando até ela — dois
+  controles para a mesma região, e o botão da faixa abriria algo fora da
+  tela.
+- Card como ficha editorial em três composições por **container query** (a
+  largura do card decide, não a viewport): vertical, spread compacto e
+  spread largo com a ficha técnica aberta numa coluna. Rejeitado: ampliar
+  foto, nome e números no desktop largo (o que a A2 fazia) — no 2560 o card
+  ficava com texto grande demais e vazio interno.
+- Grade: 2 cards por linha com coleção ≥ 1100px, senão 1; 1 veículo vira um
+  spread de destaque. Rejeitado: "vaga livre" ou painel financeiro para
+  completar linha (enchimento sem função).
+- Status e "⋯" saíram de cima da foto para a linha do número; o degradê da
+  base da foto saiu. "Abrir veículo" existe em duas formas (seta no vertical,
+  rótulo no spread), só uma visível por vez — continua uma parada de Tab.
+- Composição em `src/styles/garage.css` (classes `garage-*`, só tokens) em
+  vez de utilitários: áreas de grade e container queries virariam dezenas de
+  classes arbitrárias por elemento. Exceção consciente à regra "tudo em
+  utilitário"; a regra de tokens continua valendo.
+
+**Ajustes da revisão visual.** Região sem foto com superfície própria (não o
+fundo da página); "Minha garagem" numa linha no celular de 360px pra cima;
+no tema claro a foto de fundo da capa é chapa de borda seca em vez de
+degradê do claro para o escuro.
+
 **Imagens.** Quatro fotos reais do Unsplash, CC0 (atribuição dispensada),
 tratadas e convertidas para WebP (167 KB no total), em `src/assets/garage/`.
 Decorativas (`alt=""`, `aria-hidden`), ilustrativas, sem crédito sobre a
@@ -3064,8 +3148,8 @@ mesmos. `GarageTile` (compartilhado) intacto; `VehicleQuickActions` ganhou só
 o rótulo visível no spread largo. `CreateVehicleDialog.triggerLabel` aceita
 `ReactNode`.
 
-**Verificação.** Capturas e relatório em `redesign-capturas/garagem-a3/r4/`
-(cenário `a3` do `inspect.mjs`, Supabase simulado). Axe sem violações em 22
+**Verificação.** Capturas e relatório em `redesign-capturas/garagem-a3/`
+(cenário `a3` do `inspect.mjs`, Supabase simulado; rodada final em `r8/`). Axe sem violações em 24
 estados (2560, 1920, 1440 claro/escuro, 1280, 1024 claro, 768, 390
 claro/escuro, 360, 320; quatro carros; ficha, menu e detalhes abertos em
 1440/390/2560; um veículo em 1440/2560/390; vazio em 1440/390). Sem rolagem

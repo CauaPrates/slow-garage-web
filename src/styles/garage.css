@@ -17,7 +17,11 @@
 
 @layer components {
   /* ---------- Página ---------- */
+  /* `relative`: os textos só pra leitor de tela (`sr-only`, posição absoluta) ficam presos
+     à página. Sem isso eles se posicionavam pelo documento e, no desktop (onde quem rola é
+     o <main>), esticavam a janela — aparecia uma segunda barra de rolagem. */
   .garage-page {
+    position: relative;
     display: flex;
     flex-direction: column;
     padding-bottom: 2rem;
@@ -62,7 +66,7 @@
   .garage-cover__text {
     position: relative;
     z-index: 1;
-    padding-block: 1rem 0.875rem;
+    padding-block: 0.875rem 0.75rem;
   }
   .garage-cover__titles {
     display: grid;
@@ -72,12 +76,13 @@
       "title action";
     align-items: center;
     column-gap: 0.75rem;
-    row-gap: 0.625rem;
+    row-gap: 0.5rem;
   }
+  /* Uma linha ao lado de "Cadastrar" de 360 px pra cima (~22px em 390); só em 320 volta a quebrar. */
   .garage-cover__title {
     grid-area: title;
     font-family: var(--font-display);
-    font-size: 1.6875rem;
+    font-size: clamp(1.125rem, 5.8vw, 1.6875rem);
     font-weight: 800;
     line-height: 0.95;
     letter-spacing: -0.02em;
@@ -222,104 +227,46 @@
     }
   }
 
-  /* Colagem (A3.1): fundo escurecido + recortes. Alturas proporcionais à capa; posições
-     contadas da margem direita, então nada invade a coluna do texto nem sai da capa. */
-  .garage-cover__base {
+  /* Capa (A3.1): uma imagem só, já composta (carro + recortes de roda e motor), 3:1, com a
+     esquerda quase preta. A partir de 1280 ela aparece inteira, alinhada à direita, na altura
+     da capa — o título fica sobre a área escura dela, o carro começa depois do texto. Entre
+     1024 e 1279 mostra só o trecho do carro e dos recortes, ao lado do texto. */
+  .garage-cover__photo {
     position: absolute;
     inset-block: 0;
+    left: 56%;
     right: 0;
-    left: max(40%, 32.5rem);
-    -webkit-mask-image: linear-gradient(90deg, transparent 0, black 26%);
-    mask-image: linear-gradient(90deg, transparent 0, black 26%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, black 22%);
+    mask-image: linear-gradient(90deg, transparent 0, black 22%);
   }
-  .garage-cover__base img,
-  .garage-cover__base picture {
+  .garage-cover__photo picture,
+  .garage-cover__photo img {
     display: block;
     width: 100%;
     height: 100%;
+  }
+  .garage-cover__photo img {
     object-fit: cover;
-    object-position: 62% 52%;
-  }
-  .garage-cover__clip {
-    --H: var(--garage-cover-h);
-    position: absolute;
-    margin: 0;
-  }
-  .garage-cover__clip picture {
-    display: contents;
-  }
-  .garage-cover__clip img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    border: 1px solid var(--color-collage-frame);
-    box-shadow: var(--shadow-collage);
-  }
-  .garage-cover__clip--garage {
-    --h: calc(var(--H) * 0.62);
-    z-index: 2;
-    top: calc(var(--H) * 0.16);
-    right: calc(var(--garage-gutter) + 0.5rem);
-    width: calc(var(--h) * 1.5);
-    height: var(--h);
-    transform: rotate(-1.2deg);
-  }
-  /* Deslocamento entre planos: um filete solto atrás do recorte principal. */
-  .garage-cover__clip--garage::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border: 1px solid var(--color-collage-frame-loose);
-    transform: translate(-12px, 11px);
-  }
-  .garage-cover__clip--engine,
-  .garage-cover__clip--cage {
-    display: none;
+    object-position: 81% 50%;
   }
   @media (min-width: 80rem) {
-    .garage-cover__clip--garage {
-      --h: calc(var(--H) * 0.74);
-      top: calc(var(--H) * 0.09);
+    .garage-cover__photo {
+      left: auto;
+      aspect-ratio: 3 / 1;
     }
-    .garage-cover__clip--engine {
-      --h: calc(var(--H) * 0.5);
-      display: block;
-      z-index: 3;
-      top: calc(var(--H) * 0.43);
-      right: calc(var(--garage-gutter) + 0.5rem + var(--H) * 0.74 * 1.5 - 30px);
-      width: calc(var(--h) * 4 / 3);
-      height: var(--h);
-      transform: rotate(2deg);
+    .garage-cover__photo img {
+      object-position: center;
     }
   }
-  /* Largo: três recortes; a capa ganha largura de composição, não altura. */
-  @media (min-width: 112.5rem) {
-    .garage-cover__base {
-      left: max(36%, 32.5rem);
-    }
-    .garage-cover__clip--cage {
-      --h: calc(var(--H) * 0.6);
-      display: block;
-      z-index: 1;
-      top: calc(var(--H) * 0.27);
-      right: calc(var(--garage-gutter) + 0.25rem);
-      width: calc(var(--h) * 1.5);
-      height: var(--h);
-      transform: rotate(1.4deg);
-    }
-    .garage-cover__clip--garage {
-      --h: calc(var(--H) * 0.82);
-      top: calc(var(--H) * 0.07);
-      right: calc(var(--garage-gutter) + 0.25rem + var(--H) * 0.6 * 1.5 - 44px);
-    }
-    .garage-cover__clip--engine {
-      --h: calc(var(--H) * 0.54);
-      top: calc(var(--H) * 0.38);
-      right: calc(
-        var(--garage-gutter) + 0.25rem + var(--H) * 0.6 * 1.5 - 44px + var(--H) * 0.82 * 1.5 - 40px
-      );
+  /* Tema claro: nada de degradê do claro para a foto escura — chapa de borda seca. No desktop
+     ela começa um pouco antes do carro (33% da imagem), longe do texto. */
+  .light .garage-cover__photo {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  @media (min-width: 80rem) {
+    .light .garage-cover__photo {
+      clip-path: inset(0 0 0 33%);
     }
   }
 
@@ -542,10 +489,13 @@
     aspect-ratio: 4 / 3;
     background: var(--color-bg);
   }
-  /* Sem foto, no vertical a região encolhe (não há vizinho na linha pra desalinhar). */
+  /* Sem foto: superfície um degrau acima do card — com o fundo da página, a região parecia
+     um vão entre cards. No vertical a região encolhe (não há vizinho na linha pra desalinhar). */
   .garage-card__photo[data-empty] {
     aspect-ratio: auto;
     min-height: 9rem;
+    background: color-mix(in srgb, var(--color-text-primary) 5%, var(--color-surface));
+    box-shadow: inset 0 0 0 1px var(--color-hairline);
   }
   .garage-card__head {
     grid-area: head;

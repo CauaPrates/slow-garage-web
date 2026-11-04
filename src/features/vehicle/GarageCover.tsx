@@ -1,23 +1,18 @@
-import coverBase from "@/assets/garage/cover-base.webp";
-import collageCage from "@/assets/garage/collage-cage.webp";
-import collageEngine from "@/assets/garage/collage-engine.webp";
-import collageGarage from "@/assets/garage/collage-garage.webp";
+import coverImage from "@/assets/garage/cover.webp";
 import { CreateVehicleDialog } from "./CreateVehicleDialog";
 
-/** GIF transparente de 1px: o que o `<img>` carrega quando a colagem não aparece (abaixo de `lg`). */
+/** GIF transparente de 1px: o que o `<img>` carrega quando a capa não aparece (abaixo de `lg`). */
 const BLANK_PIXEL = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
 
 /**
- * Foto da colagem só a partir de `lg` (64rem, o mesmo corte do CSS): fora
- * disso o navegador escolhe o pixel vazio e não baixa nada. O motor entra a
- * partir de 80rem e a gaiola a partir de 112.5rem — os mesmos cortes em que
- * aparecem na colagem (`garage.css`). `loading="lazy"`
- * dentro de bloco oculto não bastava — o Chrome baixava as quatro no celular.
+ * Imagem da capa só a partir de `lg` (64rem, o mesmo corte do CSS): fora
+ * disso o navegador escolhe o pixel vazio e não baixa nada. `loading="lazy"`
+ * dentro de bloco oculto não bastava — o Chrome baixava a imagem no celular.
  */
-function CoverImage({ src, media = "(min-width: 64rem)" }: { src: string; media?: string }) {
+function CoverImage({ src }: { src: string }) {
   return (
     <picture>
-      <source media={media} srcSet={src} />
+      <source media="(min-width: 64rem)" srcSet={src} />
       <img src={BLANK_PIXEL} alt="" decoding="async" />
     </picture>
   );
@@ -29,7 +24,7 @@ type GarageCoverProps = {
 };
 
 /**
- * Capa da Minha garagem — Garagem A3 com a capa em colagem da A3.1 (ADR-094).
+ * Capa da Minha garagem — Garagem A3 com a capa da A3.1 (ADR-094).
  *
  * Celular e tablet (< lg): cabeçalho compacto, sem foto — sobrelinha com o
  * slogan, "Minha garagem" grande e "Cadastrar" ao lado; o primeiro carro
@@ -37,32 +32,25 @@ type GarageCoverProps = {
  *
  * Desktop (lg+): página dupla. À esquerda, no grafite: "Minha garagem" como
  * sobrelinha (é o `h1`), o slogan como título, "Cadastrar veículo" e uma
- * linha de apoio. À direita, a colagem: a foto de oficina escurecida como
- * fundo e recortes com moldura fina e inclinação discreta — um até 1280 px,
- * dois até 1800, três acima. Altura travada entre 264 e 380 px; nada sobre
- * o texto (posições em `garage.css`).
+ * linha de apoio. À direita, a capa da A3.1: uma imagem só, já composta —
+ * cupê numa oficina com luz quente e recortes de roda e motor —, 3:1, com a
+ * esquerda quase preta. A partir de 1280 aparece inteira, na altura da capa
+ * (264 → 380 px); entre 1024 e 1279, só o trecho do carro e dos recortes.
+ * No tema claro vira chapa de borda seca (sem degradê). Regras em
+ * `garage.css`.
  *
- * As fotos são editoriais e ilustrativas (Unsplash, CC0 — atribuição
- * dispensada; fontes em docs/DESIGN.md), decorativas (`alt=""`, bloco
- * `aria-hidden`) e não representam veículo do usuário. Servidas por
- * `<picture>` com `media` de lg: o celular não as baixa.
+ * A imagem é editorial e ilustrativa — gerada para o estudo e fornecida pelo
+ * usuário; não representa veículo cadastrado (fonte em docs/DESIGN.md). É
+ * decorativa (`alt=""`, bloco `aria-hidden`) e servida por `<picture>` com
+ * `media` de lg: o celular não a baixa.
  */
 export function GarageCover({ showCreate }: GarageCoverProps) {
   return (
     <div className="garage-cover">
       <div className="garage-cover__art" aria-hidden="true">
-        <div className="garage-cover__base">
-          <CoverImage src={coverBase} />
+        <div className="garage-cover__photo">
+          <CoverImage src={coverImage} />
         </div>
-        <figure className="garage-cover__clip garage-cover__clip--cage">
-          <CoverImage src={collageCage} media="(min-width: 112.5rem)" />
-        </figure>
-        <figure className="garage-cover__clip garage-cover__clip--garage">
-          <CoverImage src={collageGarage} />
-        </figure>
-        <figure className="garage-cover__clip garage-cover__clip--engine">
-          <CoverImage src={collageEngine} media="(min-width: 80rem)" />
-        </figure>
       </div>
 
       <header className="garage-cover__text garage-gutter">

@@ -571,8 +571,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "package_devdependencies_eslint",
-      "community": 73,
-      "community_name": "devDependencies",
+      "community": 65,
+      "community_name": "eslint",
       "norm_label": "eslint"
     },
     {
@@ -582,8 +582,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "eslint",
-      "community": 73,
-      "community_name": "devDependencies",
+      "community": 65,
+      "community_name": "eslint",
       "norm_label": "eslint"
     },
     {
@@ -725,8 +725,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "package_devdependencies_typescript",
-      "community": 178,
-      "community_name": "typescript",
+      "community": 73,
+      "community_name": "devDependencies",
       "norm_label": "typescript"
     },
     {
@@ -736,8 +736,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "typescript",
-      "community": 178,
-      "community_name": "typescript",
+      "community": 73,
+      "community_name": "devDependencies",
       "norm_label": "typescript"
     },
     {
@@ -3288,8 +3288,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_admin_adminlayout",
-      "community": 32,
-      "community_name": "useInvites.ts",
+      "community": 101,
+      "community_name": "AdminLayout.tsx",
       "norm_label": "adminlayout.tsx"
     },
     {
@@ -3299,8 +3299,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_features_admin_adminlayout_admin_tabs",
-      "community": 32,
-      "community_name": "useInvites.ts",
+      "community": 101,
+      "community_name": "AdminLayout.tsx",
       "norm_label": "admin_tabs"
     },
     {
@@ -3310,8 +3310,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_features_admin_adminlayout_adminlayout",
-      "community": 32,
-      "community_name": "useInvites.ts",
+      "community": 101,
+      "community_name": "AdminLayout.tsx",
       "norm_label": "adminlayout()"
     },
     {
@@ -3387,8 +3387,8 @@
       "source_location": "L77",
       "_origin": "ast",
       "id": "src_features_admin_adminuserdetailpage_adminactions",
-      "community": 99,
-      "community_name": "AdminInvitesPage.tsx",
+      "community": 16,
+      "community_name": "AdminUserDetailPage.tsx",
       "norm_label": "adminactions()"
     },
     {
@@ -3508,8 +3508,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_features_admin_components_adminbadges_invitestatusbadge",
-      "community": 99,
-      "community_name": "AdminInvitesPage.tsx",
+      "community": 16,
+      "community_name": "AdminUserDetailPage.tsx",
       "norm_label": "invitestatusbadge()"
     },
     {
@@ -3585,8 +3585,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_admin_components_revokeinvitebutton",
-      "community": 100,
-      "community_name": "useAdmin.ts",
+      "community": 16,
+      "community_name": "AdminUserDetailPage.tsx",
       "norm_label": "revokeinvitebutton.tsx"
     },
     {
@@ -3596,8 +3596,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_features_admin_components_revokeinvitebutton_revokeinvitebutton",
-      "community": 100,
-      "community_name": "useAdmin.ts",
+      "community": 16,
+      "community_name": "AdminUserDetailPage.tsx",
       "norm_label": "revokeinvitebutton()"
     },
     {
@@ -3684,8 +3684,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_admin_components_userlink",
-      "community": 16,
-      "community_name": "AdminUserDetailPage.tsx",
+      "community": 99,
+      "community_name": "AdminInvitesPage.tsx",
       "norm_label": "userlink.tsx"
     },
     {
@@ -3695,8 +3695,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_features_admin_components_userlink_userlinkprops",
-      "community": 16,
-      "community_name": "AdminUserDetailPage.tsx",
+      "community": 99,
+      "community_name": "AdminInvitesPage.tsx",
       "norm_label": "userlinkprops"
     },
     {
@@ -3706,8 +3706,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_features_admin_components_userlink_userlink",
-      "community": 16,
-      "community_name": "AdminUserDetailPage.tsx",
+      "community": 99,
+      "community_name": "AdminInvitesPage.tsx",
       "norm_label": "userlink()"
     },
     {
@@ -3717,8 +3717,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "docref_adr_0083",
-      "community": 16,
-      "community_name": "AdminUserDetailPage.tsx",
+      "community": 99,
+      "community_name": "AdminInvitesPage.tsx",
       "norm_label": "adr-0083"
     },
     {
@@ -3794,8 +3794,8 @@
       "source_location": "L52",
       "_origin": "ast",
       "id": "src_features_admin_errors_normalizefunctionerror",
-      "community": 100,
-      "community_name": "useAdmin.ts",
+      "community": 16,
+      "community_name": "AdminUserDetailPage.tsx",
       "norm_label": "normalizefunctionerror()"
     },
     {
@@ -3827,8 +3827,8 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_features_admin_labels_audit_action_labels",
-      "community": 16,
-      "community_name": "AdminUserDetailPage.tsx",
+      "community": 10,
+      "community_name": "AdminAuditPage.tsx",
       "norm_label": "audit_action_labels"
     },
     {
@@ -3872,7 +3872,7 @@
       "_origin": "ast",
       "id": "src_features_admin_querykeys",
       "community": 32,
-      "community_name": "useInvites.ts",
+      "community_name": "useAdmin.ts",
       "norm_label": "querykeys.ts"
     },
     {
@@ -3883,7 +3883,7 @@
       "_origin": "ast",
       "id": "src_features_admin_querykeys_is_admin_key",
       "community": 32,
-      "community_name": "useInvites.ts",
+      "community_name": "useAdmin.ts",
       "norm_label": "is_admin_key"
     },
     {
@@ -3894,7 +3894,7 @@
       "_origin": "ast",
       "id": "src_features_admin_querykeys_notifications_key",
       "community": 32,
-      "community_name": "useInvites.ts",
+      "community_name": "useAdmin.ts",
       "norm_label": "notifications_key"
     },
     {
@@ -3905,7 +3905,7 @@
       "_origin": "ast",
       "id": "src_features_admin_querykeys_admin_invites_key",
       "community": 32,
-      "community_name": "useInvites.ts",
+      "community_name": "useAdmin.ts",
       "norm_label": "admin_invites_key"
     },
     {
@@ -3916,7 +3916,7 @@
       "_origin": "ast",
       "id": "src_features_admin_querykeys_admin_key",
       "community": 32,
-      "community_name": "useInvites.ts",
+      "community_name": "useAdmin.ts",
       "norm_label": "admin_key"
     },
     {
@@ -3927,7 +3927,7 @@
       "_origin": "ast",
       "id": "src_features_admin_querykeys_adminkeys",
       "community": 32,
-      "community_name": "useInvites.ts",
+      "community_name": "useAdmin.ts",
       "norm_label": "adminkeys"
     },
     {
@@ -3937,7 +3937,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_admin_useadmin",
-      "community": 100,
+      "community": 32,
       "community_name": "useAdmin.ts",
       "norm_label": "useadmin.ts"
     },
@@ -4003,7 +4003,7 @@
       "source_location": "L57",
       "_origin": "ast",
       "id": "src_features_admin_useadmin_adminuserinvite",
-      "community": 100,
+      "community": 32,
       "community_name": "useAdmin.ts",
       "norm_label": "adminuserinvite"
     },
@@ -4014,7 +4014,7 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "src_features_admin_useadmin_adminuserevent",
-      "community": 100,
+      "community": 32,
       "community_name": "useAdmin.ts",
       "norm_label": "adminuserevent"
     },
@@ -4036,8 +4036,8 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "src_features_admin_useadmin_auditlogrow",
-      "community": 10,
-      "community_name": "AdminAuditPage.tsx",
+      "community": 32,
+      "community_name": "useAdmin.ts",
       "norm_label": "auditlogrow"
     },
     {
@@ -4069,7 +4069,7 @@
       "source_location": "L125",
       "_origin": "ast",
       "id": "src_features_admin_useadmin_adminusersfilters",
-      "community": 100,
+      "community": 32,
       "community_name": "useAdmin.ts",
       "norm_label": "adminusersfilters"
     },
@@ -4091,8 +4091,8 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "src_features_admin_useadmin_useadminuser",
-      "community": 16,
-      "community_name": "AdminUserDetailPage.tsx",
+      "community": 99,
+      "community_name": "AdminInvitesPage.tsx",
       "norm_label": "useadminuser()"
     },
     {
@@ -4124,7 +4124,7 @@
       "source_location": "L191",
       "_origin": "ast",
       "id": "src_features_admin_useadmin_auditlogfilters",
-      "community": 100,
+      "community": 32,
       "community_name": "useAdmin.ts",
       "norm_label": "auditlogfilters"
     },
@@ -4146,8 +4146,8 @@
       "source_location": "L216",
       "_origin": "ast",
       "id": "src_features_admin_useadmin_useinvalidateadmin",
-      "community": 100,
-      "community_name": "useAdmin.ts",
+      "community": 16,
+      "community_name": "AdminUserDetailPage.tsx",
       "norm_label": "useinvalidateadmin()"
     },
     {
@@ -4168,8 +4168,8 @@
       "source_location": "L236",
       "_origin": "ast",
       "id": "src_features_admin_useadmin_useinvitetoadmin",
-      "community": 100,
-      "community_name": "useAdmin.ts",
+      "community": 16,
+      "community_name": "AdminUserDetailPage.tsx",
       "norm_label": "useinvitetoadmin()"
     },
     {
@@ -4179,8 +4179,8 @@
       "source_location": "L252",
       "_origin": "ast",
       "id": "src_features_admin_useadmin_userevokeinvite",
-      "community": 100,
-      "community_name": "useAdmin.ts",
+      "community": 16,
+      "community_name": "AdminUserDetailPage.tsx",
       "norm_label": "userevokeinvite()"
     },
     {
@@ -4224,7 +4224,7 @@
       "_origin": "ast",
       "id": "src_features_admin_useinvites",
       "community": 32,
-      "community_name": "useInvites.ts",
+      "community_name": "useAdmin.ts",
       "norm_label": "useinvites.ts"
     },
     {
@@ -4234,8 +4234,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_features_admin_useinvites_admininviterow",
-      "community": 32,
-      "community_name": "useInvites.ts",
+      "community": 10,
+      "community_name": "AdminAuditPage.tsx",
       "norm_label": "admininviterow"
     },
     {
@@ -4256,8 +4256,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_features_admin_useinvites_effectiveinvitestatus",
-      "community": 99,
-      "community_name": "AdminInvitesPage.tsx",
+      "community": 16,
+      "community_name": "AdminUserDetailPage.tsx",
       "norm_label": "effectiveinvitestatus()"
     },
     {
@@ -4279,7 +4279,7 @@
       "_origin": "ast",
       "id": "src_features_admin_useinvites_useinvite",
       "community": 32,
-      "community_name": "useInvites.ts",
+      "community_name": "useAdmin.ts",
       "norm_label": "useinvite()"
     },
     {
@@ -4290,7 +4290,7 @@
       "_origin": "ast",
       "id": "src_features_admin_useinvites_usemypendinginvites",
       "community": 32,
-      "community_name": "useInvites.ts",
+      "community_name": "useAdmin.ts",
       "norm_label": "usemypendinginvites()"
     },
     {
@@ -4301,7 +4301,7 @@
       "_origin": "ast",
       "id": "src_features_admin_useinvites_useinvalidateafterinvitechange",
       "community": 32,
-      "community_name": "useInvites.ts",
+      "community_name": "useAdmin.ts",
       "norm_label": "useinvalidateafterinvitechange()"
     },
     {
@@ -4312,7 +4312,7 @@
       "_origin": "ast",
       "id": "src_features_admin_useinvites_useacceptinvite",
       "community": 32,
-      "community_name": "useInvites.ts",
+      "community_name": "useAdmin.ts",
       "norm_label": "useacceptinvite()"
     },
     {
@@ -4323,7 +4323,7 @@
       "_origin": "ast",
       "id": "src_features_admin_useinvites_usedeclineinvite",
       "community": 32,
-      "community_name": "useInvites.ts",
+      "community_name": "useAdmin.ts",
       "norm_label": "usedeclineinvite()"
     },
     {
@@ -4333,8 +4333,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_admin_useisadmin",
-      "community": 32,
-      "community_name": "useInvites.ts",
+      "community": 101,
+      "community_name": "AdminLayout.tsx",
       "norm_label": "useisadmin.ts"
     },
     {
@@ -4344,8 +4344,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_features_admin_useisadmin_useisadmin",
-      "community": 32,
-      "community_name": "useInvites.ts",
+      "community": 101,
+      "community_name": "AdminLayout.tsx",
       "norm_label": "useisadmin()"
     },
     {
@@ -5169,8 +5169,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_dashboard_criticalalertsnotice",
-      "community": 101,
-      "community_name": "PendingAlertsPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "criticalalertsnotice.tsx"
     },
     {
@@ -5180,8 +5180,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_features_dashboard_criticalalertsnotice_criticalalertsnoticeprops",
-      "community": 101,
-      "community_name": "PendingAlertsPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "criticalalertsnoticeprops"
     },
     {
@@ -5191,8 +5191,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_features_dashboard_criticalalertsnotice_criticalalertsnotice",
-      "community": 101,
-      "community_name": "PendingAlertsPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "criticalalertsnotice()"
     },
     {
@@ -5202,8 +5202,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_dashboard_dashboardpanel",
-      "community": 40,
-      "community_name": "DashboardPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "dashboardpanel.tsx"
     },
     {
@@ -5213,8 +5213,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_features_dashboard_dashboardpanel_dashboardpanelprops",
-      "community": 40,
-      "community_name": "DashboardPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "dashboardpanelprops"
     },
     {
@@ -5224,8 +5224,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "src_features_dashboard_dashboardpanel_dashboardpanel",
-      "community": 40,
-      "community_name": "DashboardPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "dashboardpanel()"
     },
     {
@@ -5235,8 +5235,8 @@
       "source_location": "L59",
       "_origin": "ast",
       "id": "src_features_dashboard_dashboardpanel_paneldisclosureprops",
-      "community": 40,
-      "community_name": "DashboardPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "paneldisclosureprops"
     },
     {
@@ -5246,8 +5246,8 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "src_features_dashboard_dashboardpanel_paneldisclosure",
-      "community": 40,
-      "community_name": "DashboardPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "paneldisclosure()"
     },
     {
@@ -5290,8 +5290,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_dashboard_expensesbymonthchart",
-      "community": 133,
-      "community_name": "ExpensesByMonthChart.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "expensesbymonthchart.tsx"
     },
     {
@@ -5301,8 +5301,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_features_dashboard_expensesbymonthchart_expensesbymonthchartprops",
-      "community": 133,
-      "community_name": "ExpensesByMonthChart.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "expensesbymonthchartprops"
     },
     {
@@ -5312,8 +5312,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_features_dashboard_expensesbymonthchart_monthlong",
-      "community": 133,
-      "community_name": "ExpensesByMonthChart.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "monthlong()"
     },
     {
@@ -5323,8 +5323,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_features_dashboard_expensesbymonthchart_monthshort",
-      "community": 133,
-      "community_name": "ExpensesByMonthChart.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "monthshort()"
     },
     {
@@ -5334,8 +5334,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "src_features_dashboard_expensesbymonthchart_expensesbymonthchart",
-      "community": 133,
-      "community_name": "ExpensesByMonthChart.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "expensesbymonthchart()"
     },
     {
@@ -5345,8 +5345,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_dashboard_financialsummarycard",
-      "community": 40,
-      "community_name": "DashboardPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "financialsummarycard.tsx"
     },
     {
@@ -5356,8 +5356,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_features_dashboard_financialsummarycard_financialsummarycardprops",
-      "community": 40,
-      "community_name": "DashboardPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "financialsummarycardprops"
     },
     {
@@ -5367,8 +5367,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_features_dashboard_financialsummarycard_money",
-      "community": 40,
-      "community_name": "DashboardPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "money()"
     },
     {
@@ -5378,8 +5378,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_features_dashboard_financialsummarycard_financialsummarycard",
-      "community": 40,
-      "community_name": "DashboardPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "financialsummarycard()"
     },
     {
@@ -5389,8 +5389,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_dashboard_fuelsummarysection",
-      "community": 40,
-      "community_name": "DashboardPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "fuelsummarysection.tsx"
     },
     {
@@ -5400,8 +5400,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_features_dashboard_fuelsummarysection_fuelsummarysectionprops",
-      "community": 40,
-      "community_name": "DashboardPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "fuelsummarysectionprops"
     },
     {
@@ -5411,8 +5411,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_features_dashboard_fuelsummarysection_consumption",
-      "community": 40,
-      "community_name": "DashboardPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "consumption()"
     },
     {
@@ -5422,8 +5422,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_features_dashboard_fuelsummarysection_fuelsummarysection",
-      "community": 40,
-      "community_name": "DashboardPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "fuelsummarysection()"
     },
     {
@@ -5433,8 +5433,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_dashboard_pendingalertspanel",
-      "community": 101,
-      "community_name": "PendingAlertsPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "pendingalertspanel.tsx"
     },
     {
@@ -5444,8 +5444,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_features_dashboard_pendingalertspanel_pendingalertspanelprops",
-      "community": 101,
-      "community_name": "PendingAlertsPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "pendingalertspanelprops"
     },
     {
@@ -5455,8 +5455,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "src_features_dashboard_pendingalertspanel_alertsource",
-      "community": 71,
-      "community_name": "ROUTES",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "alertsource"
     },
     {
@@ -5466,8 +5466,8 @@
       "source_location": "L46",
       "_origin": "ast",
       "id": "src_features_dashboard_pendingalertspanel_sortalerts",
-      "community": 101,
-      "community_name": "PendingAlertsPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "sortalerts()"
     },
     {
@@ -5477,8 +5477,8 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "src_features_dashboard_pendingalertspanel_kmdetail",
-      "community": 101,
-      "community_name": "PendingAlertsPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "kmdetail()"
     },
     {
@@ -5488,8 +5488,8 @@
       "source_location": "L72",
       "_origin": "ast",
       "id": "src_features_dashboard_pendingalertspanel_alertrow",
-      "community": 101,
-      "community_name": "PendingAlertsPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "alertrow()"
     },
     {
@@ -5499,8 +5499,8 @@
       "source_location": "L118",
       "_origin": "ast",
       "id": "src_features_dashboard_pendingalertspanel_countlink",
-      "community": 101,
-      "community_name": "PendingAlertsPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "countlink()"
     },
     {
@@ -5510,8 +5510,8 @@
       "source_location": "L144",
       "_origin": "ast",
       "id": "src_features_dashboard_pendingalertspanel_pendingalertspanel",
-      "community": 101,
-      "community_name": "PendingAlertsPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "pendingalertspanel()"
     },
     {
@@ -5521,8 +5521,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_dashboard_quickactionsrow",
-      "community": 124,
-      "community_name": "QuickActionsRow.tsx",
+      "community": 71,
+      "community_name": "ROUTES",
       "norm_label": "quickactionsrow.tsx"
     },
     {
@@ -5532,8 +5532,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_features_dashboard_quickactionsrow_quickactionsrowprops",
-      "community": 124,
-      "community_name": "QuickActionsRow.tsx",
+      "community": 71,
+      "community_name": "ROUTES",
       "norm_label": "quickactionsrowprops"
     },
     {
@@ -5543,8 +5543,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_features_dashboard_quickactionsrow_dialogkey",
-      "community": 124,
-      "community_name": "QuickActionsRow.tsx",
+      "community": 71,
+      "community_name": "ROUTES",
       "norm_label": "dialogkey"
     },
     {
@@ -5554,8 +5554,8 @@
       "source_location": "L24",
       "_origin": "ast",
       "id": "src_features_dashboard_quickactionsrow_actionlabels",
-      "community": 124,
-      "community_name": "QuickActionsRow.tsx",
+      "community": 71,
+      "community_name": "ROUTES",
       "norm_label": "actionlabels"
     },
     {
@@ -5565,8 +5565,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "src_features_dashboard_quickactionsrow_actionbuttonprops",
-      "community": 124,
-      "community_name": "QuickActionsRow.tsx",
+      "community": 71,
+      "community_name": "ROUTES",
       "norm_label": "actionbuttonprops"
     },
     {
@@ -5576,8 +5576,8 @@
       "source_location": "L42",
       "_origin": "ast",
       "id": "src_features_dashboard_quickactionsrow_actionlabel",
-      "community": 124,
-      "community_name": "QuickActionsRow.tsx",
+      "community": 71,
+      "community_name": "ROUTES",
       "norm_label": "actionlabel()"
     },
     {
@@ -5587,8 +5587,8 @@
       "source_location": "L62",
       "_origin": "ast",
       "id": "src_features_dashboard_quickactionsrow_actionbutton",
-      "community": 124,
-      "community_name": "QuickActionsRow.tsx",
+      "community": 71,
+      "community_name": "ROUTES",
       "norm_label": "actionbutton()"
     },
     {
@@ -5598,8 +5598,8 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "src_features_dashboard_quickactionsrow_quickactionsrow",
-      "community": 124,
-      "community_name": "QuickActionsRow.tsx",
+      "community": 71,
+      "community_name": "ROUTES",
       "norm_label": "quickactionsrow()"
     },
     {
@@ -5609,8 +5609,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_dashboard_recentactivitypanel",
-      "community": 40,
-      "community_name": "DashboardPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "recentactivitypanel.tsx"
     },
     {
@@ -5620,8 +5620,8 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_features_dashboard_recentactivitypanel_recentactivitypanelprops",
-      "community": 40,
-      "community_name": "DashboardPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "recentactivitypanelprops"
     },
     {
@@ -5631,8 +5631,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_features_dashboard_recentactivitypanel_recentactivitypanel",
-      "community": 40,
-      "community_name": "DashboardPanel.tsx",
+      "community": 71,
+      "community_name": "ROUTES",
       "norm_label": "recentactivitypanel()"
     },
     {
@@ -5807,8 +5807,8 @@
       "source_location": "L3",
       "_origin": "ast",
       "id": "src_features_dashboard_types_vehiclealert",
-      "community": 101,
-      "community_name": "PendingAlertsPanel.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "vehiclealert"
     },
     {
@@ -5840,8 +5840,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_features_dashboard_types_dashboardexpensesbymonth",
-      "community": 133,
-      "community_name": "ExpensesByMonthChart.tsx",
+      "community": 41,
+      "community_name": "types.ts",
       "norm_label": "dashboardexpensesbymonth"
     },
     {
@@ -12407,8 +12407,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_vehicle_createvehicledialog",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "createvehicledialog.tsx"
     },
     {
@@ -12418,8 +12418,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_features_vehicle_createvehicledialog_createvehicledialogprops",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "createvehicledialogprops"
     },
     {
@@ -12429,8 +12429,8 @@
       "source_location": "L34",
       "_origin": "ast",
       "id": "src_features_vehicle_createvehicledialog_createvehicledialog",
-      "community": 25,
-      "community_name": "VehicleListPage.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "createvehicledialog()"
     },
     {
@@ -12440,8 +12440,8 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "src_features_vehicle_createvehicledialog_tsx_docref_adr_0075",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "adr-0075"
     },
     {
@@ -12451,8 +12451,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_vehicle_deletevehicledialog",
-      "community": 65,
-      "community_name": "useVehicles.ts",
+      "community": 100,
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "deletevehicledialog.tsx"
     },
     {
@@ -12462,8 +12462,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_features_vehicle_deletevehicledialog_deletevehicledialogprops",
-      "community": 65,
-      "community_name": "useVehicles.ts",
+      "community": 100,
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "deletevehicledialogprops"
     },
     {
@@ -12473,8 +12473,8 @@
       "source_location": "L35",
       "_origin": "ast",
       "id": "src_features_vehicle_deletevehicledialog_deletevehicledialog",
-      "community": 65,
-      "community_name": "useVehicles.ts",
+      "community": 100,
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "deletevehicledialog()"
     },
     {
@@ -12484,8 +12484,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_vehicle_editvehicledialog",
-      "community": 65,
-      "community_name": "useVehicles.ts",
+      "community": 100,
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "editvehicledialog.tsx"
     },
     {
@@ -12495,8 +12495,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_features_vehicle_editvehicledialog_editvehicledialogprops",
-      "community": 65,
-      "community_name": "useVehicles.ts",
+      "community": 100,
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "editvehicledialogprops"
     },
     {
@@ -12506,8 +12506,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_features_vehicle_editvehicledialog_toformdefaults",
-      "community": 65,
-      "community_name": "useVehicles.ts",
+      "community": 100,
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "toformdefaults()"
     },
     {
@@ -12517,8 +12517,8 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "src_features_vehicle_editvehicledialog_editvehicledialog",
-      "community": 65,
-      "community_name": "useVehicles.ts",
+      "community": 100,
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "editvehicledialog()"
     },
     {
@@ -12528,8 +12528,8 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "src_features_vehicle_editvehicledialog_tsx_docref_adr_0075",
-      "community": 65,
-      "community_name": "useVehicles.ts",
+      "community": 100,
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "adr-0075"
     },
     {
@@ -12583,8 +12583,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_vehicle_garagecomparisondashboard",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "garagecomparisondashboard.tsx"
     },
     {
@@ -12594,8 +12594,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_features_vehicle_garagecomparisondashboard_garagecomparisondashboardprops",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "garagecomparisondashboardprops"
     },
     {
@@ -12605,8 +12605,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_features_vehicle_garagecomparisondashboard_garagecomparisondashboard",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "garagecomparisondashboard()"
     },
     {
@@ -12616,8 +12616,8 @@
       "source_location": "L13",
       "_origin": "ast",
       "id": "src_features_vehicle_garagecomparisondashboard_tsx_docref_adr_0070",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "adr-0070"
     },
     {
@@ -12627,52 +12627,52 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_vehicle_garagecover",
-      "community": 25,
-      "community_name": "VehicleListPage.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "garagecover.tsx"
     },
     {
       "label": "CoverImage()",
       "file_type": "code",
       "source_file": "src/features/vehicle/GarageCover.tsx",
-      "source_location": "L17",
+      "source_location": "L12",
       "_origin": "ast",
       "id": "src_features_vehicle_garagecover_coverimage",
-      "community": 25,
-      "community_name": "VehicleListPage.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "coverimage()"
     },
     {
       "label": "GarageCoverProps",
       "file_type": "code",
       "source_file": "src/features/vehicle/GarageCover.tsx",
-      "source_location": "L26",
+      "source_location": "L21",
       "_origin": "ast",
       "id": "src_features_vehicle_garagecover_garagecoverprops",
-      "community": 25,
-      "community_name": "VehicleListPage.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "garagecoverprops"
     },
     {
       "label": "GarageCover()",
       "file_type": "code",
       "source_file": "src/features/vehicle/GarageCover.tsx",
-      "source_location": "L50",
+      "source_location": "L47",
       "_origin": "ast",
       "id": "src_features_vehicle_garagecover_garagecover",
-      "community": 25,
-      "community_name": "VehicleListPage.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "garagecover()"
     },
     {
       "label": "ADR-0094",
       "file_type": "concept",
       "source_file": "src/features/vehicle/GarageCover.tsx",
-      "source_location": "L32",
+      "source_location": "L27",
       "_origin": "ast",
       "id": "src_features_vehicle_garagecover_tsx_docref_adr_0094",
-      "community": 25,
-      "community_name": "VehicleListPage.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "adr-0094"
     },
     {
@@ -12767,7 +12767,7 @@
       "label": "GarageOverview()",
       "file_type": "code",
       "source_file": "src/features/vehicle/GarageOverview.tsx",
-      "source_location": "L182",
+      "source_location": "L183",
       "_origin": "ast",
       "id": "src_features_vehicle_garageoverview_garageoverview",
       "community": 8,
@@ -12778,7 +12778,7 @@
       "label": "GarageDetails()",
       "file_type": "code",
       "source_file": "src/features/vehicle/GarageOverview.tsx",
-      "source_location": "L261",
+      "source_location": "L262",
       "_origin": "ast",
       "id": "src_features_vehicle_garageoverview_garagedetails",
       "community": 8,
@@ -12811,7 +12811,7 @@
       "label": "ADR-0051",
       "file_type": "concept",
       "source_file": "src/features/vehicle/GarageOverview.tsx",
-      "source_location": "L177",
+      "source_location": "L178",
       "_origin": "ast",
       "id": "src_features_vehicle_garageoverview_tsx_docref_adr_0051",
       "community": 8,
@@ -12825,8 +12825,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_vehicle_garagesummary",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "garagesummary.tsx"
     },
     {
@@ -12836,8 +12836,8 @@
       "source_location": "L11",
       "_origin": "ast",
       "id": "src_features_vehicle_garagesummary_garagesummaryprops",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "garagesummaryprops"
     },
     {
@@ -12847,8 +12847,8 @@
       "source_location": "L15",
       "_origin": "ast",
       "id": "src_features_vehicle_garagesummary_sumfield",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "sumfield()"
     },
     {
@@ -12858,8 +12858,8 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "src_features_vehicle_garagesummary_garagesummary",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "garagesummary()"
     },
     {
@@ -12869,8 +12869,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "src_features_vehicle_garagesummary_tsx_docref_adr_0051",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "adr-0051"
     },
     {
@@ -12880,8 +12880,8 @@
       "source_location": "L39",
       "_origin": "ast",
       "id": "src_features_vehicle_garagesummary_tsx_docref_adr_0070",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "adr-0070"
     },
     {
@@ -12891,8 +12891,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_vehicle_garagetiles",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "garagetiles.tsx"
     },
     {
@@ -12902,8 +12902,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_features_vehicle_garagetiles_garagetilestate",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "garagetilestate"
     },
     {
@@ -12913,8 +12913,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_features_vehicle_garagetiles_garagetileprops",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "garagetileprops"
     },
     {
@@ -12924,8 +12924,8 @@
       "source_location": "L40",
       "_origin": "ast",
       "id": "src_features_vehicle_garagetiles_tilehelp",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "tilehelp()"
     },
     {
@@ -12935,8 +12935,8 @@
       "source_location": "L61",
       "_origin": "ast",
       "id": "src_features_vehicle_garagetiles_tilevalue",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "tilevalue()"
     },
     {
@@ -12946,8 +12946,8 @@
       "source_location": "L78",
       "_origin": "ast",
       "id": "src_features_vehicle_garagetiles_garagetile",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "garagetile()"
     },
     {
@@ -12957,8 +12957,8 @@
       "source_location": "L174",
       "_origin": "ast",
       "id": "src_features_vehicle_garagetiles_garagetilegrid",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "garagetilegrid()"
     },
     {
@@ -12968,8 +12968,8 @@
       "source_location": "L74",
       "_origin": "ast",
       "id": "src_features_vehicle_garagetiles_tsx_docref_adr_0070",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "adr-0070"
     },
     {
@@ -13067,8 +13067,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclecardmenu",
-      "community": 65,
-      "community_name": "useVehicles.ts",
+      "community": 100,
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "vehiclecardmenu.tsx"
     },
     {
@@ -13078,8 +13078,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclecardmenu_vehiclecardmenuprops",
-      "community": 65,
-      "community_name": "useVehicles.ts",
+      "community": 100,
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "vehiclecardmenuprops"
     },
     {
@@ -13089,8 +13089,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclecardmenu_vehiclecardmenu",
-      "community": 65,
-      "community_name": "useVehicles.ts",
+      "community": 100,
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "vehiclecardmenu()"
     },
     {
@@ -13331,8 +13331,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_vehicle_vehicleformparts",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "vehicleformparts.tsx"
     },
     {
@@ -13342,8 +13342,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_features_vehicle_vehicleformparts_vehicle_form_dialog_classname",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "vehicle_form_dialog_classname"
     },
     {
@@ -13353,8 +13353,8 @@
       "source_location": "L32",
       "_origin": "ast",
       "id": "src_features_vehicle_vehicleformparts_focusdialogonopen",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "focusdialogonopen()"
     },
     {
@@ -13364,8 +13364,8 @@
       "source_location": "L45",
       "_origin": "ast",
       "id": "src_features_vehicle_vehicleformparts_fielda11yprops",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "fielda11yprops"
     },
     {
@@ -13375,8 +13375,8 @@
       "source_location": "L50",
       "_origin": "ast",
       "id": "src_features_vehicle_vehicleformparts_formfieldprops",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "formfieldprops"
     },
     {
@@ -13386,8 +13386,8 @@
       "source_location": "L71",
       "_origin": "ast",
       "id": "src_features_vehicle_vehicleformparts_formfield",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "formfield()"
     },
     {
@@ -13397,8 +13397,8 @@
       "source_location": "L109",
       "_origin": "ast",
       "id": "src_features_vehicle_vehicleformparts_unitaffixprops",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "unitaffixprops"
     },
     {
@@ -13408,8 +13408,8 @@
       "source_location": "L121",
       "_origin": "ast",
       "id": "src_features_vehicle_vehicleformparts_unitaffix",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "unitaffix()"
     },
     {
@@ -13419,8 +13419,8 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "src_features_vehicle_vehicleformparts_formsectionprops",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "formsectionprops"
     },
     {
@@ -13430,8 +13430,8 @@
       "source_location": "L169",
       "_origin": "ast",
       "id": "src_features_vehicle_vehicleformparts_formsection",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "formsection()"
     },
     {
@@ -13441,8 +13441,8 @@
       "source_location": "L68",
       "_origin": "ast",
       "id": "docref_adr_0084",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "adr-0084"
     },
     {
@@ -13453,7 +13453,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclelistpage",
       "community": 25,
-      "community_name": "VehicleListPage.tsx",
+      "community_name": "useVehicles.ts",
       "norm_label": "vehiclelistpage.tsx"
     },
     {
@@ -13464,7 +13464,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclelistpage_vehiclelistpage",
       "community": 25,
-      "community_name": "VehicleListPage.tsx",
+      "community_name": "useVehicles.ts",
       "norm_label": "vehiclelistpage()"
     },
     {
@@ -13475,7 +13475,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclelistpage_tsx_docref_adr_0094",
       "community": 25,
-      "community_name": "VehicleListPage.tsx",
+      "community_name": "useVehicles.ts",
       "norm_label": "adr-0094"
     },
     {
@@ -13485,8 +13485,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclepage",
-      "community": 38,
-      "community_name": "VehicleFipeCard.tsx",
+      "community": 25,
+      "community_name": "useVehicles.ts",
       "norm_label": "vehiclepage.tsx"
     },
     {
@@ -13496,8 +13496,8 @@
       "source_location": "L25",
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclepage_vehiclepage",
-      "community": 38,
-      "community_name": "VehicleFipeCard.tsx",
+      "community": 25,
+      "community_name": "useVehicles.ts",
       "norm_label": "vehiclepage()"
     },
     {
@@ -13507,8 +13507,8 @@
       "source_location": "L79",
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclepage_dashboardcharts",
-      "community": 38,
-      "community_name": "VehicleFipeCard.tsx",
+      "community": 25,
+      "community_name": "useVehicles.ts",
       "norm_label": "dashboardcharts()"
     },
     {
@@ -13518,8 +13518,8 @@
       "source_location": "L150",
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclepage_vehicledashboard",
-      "community": 38,
-      "community_name": "VehicleFipeCard.tsx",
+      "community": 25,
+      "community_name": "useVehicles.ts",
       "norm_label": "vehicledashboard()"
     },
     {
@@ -13683,8 +13683,8 @@
       "source_location": "L31",
       "_origin": "ast",
       "id": "src_features_vehicle_schemas_transmission_labels",
-      "community": 29,
-      "community_name": "VehicleCard.tsx",
+      "community": 37,
+      "community_name": "VehicleForm.tsx",
       "norm_label": "transmission_labels"
     },
     {
@@ -13705,8 +13705,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "src_features_vehicle_schemas_vehicle_status_labels",
-      "community": 29,
-      "community_name": "VehicleCard.tsx",
+      "community": 37,
+      "community_name": "VehicleForm.tsx",
       "norm_label": "vehicle_status_labels"
     },
     {
@@ -13727,8 +13727,8 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "src_features_vehicle_schemas_vehicleforminput",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 100,
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "vehicleforminput"
     },
     {
@@ -13738,8 +13738,8 @@
       "source_location": "L108",
       "_origin": "ast",
       "id": "src_features_vehicle_schemas_vehicleformoutput",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "vehicleformoutput"
     },
     {
@@ -13793,8 +13793,8 @@
       "source_location": "L18",
       "_origin": "ast",
       "id": "src_features_vehicle_usefipe_usefipebrands",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 38,
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "usefipebrands()"
     },
     {
@@ -13804,8 +13804,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_features_vehicle_usefipe_usefipemodels",
-      "community": 37,
-      "community_name": "VehicleForm.tsx",
+      "community": 38,
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "usefipemodels()"
     },
     {
@@ -13991,8 +13991,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_vehicle_usegaragesummary",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "usegaragesummary.ts"
     },
     {
@@ -14002,8 +14002,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_features_vehicle_usegaragesummary_garagesummary",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "garagesummary"
     },
     {
@@ -14013,8 +14013,8 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_features_vehicle_usegaragesummary_fetchgaragesummary",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "fetchgaragesummary()"
     },
     {
@@ -14024,8 +14024,8 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "src_features_vehicle_usegaragesummary_usegaragesummary",
-      "community": 115,
-      "community_name": "GarageSummary.tsx",
+      "community": 8,
+      "community_name": "GarageOverview.tsx",
       "norm_label": "usegaragesummary()"
     },
     {
@@ -14134,7 +14134,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_vehicle_usevehicles",
-      "community": 65,
+      "community": 25,
       "community_name": "useVehicles.ts",
       "norm_label": "usevehicles.ts"
     },
@@ -14145,7 +14145,7 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_features_vehicle_usevehicles_vehiclerow",
-      "community": 65,
+      "community": 25,
       "community_name": "useVehicles.ts",
       "norm_label": "vehiclerow"
     },
@@ -14156,7 +14156,7 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_features_vehicle_usevehicles_vehicleinsert",
-      "community": 65,
+      "community": 25,
       "community_name": "useVehicles.ts",
       "norm_label": "vehicleinsert"
     },
@@ -14167,7 +14167,7 @@
       "source_location": "L8",
       "_origin": "ast",
       "id": "src_features_vehicle_usevehicles_vehicleupdate",
-      "community": 65,
+      "community": 25,
       "community_name": "useVehicles.ts",
       "norm_label": "vehicleupdate"
     },
@@ -14178,7 +14178,7 @@
       "source_location": "L9",
       "_origin": "ast",
       "id": "src_features_vehicle_usevehicles_financialsummary",
-      "community": 65,
+      "community": 25,
       "community_name": "useVehicles.ts",
       "norm_label": "financialsummary"
     },
@@ -14189,8 +14189,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_features_vehicle_usevehicles_vehiclewithsummary",
-      "community": 38,
-      "community_name": "VehicleFipeCard.tsx",
+      "community": 100,
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "vehiclewithsummary"
     },
     {
@@ -14201,7 +14201,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_usevehicles_fetchvehicles",
       "community": 25,
-      "community_name": "VehicleListPage.tsx",
+      "community_name": "useVehicles.ts",
       "norm_label": "fetchvehicles()"
     },
     {
@@ -14212,7 +14212,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_usevehicles_usevehicles",
       "community": 25,
-      "community_name": "VehicleListPage.tsx",
+      "community_name": "useVehicles.ts",
       "norm_label": "usevehicles()"
     },
     {
@@ -14222,8 +14222,8 @@
       "source_location": "L96",
       "_origin": "ast",
       "id": "src_features_vehicle_usevehicles_usevehicle",
-      "community": 38,
-      "community_name": "VehicleFipeCard.tsx",
+      "community": 25,
+      "community_name": "useVehicles.ts",
       "norm_label": "usevehicle()"
     },
     {
@@ -14233,8 +14233,8 @@
       "source_location": "L102",
       "_origin": "ast",
       "id": "src_features_vehicle_usevehicles_usecreatevehicle",
-      "community": 25,
-      "community_name": "VehicleListPage.tsx",
+      "community": 40,
+      "community_name": "CreateVehicleDialog.tsx",
       "norm_label": "usecreatevehicle()"
     },
     {
@@ -14244,8 +14244,8 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "src_features_vehicle_usevehicles_useupdatevehicle",
-      "community": 65,
-      "community_name": "useVehicles.ts",
+      "community": 38,
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "useupdatevehicle()"
     },
     {
@@ -14255,8 +14255,8 @@
       "source_location": "L141",
       "_origin": "ast",
       "id": "src_features_vehicle_usevehicles_usedeletevehicle",
-      "community": 65,
-      "community_name": "useVehicles.ts",
+      "community": 100,
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "usedeletevehicle()"
     },
     {
@@ -15465,8 +15465,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_lib_routes",
-      "community": 71,
-      "community_name": "ROUTES",
+      "community": 15,
+      "community_name": "navigation.ts",
       "norm_label": "routes.ts"
     },
     {
@@ -15487,8 +15487,8 @@
       "source_location": "L43",
       "_origin": "ast",
       "id": "src_lib_routes_saferedirecttarget",
-      "community": 71,
-      "community_name": "ROUTES",
+      "community": 15,
+      "community_name": "navigation.ts",
       "norm_label": "saferedirecttarget()"
     },
     {
@@ -19287,6 +19287,17 @@
       "norm_label": "adr-094 \u2014 garagem a3 + capa a3.1: revista automotiva japonesa"
     },
     {
+      "label": "ADR-094 \u2014 Garagem A3 + capa A3.1: revista automotiva japonesa",
+      "file_type": "document",
+      "source_file": "docs/DECISIONS.md",
+      "source_location": "L3084",
+      "_origin": "ast",
+      "id": "docs_decisions_adr_094_garagem_a3_capa_a3_1_revista_automotiva_japonesa_3084",
+      "community": 0,
+      "community_name": "DECISIONS.md \u2014 ADRs curtos",
+      "norm_label": "adr-094 \u2014 garagem a3 + capa a3.1: revista automotiva japonesa"
+    },
+    {
       "label": "DESIGN.md",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
@@ -19323,7 +19334,7 @@
       "label": "Recalibra\u00e7\u00e3o visual 01 \u2014 identidade + Minha garagem (aguardando aprova\u00e7\u00e3o)",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L83",
+      "source_location": "L82",
       "_origin": "ast",
       "id": "docs_design_recalibra\u00e7\u00e3o_visual_01_identidade_minha_garagem_aguardando_aprova\u00e7\u00e3o",
       "community": 20,
@@ -19334,7 +19345,7 @@
       "label": "Redesign \u2014 etapa 01: Automotive Editorial (sistema visual + navega\u00e7\u00e3o)",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L144",
+      "source_location": "L143",
       "_origin": "ast",
       "id": "docs_design_redesign_etapa_01_automotive_editorial_sistema_visual_navega\u00e7\u00e3o",
       "community": 20,
@@ -19345,9 +19356,9 @@
       "label": "Redesign \u2014 etapa 01: Automotive Editorial (sistema visual + navega\u00e7\u00e3o)",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L146",
+      "source_location": "L145",
       "_origin": "ast",
-      "id": "docs_design_redesign_etapa_01_automotive_editorial_sistema_visual_navega\u00e7\u00e3o_146",
+      "id": "docs_design_redesign_etapa_01_automotive_editorial_sistema_visual_navega\u00e7\u00e3o_145",
       "community": 20,
       "community_name": "DESIGN.md \u2014 Identidade visual do Slow Garage",
       "norm_label": "redesign \u2014 etapa 01: automotive editorial (sistema visual + navegacao)"
@@ -19356,7 +19367,7 @@
       "label": "Tokens (etapa 01)",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L203",
+      "source_location": "L202",
       "_origin": "ast",
       "id": "docs_design_tokens_etapa_01",
       "community": 20,
@@ -19367,7 +19378,7 @@
       "label": "Redesign \u2014 etapa 02: Minha garagem",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L229",
+      "source_location": "L228",
       "_origin": "ast",
       "id": "docs_design_redesign_etapa_02_minha_garagem",
       "community": 20,
@@ -19378,7 +19389,7 @@
       "label": "Redesign \u2014 etapa 03: formul\u00e1rios do ve\u00edculo",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L294",
+      "source_location": "L293",
       "_origin": "ast",
       "id": "docs_design_redesign_etapa_03_formul\u00e1rios_do_ve\u00edculo",
       "community": 20,
@@ -19389,7 +19400,7 @@
       "label": "Redesign \u2014 etapa 04: dashboard do ve\u00edculo",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L354",
+      "source_location": "L353",
       "_origin": "ast",
       "id": "docs_design_redesign_etapa_04_dashboard_do_ve\u00edculo",
       "community": 20,
@@ -19400,7 +19411,7 @@
       "label": "Redesign \u2014 etapa 05: Gastos + refinamentos do dashboard",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L406",
+      "source_location": "L405",
       "_origin": "ast",
       "id": "docs_design_redesign_etapa_05_gastos_refinamentos_do_dashboard",
       "community": 20,
@@ -19411,7 +19422,7 @@
       "label": "Redesign \u2014 etapa 06: Abastecimentos + dois ajustes de texto",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L473",
+      "source_location": "L472",
       "_origin": "ast",
       "id": "docs_design_redesign_etapa_06_abastecimentos_dois_ajustes_de_texto",
       "community": 20,
@@ -19422,7 +19433,7 @@
       "label": "Redesign \u2014 etapa 07: Manuten\u00e7\u00e3o + texto de vencimento do AlertBanner",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L535",
+      "source_location": "L534",
       "_origin": "ast",
       "id": "docs_design_redesign_etapa_07_manuten\u00e7\u00e3o_texto_de_vencimento_do_alertbanner",
       "community": 20,
@@ -19433,7 +19444,7 @@
       "label": "Redesign \u2014 etapa 08: Problemas",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L595",
+      "source_location": "L594",
       "_origin": "ast",
       "id": "docs_design_redesign_etapa_08_problemas",
       "community": 20,
@@ -19444,7 +19455,7 @@
       "label": "Redesign \u2014 etapa 09: Projetos e itens de projeto",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L633",
+      "source_location": "L632",
       "_origin": "ast",
       "id": "docs_design_redesign_etapa_09_projetos_e_itens_de_projeto",
       "community": 20,
@@ -19455,7 +19466,7 @@
       "label": "Revis\u00e3o de identidade (p\u00f3s-Fase 10)",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L709",
+      "source_location": "L708",
       "_origin": "ast",
       "id": "docs_design_revis\u00e3o_de_identidade_p\u00f3s_fase_10",
       "community": 20,
@@ -19466,7 +19477,7 @@
       "label": "Tokens de cor",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L740",
+      "source_location": "L739",
       "_origin": "ast",
       "id": "docs_design_tokens_de_cor",
       "community": 20,
@@ -19477,7 +19488,7 @@
       "label": "Dark (padr\u00e3o)",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L752",
+      "source_location": "L751",
       "_origin": "ast",
       "id": "docs_design_dark_padr\u00e3o",
       "community": 20,
@@ -19488,7 +19499,7 @@
       "label": "Light",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L767",
+      "source_location": "L766",
       "_origin": "ast",
       "id": "docs_design_light",
       "community": 20,
@@ -19499,7 +19510,7 @@
       "label": "Tipografia",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L782",
+      "source_location": "L781",
       "_origin": "ast",
       "id": "docs_design_tipografia",
       "community": 20,
@@ -19510,7 +19521,7 @@
       "label": "Densidade",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L794",
+      "source_location": "L793",
       "_origin": "ast",
       "id": "docs_design_densidade",
       "community": 20,
@@ -19521,7 +19532,7 @@
       "label": "Sistema de resposta (motion)",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L1244",
+      "source_location": "L1243",
       "_origin": "ast",
       "id": "docs_design_sistema_de_resposta_motion",
       "community": 20,
@@ -19532,7 +19543,7 @@
       "label": "Hierarquia",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L1261",
+      "source_location": "L1260",
       "_origin": "ast",
       "id": "docs_design_hierarquia",
       "community": 20,
@@ -19543,7 +19554,7 @@
       "label": "Onde a ousadia mora",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L1268",
+      "source_location": "L1267",
       "_origin": "ast",
       "id": "docs_design_onde_a_ousadia_mora",
       "community": 20,
@@ -19554,7 +19565,7 @@
       "label": "\u00cdcones do PWA",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L1306",
+      "source_location": "L1305",
       "_origin": "ast",
       "id": "docs_design_\u00edcones_do_pwa",
       "community": 20,
@@ -19565,7 +19576,7 @@
       "label": "O que foi recusado, com o motivo",
       "file_type": "document",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L1314",
+      "source_location": "L1313",
       "_origin": "ast",
       "id": "docs_design_o_que_foi_recusado_com_o_motivo",
       "community": 20,
@@ -51998,7 +52009,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/vehicle/GarageCover.tsx",
-      "source_location": "L5",
+      "source_location": "L2",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_vehicle_garagecover",
@@ -52034,7 +52045,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/vehicle/GarageCover.tsx",
-      "source_location": "L5",
+      "source_location": "L2",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_vehicle_garagecover",
@@ -52657,7 +52668,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/vehicle/GarageCover.tsx",
-      "source_location": "L17",
+      "source_location": "L12",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_vehicle_garagecover",
@@ -52668,7 +52679,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/vehicle/GarageCover.tsx",
-      "source_location": "L50",
+      "source_location": "L47",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_vehicle_garagecover",
@@ -52679,7 +52690,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/vehicle/GarageCover.tsx",
-      "source_location": "L26",
+      "source_location": "L21",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_vehicle_garagecover",
@@ -52690,7 +52701,7 @@
       "relation": "cites",
       "confidence": "EXTRACTED",
       "source_file": "src/features/vehicle/GarageCover.tsx",
-      "source_location": "L32",
+      "source_location": "L27",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_vehicle_garagecover",
@@ -52736,7 +52747,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/vehicle/GarageOverview.tsx",
-      "source_location": "L261",
+      "source_location": "L262",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_vehicle_garageoverview",
@@ -52758,7 +52769,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/vehicle/GarageOverview.tsx",
-      "source_location": "L182",
+      "source_location": "L183",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_vehicle_garageoverview",
@@ -52824,7 +52835,7 @@
       "relation": "cites",
       "confidence": "EXTRACTED",
       "source_file": "src/features/vehicle/GarageOverview.tsx",
-      "source_location": "L177",
+      "source_location": "L178",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_vehicle_garageoverview",
@@ -53014,7 +53025,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/features/vehicle/GarageOverview.tsx",
-      "source_location": "L206",
+      "source_location": "L207",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_vehicle_garageoverview_garageoverview",
@@ -53038,7 +53049,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/features/vehicle/GarageOverview.tsx",
-      "source_location": "L284",
+      "source_location": "L285",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_vehicle_garageoverview_garagedetails",
@@ -53050,7 +53061,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/features/vehicle/GarageOverview.tsx",
-      "source_location": "L218",
+      "source_location": "L219",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_vehicle_garageoverview_garageoverview",
@@ -53062,7 +53073,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/features/vehicle/GarageOverview.tsx",
-      "source_location": "L263",
+      "source_location": "L264",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_vehicle_garageoverview_garagedetails",
@@ -53074,7 +53085,7 @@
       "context": "call",
       "confidence": "EXTRACTED",
       "source_file": "src/features/vehicle/GarageOverview.tsx",
-      "source_location": "L187",
+      "source_location": "L188",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_vehicle_garageoverview_garageoverview",
@@ -60010,6 +60021,17 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "docs/DECISIONS.md",
+      "source_location": "L3084",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "docs_decisions_decisions_md_adrs_curtos",
+      "target": "docs_decisions_adr_094_garagem_a3_capa_a3_1_revista_automotiva_japonesa_3084",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
       "source_location": "L1",
       "weight": 1.0,
@@ -60022,7 +60044,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L794",
+      "source_location": "L793",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60044,7 +60066,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L1261",
+      "source_location": "L1260",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60055,7 +60077,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L1314",
+      "source_location": "L1313",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60066,7 +60088,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L1268",
+      "source_location": "L1267",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60077,7 +60099,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L83",
+      "source_location": "L82",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60088,7 +60110,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L144",
+      "source_location": "L143",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60099,18 +60121,18 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L146",
+      "source_location": "L145",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
-      "target": "docs_design_redesign_etapa_01_automotive_editorial_sistema_visual_navega\u00e7\u00e3o_146",
+      "target": "docs_design_redesign_etapa_01_automotive_editorial_sistema_visual_navega\u00e7\u00e3o_145",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L229",
+      "source_location": "L228",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60121,7 +60143,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L294",
+      "source_location": "L293",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60132,7 +60154,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L354",
+      "source_location": "L353",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60143,7 +60165,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L406",
+      "source_location": "L405",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60154,7 +60176,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L473",
+      "source_location": "L472",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60165,7 +60187,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L535",
+      "source_location": "L534",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60176,7 +60198,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L595",
+      "source_location": "L594",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60187,7 +60209,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L633",
+      "source_location": "L632",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60198,7 +60220,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L709",
+      "source_location": "L708",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60209,7 +60231,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L1244",
+      "source_location": "L1243",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60220,7 +60242,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L782",
+      "source_location": "L781",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60231,7 +60253,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L740",
+      "source_location": "L739",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60242,7 +60264,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L1306",
+      "source_location": "L1305",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_design_md_identidade_visual_do_slow_garage",
@@ -60253,10 +60275,10 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L203",
+      "source_location": "L202",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "docs_design_redesign_etapa_01_automotive_editorial_sistema_visual_navega\u00e7\u00e3o_146",
+      "source": "docs_design_redesign_etapa_01_automotive_editorial_sistema_visual_navega\u00e7\u00e3o_145",
       "target": "docs_design_tokens_etapa_01",
       "confidence_score": 1.0
     },
@@ -60264,7 +60286,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L752",
+      "source_location": "L751",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_tokens_de_cor",
@@ -60275,7 +60297,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
-      "source_location": "L767",
+      "source_location": "L766",
       "weight": 1.0,
       "_origin": "ast",
       "source": "docs_design_tokens_de_cor",
@@ -67555,5 +67577,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "c489acb3e0594cfac65f269269ae65b6a6fc79db"
+  "built_at_commit": "bc2ff7255b2cae07645e996b849dcd509d55955c"
 }

@@ -172,7 +172,8 @@ type GarageDetailsControl = {
  *
  * - 2+ veículos, desktop: Veículos, Gasto no mês, Pendências, Manutenção
  *   prevista. No celular só Gasto no mês e Pendências (a contagem já está no
- *   título "Seus veículos", e a próxima manutenção abre nos detalhes).
+ *   título "Seus veículos"); abaixo de 1280 a próxima manutenção abre nos
+ *   detalhes (em 1024 a célula ficava espremida em "Correi…").
  * - 1 veículo: Pendências e Manutenção prevista — o resto já está no card
  *   (ADR-051) —, sem botão de detalhes (não há o que comparar).
  *
@@ -222,7 +223,7 @@ export function GarageOverview({
           value={d.nextService?.name ? { kind: "text", value: d.nextService.name } : { kind: "ok", value: "Nenhuma" }}
           hint={d.nextService ? [d.nextServiceDate, d.nextServiceVehicle].filter(Boolean).join(" · ") : undefined}
           state={queryState(d.maintenanceQuery)}
-          className={d.isGarage ? "hidden lg:flex" : undefined}
+          className={d.isGarage ? "hidden xl:flex" : undefined}
         />
       </dl>
       {d.isGarage && details && (
@@ -275,7 +276,7 @@ export function GarageDetails({ vehicles, id, open }: GarageOverviewProps & { id
       </h2>
       {open && (
         <>
-          <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-surface lg:hidden">
+          <div className="flex flex-col overflow-hidden rounded-lg border border-border bg-surface xl:hidden">
             <GarageTileGrid className="grid-cols-1">
               <GarageTile
                 label="Próxima manutenção"

@@ -25,20 +25,25 @@ inclinada — e funciona com carro brasileiro de qualquer marca.
   garagem" é o `h1`, em sobrelinha com traço laranja e filete até a borda da
   coluna; "Seus carros. Suas histórias." em Archivo 800 caixa-alta; "Cadastrar
   veículo" e uma linha de apoio. A partir de 1280 a coluna do texto termina
-  onde começa o 2º card da coleção. Direita: **colagem** — a foto de oficina
-  escurecida como fundo (entra em degradê) e recortes retangulares com
-  moldura de 1px, sombra curta e inclinação discreta (−1,2°, 2°, 1,4°), com
-  pequena sobreposição e um filete solto deslocado atrás do principal. Um
-  recorte até 1280px, dois até 1800, três acima. Posições contadas da margem
-  direita: nada invade o texto nem sai da capa. Nenhum crédito sobre a imagem.
+  onde começa o 2º card da coleção. Direita: **a capa da A3.1, uma imagem só**
+  já composta — cupê branco numa oficina com luz quente e, em recortes com
+  moldura clara e leve inclinação, a roda bronze com pinça vermelha e o
+  motor. Proporção 3:1, esquerda quase preta. A partir de 1280 aparece
+  inteira, alinhada à direita, na altura da capa (o título fica sobre a área
+  escura dela; o carro começa depois do texto); entre 1024 e 1279 mostra só o
+  trecho do carro e dos recortes. Nenhum crédito sobre a imagem.
+  **Tema claro**: sem degradê do claro para a foto escura — chapa de borda
+  seca que começa um pouco antes do carro.
 - **Capa (celular/tablet)**: sem foto — sobrelinha com o slogan, "Minha
-  garagem" 27px 800 caixa-alta e "Cadastrar" ao lado (nome acessível
-  "Cadastrar veículo"). As imagens da capa não são baixadas abaixo de `lg`
+  garagem" 800 caixa-alta numa linha só ao lado de "Cadastrar" (5,8vw: ~23px
+  em 390, ~21px em 360, 27px no tablet; só em 320 quebra) — nome acessível
+  "Cadastrar veículo". As imagens da capa não são baixadas abaixo de `lg`
   (`<picture>` com `media`).
 - **Resumo**: faixa colada à capa, rótulo 10–11px caixa-alta espaçada sobre o
   valor (Archivo 700, 22 → 26px), filete vertical entre células. 2+ veículos:
-  Veículos ("02"), Gasto no mês, Pendências, Manutenção prevista (as duas
-  primeiras e a última só no desktop); 1 veículo: Pendências e Manutenção
+  Veículos ("02"), Gasto no mês, Pendências, Manutenção prevista (Veículos só
+  no desktop; Manutenção prevista a partir de 1280 — abaixo disso abre nos
+  detalhes); 1 veículo: Pendências e Manutenção
   prevista. Zero vira "✓ Nenhuma". No fim, **Detalhes e comparativo**
   ("Detalhes" no celular), que abre o painel logo abaixo da faixa — o mesmo
   conteúdo de antes (resumo financeiro, gráficos, comparativo; próxima
@@ -60,24 +65,18 @@ inclinada — e funciona com carro brasileiro de qualquer marca.
     valor à direita, filetes); registros com rótulo (Gasto, Abastecimento,
     Manutenção, Foto). Modelo para em 24px.
   - Nada por cima da foto (o status e o ⋯ saíram dela; o degradê da base
-    também). A numeração é posição na coleção, decorativa. Cards da mesma
+    também). Sem foto, a região tem superfície própria (um degrau acima do
+    card, filete de 1px) — com o fundo da página parecia um vão entre cards. A numeração é posição na coleção, decorativa. Cards da mesma
     linha têm a régua de ações alinhada no fundo.
-- **Imagens editoriais** (`src/assets/garage/`, WebP): fotos reais do
-  Unsplash, **CC0** (atribuição dispensada), tratadas para grafite com luz
-  quente — ilustrativas, não representam veículo do usuário.
-  - `cover-base.webp`: "Car Restoration Workshop", Igor Ovsyannykov
-    (commons.wikimedia.org/wiki/File:Car_Restoration_Workshop_(Unsplash).jpg);
-  - `collage-garage.webp`: "Vintage car garage", Logan Meis
-    (…/File:Vintage_car_garage_(Unsplash).jpg);
-  - `collage-engine.webp`: "Engine block", Garett Mizunaka
-    (…/File:Engine_block_(Unsplash).jpg);
-  - `collage-cage.webp`: "Race car roll cage", Lloyd Dirks
-    (…/File:Race_car_roll_cage_(Unsplash).jpg) — recorte sem o céu e sem o
-    logotipo do volante.
-  Recortes e tratamento registrados em `redesign-capturas/estudos-garagem-v2/
-  fonte/assets/CREDITOS.txt`.
-- **Tokens aditivos**: `--color-hairline`, `--color-hairline-strong`,
-  `--color-collage-frame(-loose)`, `--shadow-collage` e a escala `--garage-*`.
+- **Imagem da capa** (`src/assets/garage/cover.webp`, 2172×724, 88 KB):
+  imagem editorial **gerada** para o estudo A3.1 e fornecida pelo usuário
+  (original em `redesign-capturas/estudos-garagem-v2/fonte/assets/
+  capa-a3-1-gerada-original.png`); ilustrativa, não representa veículo
+  cadastrado. Decorativa (`alt=""`), servida por `<picture>` só a partir de
+  `lg`. As fotos CC0 da primeira montagem (oficina, garagem, motor, gaiola)
+  saíram do app e seguem registradas no `CREDITOS.txt` do estudo.
+- **Tokens aditivos**: `--color-hairline`, `--color-hairline-strong` e a
+  escala `--garage-*`.
   Composição em `src/styles/garage.css` (áreas de grade e container queries).
 
 ## Recalibração visual 01 — identidade + Minha garagem (aguardando aprovação)
