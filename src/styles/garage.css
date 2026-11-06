@@ -1305,6 +1305,15 @@
     min-height: 8.5rem;
   }
 }
+/*
+ * Ficha técnica aberta: a grade vai a `align-items: start` e a vaga perderia a
+ * altura da linha. Ela fica com a altura que tinha com as fichas fechadas
+ * (`--garage-slot-rest-h`, medida no `VehicleListPage`); sem medida, o mínimo de
+ * sempre. Só na grade — na lista cada vaga é uma faixa baixa.
+ */
+.garage-grid:not([data-view="list"]):has(.garage-card__specs[data-open="true"]) > .garage-slot {
+  min-height: var(--garage-slot-rest-h, 12rem);
+}
 @container garage-collection (min-width: 43rem) {
   .garage-grid[data-view="list"] .garage-slot {
     flex-direction: row;

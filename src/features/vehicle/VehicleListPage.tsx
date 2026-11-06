@@ -1,4 +1,4 @@
-import { useId, useMemo, useState } from "react";
+import { useEffect, useId, useMemo, useState } from "react";
 import { AlertCircle, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useExpenseCategories } from "@/features/expense/useExpenseCategories";
@@ -36,6 +36,48 @@ function useStoredChoice<T extends string>(key: string, allowed: readonly T[], f
     }
   };
   return [value, update] as const;
+}
+
+const OPEN_SPECS_SELECTOR = '.garage-card__specs[data-open="true"]';
+
+/**
+ * Com uma ficha técnica aberta, a grade passa a `align-items: start` (o card
+ * vizinho não estica) — e a vaga livre, que é item da grade, cairia para a
+ * altura mínima. Este efeito guarda a altura da vaga com todas as fichas
+ * fechadas em `--garage-slot-rest-h`; o CSS a usa como altura mínima enquanto
+ * uma ficha está aberta. Se a grade muda de largura com a ficha aberta (as
+ * colunas podem mudar), a medida antiga deixa de valer e vira a do maior card
+ * fechado.
+ */
+function useSlotRestHeight(grid: HTMLDivElement | null, layoutKey: string) {
+  useEffect(() => {
+    if (!grid || typeof ResizeObserver === "undefined") return;
+    let measuredWidth = 0;
+    const measure = () => {
+      const slot = grid.querySelector<HTMLElement>(":scope > .garage-slot");
+      if (!slot) return;
+      const width = grid.clientWidth;
+      if (!grid.querySelector(OPEN_SPECS_SELECTOR)) {
+        grid.style.setProperty("--garage-slot-rest-h", `${slot.offsetHeight}px`);
+        measuredWidth = width;
+      } else if (width !== measuredWidth) {
+        // A medida do repouso não vale mais: usa o maior card fechado (a altura que a linha teria sem a ficha).
+        const closed = [...grid.querySelectorAll<HTMLElement>(":scope > article")].filter(
+          (card) => !card.querySelector(OPEN_SPECS_SELECTOR),
+        );
+        const tallest = Math.max(0, ...closed.map((card) => card.offsetHeight));
+        if (tallest > 0) grid.style.setProperty("--garage-slot-rest-h", `${tallest}px`);
+        else grid.style.removeProperty("--garage-slot-rest-h");
+        measuredWidth = width;
+      }
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(grid);
+    const slot = grid.querySelector(":scope > .garage-slot");
+    if (slot) observer.observe(slot);
+    measure();
+    return () => observer.disconnect();
+  }, [grid, layoutKey]);
 }
 
 /**
@@ -81,6 +123,9 @@ export function VehicleListPage() {
   );
   const filtering = query.trim() !== "" || status !== "all";
   const statusTab = STATUS_TABS.find((tab) => tab.value === status)!;
+  const [gridElement, setGridElement] = useState<HTMLDivElement | null>(null);
+  // A vaga entra e sai com o filtro e muda de forma com a lista: mede de novo.
+  useSlotRestHeight(gridElement, `${filtering}-${view}-${visible.length}`);
 
   return (
     <div className="garage-page">
@@ -157,7 +202,7 @@ export function VehicleListPage() {
               : ""}
           </p>
           {visible.length > 0 ? (
-            <div className="garage-grid" data-view={view}>
+            <div ref={setGridElement} className="garage-grid" data-view={view}>
               {visible.map((vehicle) => (
                 <VehicleCard key={vehicle.id} vehicle={vehicle} categories={categories} />
               ))}

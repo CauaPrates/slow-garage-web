@@ -37,10 +37,10 @@
   "35": "maintenancePresentation.ts",
   "36": "useMaintenanceRecords.ts",
   "37": "VehicleListPage.tsx",
-  "38": "VehicleFipeCard.tsx",
+  "38": "EditVehicleDialog.tsx",
   "39": "AdminDashboardPage.tsx",
-  "40": "GarageCover.tsx",
-  "41": "types.ts",
+  "40": "CreateVehicleDialog.tsx",
+  "41": "DashboardPanel.tsx",
   "42": "ProjectItemForm.tsx",
   "43": "Spec 000 — Fundação do frontend (scaffold, identidade visual, infraestrutura de dados)",
   "44": "Spec 001 — Autenticação e rotas protegidas",
@@ -99,7 +99,7 @@
   "97": "Plano 020 — Assistente FIPE",
   "98": "Spec 031 — Painel admin, convites de admin e notificações",
   "99": "AdminInvitesPage.tsx",
-  "100": "InviteResponse.tsx",
+  "100": "types.ts",
   "101": "useAdmin.ts",
   "102": "document/schemas.ts",
   "103": "MaintenancePage.tsx",
@@ -211,7 +211,9 @@
   "209": "MORE_SHEET_GROUPS",
   "210": "vite-env.d.ts",
   "211": "vite.config.ts",
+  "212": "PendingAlertsPanel.tsx",
   "213": "navStyles.ts",
   "214": "BrandLogo.tsx",
-  "216": "typescript"
+  "215": "ExpensesByMonthChart.tsx",
+  "216": "globals"
 }

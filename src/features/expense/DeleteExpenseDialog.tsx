@@ -82,7 +82,8 @@ export function DeleteExpenseDialog({
         <AlertDialogHeader>
           <AlertDialogTitle>Excluir {noun}?</AlertDialogTitle>
           <AlertDialogDescription>
-            Sai da lista e dos totais e gráficos do veículo
+            {/* Etapa 10: em Modificações o registro é o mesmo gasto — sai de Gastos também. */}
+            {upgradeMode ? "Sai desta lista, de Gastos e dos totais e gráficos do veículo" : "Sai da lista e dos totais e gráficos do veículo"}
             {isUpgrade && !upgradeMode ? ", e também de Modificações" : ""}.
             {expense.attachment ? " O anexo também é apagado." : ""} Essa ação não pode ser desfeita.
           </AlertDialogDescription>

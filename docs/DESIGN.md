@@ -723,6 +723,39 @@ Mesma direção e tokens; nenhuma cor nova, nenhuma imagem. Decisão completa em
 - **Manutenção**: na confirmação de "Excluir serviço?", custo ausente passou de
   "Sem custo" para "Custo não informado"; zero continua R$ 0,00.
 
+## Redesign — etapa 10: Modificações (revisão visual pendente)
+
+Identidade da Garagem numa página de registros: sem capa, sem foto, sem cor
+nova. Decisão completa em `docs/DECISIONS.md` (ADR-098).
+
+- **Página**: trilha → cabeçalho (`h1` "MODIFICAÇÕES" em `font-display` 800,
+  caixa-alta; "Upgrades deste veículo, lançados como gasto." + ajuda "i";
+  "Registrar upgrade", no celular "Registrar" + "+") → faixa de resumo →
+  painel **Registros** → **Upgrades por mês** (ao lado da lista a partir de
+  `xl`, 20rem; abaixo dela antes disso).
+- **Resumo**: `dl` sem caixa, filetes `--color-hairline` em cima, embaixo e
+  entre células; rótulo `text-xs` 600 caixa-alta, valor em `font-display` 700
+  tabular. Total em upgrades · Upgrades registrados · Último registro; no
+  celular a contagem desce para baixo do total. Legenda de escopo: "Todo o
+  período. Já está dentro dos gastos e do total investido do veículo, não é
+  um valor à parte." Carregando = traço pulsante; falha = "Indisponível" +
+  "Tentar de novo".
+- **Linha** (`ModificationRow`): nome (quebra, nunca corta; "Sem descrição" em
+  cinza), metadados "fornecedor · pagamento · km" (no celular a data abre a
+  linha), anexo com o nome do arquivo e a nota (até duas linhas com "Ver nota
+  inteira" quando passa de 140 caracteres ou tem quebra). Valor em
+  `font-display` 600 tabular; "⋯" com Editar/Excluir upgrade. No celular:
+  nome + "⋯" no canto, valor e "data · metadados" embaixo, anexo e nota na
+  largura inteira. Colunas a partir de `md` (valor à direita), proporcionais a
+  partir de `2xl`.
+- **Filtros**: abaixo de 400px busca, período e ordem empilham (lado a lado o
+  seletor nativo cortava "Mais recentes" e "Mês passado").
+- **Por mês**: barras neutras (`text-secondary`), valor escrito em cada linha.
+  Laranja só no botão principal, no foco e na navegação.
+- **Formulário e exclusão**: os de Gastos no modo upgrade (etapa 05). Na
+  exclusão a partir daqui: "Sai desta lista, de Gastos e dos totais e gráficos
+  do veículo."
+
 As seções abaixo são o histórico das revisões anteriores. Onde contradizem
 esta etapa em cor, fonte de marca, separador do breadcrumb ou acabamento do
 cabeçalho, vale esta etapa; regras de densidade, hierarquia, motion

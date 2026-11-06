@@ -3354,3 +3354,137 @@ degradê de 24px no topo em vez de corte seco logo abaixo do cabeçalho. As
 outras telas mantêm a borda do cabeçalho e o filete do logo. Verificação em
 `redesign-capturas/garagem-a3/sem-borda-r1/` (cenário `a3d`, axe sem
 violações em 12 estados).
+
+**ADR-097, vaga livre com a ficha técnica aberta (06/11/2026).** A pedido do
+usuário: abrir a ficha de um card encolhia a vaga livre para o mínimo (12rem).
+A grade vai a `align-items: start` com uma ficha aberta (ADR-095, o vizinho não
+estica), e a vaga é item da grade. Agora o `VehicleListPage` mede a vaga com
+todas as fichas fechadas (`ResizeObserver`) em `--garage-slot-rest-h`, e o CSS
+usa essa medida como altura mínima enquanto uma ficha está aberta — a vaga fica
+do tamanho que tinha, sem crescer junto com o card aberto. Se a janela muda de
+largura com a ficha aberta, a medida vira a do maior card fechado. Só na
+grade; na lista nada muda. Rejeitado: deixar a vaga esticar (cresceria até a
+altura do card aberto, mais alta que o vizinho). Verificação: cenário 121 do
+`inspect.mjs` (`redesign-capturas/etapa-10/relatorio-ajustes.txt`) — 1600 com
+2 carros (444px fechada, aberta e fechada de novo; 427px depois de reduzir a
+janela a 1100 com a ficha aberta), 1440 com 4 e 390 com 1, axe sem violações.
+
+## ADR-098 — Redesign etapa 10: Modificações
+
+**Status.** Implementada. **Revisão visual pendente** — não aprovada.
+
+**Contexto.** Modificações era um cabeçalho em caixa com borda laranja e
+ícone de brilho, três caixas de indicadores, um gráfico "Investimento por mês"
+em barras laranja, filtros soltos e cards com lápis e lixeira (o
+`ExpenseListItem`, que a etapa 05 deixou de fora — ADR-088). Esta etapa leva
+a identidade da Garagem (títulos em Archivo, faixa de resumo com filetes,
+laranja só em ação e navegação) para uma página de registros, sem capa nem
+foto. Banco, hooks, consultas, chaves, invalidações, rotas, payloads e
+fórmulas não mudaram.
+
+**Comportamento conferido no código.**
+
+| Ponto | Regra |
+|---|---|
+| O que é | Gastos (`expenses`) da categoria de **sistema** `upgrade` (`user_id` nulo). Mesma consulta de Gastos (`useExpenses` com `categoryId`), mesmos diálogos. Itens de projeto são `project_items`, outra tabela: não entram aqui, e nada daqui entra em Projetos. |
+| Categoria | Cadastro e edição a partir de Modificações gravam `upgradeCategoryId` e não mostram o campo de categoria. Em Gastos o mesmo registro aparece com o seletor e pode mudar de categoria (aí sai de Modificações) — comportamento de antes, preservado. |
+| Campos | Valor obrigatório (≥ 0, NOT NULL — não existe "custo não informado"); descrição ("Modificação"), data (em branco grava hoje), km, fornecedor, pagamento e notas opcionais. |
+| Resumo | Total e contagem: linha `upgrade` de `vehicle_expenses_by_category` (via RPC do dashboard; sem linha = 0). Último registro e "por mês" (últimos 6 meses com registro): somados no cliente sobre a lista, como antes. O total já está dentro de Gastos e do total investido. |
+| Lista | Sem paginação; busca (descrição, fornecedor, notas), período e ordem (recentes, antigos, maior valor) no cliente; "N registros · R$ X nesta seleção" é a soma do que está visível, como antes. |
+| `?novo=1` | Abre o cadastro (folha Registrar → "Upgrade"); fechar tira o parâmetro. |
+| Anexo | Só na edição (`AttachmentField`, compartilhado). |
+| Excluir | O hook apaga Storage → linha de `attachments` → gasto, depois de confirmar. |
+
+**Decisão.**
+
+- Cabeçalho compacto: `h1` "MODIFICAÇÕES" em Archivo 800, uma frase ("Upgrades
+  deste veículo, lançados como gasto.") com ajuda "i" (o que entra; editar aqui
+  muda o mesmo registro de Gastos; itens de projeto ficam em Projetos) e
+  "Registrar upgrade" (no celular "Registrar" + "+"). O veículo aberto continua
+  na trilha e no seletor do cabeçalho do shell, sem ficha repetida.
+- Resumo em faixa com filetes (sem caixa por número): total, contagem e último
+  registro; no celular a contagem vira linha de apoio do total (uma linha de
+  duas células). Legenda: "Todo o período. Já está dentro dos gastos e do
+  total investido do veículo, não é um valor à parte."
+- Lista estruturada (não `<table>`, motivo do ADR-088) num painel com a busca e
+  os dois seletores no topo; colunas a partir de `md` (modificação · data ·
+  valor · "⋯"), proporcionais a partir de `2xl`; no celular nome e "⋯" na
+  primeira linha, valor e metadados embaixo (ver os ajustes da revisão). Nota com mais de 140 caracteres
+  ou com quebra de linha mostra duas linhas e "Ver nota inteira"
+  (`aria-expanded`). Editar/excluir no "⋯" (`RowActionsMenu` de Projetos).
+- "Upgrades por mês": a mesma conta, barras neutras com o valor escrito; ao
+  lado da lista a partir de `xl` (320px), depois dela abaixo disso.
+- Valores em Archivo com algarismos tabulares (o mono fica para dado técnico).
+- Estados: carregando sem zero (traço pulsante, `aria-busy`); falha do RPC só
+  no resumo ("Indisponível" + "Tentar de novo"), falha da lista só no painel
+  — um não derruba o outro; vazio com "Registrar primeiro upgrade"; filtro
+  sem resultado diz a seleção e quantos registros ficaram fora.
+- Diálogos de editar/excluir na página (um upgrade editado pode sair da busca
+  e desmontar a linha); o editado é lido da lista mais recente (o anexo
+  atualiza com o diálogo aberto). Foco volta ao "⋯"; se a linha sumiu, ao
+  título "Registros".
+- Exclusão: no modo upgrade o texto agora diz "Sai desta lista, de Gastos e
+  dos totais e gráficos do veículo" (é o mesmo registro). Em Gastos o texto
+  não mudou.
+- `ExpenseListItem` removido: só Modificações o usava.
+
+**Alternativas descartadas.** Reaproveitar o `ExpenseRow` de Gastos (coluna de
+categoria sempre "Upgrade", e a edição abriria o seletor de categoria). Somar
+itens de projeto instalados ao total (regra nova, conta dupla com Projetos).
+Status de projeto (Planejado/Comprado/Instalado) nos upgrades. Esconder a nota
+atrás de um "Detalhes" em toda linha (uma parada de Tab a mais para quem não
+tem nota). Remover o gráfico por mês (função existente).
+
+**Pendências registradas (fora do escopo, não alteradas).**
+
+- **Anexo apagado antes da linha** (mesma ordem de gasto, manutenção,
+  problema e item): se a exclusão do gasto falha, o anexo já foi. Conferido no
+  mock (Storage e `attachments` antes do DELETE que falhou). A confirmação não
+  promete operação atômica nem recuperação.
+- **Precisão dos indicadores calculados na tela (limite de 1000 linhas).** A
+  lista não pagina e o PostgREST corta a resposta em `max_rows = 1000` sem
+  avisar. A consulta já filtra a categoria no servidor e ordena da data mais
+  recente para a mais antiga, então, com mais de 1000 upgrades no veículo:
+  - a lista mostra só os 1000 mais recentes, e a busca e o período (que rodam
+    na tela) não encontram os mais antigos;
+  - "N registros · R$ X nesta seleção" soma só o que veio — fica **menor** que
+    o total do resumo, sem nenhum aviso (Gastos esconde o total nesse caso;
+    Modificações não);
+  - "Upgrades por mês": o mês mais antigo dos seis pode sair **incompleto** se
+    o corte cair dentro dele;
+  - "Último registro" continua certo (os mais recentes sempre vêm);
+  - total e contagem do resumo continuam completos (vêm da view).
+  Nenhuma correção nesta etapa (pede paginação ou agregação no servidor);
+  conferir antes de confiar nos números de um veículo com esse volume.
+
+**Verificação.** Dados simulados (ferramenta externa, `redesign-capturas/`,
+cenários 114–120, arquivos 221–226): sete upgrades do Civic (nota longa com
+quebras, anexo, sem descrição, R$ 0,00, R$ 128.750,45, 7 meses) e 36 a mais na
+lista extensa; escritas, anexos e Storage interceptados, LEDGER reescrito a
+cada escrita. Rede trancada; nenhuma chamada ao Supabase real, nenhuma
+exclusão real. Axe sem violações em 24 estados; `npm run lint` e
+`npm run build` limpos. Nenhum aparelho físico nem leitor de tela real.
+
+**Ajustes da revisão (06/11/2026).**
+
+- **Linha no celular**: antes o valor e o "⋯" reservavam uma coluna à
+  direita e prendiam nome, nota e anexo numa faixa estreita (o coilover em
+  360px ficava com o nome em ~5 linhas). Agora a primeira linha é nome (≈74%
+  da largura) + "⋯" no canto; embaixo, o valor e "data · metadados"; anexo e
+  nota ocupam a largura útil inteira. A partir de `md` cada bloco tem lugar
+  explícito nas mesmas colunas (conferido: data, valor e "⋯" alinhados ao
+  cabeçalho em 768, 1024, 1440 e 1920). A ordem no DOM passou a ser nome →
+  "⋯" → valor → detalhes, então no Tab o "⋯" vem antes do "Ver nota inteira".
+- **Mensagem de km**: "a quilometragem inválido." → "Informe uma
+  quilometragem válida." pelo 2º parâmetro do helper; a regra (inteiro ≥ 0,
+  opcional) não mudou — km 0 continua aceito. O `expenseSchema` é o mesmo de
+  Gastos, então a mensagem nova vale lá também. (A nota do Histórico usa o
+  mesmo helper sem o 2º parâmetro e ainda mostra o texto antigo; não alterada.)
+- **Filtros**: abaixo de 400px a busca, o período e a ordem empilham. Lado a
+  lado, "Mais recentes" cortava em 360 e "Mês passado" em 390, não só em 320.
+  Medido: todas as opções inteiras em 320, 360 e 390.
+- A pendência do limite de 1000 linhas foi detalhada acima como problema de
+  precisão dos indicadores.
+- Verificação: cenário 121 (arquivo 227, `relatorio-ajustes.txt`) em 320,
+  360, 390, 768, 1024, 1440 e 1920 — axe sem violações, nenhum alvo menor
+  que 44px, sem rolagem horizontal, último conteúdo acima da barra.

@@ -615,8 +615,8 @@
     "semantic_hash": ""
   },
   "src/features/expense/DeleteExpenseDialog.tsx": {
-    "mtime": 1793494245.5637496,
-    "ast_hash": "f279ae3938065314e52685ce0eccf219",
+    "mtime": 1793990395.2674015,
+    "ast_hash": "d3126c4c311d17f87afcebdfdb5bf63b",
     "semantic_hash": ""
   },
   "src/features/expense/EditExpenseDialog.tsx": {
@@ -632,11 +632,6 @@
   "src/features/expense/ExpenseForm.tsx": {
     "mtime": 1793492024.9467142,
     "ast_hash": "4ed52c58efa7d54a1b1f8434bb9164d3",
-    "semantic_hash": ""
-  },
-  "src/features/expense/ExpenseListItem.tsx": {
-    "mtime": 1793494666.3282278,
-    "ast_hash": "58b48537c8a2562239a9b94701b501fc",
     "semantic_hash": ""
   },
   "src/features/expense/ExpenseRow.tsx": {
@@ -855,8 +850,8 @@
     "semantic_hash": ""
   },
   "src/features/modification/ModificationsPage.tsx": {
-    "mtime": 1793303738.7092588,
-    "ast_hash": "7908559af25919e041a852ab064acd3d",
+    "mtime": 1793991323.654367,
+    "ast_hash": "5daa7aaf48312a025b0df467dd00b6c2",
     "semantic_hash": ""
   },
   "src/features/notification/InviteResponse.tsx": {
@@ -1435,13 +1430,13 @@
     "semantic_hash": ""
   },
   "docs/DECISIONS.md": {
-    "mtime": 1793832370.9552217,
-    "ast_hash": "5341ac2fbc2dd6367fea638dc36a6ffe",
+    "mtime": 1793991559.214143,
+    "ast_hash": "9612be5e192b66cdb630d913f3221401",
     "semantic_hash": ""
   },
   "docs/DESIGN.md": {
-    "mtime": 1793832371.0087948,
-    "ast_hash": "5b50ef424bcb830de976bad36e762236",
+    "mtime": 1793991569.7341585,
+    "ast_hash": "20d8e359a2bcc8b5a344441f917aea11",
     "semantic_hash": ""
   },
   "index.html": {
@@ -1907,6 +1902,16 @@
   "src/features/vehicle/garageFilters.ts": {
     "mtime": 1793829765.3416462,
     "ast_hash": "ddd8fd5d669b6569958c867b201f2cda",
+    "semantic_hash": ""
+  },
+  "src/features/modification/ModificationOverview.tsx": {
+    "mtime": 1793991142.74545,
+    "ast_hash": "5cfe54e0e11e4bc5bc8f17f7a91ba751",
+    "semantic_hash": ""
+  },
+  "src/features/modification/ModificationRow.tsx": {
+    "mtime": 1793990834.507907,
+    "ast_hash": "40bb08b2f1dc47effadf7fd73ccc005f",
     "semantic_hash": ""
   }
 }
