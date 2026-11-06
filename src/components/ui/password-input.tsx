@@ -28,7 +28,7 @@ export function PasswordInput({
         tabIndex={-1}
         aria-label={visible ? "Ocultar senha" : "Mostrar senha"}
         aria-pressed={visible}
-        className="absolute inset-y-0 right-0 flex h-11 w-11 items-center justify-center rounded-md text-text-secondary transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+        className="absolute inset-y-0 right-0 flex size-control items-center justify-center rounded-md text-text-secondary transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
       >
         {visible ? (
           <EyeOff className="h-4 w-4" aria-hidden="true" />

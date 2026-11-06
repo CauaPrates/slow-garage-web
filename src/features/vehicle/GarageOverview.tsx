@@ -285,7 +285,7 @@ export function GarageDetails({ vehicles, id, open }: GarageOverviewProps & { id
                 state={queryState(d.maintenanceQuery)}
                 wrap
                 fullHint
-                mono={false}
+                numeric={false}
               />
             </GarageTileGrid>
           </div>

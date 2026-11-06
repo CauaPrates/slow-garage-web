@@ -6,10 +6,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  VEHICLE_FORM_DIALOG_CLASSNAME,
-  VEHICLE_FORM_DIALOG_HEADER_CLASSNAME,
+  FORM_DIALOG_CLASSNAME,
+  FORM_DIALOG_HEADER_CLASSNAME,
   focusDialogOnOpen,
-} from "@/features/vehicle/VehicleFormParts";
+} from "@/components/ui/form";
 import { useReturnFocus } from "@/hooks/useReturnFocus";
 import { translatePostgresError } from "@/lib/postgresErrors";
 import { cn } from "@/lib/utils";
@@ -29,7 +29,7 @@ type CreateExpenseDialogProps = {
 };
 
 /** Etapa 05: a casca do formulário do veículo (cabeçalho e rodapé fixos, só o corpo rola), mais estreita — o gasto tem menos campos. */
-export const EXPENSE_FORM_DIALOG_CLASSNAME = cn(VEHICLE_FORM_DIALOG_CLASSNAME, "max-w-xl");
+export const EXPENSE_FORM_DIALOG_CLASSNAME = cn(FORM_DIALOG_CLASSNAME, "max-w-xl");
 
 /**
  * Sem campo de anexo (RN-1) — o gasto ainda não tem id até este diálogo
@@ -87,7 +87,7 @@ export function CreateExpenseDialog({
         }}
         onCloseAutoFocus={returnFocus.onCloseAutoFocus}
       >
-        <DialogHeader className={VEHICLE_FORM_DIALOG_HEADER_CLASSNAME}>
+        <DialogHeader className={FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>{title}</DialogTitle>
           <DialogDescription>
             {upgradeCategoryId

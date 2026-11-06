@@ -8,7 +8,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  RECORD_CARD_CLASSNAME,
 } from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 import { FieldError } from "@/components/ui/field-error";
 import { useReturnFocus } from "@/hooks/useReturnFocus";
 import { translatePostgresError } from "@/lib/postgresErrors";
@@ -86,7 +88,7 @@ export function DeleteMaintenanceItemDialog({
             apagar, desligue “Item ativo” na edição. Essa ação não pode ser desfeita.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="flex flex-col gap-0.5 rounded-md border border-border bg-bg px-3 py-2.5">
+        <div className={cn("flex flex-col gap-0.5", RECORD_CARD_CLASSNAME)}>
           <p className="text-sm font-medium break-words text-text-primary">{item.name}</p>
           <p className="text-xs text-text-secondary">
             {intervalDescription(item)}

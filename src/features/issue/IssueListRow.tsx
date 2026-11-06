@@ -1,7 +1,8 @@
-import { useId, useRef, useState } from "react";
-import { ChevronDown, MoreHorizontal, Paperclip, Pencil, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useId, useState } from "react";
+import { Paperclip } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { DetailItem as Detail, DisclosureButton, INSET_CLASSNAME } from "@/components/ui/disclosure";
+import { RowActionsMenu } from "@/components/ui/menu";
 import { PRIORITY_LEVEL_LABELS } from "@/features/maintenance/schemas";
 import { formatDateOnly, formatKm } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -21,21 +22,6 @@ type IssueListRowProps = {
  */
 export const ISSUE_ROW_GRID = "lg:grid lg:grid-cols-[minmax(0,1fr)_9rem_7.5rem_9.5rem] lg:items-start lg:gap-x-4";
 
-const MENU_ITEM_CLASSNAME =
-  "flex min-h-11 w-full items-center gap-2.5 rounded-md px-2 text-left text-sm transition-colors duration-(--duration-fast)";
-
-const BADGE_CLASSNAME = "inline-flex shrink-0 items-center rounded-full border px-2 text-xs leading-5 font-medium whitespace-nowrap";
-
-function Detail({ label, value, wide = false }: { label: string; value: string | null; wide?: boolean }) {
-  return (
-    <div className={cn("flex min-w-0 flex-col gap-0.5", wide && "sm:col-span-2")}>
-      <dt className="text-xs text-text-secondary">{label}</dt>
-      <dd className={cn("break-words whitespace-pre-line", value ? "text-text-primary" : "text-text-secondary")}>
-        {value ?? "Não informado"}
-      </dd>
-    </div>
-  );
-}
 
 /**
  * Etapa 08: um problema. Título, a situação em selo (texto + cor; "Aberto"
@@ -53,8 +39,6 @@ export function IssueListRow({ issue, onEdit, onDelete }: IssueListRowProps) {
   const identityId = useId();
   const detailsId = useId();
   const [detailsOpen, setDetailsOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
 
   const status = ISSUE_STATUS_PRESENTATION[issue.status];
   const cost = issueCostLabel(issue.cost);
@@ -68,10 +52,10 @@ export function IssueListRow({ issue, onEdit, onDelete }: IssueListRowProps) {
     .filter(Boolean)
     .join(" · ");
 
-  const badge = <span className={cn(BADGE_CLASSNAME, status.className)}>{status.label}</span>;
+  const badge = <Badge tone={status.tone}>{status.label}</Badge>;
 
   return (
-    <li className={cn("flex flex-col gap-2 px-4 py-3", ISSUE_ROW_GRID)}>
+    <li className={cn("flex flex-col gap-2 px-(--panel-pad-x) py-3", ISSUE_ROW_GRID)}>
       {/* Lido como contexto dos botões da linha: qual problema eles afetam. */}
       <span id={identityId} className="sr-only">
         {issue.title}, {status.label}, {reported}
@@ -79,7 +63,7 @@ export function IssueListRow({ issue, onEdit, onDelete }: IssueListRowProps) {
 
       <div className="flex min-w-0 flex-col gap-1">
         <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="min-w-0 text-sm font-medium break-words text-text-primary">{issue.title}</span>
+          <span className="type-item-title min-w-0 text-text-primary">{issue.title}</span>
           <span className="lg:hidden">{badge}</span>
         </p>
         <p className="text-xs break-words text-text-secondary tabular-nums">
@@ -97,9 +81,9 @@ export function IssueListRow({ issue, onEdit, onDelete }: IssueListRowProps) {
 
       <div className="hidden lg:block lg:pt-px">{badge}</div>
 
-      <p className="hidden text-right font-mono text-sm tabular-nums lg:block">
+      <p className="hidden text-right text-sm lg:block">
         {cost ? (
-          <span className="text-text-primary">{cost}</span>
+          <span className="type-value text-sm text-text-primary">{cost}</span>
         ) : (
           <span className="text-text-secondary">
             <span aria-hidden="true">—</span>
@@ -110,70 +94,30 @@ export function IssueListRow({ issue, onEdit, onDelete }: IssueListRowProps) {
 
       {/* No celular, margens negativas: os alvos de 44px não somam um vão em branco embaixo da linha. */}
       <div className="-mx-2 -mt-1 -mb-2 flex items-center gap-1 lg:mx-0 lg:-my-1 lg:justify-end">
-        <button
-          type="button"
-          aria-expanded={detailsOpen}
-          aria-controls={detailsId}
-          aria-describedby={identityId}
-          onClick={() => setDetailsOpen((open) => !open)}
-          className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-md px-2 text-sm text-text-secondary transition-colors duration-(--duration-fast) hover:bg-state-hover hover:text-text-primary"
+        <DisclosureButton
+          open={detailsOpen}
+          controls={detailsId}
+          describedBy={identityId}
+          onToggle={() => setDetailsOpen((open) => !open)}
         >
           Detalhes
-          <ChevronDown
-            className={cn(
-              "h-4 w-4 motion-safe:transition-transform motion-safe:duration-(--duration-base)",
-              detailsOpen && "rotate-180",
-            )}
-            aria-hidden="true"
-          />
-        </button>
+        </DisclosureButton>
         <span className="flex-1 lg:hidden" aria-hidden="true" />
-        <Popover open={menuOpen} onOpenChange={setMenuOpen}>
-          <PopoverTrigger asChild>
-            <Button
-              ref={triggerRef}
-              variant="ghost"
-              size="icon"
-              aria-label="Ações do problema"
-              aria-describedby={identityId}
-              className="shrink-0 text-text-secondary hover:text-text-primary data-[state=open]:bg-state-active data-[state=open]:text-text-primary"
-            >
-              <MoreHorizontal className="h-5 w-5" aria-hidden="true" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-56 p-1.5" align="end" aria-label="Ações do problema">
-            <button
-              type="button"
-              onClick={() => {
-                setMenuOpen(false);
-                onEdit(issue, triggerRef.current);
-              }}
-              className={`${MENU_ITEM_CLASSNAME} text-text-primary hover:bg-state-hover`}
-            >
-              <Pencil className="h-4 w-4 text-text-secondary" aria-hidden="true" />
-              Editar problema
-            </button>
-            <div className="my-1.5 h-px bg-border" aria-hidden="true" />
-            <button
-              type="button"
-              onClick={() => {
-                setMenuOpen(false);
-                onDelete(issue, triggerRef.current);
-              }}
-              className={`${MENU_ITEM_CLASSNAME} text-error hover:bg-error/10`}
-            >
-              <Trash2 className="h-4 w-4" aria-hidden="true" />
-              Excluir problema
-            </button>
-          </PopoverContent>
-        </Popover>
+        <RowActionsMenu
+          label="Ações do problema"
+          editLabel="Editar problema"
+          deleteLabel="Excluir problema"
+          describedBy={identityId}
+          onEdit={(trigger) => onEdit(issue, trigger)}
+          onDelete={(trigger) => onDelete(issue, trigger)}
+        />
       </div>
 
       {/* Fechado: `hidden` (continua montado). Conteúdo inteiro, sem corte. */}
       <dl
         id={detailsId}
         hidden={!detailsOpen}
-        className="grid grid-cols-1 gap-x-6 gap-y-2 rounded-md border border-border bg-bg px-3 py-2.5 text-sm sm:grid-cols-2 lg:col-span-4"
+        className={cn("grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2 lg:col-span-4", INSET_CLASSNAME)}
       >
         <Detail label="Descrição" value={issue.description} wide />
         <Detail label="Diagnóstico" value={issue.diagnosis} wide />

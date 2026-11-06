@@ -2,10 +2,6 @@ import { useRef, useState, type ReactNode } from "react";
 import { flushSync } from "react-dom";
 import { useForm, useWatch, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { DialogClose } from "@/components/ui/dialog";
-import { FieldError } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +10,9 @@ import {
   FormSection,
   NUMBER_INPUT_CLASSNAME,
   UnitAffix,
-} from "@/features/vehicle/VehicleFormParts";
+  FormBody,
+  FormFooter,
+} from "@/components/ui/form";
 import { formatMoney, todayDateOnly } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
@@ -155,7 +153,7 @@ export function MaintenanceRecordForm({
       noValidate
     >
       {/* A única região que rola: cabeçalho e rodapé do diálogo ficam fixos. */}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 sm:px-6">
+      <FormBody>
         <FormSection title="Serviço">
           <FormField
             id="maintenanceItemId"
@@ -217,7 +215,7 @@ export function MaintenanceRecordForm({
                     id="odometerKm"
                     type="number"
                     inputMode="numeric"
-                    className={cn("pr-11 font-mono", NUMBER_INPUT_CLASSNAME)}
+                    className={cn("pr-11", NUMBER_INPUT_CLASSNAME)}
                     {...a11y}
                     {...register("odometerKm")}
                   />
@@ -243,7 +241,7 @@ export function MaintenanceRecordForm({
                     type="number"
                     inputMode="decimal"
                     step="0.01"
-                    className={cn("pl-10 font-mono", NUMBER_INPUT_CLASSNAME)}
+                    className={cn("pl-10", NUMBER_INPUT_CLASSNAME)}
                     {...a11y}
                     {...register("cost")}
                   />
@@ -266,26 +264,9 @@ export function MaintenanceRecordForm({
             Nota fiscal ou recibo: dá pra anexar depois de salvar, editando o serviço.
           </p>
         )}
-      </div>
+      </FormBody>
 
-      <div className="shrink-0 border-t border-border px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-6 sm:pb-4">
-        {submitError && (
-          <div className="mb-3">
-            <FieldError>{submitError}</FieldError>
-          </div>
-        )}
-        <div className="flex gap-2 sm:justify-end sm:gap-3">
-          <DialogClose asChild>
-            <Button type="button" variant="ghost">
-              Cancelar
-            </Button>
-          </DialogClose>
-          <Button type="submit" disabled={isSubmitting} className="flex-1 sm:min-w-44 sm:flex-none">
-            {isSubmitting && <Loader2 className="h-4 w-4 motion-safe:animate-spin" aria-hidden="true" />}
-            {isSubmitting ? "Salvando…" : submitLabel}
-          </Button>
-        </div>
-      </div>
+      <FormFooter error={submitError} submitting={isSubmitting} submitLabel={submitLabel} />
     </form>
   );
 }

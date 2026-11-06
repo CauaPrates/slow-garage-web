@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ROUTES } from "@/lib/routes";
 import { TimelineItem } from "@/features/timeline/TimelineItem";
 import type { TimelineEventRow } from "@/features/timeline/useTimeline";
-import { DashboardPanel, PANEL_LINK_CLASSNAME } from "./DashboardPanel";
+import { Panel, PANEL_LINK_CLASSNAME } from "@/components/ui/panel";
 
 type RecentActivityPanelProps = {
   vehicleId: string;
@@ -25,7 +25,7 @@ const RECENT_TIMELINE_LIMIT = 5;
  */
 export function RecentActivityPanel({ vehicleId, query }: RecentActivityPanelProps) {
   return (
-    <DashboardPanel
+    <Panel
       title="Atividade recente"
       description="Os 5 registros mais recentes."
       action={
@@ -72,6 +72,6 @@ export function RecentActivityPanel({ vehicleId, query }: RecentActivityPanelPro
           ))}
         </ul>
       )}
-    </DashboardPanel>
+    </Panel>
   );
 }

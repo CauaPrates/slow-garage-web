@@ -2,6 +2,7 @@ import * as React from "react";
 import * as AlertDialogPrimitive from "@radix-ui/react-alert-dialog";
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "./button";
+import { INSET_CLASSNAME } from "./disclosure";
 
 export const AlertDialog = AlertDialogPrimitive.Root;
 export const AlertDialogTrigger = AlertDialogPrimitive.Trigger;
@@ -36,7 +37,7 @@ export function AlertDialogTitle({
 }: React.ComponentProps<typeof AlertDialogPrimitive.Title>) {
   return (
     <AlertDialogPrimitive.Title
-      className={cn("text-lg font-semibold tracking-tight text-text-primary", className)}
+      className={cn("type-dialog-title text-text-primary", className)}
       {...props}
     />
   );
@@ -87,3 +88,34 @@ export function AlertDialogAction({
     />
   );
 }
+
+type AlertDialogRecordProps = {
+  /** Identificação do registro: nome/título e as linhas de contexto (categoria, data, anexo). */
+  children: React.ReactNode;
+  /** O valor do registro, à direita (dinheiro, litros). Ausente é escrito por quem chama ("Custo não informado"). */
+  value?: React.ReactNode;
+  className?: string;
+};
+
+/**
+ * Harmonização 01: o cartão neutro com o registro que vai ser excluído —
+ * igual em todas as confirmações. O **texto** (título, consequências, o que
+ * acontece com anexos e totais) continua de cada entidade; aqui só a forma.
+ * Valor em display tabular, nunca mono.
+ */
+export function AlertDialogRecord({ children, value, className }: AlertDialogRecordProps) {
+  return (
+    <div
+      className={cn(
+        cn("flex items-start justify-between gap-3", RECORD_CARD_CLASSNAME),
+        className,
+      )}
+    >
+      <div className="flex min-w-0 flex-col gap-0.5">{children}</div>
+      {value != null && <div className="type-value shrink-0 text-right text-sm text-text-primary">{value}</div>}
+    </div>
+  );
+}
+
+/** A mesma casca, para cartões de registro com outra composição (custos empilhados, veículo). */
+export const RECORD_CARD_CLASSNAME = INSET_CLASSNAME;

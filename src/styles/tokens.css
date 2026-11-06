@@ -36,6 +36,14 @@
   --color-error-foreground: #111315;
   --color-warning: #e0b238;
   --color-warning-foreground: #111315;
+  /*
+   * Harmonização 01 — os dois papéis que faltavam. Discreto: placeholder,
+   * ícone de estado vazio, separador; um degrau abaixo do secundário e ainda
+   * 5:1+ sobre bg, surface e raised (nunca sobre selo tintado). Informação:
+   * aviso que não é sucesso, atenção nem erro — 5.2:1+ inclusive sob tinta a 10%.
+   */
+  --color-text-muted: #8e949a;
+  --color-info: #79a8e0;
 
   /* Estados de interação — sobreposição translúcida, funciona tanto sobre bg quanto sobre surface. */
   --color-state-hover: color-mix(in srgb, var(--color-text-primary) 6%, transparent);
@@ -59,6 +67,39 @@
   --radius-sm: 0.25rem;
   --radius-md: 0.375rem;
   --radius-lg: 0.625rem;
+
+  /*
+   * Harmonização 01 — fundamentos de layout e controle. Mudar um valor aqui
+   * muda todas as telas que usam `Page`, `PageHeader`, `Panel`, `Button`,
+   * os campos e o menu "⋯" — nenhuma tela repete o número.
+   *
+   * Página: margem lateral, respiro vertical e vão entre blocos (16/20px no
+   * celular, 24px a partir de `sm`). A faixa de resumo usa a margem negativa
+   * para encostar os filetes na borda da área de conteúdo.
+   */
+  --page-gutter: 1rem;
+  --page-pad-y: 1.25rem;
+  --page-gap: 1.25rem;
+  /* Painel: respiro interno das linhas, cabeçalhos e estados. */
+  --panel-pad-x: 1rem;
+  --panel-pad-y: 0.75rem;
+  /* Altura de controle: 44px é o alvo mínimo do app; 56px para alvo de toque com ícone sobre rótulo. */
+  --control-h: 2.75rem;
+  --control-h-touch: 3.5rem;
+  /* Anel de foco de campo (soma ao contorno global de `:focus-visible`). */
+  --focus-ring-field: 0 0 0 3px color-mix(in srgb, var(--color-accent) 30%, transparent);
+
+  /*
+   * Escala tipográfica por papel (as utilidades `type-*` em globals.css).
+   * Título de página encolhe no celular em vez de quebrar a palavra: em 320px
+   * "ABASTECIMENTOS" divide a linha com a ação principal.
+   */
+  --type-page-title-size: clamp(1.25rem, 6vw, 1.5rem);
+  --type-entity-title-size: 1.25rem;
+  --type-stat-size: 1.125rem;
+  --type-value-size: 1rem;
+  --type-overline-size: 0.6875rem;
+  --type-overline-tracking: 0.08em;
 
   /*
    * Garagem A3 (ADR-094) — filete editorial (fios da ficha, do resumo e dos
@@ -107,6 +148,8 @@
   /* Movimento: só resposta a ação, nunca decoração (docs/DESIGN.md, "Sistema de resposta"). */
   --duration-fast: 120ms;
   --duration-base: 180ms;
+  /* Realce de valor alterado (`value-flash`): confirma a mudança uma vez, só com `motion-safe`. */
+  --duration-flash: 400ms;
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
   /*
@@ -125,6 +168,17 @@
   --chart-series-6: #008300; /* verde */
   --chart-series-7: #9085e9; /* violeta */
   --chart-series-8: #e66767; /* vermelho */
+}
+
+/* A partir de `sm` (40rem): mais margem e título de página maior. Os valores de cor não mudam por largura. */
+@media (min-width: 40rem) {
+  :root {
+    --page-gutter: 1.5rem;
+    --page-pad-y: 1.5rem;
+    --type-page-title-size: 1.875rem;
+    --type-entity-title-size: 1.5rem;
+    --type-stat-size: 1.25rem;
+  }
 }
 
 .light {
@@ -148,6 +202,8 @@
   --color-error-foreground: #ffffff;
   --color-warning: #7c5b10;
   --color-warning-foreground: #ffffff;
+  --color-text-muted: #666b71;
+  --color-info: #2c5d99;
 
   --color-overlay: rgb(17 19 21 / 0.45);
 

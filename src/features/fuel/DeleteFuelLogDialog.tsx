@@ -8,6 +8,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogRecord,
 } from "@/components/ui/alert-dialog";
 import { FieldError } from "@/components/ui/field-error";
 import { useReturnFocus } from "@/hooks/useReturnFocus";
@@ -86,18 +87,19 @@ export function DeleteFuelLogDialog({
             sumir. Essa ação não pode ser desfeita.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="flex items-start justify-between gap-3 rounded-md border border-border bg-bg px-3 py-2.5">
-          <div className="flex min-w-0 flex-col gap-0.5">
+        <AlertDialogRecord
+          value={
+            <>
+              {formatMoney(log.total_amount ?? 0)}
+              <span className="block text-xs font-normal text-text-secondary">{formatLitersExact(log.liters ?? 0)}</span>
+            </>
+          }
+        >
             <p className="text-sm font-medium text-text-primary">
               {log.occurred_on ? formatDateOnly(log.occurred_on) : "Sem data"}
             </p>
             <p className="text-xs break-words text-text-secondary">{meta}</p>
-          </div>
-          <div className="flex shrink-0 flex-col items-end gap-0.5">
-            <p className="font-mono text-sm text-text-primary">{formatMoney(log.total_amount ?? 0)}</p>
-            <p className="font-mono text-xs text-text-secondary">{formatLitersExact(log.liters ?? 0)}</p>
-          </div>
-        </div>
+        </AlertDialogRecord>
         {error && (
           <div className="mt-3">
             <FieldError>{error}</FieldError>

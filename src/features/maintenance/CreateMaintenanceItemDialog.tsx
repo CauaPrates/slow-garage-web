@@ -7,9 +7,9 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  VEHICLE_FORM_DIALOG_HEADER_CLASSNAME,
+  FORM_DIALOG_HEADER_CLASSNAME,
   focusDialogOnOpen,
-} from "@/features/vehicle/VehicleFormParts";
+} from "@/components/ui/form";
 import { useReturnFocus } from "@/hooks/useReturnFocus";
 import { translatePostgresError } from "@/lib/postgresErrors";
 import { MAINTENANCE_FORM_DIALOG_CLASSNAME } from "./CreateMaintenanceRecordDialog";
@@ -68,7 +68,7 @@ export function CreateMaintenanceItemDialog({
         }}
         onCloseAutoFocus={returnFocus.onCloseAutoFocus}
       >
-        <DialogHeader className={VEHICLE_FORM_DIALOG_HEADER_CLASSNAME}>
+        <DialogHeader className={FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>Adicionar ao plano</DialogTitle>
           <DialogDescription>
             Algo para acompanhar periodicamente. O serviço feito é registrado à parte, em “Registrar serviço”.

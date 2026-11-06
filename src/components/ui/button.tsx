@@ -19,8 +19,8 @@ export const buttonVariants = cva(
         destructive: "bg-error text-error-foreground hover:bg-error/90",
       },
       size: {
-        default: "h-11 px-4 py-2",
-        icon: "h-11 w-11",
+        default: "h-control px-4 py-2",
+        icon: "size-control",
       },
     },
     defaultVariants: {

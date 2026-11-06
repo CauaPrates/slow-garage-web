@@ -67,7 +67,7 @@ function ActionButton({ icon: Icon, labels, onClick }: ActionButtonProps) {
       className={cn(
         buttonVariants({ variant: "outline" }),
         // 11px no celular, como a barra inferior: "Manutenção" em 12px não cabia em 1/4 de 360px.
-        "h-auto min-h-14 min-w-0 flex-col gap-1 px-0.5 py-2 text-[11px] sm:min-h-11 sm:flex-row sm:gap-2 sm:px-3 sm:text-sm",
+        "h-auto min-h-control-touch min-w-0 flex-col gap-1 px-0.5 py-2 text-[11px] sm:min-h-control sm:flex-row sm:gap-2 sm:px-3 sm:text-sm",
       )}
     >
       <Icon className="h-5 w-5 shrink-0 text-text-secondary" aria-hidden="true" />

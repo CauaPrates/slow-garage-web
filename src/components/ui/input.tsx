@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
  * acento e soma um anel; erro (`aria-invalid`) vence o hover.
  */
 export const fieldClassName =
-  "w-full min-w-0 rounded-md border border-border-strong bg-field px-3 py-2 text-base text-text-primary outline-none transition-[border-color,box-shadow] duration-(--duration-fast) placeholder:text-text-secondary hover:border-text-secondary focus-visible:border-accent focus-visible:ring-3 focus-visible:ring-accent/30 disabled:cursor-not-allowed disabled:bg-state-hover disabled:opacity-60 disabled:hover:border-border-strong aria-invalid:border-error aria-invalid:ring-3 aria-invalid:ring-error/20 md:text-sm";
+  "w-full min-w-0 rounded-md border border-border-strong bg-field px-3 py-2 text-base text-text-primary outline-none transition-[border-color,box-shadow] duration-(--duration-fast) placeholder:text-text-muted hover:border-text-secondary focus-visible:border-accent focus-visible:shadow-(--focus-ring-field) disabled:cursor-not-allowed disabled:bg-state-hover disabled:opacity-60 disabled:hover:border-border-strong aria-invalid:border-error aria-invalid:ring-3 aria-invalid:ring-error/20 md:text-sm";
 
 export function Input({
   className,
@@ -20,7 +20,7 @@ export function Input({
     <input
       type={type}
       data-slot="input"
-      className={cn(fieldClassName, "h-11", className)}
+      className={cn(fieldClassName, "h-control", className)}
       {...props}
     />
   );

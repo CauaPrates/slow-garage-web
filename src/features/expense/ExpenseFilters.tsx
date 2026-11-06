@@ -1,8 +1,9 @@
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import { FilterField } from "@/components/ui/form";
 import { Select } from "@/components/ui/select";
 import { PERIODS, PERIOD_LABELS } from "@/lib/period";
+import { cn } from "@/lib/utils";
 import type { useExpenseCategories } from "./useExpenseCategories";
 import type { ExpenseFilters as ExpenseFiltersValue } from "./useExpenses";
 
@@ -12,6 +13,7 @@ type ExpenseFiltersProps = {
   onChange: (value: ExpenseFiltersValue) => void;
   /** Aparece só com algum filtro ativo. */
   onClear?: () => void;
+  className?: string;
 };
 
 /**
@@ -21,12 +23,11 @@ type ExpenseFiltersProps = {
  * em vez de dividir a tela inteira. "Limpar filtros" só aparece com filtro
  * ativo.
  */
-export function ExpenseFilters({ categories, value, onChange, onClear }: ExpenseFiltersProps) {
+export function ExpenseFilters({ categories, value, onChange, onClear, className }: ExpenseFiltersProps) {
   return (
-    <div className="flex flex-wrap items-end gap-3">
+    <div className={cn("flex flex-wrap items-end gap-3", className)}>
       <div className="grid min-w-0 flex-1 grid-cols-2 gap-3 sm:flex sm:flex-none">
-        <div className="flex min-w-0 flex-col gap-1.5 sm:w-52">
-          <Label htmlFor="filter-category">Categoria</Label>
+        <FilterField id="filter-category" label="Categoria" className="sm:w-52">
           <Select
             id="filter-category"
             value={value.categoryId}
@@ -39,9 +40,8 @@ export function ExpenseFilters({ categories, value, onChange, onClear }: Expense
               </option>
             ))}
           </Select>
-        </div>
-        <div className="flex min-w-0 flex-col gap-1.5 sm:w-44">
-          <Label htmlFor="filter-period">Período</Label>
+        </FilterField>
+        <FilterField id="filter-period" label="Período" className="sm:w-44">
           <Select
             id="filter-period"
             value={value.period}
@@ -55,7 +55,7 @@ export function ExpenseFilters({ categories, value, onChange, onClear }: Expense
               </option>
             ))}
           </Select>
-        </div>
+        </FilterField>
       </div>
       {onClear && (
         <Button type="button" variant="ghost" onClick={onClear} className="px-3">

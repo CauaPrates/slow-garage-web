@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { MenuSeparator, menuItemClassName } from "@/components/ui/menu";
 import { Link, useNavigate } from "react-router-dom";
 import { LogOut, Mail, Settings, ShieldCheck, User } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -8,9 +9,6 @@ import { SignOutDialog } from "@/features/auth/components/SignOutDialog";
 import { ROUTES } from "@/lib/routes";
 import { initialsFrom } from "@/components/shared/UserAvatar";
 import { useIsAdmin } from "@/features/admin/useIsAdmin";
-
-const MENU_ITEM_CLASSNAME =
-  "flex min-h-11 w-full items-center gap-2.5 rounded-md px-2 text-left text-sm transition-colors duration-(--duration-fast)";
 
 /** Foto real (`avatar_url`) > iniciais do nome de exibição > ícone genérico — nessa ordem, nunca inventando uma das duas primeiras quando falta dado. "Sair" reaproveita o `SignOutDialog` já usado em Configurações, mesma confirmação. */
 export function HeaderUserMenu() {
@@ -60,7 +58,7 @@ export function HeaderUserMenu() {
           <Link
             to={ROUTES.configuracoes}
             onClick={() => setMenuOpen(false)}
-            className={`${MENU_ITEM_CLASSNAME} text-text-primary hover:bg-state-hover`}
+            className={menuItemClassName()}
           >
             <Settings className="h-4 w-4 text-text-secondary" aria-hidden="true" />
             Configurações
@@ -68,7 +66,7 @@ export function HeaderUserMenu() {
           <Link
             to={ROUTES.meusConvites}
             onClick={() => setMenuOpen(false)}
-            className={`${MENU_ITEM_CLASSNAME} text-text-primary hover:bg-state-hover`}
+            className={menuItemClassName()}
           >
             <Mail className="h-4 w-4 text-text-secondary" aria-hidden="true" />
             Meus convites
@@ -78,20 +76,20 @@ export function HeaderUserMenu() {
             <Link
               to={ROUTES.admin}
               onClick={() => setMenuOpen(false)}
-              className={`${MENU_ITEM_CLASSNAME} text-text-primary hover:bg-state-hover`}
+              className={menuItemClassName()}
             >
               <ShieldCheck className="h-4 w-4 text-text-secondary" aria-hidden="true" />
               Painel admin
             </Link>
           )}
-          <div className="my-1.5 h-px bg-border" aria-hidden="true" />
+          <MenuSeparator />
           <button
             type="button"
             onClick={() => {
               setMenuOpen(false);
               setSignOutOpen(true);
             }}
-            className={`${MENU_ITEM_CLASSNAME} text-error hover:bg-error/10`}
+            className={menuItemClassName("destructive")}
           >
             <LogOut className="h-4 w-4" aria-hidden="true" />
             Sair

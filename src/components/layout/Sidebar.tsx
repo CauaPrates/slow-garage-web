@@ -20,6 +20,7 @@ import { BrandLogo } from "./BrandLogo";
 import { NAV_EYEBROW_CLASSNAME } from "./navStyles";
 import { useIsAdmin } from "@/features/admin/useIsAdmin";
 import { ROUTES } from "@/lib/routes";
+import { PlateTag } from "@/components/ui/plate-tag";
 
 const ADMIN_NAV_ITEM: NavItem = { label: "Painel admin", icon: ShieldCheck, to: ROUTES.admin };
 
@@ -150,9 +151,7 @@ export function Sidebar({ vehicles }: SidebarProps) {
                   {vehicleName}
                 </p>
                 {vehicle?.plate && (
-                  <span className="shrink-0 rounded-sm border border-border px-1.5 py-px font-mono text-[11px] tracking-wider text-text-secondary">
-                    {vehicle.plate}
-                  </span>
+                  <PlateTag plate={vehicle.plate} className="text-text-secondary" />
                 )}
               </div>
             </div>

@@ -1,7 +1,6 @@
 import { useId, useRef, useState } from "react";
-import { MoreHorizontal, Paperclip, Pencil, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Paperclip } from "lucide-react";
+import { RowActionsMenu } from "@/components/ui/menu";
 import { formatDateOnly, formatKm, formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { EditMaintenanceRecordDialog } from "./EditMaintenanceRecordDialog";
@@ -26,9 +25,6 @@ type MaintenanceRecordRowProps = {
  */
 export const RECORD_ROW_GRID =
   "md:grid-cols-[minmax(0,1fr)_minmax(0,0.6fr)_6rem_6.5rem_6.75rem_2.75rem] md:gap-x-3 2xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,0.7fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_2.75rem] 2xl:gap-x-6";
-
-const MENU_ITEM_CLASSNAME =
-  "flex min-h-11 w-full items-center gap-2.5 rounded-md px-2 text-left text-sm transition-colors duration-(--duration-fast)";
 
 /** Vínculo e anexo em texto (nunca só ícone). */
 function LinkAndAttachment({ linkLabel, hasAttachment }: { linkLabel: string; hasAttachment: boolean }) {
@@ -57,10 +53,10 @@ function LinkAndAttachment({ linkLabel, hasAttachment }: { linkLabel: string; ha
  */
 export function MaintenanceRecordRow({ vehicleId, record, items, listTitleId }: MaintenanceRecordRowProps) {
   const identityId = useId();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  // O "⋯" (do `RowActionsMenu`) — o foco volta pra ele quando um diálogo fecha.
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   const date = record.performed_on ? formatDateOnly(record.performed_on) : "Sem data";
   const odometer = record.odometer_km != null ? formatKm(record.odometer_km) : null;
@@ -109,7 +105,9 @@ export function MaintenanceRecordRow({ vehicleId, record, items, listTitleId }: 
   return (
     <li
       className={cn(
-        "grid grid-cols-[minmax(0,1fr)_auto_2.75rem] items-start gap-x-3 px-4 py-3",
+        // Harmonização 01: no celular, nome + "⋯" na 1ª linha e o custo embaixo (padrão de Modificações) — o nome
+        // do serviço não divide mais a largura com uma coluna de valor. A partir de `md`, colunas explícitas.
+        "grid grid-cols-[minmax(0,1fr)_2.75rem] items-start gap-x-3 gap-y-0.5 px-(--panel-pad-x) py-3 md:gap-y-0",
         RECORD_ROW_GRID,
       )}
     >
@@ -118,15 +116,15 @@ export function MaintenanceRecordRow({ vehicleId, record, items, listTitleId }: 
         {record.name}, {date}, {odometer ?? "sem quilometragem"}, {cost ?? "sem custo informado"}
       </span>
 
-      <div className="flex min-w-0 flex-col gap-0.5">
-        <p className="text-sm font-medium break-words text-text-primary">{record.name}</p>
+      <div className="col-start-1 row-start-1 flex min-w-0 flex-col gap-0.5 pt-0.5 md:pt-0">
+        <p className="type-item-title text-text-primary">{record.name}</p>
         {/* Desktop: vínculo e anexo sob o nome; fornecedor, data, km e custo nas colunas. */}
         <p className="hidden text-xs text-text-secondary md:block">
           <LinkAndAttachment linkLabel={linkLabel} hasAttachment={record.attachment != null} />
         </p>
       </div>
 
-      <p className="hidden min-w-0 text-sm break-words md:block">
+      <p className="hidden min-w-0 text-sm break-words md:col-start-2 md:row-start-1 md:block">
         {record.vendor ? (
           <span className="text-text-primary">{record.vendor}</span>
         ) : (
@@ -137,11 +135,11 @@ export function MaintenanceRecordRow({ vehicleId, record, items, listTitleId }: 
         )}
       </p>
 
-      <p className="hidden text-right text-sm text-text-primary tabular-nums md:block">
+      <p className="hidden text-right text-sm text-text-primary tabular-nums md:col-start-3 md:row-start-1 md:block">
         {record.performed_on ? <time dateTime={record.performed_on}>{date}</time> : date}
       </p>
 
-      <p className="hidden text-right font-mono text-sm tabular-nums md:block">
+      <p className="hidden text-right text-sm tabular-nums md:col-start-4 md:row-start-1 md:block">
         {odometer ? (
           <span className="text-text-primary">{odometer}</span>
         ) : (
@@ -152,64 +150,43 @@ export function MaintenanceRecordRow({ vehicleId, record, items, listTitleId }: 
         )}
       </p>
 
-      {/* Custo: à direita no celular (1ª linha) e na coluna do desktop. */}
-      <p className="text-right font-mono text-sm whitespace-nowrap tabular-nums">
+      {/* Custo: sob o nome no celular, na coluna do desktop. Ausente não é zero: escrito no celular, "—" na coluna. */}
+      <p className="col-span-2 col-start-1 row-start-2 text-sm whitespace-nowrap md:col-span-1 md:col-start-5 md:row-start-1 md:text-right">
         {cost ? (
-          <span className="font-medium text-text-primary">{cost}</span>
+          <span className="type-value text-text-primary md:text-sm">{cost}</span>
         ) : (
           <span className="text-text-secondary">
-            <span aria-hidden="true">—</span>
-            <span className="sr-only">Sem custo informado</span>
+            <span aria-hidden="true" className="hidden md:inline">
+              —
+            </span>
+            <span className="text-xs md:sr-only">Custo não informado</span>
           </span>
         )}
       </p>
 
-      <Popover open={menuOpen} onOpenChange={setMenuOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            ref={triggerRef}
-            variant="ghost"
-            size="icon"
-            aria-label="Ações do serviço"
-            aria-describedby={identityId}
-            className="-my-2.5 text-text-secondary hover:text-text-primary data-[state=open]:bg-state-active data-[state=open]:text-text-primary"
-          >
-            <MoreHorizontal className="h-5 w-5" aria-hidden="true" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-56 p-1.5" align="end" aria-label="Ações do serviço">
-          <button
-            type="button"
-            onClick={() => {
-              setMenuOpen(false);
-              setEditOpen(true);
-            }}
-            className={`${MENU_ITEM_CLASSNAME} text-text-primary hover:bg-state-hover`}
-          >
-            <Pencil className="h-4 w-4 text-text-secondary" aria-hidden="true" />
-            Editar serviço
-          </button>
-          <div className="my-1.5 h-px bg-border" aria-hidden="true" />
-          <button
-            type="button"
-            onClick={() => {
-              removalTriggerRef.current = triggerRef.current;
-              setMenuOpen(false);
-              setDeleteOpen(true);
-            }}
-            className={`${MENU_ITEM_CLASSNAME} text-error hover:bg-error/10`}
-          >
-            <Trash2 className="h-4 w-4" aria-hidden="true" />
-            Excluir serviço
-          </button>
-        </PopoverContent>
-      </Popover>
+      <div className="col-start-2 row-start-1 -my-2.5 flex justify-end md:col-start-6">
+        <RowActionsMenu
+          label="Ações do serviço"
+          editLabel="Editar serviço"
+          deleteLabel="Excluir serviço"
+          describedBy={identityId}
+          onEdit={(trigger) => {
+            triggerRef.current = trigger;
+            setEditOpen(true);
+          }}
+          onDelete={(trigger) => {
+            triggerRef.current = trigger;
+            removalTriggerRef.current = trigger;
+            setDeleteOpen(true);
+          }}
+        />
+      </div>
 
       {/*
         Celular, faixa de baixo em largura inteira (depois do "⋯" no DOM, então
         começa na 2ª linha da grade): data e km, fornecedor e vínculo, anexo.
       */}
-      <div className="col-span-3 mt-0.5 flex min-w-0 flex-col gap-0.5 text-xs text-text-secondary md:hidden">
+      <div className="col-span-2 flex min-w-0 flex-col gap-0.5 text-xs text-text-secondary md:hidden">
         <p className="tabular-nums">
           {date} · {odometer ?? "sem quilometragem"}
         </p>

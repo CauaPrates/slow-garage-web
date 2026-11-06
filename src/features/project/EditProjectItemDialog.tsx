@@ -8,9 +8,9 @@ import {
 } from "@/components/ui/dialog";
 import { AttachmentField } from "@/features/attachment/AttachmentField";
 import {
-  VEHICLE_FORM_DIALOG_HEADER_CLASSNAME,
+  FORM_DIALOG_HEADER_CLASSNAME,
   focusDialogOnOpen,
-} from "@/features/vehicle/VehicleFormParts";
+} from "@/components/ui/form";
 import { useReturnFocus } from "@/hooks/useReturnFocus";
 import { translatePostgresError } from "@/lib/postgresErrors";
 import { PROJECT_FORM_DIALOG_CLASSNAME } from "./CreateProjectDialog";
@@ -94,7 +94,7 @@ export function EditProjectItemDialog({ item, projectName, open, onOpenChange }:
         }}
         onCloseAutoFocus={returnFocus.onCloseAutoFocus}
       >
-        <DialogHeader className={VEHICLE_FORM_DIALOG_HEADER_CLASSNAME}>
+        <DialogHeader className={FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>Editar item</DialogTitle>
           <DialogDescription className="break-words">
             {item.name} · {PROJECT_ITEM_STATUS_LABELS[item.status]}

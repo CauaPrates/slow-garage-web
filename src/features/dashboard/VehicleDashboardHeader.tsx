@@ -7,6 +7,8 @@ import { cn } from "@/lib/utils";
 import { EditVehicleDialog } from "@/features/vehicle/EditVehicleDialog";
 import { VEHICLE_STATUS_LABELS } from "@/features/vehicle/schemas";
 import type { VehicleWithSummary } from "@/features/vehicle/useVehicles";
+import { Badge } from "@/components/ui/badge";
+import { PlateTag } from "@/components/ui/plate-tag";
 
 type VehicleDashboardHeaderProps = {
   vehicle: VehicleWithSummary;
@@ -61,8 +63,9 @@ export function VehicleDashboardHeader({ vehicle }: VehicleDashboardHeaderProps)
       <Thumbnail photoUrl={vehicle.photoUrl} />
 
       <div className="flex min-w-0 flex-col gap-1 self-center sm:self-end">
-        <h1 className="text-lg leading-tight font-semibold tracking-tight break-words text-text-primary sm:text-2xl">
-          <span className="block text-[11px] font-medium tracking-[0.08em] text-text-secondary uppercase sm:text-xs">
+        {/* Harmonização 01: nome do veículo no papel de título de registro (display, caixa normal); marca em sobrelinha. */}
+        <h1 className="type-entity-title text-text-primary">
+          <span className="type-overline block font-sans text-text-secondary">
             {vehicle.make}
           </span>{" "}
           {vehicle.model}
@@ -70,31 +73,22 @@ export function VehicleDashboardHeader({ vehicle }: VehicleDashboardHeaderProps)
         {(details.length > 0 || vehicle.plate) && (
           <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-text-secondary">
             {details.length > 0 && <span>{details.join(" · ")}</span>}
-            {vehicle.plate && (
-              <span className="rounded-sm border border-border px-1.5 py-px font-mono text-[11px] tracking-wider whitespace-nowrap">
-                <span className="sr-only">Placa </span>
-                {vehicle.plate}
-              </span>
-            )}
+            {vehicle.plate && <PlateTag plate={vehicle.plate} />}
           </p>
         )}
       </div>
 
       <div className="col-span-2 flex flex-wrap items-center gap-x-4 gap-y-2 sm:col-span-1 sm:col-start-2 sm:self-start">
-        <span
-          className={cn(
-            "rounded-sm border px-1.5 py-0.5 text-[11px] font-medium tracking-wide uppercase",
-            vehicle.status === "active" ? "border-accent/40 text-accent" : "border-border text-text-secondary",
-          )}
-        >
+        {/* O selo comum: só "Ativo" no acento (o papel de "Em andamento" em Projetos). */}
+        <Badge tone={vehicle.status === "active" ? "accent" : "neutral"}>
           <span className="sr-only">Status: </span>
           {VEHICLE_STATUS_LABELS[vehicle.status]}
-        </span>
+        </Badge>
         <p className="flex items-baseline gap-1.5 text-sm">
           <span className="text-text-secondary">Odômetro</span>
           <span
             className={cn(
-              "rounded-sm font-mono font-medium text-text-primary",
+              "type-figure rounded-sm text-text-primary",
               odometerFlashing && "motion-safe:animate-value-flash",
             )}
           >

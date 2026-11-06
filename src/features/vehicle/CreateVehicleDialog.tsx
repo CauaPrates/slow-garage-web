@@ -12,10 +12,10 @@ import { Button } from "@/components/ui/button";
 import { translatePostgresError } from "@/lib/postgresErrors";
 import { VehicleForm } from "./VehicleForm";
 import {
-  VEHICLE_FORM_DIALOG_CLASSNAME,
-  VEHICLE_FORM_DIALOG_HEADER_CLASSNAME,
+  FORM_DIALOG_CLASSNAME,
+  FORM_DIALOG_HEADER_CLASSNAME,
   focusDialogOnOpen,
-} from "./VehicleFormParts";
+} from "@/components/ui/form";
 import { useCreateVehicle } from "./useVehicles";
 import type { VehicleFormOutput } from "./schemas";
 
@@ -88,10 +88,10 @@ export function CreateVehicleDialog({
         </Button>
       </DialogTrigger>
       <DialogContent
-        className={VEHICLE_FORM_DIALOG_CLASSNAME}
+        className={FORM_DIALOG_CLASSNAME}
         onOpenAutoFocus={focusDialogOnOpen}
       >
-        <DialogHeader className={VEHICLE_FORM_DIALOG_HEADER_CLASSNAME}>
+        <DialogHeader className={FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>Cadastrar veículo</DialogTitle>
           <DialogDescription>
             Comece por marca e modelo. O resto é opcional e pode ser preenchido

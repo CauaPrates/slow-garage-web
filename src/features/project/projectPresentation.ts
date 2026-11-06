@@ -1,3 +1,4 @@
+import type { BadgeTone } from "@/components/ui/badge";
 import { formatMoney } from "@/lib/format";
 import {
   PROJECT_ITEM_STATUSES,
@@ -10,9 +11,6 @@ import type { ProjectProgressRow } from "./useProjects";
 type ProjectStatus = (typeof PROJECT_STATUSES)[number];
 type ProjectItemStatus = (typeof PROJECT_ITEM_STATUSES)[number];
 
-/** Selo de situação (texto + cor, nunca só cor) — mesma forma do selo de Problemas (etapa 08). */
-export const STATUS_BADGE_CLASSNAME =
-  "inline-flex shrink-0 items-center rounded-full border px-2 text-xs leading-5 font-medium whitespace-nowrap";
 
 /**
  * Etapa 09: situação do projeto. "Em andamento" no acento (o mesmo papel de
@@ -20,13 +18,13 @@ export const STATUS_BADGE_CLASSNAME =
  * verde; "Cancelado" tracejado e neutro, pra nunca parecer concluído. Ideia e
  * planejado ficam neutros e se distinguem pelo texto.
  */
-export const PROJECT_STATUS_PRESENTATION: Record<ProjectStatus, { label: string; className: string }> = {
-  idea: { label: PROJECT_STATUS_LABELS.idea, className: "border-border-strong text-text-secondary" },
-  planned: { label: PROJECT_STATUS_LABELS.planned, className: "border-border-strong text-text-primary" },
-  in_progress: { label: PROJECT_STATUS_LABELS.in_progress, className: "border-accent/40 bg-accent/10 text-accent" },
-  paused: { label: PROJECT_STATUS_LABELS.paused, className: "border-warning/40 bg-warning/10 text-warning" },
-  completed: { label: PROJECT_STATUS_LABELS.completed, className: "border-success/40 bg-success/10 text-success" },
-  cancelled: { label: PROJECT_STATUS_LABELS.cancelled, className: "border-dashed border-border-strong text-text-secondary" },
+export const PROJECT_STATUS_PRESENTATION: Record<ProjectStatus, { label: string; tone: BadgeTone }> = {
+  idea: { label: PROJECT_STATUS_LABELS.idea, tone: "neutral" },
+  planned: { label: PROJECT_STATUS_LABELS.planned, tone: "strong" },
+  in_progress: { label: PROJECT_STATUS_LABELS.in_progress, tone: "accent" },
+  paused: { label: PROJECT_STATUS_LABELS.paused, tone: "warning" },
+  completed: { label: PROJECT_STATUS_LABELS.completed, tone: "success" },
+  cancelled: { label: PROJECT_STATUS_LABELS.cancelled, tone: "dashed" },
 };
 
 /**
@@ -35,12 +33,12 @@ export const PROJECT_STATUS_PRESENTATION: Record<ProjectStatus, { label: string;
  * verde — é o que a `project_progress` conta como concluído; "Cancelado"
  * tracejado. Prioridade nunca usa estas cores.
  */
-export const PROJECT_ITEM_STATUS_PRESENTATION: Record<ProjectItemStatus, { label: string; className: string }> = {
-  wishlist: { label: PROJECT_ITEM_STATUS_LABELS.wishlist, className: "border-border-strong text-text-secondary" },
-  planned: { label: PROJECT_ITEM_STATUS_LABELS.planned, className: "border-border-strong text-text-primary" },
-  purchased: { label: PROJECT_ITEM_STATUS_LABELS.purchased, className: "border-accent/40 bg-accent/10 text-accent" },
-  installed: { label: PROJECT_ITEM_STATUS_LABELS.installed, className: "border-success/40 bg-success/10 text-success" },
-  cancelled: { label: PROJECT_ITEM_STATUS_LABELS.cancelled, className: "border-dashed border-border-strong text-text-secondary" },
+export const PROJECT_ITEM_STATUS_PRESENTATION: Record<ProjectItemStatus, { label: string; tone: BadgeTone }> = {
+  wishlist: { label: PROJECT_ITEM_STATUS_LABELS.wishlist, tone: "neutral" },
+  planned: { label: PROJECT_ITEM_STATUS_LABELS.planned, tone: "strong" },
+  purchased: { label: PROJECT_ITEM_STATUS_LABELS.purchased, tone: "accent" },
+  installed: { label: PROJECT_ITEM_STATUS_LABELS.installed, tone: "success" },
+  cancelled: { label: PROJECT_ITEM_STATUS_LABELS.cancelled, tone: "dashed" },
 };
 
 /** Mesmo corte do `active_projects_count` do dashboard (`get_vehicle_dashboard`): ideia, planejado, em andamento e pausado. */

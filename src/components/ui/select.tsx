@@ -11,7 +11,7 @@ export function Select({
   return (
     <div className="relative">
       <select
-        className={cn(fieldClassName, "h-11 appearance-none pr-9", className)}
+        className={cn(fieldClassName, "h-control appearance-none pr-9", className)}
         {...props}
       >
         {children}

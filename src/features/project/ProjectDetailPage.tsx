@@ -1,8 +1,14 @@
+import { Badge } from "@/components/ui/badge";
 import { useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { AlertCircle, Pencil, Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { ActionLabel, Page } from "@/components/layout/Page";
 import { Button } from "@/components/ui/button";
+import { InlineError, PageError } from "@/components/ui/feedback";
+import { ListColumns, PANEL_CLASSNAME, PanelCount, PanelHeader } from "@/components/ui/panel";
+import { Skeleton, SkeletonList } from "@/components/ui/skeleton";
+import { textLinkClassName } from "@/components/ui/text-link";
 import { formatDateOnly } from "@/lib/format";
 import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
@@ -15,7 +21,7 @@ import { PROJECT_ITEM_ROW_GRID, ProjectItemRow } from "./ProjectItemRow";
 import { ProjectProgress } from "./ProjectProgress";
 import {
   PROJECT_STATUS_PRESENTATION,
-  STATUS_BADGE_CLASSNAME,
+
   itemStatusSummary,
   projectDateParts,
 } from "./projectPresentation";
@@ -23,8 +29,6 @@ import { useProject } from "./useProjects";
 import { useProjectItems, type ProjectItemRow as ProjectItem } from "./useProjectItems";
 
 const ITEMS_TITLE_ID = "project-items-title";
-const PAGE_CLASSNAME = "flex flex-col gap-5 px-4 py-5 sm:px-6 sm:py-6";
-const PANEL_CLASSNAME = "overflow-hidden rounded-lg border border-border bg-surface";
 
 /** Foco pro título dos itens quando a linha que abriu o diálogo sumiu (item excluído). */
 function focusItemsHeadingIfLost() {
@@ -80,33 +84,25 @@ export function ProjectDetailPage() {
 
   if (vehicleLoading || projectQuery.isLoading) {
     return (
-      <div className={PAGE_CLASSNAME} aria-busy="true">
+      <Page aria-busy="true">
         <span className="sr-only">Carregando projeto…</span>
-        <div className="h-14 w-64 animate-pulse rounded-md bg-surface" aria-hidden="true" />
-        <div className="h-40 animate-pulse rounded-lg border border-border bg-surface" aria-hidden="true" />
-      </div>
+        <Skeleton className="h-14 w-64 bg-surface" />
+        <Skeleton className="h-40 rounded-lg border border-border bg-surface" />
+      </Page>
     );
   }
 
   if (vehicleError || projectQuery.isError) {
-    return (
-      <div role="alert" className="flex flex-col items-center gap-3 p-12 text-center">
-        <AlertCircle className="h-6 w-6 text-error" aria-hidden="true" />
-        <p className="text-sm text-text-secondary">Não foi possível carregar o projeto.</p>
-        <Button variant="outline" onClick={() => projectQuery.refetch()}>
-          Tentar de novo
-        </Button>
-      </div>
-    );
+    return <PageError message="Não foi possível carregar o projeto." onRetry={() => void projectQuery.refetch()} />;
   }
 
   if (!vehicle || !projectQuery.data) {
     return (
-      <div className="flex flex-col items-center gap-4 p-12 text-center">
+      <div className="flex flex-col items-center gap-3 p-12 text-center">
         <p className="text-text-primary">Projeto não encontrado.</p>
         <Link
           to={vehicleId ? ROUTES.vehicleProjects(vehicleId) : ROUTES.home}
-          className="text-sm text-accent underline"
+          className={textLinkClassName()}
         >
           Voltar para projetos
         </Link>
@@ -137,14 +133,12 @@ export function ProjectDetailPage() {
   const addItemButton = (
     <Button onClick={() => setCreateItemOpen(true)} className="shrink-0">
       <Plus className="h-4 w-4" aria-hidden="true" />
-      <span>
-        Adicionar<span className="sr-only sm:not-sr-only"> item</span>
-      </span>
+      <ActionLabel short="Adicionar" rest="item" />
     </Button>
   );
 
   return (
-    <div className={PAGE_CLASSNAME}>
+    <Page>
       <Breadcrumb
         items={[
           { label: "Projetos", href: ROUTES.vehicleProjects(vehicle.id) },
@@ -155,10 +149,11 @@ export function ProjectDetailPage() {
       <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between sm:gap-6">
         <div className="flex min-w-0 flex-col gap-1.5">
           <div className="flex flex-wrap items-center gap-x-3 gap-y-1.5">
-            <h1 className="min-w-0 text-2xl font-semibold tracking-tight break-words text-text-primary">
+            {/* Nome de registro (conteúdo do usuário): título de entidade, caixa normal — nunca o caixa-alta do título de tela. */}
+            <h1 className="type-entity-title min-w-0 text-text-primary">
               {project.name}
             </h1>
-            <span className={cn(STATUS_BADGE_CLASSNAME, status.className)}>{status.label}</span>
+            <Badge tone={status.tone}>{status.label}</Badge>
           </div>
           {project.description ? (
             <p className="max-w-prose text-sm break-words whitespace-pre-line text-text-secondary">
@@ -183,40 +178,24 @@ export function ProjectDetailPage() {
       <ProjectProgress progress={project.progress} items={itemsQuery.isSuccess ? items : null} />
 
       <section aria-labelledby={ITEMS_TITLE_ID} className={PANEL_CLASSNAME}>
-        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-border px-4 py-3">
-          <h2 id={ITEMS_TITLE_ID} className="text-sm font-medium text-text-primary">
-            Itens
-          </h2>
-          {itemsQuery.isSuccess && (
-            <p aria-live="polite" className="text-xs text-text-secondary">
-              {itemStatusSummary(items.map((i) => i.status))}
-            </p>
-          )}
-        </div>
+        <PanelHeader
+          title="Itens"
+          titleId={ITEMS_TITLE_ID}
+          action={
+            itemsQuery.isSuccess && <PanelCount>{itemStatusSummary(items.map((i) => i.status))}</PanelCount>
+          }
+        />
 
-        {itemsQuery.isLoading && (
-          <div className="flex flex-col gap-2 p-4" aria-busy="true">
-            <span className="sr-only">Carregando itens…</span>
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-14 animate-pulse rounded-md bg-state-hover" aria-hidden="true" />
-            ))}
-          </div>
-        )}
+        {itemsQuery.isLoading && <SkeletonList label="Carregando itens…" />}
 
         {itemsQuery.isError && (
-          <div role="alert" className="flex flex-col items-start gap-2 p-4">
-            <p className="flex items-center gap-2 text-sm text-text-secondary">
-              <AlertCircle className="h-4 w-4 shrink-0 text-error" aria-hidden="true" />
-              Não foi possível carregar os itens. O progresso acima vem de outra consulta.
-            </p>
-            <Button variant="outline" onClick={() => itemsQuery.refetch()}>
-              Tentar de novo
-            </Button>
-          </div>
+          <InlineError onRetry={() => void itemsQuery.refetch()}>
+            Não foi possível carregar os itens. O progresso acima vem de outra consulta.
+          </InlineError>
         )}
 
         {itemsQuery.isSuccess && items.length === 0 && (
-          <div className="flex flex-col items-start gap-3 px-4 py-6">
+          <div className="flex flex-col items-start gap-3 px-(--panel-pad-x) py-6">
             <p className="text-sm text-text-secondary">
               Nenhum item neste projeto ainda. Peças, serviços e ideias entram aqui, da lista de desejos ao instalado.
             </p>
@@ -228,16 +207,14 @@ export function ProjectDetailPage() {
 
         {itemsQuery.isSuccess && items.length > 0 && (
           <>
-            <div
-              aria-hidden="true"
-              className={cn("hidden border-b border-border px-4 py-2 text-xs text-text-secondary xl:grid", PROJECT_ITEM_ROW_GRID)}
-            >
+            {/* Colunas dos itens a partir de `xl` (abaixo disso a linha empilha). */}
+            <ListColumns className={cn("md:hidden xl:grid", PROJECT_ITEM_ROW_GRID)}>
               <span>Item</span>
               <span>Situação</span>
               <span className="text-right">Estimado</span>
               <span className="text-right">Real</span>
               <span />
-            </div>
+            </ListColumns>
             <ul className="divide-y divide-border">
               {items.map((item) => (
                 <ProjectItemRow key={item.id} item={item} {...rowHandlers} />
@@ -256,10 +233,10 @@ export function ProjectDetailPage() {
 
       {project.notes && (
         <section aria-labelledby="project-notes-title" className={PANEL_CLASSNAME}>
-          <h2 id="project-notes-title" className="border-b border-border px-4 py-3 text-sm font-medium text-text-primary">
-            Notas do projeto
-          </h2>
-          <p className="px-4 py-3 text-sm break-words whitespace-pre-line text-text-primary">{project.notes}</p>
+          <PanelHeader title="Notas do projeto" titleId="project-notes-title" />
+          <p className="px-(--panel-pad-x) py-(--panel-pad-y) text-sm break-words whitespace-pre-line text-text-primary">
+            {project.notes}
+          </p>
         </section>
       )}
 
@@ -310,6 +287,6 @@ export function ProjectDetailPage() {
           }}
         />
       )}
-    </div>
+    </Page>
   );
 }

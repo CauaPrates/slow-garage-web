@@ -8,6 +8,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogRecord,
 } from "@/components/ui/alert-dialog";
 import { FieldError } from "@/components/ui/field-error";
 import { useReturnFocus } from "@/hooks/useReturnFocus";
@@ -86,23 +87,20 @@ export function DeleteProjectDialog({ vehicleId, project, open, onOpenChange, on
           <AlertDialogTitle>Excluir projeto?</AlertDialogTitle>
           <AlertDialogDescription>{effects}</AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="flex items-start justify-between gap-3 rounded-md border border-border bg-bg px-3 py-2.5">
-          <div className="flex min-w-0 flex-col gap-0.5">
+        <AlertDialogRecord
+          value={
+            <>
+              <span className="block font-sans text-xs font-normal text-text-secondary">Orçamento</span>
+              {budget ?? <span className="font-sans font-normal text-text-secondary">Não definido</span>}
+            </>
+          }
+        >
             <p className="text-sm font-medium break-words text-text-primary">{project.name}</p>
             <p className="text-xs break-words text-text-secondary">{meta}</p>
             <p className="text-xs text-text-secondary">
               {state.kind === "ready" ? progressLabel(state) : "Sem itens a medir"}
             </p>
-          </div>
-          <p className="shrink-0 text-right text-sm">
-            <span className="block text-xs text-text-secondary">Orçamento</span>
-            {budget ? (
-              <span className="font-mono text-text-primary">{budget}</span>
-            ) : (
-              <span className="text-text-secondary">Não definido</span>
-            )}
-          </p>
-        </div>
+        </AlertDialogRecord>
         {error && (
           <div className="mt-3">
             <FieldError>{error}</FieldError>

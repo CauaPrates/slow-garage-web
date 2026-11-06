@@ -1,7 +1,6 @@
 import { useId, useRef, useState } from "react";
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Badge } from "@/components/ui/badge";
+import { RowActionsMenu } from "@/components/ui/menu";
 import {
   formatConsumption,
   formatDateOnly,
@@ -32,18 +31,16 @@ type FuelLogRowProps = {
 export const FUEL_ROW_GRID =
   "md:grid-cols-[minmax(0,1fr)_6rem_4.75rem_6.25rem_5.75rem_6.25rem_2.75rem] md:gap-x-3 2xl:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_2.75rem] 2xl:gap-x-6";
 
-const MENU_ITEM_CLASSNAME =
-  "flex min-h-11 w-full items-center gap-2.5 rounded-md px-2 text-left text-sm transition-colors duration-(--duration-fast)";
-
-const TAG_CLASSNAME = "rounded-sm border border-border-strong px-1.5 text-xs leading-5 whitespace-nowrap text-text-secondary";
-
-/** Condições que mudam o cálculo, em texto (nunca só cor). Tanque cheio é o normal e não ganha etiqueta. */
+/**
+ * Condições que mudam o cálculo, em texto (nunca só cor), no selo neutro
+ * comum. Tanque cheio é o normal e não ganha etiqueta.
+ */
 function Tags({ partial, missed }: { partial: boolean; missed: boolean }) {
   if (!partial && !missed) return null;
   return (
     <span className="mt-0.5 flex flex-wrap gap-1">
-      {partial && <span className={TAG_CLASSNAME}>Tanque parcial</span>}
-      {missed && <span className={TAG_CLASSNAME}>Anterior não registrado</span>}
+      {partial && <Badge tone="neutral">Tanque parcial</Badge>}
+      {missed && <Badge tone="neutral">Anterior não registrado</Badge>}
     </span>
   );
 }
@@ -67,10 +64,10 @@ function Tags({ partial, missed }: { partial: boolean; missed: boolean }) {
  */
 export function FuelLogRow({ vehicleId, log, listTitleId }: FuelLogRowProps) {
   const identityId = useId();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  // O "⋯" (do `RowActionsMenu`) — o foco volta pra ele quando um diálogo fecha.
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   const date = log.occurred_on ? formatDateOnly(log.occurred_on) : "Sem data";
   const odometer = log.odometer_km != null ? formatKm(log.odometer_km) : null;
@@ -120,7 +117,7 @@ export function FuelLogRow({ vehicleId, log, listTitleId }: FuelLogRowProps) {
   return (
     <li
       className={cn(
-        "grid grid-cols-[minmax(0,1fr)_auto_2.75rem] items-start gap-x-3 px-4 py-3",
+        "grid grid-cols-[minmax(0,1fr)_auto_2.75rem] items-start gap-x-3 px-(--panel-pad-x) py-3",
         FUEL_ROW_GRID,
       )}
     >
@@ -133,8 +130,8 @@ export function FuelLogRow({ vehicleId, log, listTitleId }: FuelLogRowProps) {
 
       {/* Celular, 1ª linha: valor e litros (à direita, o consumo e o "⋯"). */}
       <p className="flex min-w-0 flex-wrap items-baseline gap-x-1.5 md:hidden">
-        <span className="font-mono text-sm font-medium text-text-primary tabular-nums">{total}</span>
-        <span className="font-mono text-sm text-text-secondary tabular-nums">· {liters}</span>
+        <span className="type-value text-sm text-text-primary">{total}</span>
+        <span className="text-sm text-text-secondary tabular-nums">· {liters}</span>
       </p>
 
       {/* Desktop: a data abre a linha, com posto, combustível e condições embaixo; os números ficam nas colunas. */}
@@ -147,82 +144,59 @@ export function FuelLogRow({ vehicleId, log, listTitleId }: FuelLogRowProps) {
       </div>
 
       <p className="hidden flex-col items-end text-right md:flex">
-        <span className={cn("font-mono text-sm tabular-nums", odometer ? "text-text-primary" : "text-text-secondary")}>
+        <span className={cn("text-sm tabular-nums", odometer ? "text-text-primary" : "text-text-secondary")}>
           {odometer ?? "—"}
         </span>
-        {distance && <span className="font-mono text-xs text-text-secondary tabular-nums">+{distance}</span>}
+        {distance && <span className="text-xs text-text-secondary tabular-nums">+{distance}</span>}
         {!odometer && <span className="text-xs text-text-secondary">não informado</span>}
       </p>
 
-      <p className="hidden text-right font-mono text-sm text-text-primary tabular-nums md:block">{liters}</p>
+      <p className="hidden text-right text-sm text-text-primary tabular-nums md:block">{liters}</p>
 
-      <p className="hidden text-right font-mono text-sm text-text-primary tabular-nums md:block">{total}</p>
+      <p className="type-value hidden text-right text-sm text-text-primary md:block">{total}</p>
 
-      <p className="hidden text-right font-mono text-sm tabular-nums md:block">
+      <p className="hidden text-right text-sm tabular-nums md:block">
         {price ? <span className="text-text-primary">{price}</span> : <span className="text-text-secondary">—</span>}
       </p>
 
       {/* Consumo: sempre à direita, no celular e no desktop. */}
       <p className="flex flex-col items-end pt-px text-right md:pt-0">
         {log.km_per_liter != null ? (
-          <span className="font-mono text-sm whitespace-nowrap text-text-primary tabular-nums">
+          <span className="type-value text-sm whitespace-nowrap text-text-primary">
             {formatConsumption(log.km_per_liter)}
           </span>
         ) : (
-          <span className="font-mono text-sm text-text-secondary">
+          <span className="text-sm text-text-secondary">
             <span aria-hidden="true">—</span>
             <span className="sr-only">Sem consumo</span>
           </span>
         )}
         {/* No celular o custo por km e o motivo descem pra faixa de baixo, pra esta coluna não espremer o valor. */}
         {log.cost_per_km != null && (
-          <span className="hidden font-mono text-xs whitespace-nowrap text-text-secondary tabular-nums md:inline">
+          <span className="hidden text-xs whitespace-nowrap text-text-secondary tabular-nums md:inline">
             {formatMoney(log.cost_per_km)}/km
           </span>
         )}
         {reason && <span className="hidden max-w-28 text-xs text-text-secondary md:inline">{reason.label}</span>}
       </p>
 
-      <Popover open={menuOpen} onOpenChange={setMenuOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            ref={triggerRef}
-            variant="ghost"
-            size="icon"
-            aria-label="Ações do abastecimento"
-            aria-describedby={identityId}
-            className="-my-2.5 text-text-secondary hover:text-text-primary data-[state=open]:bg-state-active data-[state=open]:text-text-primary"
-          >
-            <MoreHorizontal className="h-5 w-5" aria-hidden="true" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-60 p-1.5" align="end" aria-label="Ações do abastecimento">
-          <button
-            type="button"
-            onClick={() => {
-              setMenuOpen(false);
-              setEditOpen(true);
-            }}
-            className={`${MENU_ITEM_CLASSNAME} text-text-primary hover:bg-state-hover`}
-          >
-            <Pencil className="h-4 w-4 text-text-secondary" aria-hidden="true" />
-            Editar abastecimento
-          </button>
-          <div className="my-1.5 h-px bg-border" aria-hidden="true" />
-          <button
-            type="button"
-            onClick={() => {
-              removalTriggerRef.current = triggerRef.current;
-              setMenuOpen(false);
-              setDeleteOpen(true);
-            }}
-            className={`${MENU_ITEM_CLASSNAME} text-error hover:bg-error/10`}
-          >
-            <Trash2 className="h-4 w-4" aria-hidden="true" />
-            Excluir abastecimento
-          </button>
-        </PopoverContent>
-      </Popover>
+      <div className="-my-2.5">
+        <RowActionsMenu
+          label="Ações do abastecimento"
+          editLabel="Editar abastecimento"
+          deleteLabel="Excluir abastecimento"
+          describedBy={identityId}
+          onEdit={(trigger) => {
+            triggerRef.current = trigger;
+            setEditOpen(true);
+          }}
+          onDelete={(trigger) => {
+            triggerRef.current = trigger;
+            removalTriggerRef.current = trigger;
+            setDeleteOpen(true);
+          }}
+        />
+      </div>
 
       {/*
         Celular, faixa de baixo em largura inteira (depois do "⋯" no DOM, então

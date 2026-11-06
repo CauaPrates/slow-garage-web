@@ -7,10 +7,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  VEHICLE_FORM_DIALOG_CLASSNAME,
-  VEHICLE_FORM_DIALOG_HEADER_CLASSNAME,
+  FORM_DIALOG_CLASSNAME,
+  FORM_DIALOG_HEADER_CLASSNAME,
   focusDialogOnOpen,
-} from "@/features/vehicle/VehicleFormParts";
+} from "@/components/ui/form";
 import { useReturnFocus } from "@/hooks/useReturnFocus";
 import { translatePostgresError } from "@/lib/postgresErrors";
 import { cn } from "@/lib/utils";
@@ -29,7 +29,7 @@ type CreateFuelLogDialogProps = {
 };
 
 /** Etapa 06: a casca do formulário do veículo (cabeçalho e rodapé fixos, só o corpo rola), na largura do gasto. */
-export const FUEL_FORM_DIALOG_CLASSNAME = cn(VEHICLE_FORM_DIALOG_CLASSNAME, "max-w-xl");
+export const FUEL_FORM_DIALOG_CLASSNAME = cn(FORM_DIALOG_CLASSNAME, "max-w-xl");
 
 /**
  * Sem `DialogTrigger` próprio — controlado externamente, mesmo motivo do
@@ -83,7 +83,7 @@ export function CreateFuelLogDialog({
         }}
         onCloseAutoFocus={returnFocus.onCloseAutoFocus}
       >
-        <DialogHeader className={VEHICLE_FORM_DIALOG_HEADER_CLASSNAME}>
+        <DialogHeader className={FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>Registrar abastecimento</DialogTitle>
           <DialogDescription>Entra no histórico de combustível e nos gastos do veículo.</DialogDescription>
         </DialogHeader>

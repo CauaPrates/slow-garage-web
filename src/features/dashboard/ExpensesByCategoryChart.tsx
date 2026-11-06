@@ -2,7 +2,7 @@ import { useId, useState, type ReactNode } from "react";
 import { ChevronDown } from "lucide-react";
 import { formatCount, formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { DashboardPanel } from "./DashboardPanel";
+import { Panel } from "@/components/ui/panel";
 import type { DashboardExpensesByCategory } from "./types";
 
 type ExpensesByCategoryChartProps = {
@@ -40,12 +40,12 @@ export function ExpensesByCategoryChart({ data, emptyAction, className }: Expens
 
   if (data.length === 0) {
     return (
-      <DashboardPanel title="Gasto por categoria" description={DESCRIPTION} headingLevel="h3" className={className}>
+      <Panel title="Gasto por categoria" description={DESCRIPTION} headingLevel="h3" className={className}>
         <div className="flex flex-col items-start gap-3 p-4">
           <p className="text-sm text-text-secondary">Nenhum lançamento na tela Gastos ainda.</p>
           {emptyAction}
         </div>
-      </DashboardPanel>
+      </Panel>
     );
   }
 
@@ -66,7 +66,7 @@ export function ExpensesByCategoryChart({ data, emptyAction, className }: Expens
               · {formatCount(row.expense_count)} {row.expense_count === 1 ? "lançamento" : "lançamentos"}
             </span>
           </span>
-          <span className="shrink-0 font-mono text-text-primary tabular-nums">{formatMoney(row.total_amount)}</span>
+          <span className="type-figure shrink-0 text-text-primary">{formatMoney(row.total_amount)}</span>
         </div>
         <div className="h-2 w-full rounded-sm bg-border" aria-hidden="true">
           <div
@@ -79,7 +79,7 @@ export function ExpensesByCategoryChart({ data, emptyAction, className }: Expens
   };
 
   return (
-    <DashboardPanel title="Gasto por categoria" description={DESCRIPTION} headingLevel="h3" className={className}>
+    <Panel title="Gasto por categoria" description={DESCRIPTION} headingLevel="h3" className={className}>
       <ul className="flex flex-col gap-3.5 px-4 pt-4 pb-4" aria-label="Gasto por categoria, do maior para o menor">
         {visible.map(renderRow)}
       </ul>
@@ -106,6 +106,6 @@ export function ExpensesByCategoryChart({ data, emptyAction, className }: Expens
           </button>
         </>
       )}
-    </DashboardPanel>
+    </Panel>
   );
 }

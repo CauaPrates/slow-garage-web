@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { EditVehicleDialog } from "./EditVehicleDialog";
 import { DeleteVehicleDialog } from "./DeleteVehicleDialog";
 import type { VehicleWithSummary } from "./useVehicles";
+import { MenuSeparator, menuItemClassName } from "@/components/ui/menu";
 
 type VehicleCardMenuProps = {
   vehicle: VehicleWithSummary;
@@ -14,9 +15,6 @@ type VehicleCardMenuProps = {
   /** Recalibração 01: no card da garagem o gatilho fica sobre a foto, com fundo sólido. */
   triggerClassName?: string;
 };
-
-const MENU_ITEM_CLASSNAME =
-  "flex min-h-11 w-full items-center gap-2.5 rounded-md px-2 text-left text-sm transition-colors duration-(--duration-fast)";
 
 /**
  * Redesign etapa 02: editar e excluir saem da faixa de registros do card —
@@ -94,19 +92,19 @@ export function VehicleCardMenu({ vehicle, vehicleNameId, triggerClassName }: Ve
               setMenuOpen(false);
               setEditOpen(true);
             }}
-            className={`${MENU_ITEM_CLASSNAME} text-text-primary hover:bg-state-hover`}
+            className={menuItemClassName()}
           >
             <Pencil className="h-4 w-4 text-text-secondary" aria-hidden="true" />
             Editar veículo
           </button>
-          <div className="my-1.5 h-px bg-border" aria-hidden="true" />
+          <MenuSeparator />
           <button
             type="button"
             onClick={() => {
               setMenuOpen(false);
               setDeleteOpen(true);
             }}
-            className={`${MENU_ITEM_CLASSNAME} text-error hover:bg-error/10`}
+            className={menuItemClassName("destructive")}
           >
             <Trash2 className="h-4 w-4" aria-hidden="true" />
             Excluir veículo

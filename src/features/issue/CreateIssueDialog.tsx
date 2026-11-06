@@ -7,10 +7,10 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  VEHICLE_FORM_DIALOG_CLASSNAME,
-  VEHICLE_FORM_DIALOG_HEADER_CLASSNAME,
+  FORM_DIALOG_CLASSNAME,
+  FORM_DIALOG_HEADER_CLASSNAME,
   focusDialogOnOpen,
-} from "@/features/vehicle/VehicleFormParts";
+} from "@/components/ui/form";
 import { useReturnFocus } from "@/hooks/useReturnFocus";
 import { translatePostgresError } from "@/lib/postgresErrors";
 import { cn } from "@/lib/utils";
@@ -25,7 +25,7 @@ type CreateIssueDialogProps = {
 };
 
 /** Etapa 08: a casca do formulário do veículo (cabeçalho e rodapé fixos, só o corpo rola), na largura do gasto. */
-export const ISSUE_FORM_DIALOG_CLASSNAME = cn(VEHICLE_FORM_DIALOG_CLASSNAME, "max-w-xl");
+export const ISSUE_FORM_DIALOG_CLASSNAME = cn(FORM_DIALOG_CLASSNAME, "max-w-xl");
 
 /** Etapa 08: casca nova, foco no diálogo ao abrir e de volta ao "Relatar problema" ao fechar; payload igual. */
 export function CreateIssueDialog({ vehicleId, open, onOpenChange }: CreateIssueDialogProps) {
@@ -70,7 +70,7 @@ export function CreateIssueDialog({ vehicleId, open, onOpenChange }: CreateIssue
         }}
         onCloseAutoFocus={returnFocus.onCloseAutoFocus}
       >
-        <DialogHeader className={VEHICLE_FORM_DIALOG_HEADER_CLASSNAME}>
+        <DialogHeader className={FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>Relatar problema</DialogTitle>
           <DialogDescription>Um defeito, ruído ou falha deste veículo. Só o título é obrigatório.</DialogDescription>
         </DialogHeader>

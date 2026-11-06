@@ -141,7 +141,7 @@ export function FipeValueLookup({
             <p className="text-xs text-text-secondary">
               Valor de referência · tabela de {valueQuery.data.referenceMonth}
             </p>
-            <p className="font-mono text-xl text-text-primary">
+            <p className="type-figure text-xl text-text-primary">
               {formatMoney(valueQuery.data.amount)}
             </p>
             <p className="text-xs text-text-secondary">

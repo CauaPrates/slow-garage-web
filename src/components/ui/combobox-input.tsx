@@ -142,7 +142,7 @@ export function ComboboxInput({
             setOpen(false);
           }
         }}
-        className={cn(fieldClassName, "h-11 pr-9")}
+        className={cn(fieldClassName, "h-control pr-9")}
       />
 
       {loading ? (

@@ -9,10 +9,10 @@ import {
 import { translatePostgresError } from "@/lib/postgresErrors";
 import { VehicleForm } from "./VehicleForm";
 import {
-  VEHICLE_FORM_DIALOG_CLASSNAME,
-  VEHICLE_FORM_DIALOG_HEADER_CLASSNAME,
+  FORM_DIALOG_CLASSNAME,
+  FORM_DIALOG_HEADER_CLASSNAME,
   focusDialogOnOpen,
-} from "./VehicleFormParts";
+} from "@/components/ui/form";
 import { VehiclePhotoUpload } from "./VehiclePhotoUpload";
 import { useUpdateVehicle, type VehicleWithSummary } from "./useVehicles";
 import type { VehicleFormInput, VehicleFormOutput } from "./schemas";
@@ -122,10 +122,10 @@ export function EditVehicleDialog({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
-        className={VEHICLE_FORM_DIALOG_CLASSNAME}
+        className={FORM_DIALOG_CLASSNAME}
         onOpenAutoFocus={focusDialogOnOpen}
       >
-        <DialogHeader className={VEHICLE_FORM_DIALOG_HEADER_CLASSNAME}>
+        <DialogHeader className={FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>Editar veículo</DialogTitle>
           <DialogDescription className="break-words">
             {vehicle.make} {vehicle.model}

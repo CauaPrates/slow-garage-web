@@ -8,6 +8,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogRecord,
 } from "@/components/ui/alert-dialog";
 import { FieldError } from "@/components/ui/field-error";
 import { useReturnFocus } from "@/hooks/useReturnFocus";
@@ -88,8 +89,7 @@ export function DeleteExpenseDialog({
             {expense.attachment ? " O anexo também é apagado." : ""} Essa ação não pode ser desfeita.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="flex items-start justify-between gap-3 rounded-md border border-border bg-bg px-3 py-2.5">
-          <div className="flex min-w-0 flex-col gap-0.5">
+        <AlertDialogRecord value={formatMoney(expense.amount)}>
             <p className={expense.description ? "text-sm font-medium break-words text-text-primary" : "text-sm text-text-secondary"}>
               {expense.description || "Sem descrição"}
             </p>
@@ -100,9 +100,7 @@ export function DeleteExpenseDialog({
             {expense.attachment && (
               <p className="text-xs break-all text-text-secondary">Anexo: {expense.attachment.original_filename}</p>
             )}
-          </div>
-          <p className="shrink-0 font-mono text-sm text-text-primary">{formatMoney(expense.amount)}</p>
-        </div>
+        </AlertDialogRecord>
         {error && (
           <div className="mt-3">
             <FieldError>{error}</FieldError>

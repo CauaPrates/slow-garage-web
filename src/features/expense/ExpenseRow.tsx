@@ -1,7 +1,6 @@
 import { useId, useRef, useState } from "react";
-import { MoreHorizontal, Paperclip, Pencil, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Paperclip } from "lucide-react";
+import { RowActionsMenu } from "@/components/ui/menu";
 import { formatDateOnly, formatKm, formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import {
@@ -33,14 +32,16 @@ type ExpenseRowProps = {
 export const EXPENSE_ROW_GRID =
   "md:grid-cols-[minmax(0,1fr)_minmax(0,10rem)_6.5rem_8.5rem_2.75rem] md:gap-x-4 2xl:grid-cols-[minmax(0,2.5fr)_minmax(0,1fr)_minmax(0,0.8fr)_minmax(0,0.8fr)_2.75rem] 2xl:gap-x-6";
 
-const MENU_ITEM_CLASSNAME =
-  "flex min-h-11 w-full items-center gap-2.5 rounded-md px-2 text-left text-sm transition-colors duration-(--duration-fast)";
-
 /**
- * Etapa 05: um lançamento da tela Gastos. No celular, descrição e valor na
- * primeira linha, categoria · data embaixo e o resto (fornecedor, pagamento,
- * km, anexo) numa terceira; a partir de `md`, colunas alinhadas pra comparar
- * valores. Editar e excluir moram no menu "⋯" (mesma forma do menu do card
+ * Etapa 05: um lançamento da tela Gastos. A partir de `md`, colunas alinhadas
+ * pra comparar valores (cada bloco com lugar explícito na grade).
+ *
+ * Harmonização 01 — celular no padrão resolvido em Modificações (etapa 10):
+ * descrição com quase toda a largura e o "⋯" no canto; embaixo, o valor,
+ * "categoria · data" e o resto (fornecedor, pagamento, km, anexo) na largura
+ * inteira. Antes o valor reservava uma coluna à direita e cortava "categoria
+ * · data" em 360px. A ordem no DOM é a de leitura: descrição, ações, valor,
+ * detalhes. Editar e excluir moram no menu "⋯" (mesma forma do menu do card
  * de veículo, etapa 02), com a exclusão separada por divisor e em carmim. A
  * linha em si não é clicável — nada de interativo dentro de interativo.
  *
@@ -49,10 +50,10 @@ const MENU_ITEM_CLASSNAME =
  */
 export function ExpenseRow({ vehicleId, expense, categories, listTitleId }: ExpenseRowProps) {
   const identityId = useId();
-  const [menuOpen, setMenuOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const triggerRef = useRef<HTMLButtonElement>(null);
+  // O "⋯" (do `RowActionsMenu`) — o foco volta pra ele quando um diálogo fecha.
+  const triggerRef = useRef<HTMLElement | null>(null);
 
   const category = categories.find((c) => c.id === expense.category_id) ?? null;
   const Icon = category
@@ -101,7 +102,7 @@ export function ExpenseRow({ vehicleId, expense, categories, listTitleId }: Expe
   return (
     <li
       className={cn(
-        "grid grid-cols-[minmax(0,1fr)_auto_2.75rem] items-start gap-x-3 px-4 py-3 md:items-center",
+        "grid grid-cols-[minmax(0,1fr)_2.75rem] items-start gap-x-3 gap-y-1 px-(--panel-pad-x) py-3 md:gap-y-0.5",
         EXPENSE_ROW_GRID,
       )}
     >
@@ -110,18 +111,42 @@ export function ExpenseRow({ vehicleId, expense, categories, listTitleId }: Expe
         {expense.description || "Sem descrição"}, {categoryLabel}, {date}, {formatMoney(expense.amount)}
       </span>
 
-      <div className="flex min-w-0 flex-col gap-0.5">
-        <p
-          className={cn(
-            "line-clamp-2 text-sm break-words",
-            expense.description ? "font-medium text-text-primary" : "text-text-secondary",
-          )}
-        >
-          {expense.description || "Sem descrição"}
-        </p>
-        <p className="flex min-w-0 items-center gap-1.5 text-xs text-text-secondary md:hidden">
-          <Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-          <span className="truncate">
+      <p
+        className={cn(
+          "type-item-title line-clamp-2 pt-0.5 md:col-start-1 md:row-start-1 md:pt-0",
+          expense.description ? "text-text-primary" : "font-normal text-text-secondary",
+        )}
+      >
+        {expense.description || "Sem descrição"}
+      </p>
+
+      <div className="-my-2.5 flex justify-end md:col-start-5 md:row-span-2 md:row-start-1 md:my-0 md:self-center">
+        <RowActionsMenu
+          label="Ações do gasto"
+          editLabel="Editar gasto"
+          deleteLabel="Excluir gasto"
+          describedBy={identityId}
+          onEdit={(trigger) => {
+            triggerRef.current = trigger;
+            setEditOpen(true);
+          }}
+          onDelete={(trigger) => {
+            triggerRef.current = trigger;
+            removalTriggerRef.current = trigger;
+            setDeleteOpen(true);
+          }}
+        />
+      </div>
+
+      {/* Celular: o valor desce para baixo do nome — sem coluna reservada espremendo descrição, categoria e data. */}
+      <p className="type-value col-span-2 whitespace-nowrap text-text-primary md:col-span-1 md:col-start-4 md:row-span-2 md:row-start-1 md:self-center md:text-right md:text-sm">
+        {formatMoney(expense.amount)}
+      </p>
+
+      <div className="col-span-2 flex min-w-0 flex-col gap-0.5 md:col-span-1 md:col-start-1 md:row-start-2">
+        <p className="flex min-w-0 items-start gap-1.5 text-xs break-words text-text-secondary md:hidden">
+          <Icon className="mt-px h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+          <span className="min-w-0">
             {categoryLabel} · {date}
           </span>
         </p>
@@ -140,7 +165,7 @@ export function ExpenseRow({ vehicleId, expense, categories, listTitleId }: Expe
 
       <p
         className={cn(
-          "hidden min-w-0 items-center gap-2 text-sm md:flex",
+          "hidden min-w-0 items-center gap-2 text-sm md:col-start-2 md:row-span-2 md:row-start-1 md:flex md:self-center",
           category ? "text-text-primary" : "text-text-secondary",
         )}
       >
@@ -148,54 +173,9 @@ export function ExpenseRow({ vehicleId, expense, categories, listTitleId }: Expe
         <span className="break-words">{categoryLabel}</span>
       </p>
 
-      <p className="hidden text-sm text-text-secondary tabular-nums md:block">
+      <p className="hidden text-sm text-text-secondary tabular-nums md:col-start-3 md:row-span-2 md:row-start-1 md:block md:self-center">
         {expense.occurred_on ? <time dateTime={expense.occurred_on}>{date}</time> : date}
       </p>
-
-      <p className="pt-px text-right font-mono text-sm whitespace-nowrap text-text-primary tabular-nums md:pt-0">
-        {formatMoney(expense.amount)}
-      </p>
-
-      <Popover open={menuOpen} onOpenChange={setMenuOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            ref={triggerRef}
-            variant="ghost"
-            size="icon"
-            aria-label="Ações do gasto"
-            aria-describedby={identityId}
-            className="-my-2.5 text-text-secondary hover:text-text-primary data-[state=open]:bg-state-active data-[state=open]:text-text-primary md:my-0"
-          >
-            <MoreHorizontal className="h-5 w-5" aria-hidden="true" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent className="w-52 p-1.5" align="end" aria-label="Ações do gasto">
-          <button
-            type="button"
-            onClick={() => {
-              setMenuOpen(false);
-              setEditOpen(true);
-            }}
-            className={`${MENU_ITEM_CLASSNAME} text-text-primary hover:bg-state-hover`}
-          >
-            <Pencil className="h-4 w-4 text-text-secondary" aria-hidden="true" />
-            Editar gasto
-          </button>
-          <div className="my-1.5 h-px bg-border" aria-hidden="true" />
-          <button
-            type="button"
-            onClick={() => {
-              removalTriggerRef.current = triggerRef.current;
-              setMenuOpen(false);
-              setDeleteOpen(true);
-            }}
-            className={`${MENU_ITEM_CLASSNAME} text-error hover:bg-error/10`}
-          >
-            <Trash2 className="h-4 w-4" aria-hidden="true" />
-            Excluir gasto
-          </button>
-        </PopoverContent>
-      </Popover>
 
       <EditExpenseDialog
         vehicleId={vehicleId}

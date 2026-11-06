@@ -18,6 +18,7 @@ import { useVehicleDashboard } from "@/features/dashboard/useVehicleDashboard";
 import { useExpenseCategories } from "@/features/expense/useExpenseCategories";
 import { useTimeline } from "@/features/timeline/useTimeline";
 import { VehicleFipeCard } from "./VehicleFipeCard";
+import { VehicleNotFound } from "@/components/shared/VehicleNotFound";
 import { useVehicle, type VehicleWithSummary } from "./useVehicles";
 
 const PAGE_CLASSNAME = "flex flex-col gap-4 px-4 py-5 sm:gap-5 sm:px-6 sm:py-6";
@@ -52,14 +53,7 @@ export function VehiclePage() {
   }
 
   if (!vehicle) {
-    return (
-      <div className="flex flex-col items-center gap-4 p-12 text-center">
-        <p className="text-text-primary">Veículo não encontrado.</p>
-        <Link to={ROUTES.home} className="text-sm text-accent underline">
-          Voltar para a garagem
-        </Link>
-      </div>
-    );
+    return <VehicleNotFound />;
   }
 
   // `key`: ao trocar de veículo pelo seletor do cabeçalho a rota é a mesma, então

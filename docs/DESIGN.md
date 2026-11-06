@@ -1,6 +1,179 @@
 # DESIGN.md — Identidade visual do Slow Garage
 
-## Garagem A3 + capa A3.1 — revista automotiva japonesa (implementada)
+## Sistema visual consolidado — harmonização 01 (revisão visual pendente)
+
+Ponto de partida para qualquer tela nova (etapas 11–16 inclusive). As seções
+das etapas abaixo continuam como histórico do **porquê** de cada tela; onde
+contradizem esta seção em tipografia, componente ou padrão de página, vale
+esta. Decisão completa em `docs/DECISIONS.md` (ADR-099).
+
+Direção: **revista japonesa de preparação automotiva + interface precisa e
+simples**. A personalidade (fotografia, capa, título editorial) mora na Minha
+garagem; as páginas de gestão herdam a linguagem — título de tela em display
+caixa-alta, filetes, faixas de resumo, linhas organizadas, ações discretas —
+sem capa, sem colagem e sem card de veículo.
+
+### Onde cada fundamento mora (mude uma vez, todas as telas acompanham)
+
+| Fundamento | Fonte única | Quem consome |
+|---|---|---|
+| Cores, superfícies, bordas, estados, foco | `src/styles/tokens.css` (`--color-*`, claro e escuro com os mesmos papéis) | utilitários `bg-*`/`text-*`/`border-*`, `garage.css` |
+| Raios e sombra de menu/diálogo | `--radius-sm/md/lg`, `--shadow-overlay` | `Popover`, `Dialog`, `AlertDialog`, painéis |
+| Margem, respiro e vão da página | `--page-gutter`, `--page-pad-y`, `--page-gap` | `Page`, `SummaryStrip`, `RouteNotice` |
+| Respiro de painel e linha | `--panel-pad-x`, `--panel-pad-y` | `PanelHeader`, `ListColumns`, estados, linhas de registro |
+| Altura de controle | `--control-h` (44px), `--control-h-touch` (56px) → `h-control`, `size-control`, `min-h-control(-touch)` | `Button`, campos, menus, "Detalhes", busca da Garagem |
+| Anel de foco de campo | `--focus-ring-field` | `fieldClassName`, busca da Garagem |
+| Escala tipográfica | `--type-*` (tokens) + utilitários `type-*` (globals.css) | componentes abaixo |
+| Movimento | `--duration-fast/base/flash`, `--ease-standard` | botões, acordeões, `value-flash` |
+
+Exemplo: trocar `--control-h` muda a altura de todo botão, campo, seletor,
+item de menu e do "⋯" de todas as listas e da busca da Garagem; trocar
+`--panel-pad-x` muda o recuo de cabeçalhos, colunas, estados e linhas das seis
+páginas de registro. Nenhuma tela repete o número.
+
+### Tokens semânticos (novos nesta rodada)
+
+| Token | Escuro | Claro | Papel |
+|---|---|---|---|
+| `--color-text-muted` | `#8E949A` | `#666B71` | Texto discreto: placeholder, ícone de estado vazio. 4,76:1+ sobre bg/surface/raised; nunca sobre selo tintado |
+| `--color-info` | `#79A8E0` | `#2C5D99` | Informação (selo `info`, aviso `info`). 5,1:1+ inclusive sob tinta a 10% |
+| `--page-gutter` / `--page-pad-y` / `--page-gap` | 16→24 / 20→24 / 20px | iguais | Margem e respiro de página (troca em `sm`) |
+| `--panel-pad-x` / `--panel-pad-y` | 16 / 12px | iguais | Respiro interno de painel |
+| `--control-h` / `--control-h-touch` | 44 / 56px | iguais | Alvo de controle |
+| `--focus-ring-field` | 3px acento a 30% | idem | Anel de foco de campo |
+| `--duration-flash` | 400ms | idem | Realce de valor alterado |
+
+Os demais (`--color-bg`, `surface`, `surface-raised`, `field`, `border`,
+`border-strong`, `hairline(-strong)`, `text-primary/secondary`, `accent`,
+`success`, `warning`, `error`, `state-hover/active`, `overlay`) são os da
+etapa 01 e da Garagem A3, sem mudança de valor.
+
+### Papéis tipográficos
+
+Família: **Archivo** (display) para título de tela, nome de registro e
+valores; **Space Grotesk** para todo o resto. **Mono só em placa e código**
+(`PlateTag`, placa Mercosul do card, código de erro). Os papéis são
+utilitários (`@utility` em `globals.css`), aplicados pelos componentes —
+nenhum seletor genérico (`h1`, `button`, `input`) é estilizado.
+
+| Papel | Utilitário | Medida | Onde |
+|---|---|---|---|
+| Título de tela | `type-page-title` | Archivo 800, caixa-alta, 20→24px no celular (`clamp`, 6vw), 30px a partir de `sm` | `PageHeader` ("GASTOS", "MANUTENÇÃO"…) |
+| Nome de registro | `type-entity-title` | Archivo 700, caixa normal, 20 → 24px | Dashboard (modelo do veículo), detalhe do projeto |
+| Título de seção | `type-section-title` | 14px 600 | `PanelHeader`, `FormSection` |
+| Título de diálogo | `type-dialog-title` | 18px 600 | `DialogTitle`, `AlertDialogTitle` |
+| Título de item | `type-item-title` | 14px 500, quebra | linhas de registro |
+| Corpo / rótulo | `type-body` / `type-label` | 14px / 14px 500 | `Label`, textos |
+| Legenda | `type-caption` | 12px | metadados, contagem do painel, ajuda de campo |
+| Sobrelinha | `type-overline` | 11px 600, 0,08em, caixa-alta | faixa de resumo, grupos da navegação, marca no dashboard |
+| Valor | `type-value` | Archivo 600 16px tabular | valor da linha (dinheiro, consumo) |
+| Número em texto | `type-figure` | Archivo 600 tabular, tamanho do texto em volta | "Estimado R$ 120,00", gráficos, FIPE |
+| Indicador | `type-stat` | Archivo 700 18→20px tabular | `SummaryStat` |
+
+Caixa-alta é do **título de tela** (nome fixo, curto) e da sobrelinha — nunca
+de título de seção, de item ou de nome digitado pelo usuário. Valores
+financeiros sempre com algarismos tabulares, alinhados à direita nas colunas.
+
+### Componentes básicos (`src/components/ui/`)
+
+| Componente | O que padroniza |
+|---|---|
+| `Button` (`primary`, `outline`, `ghost`, `destructive`; `size="icon"`) | altura `--control-h`, "cede" ao toque, foco global |
+| `Input`, `Select`, `Textarea`, `Combobox`, `ComboboxInput` | casca única `fieldClassName`: borda 3:1, placeholder discreto, foco, erro |
+| `Label`, `FieldError`, `FormField`, `FilterField` | rótulo visível, ajuda e erro ligados ao campo |
+| `Badge` (`neutral`, `strong`, `accent`, `success`, `warning`, `error`, `info`, `dashed`) | o selo de situação; cada tela decide o tom de cada status |
+| `RowActionsMenu`, `menuItemClassName`, `MenuSeparator` | o "⋯" de linha (editar; divisor; excluir em carmim) e os itens dos menus do usuário e do card |
+| `InfoTip` | o botão "i" de 44px com popover (clique, toque, teclado) |
+| `Popover` | superfície flutuante |
+| `Dialog` / `AlertDialog` + `AlertDialogRecord` | diálogos; cartão neutro do registro na exclusão |
+| `DisclosureButton`, `DetailItem`, `INSET_CLASSNAME`; `PanelDisclosure`; `FormSection` recolhível | acordeões ("Detalhes" de linha, rodapé de painel, seção opcional) |
+| `Skeleton`, `SkeletonList` | carregando (pulso só com `motion-safe`) |
+| `InlineError`, `PageError`, `NoResults`, `EmptyState` (`panel`/`inline`), `Alert` | estados de erro, sem resultado, vazio e avisos com fio lateral |
+| `PlateTag` | placa como etiqueta mono |
+| `textLinkClassName` | link em texto: neutro sublinhado, seta no acento |
+
+### Padrões de página
+
+- **`Page`** (`components/layout/Page.tsx`): margem, respiro e vão por token.
+  Largura toda — em monitor largo quem se ajusta são as colunas.
+- **`PageHeader`**: título de tela, uma frase de contexto (pode trazer o
+  `InfoTip`), a ação principal à direita com `ActionLabel` ("Registrar" no
+  celular, nome completo para o leitor de tela). Com duas ações
+  (`stackActionsOnMobile`, Manutenção) elas descem em largura cheia no
+  celular. A ação some no vazio total — o `EmptyState` leva a ação.
+- **Resumo** (`SummaryStrip` + `SummaryStat`): faixa com filetes, rótulo em
+  sobrelinha e valor `type-stat`; carregando = traço, falha = "Indisponível",
+  a explicação e o "Tentar de novo" ficam na legenda. Usado em Modificações.
+  Abastecimentos mantém o painel de indicadores (`GarageTile`) porque cada
+  número tem ajuda e erro próprios e "Detalhes" — exceção justificada.
+- **Painel de lista** (`PANEL_CLASSNAME` + `PanelHeader` + `PanelCount` +
+  `ListColumns`): título de seção, contagem anunciada à direita, cabeçalho de
+  colunas no mesmo molde de grade da linha. Cada tela mantém sua linha
+  (`ExpenseRow`, `FuelLogRow`, `MaintenancePlanRow`, `MaintenanceRecordRow`,
+  `IssueListRow`, `ProjectListRow`, `ProjectItemRow`, `ModificationRow`) e
+  seus agrupamentos — compartilham respiro, tipografia, selo, "Detalhes",
+  "⋯" e valor.
+- **Linha no celular** (padrão resolvido em Modificações, agora também em
+  Gastos e no histórico de Manutenção): nome com quase toda a largura e o "⋯"
+  no canto; embaixo, o valor e os metadados; anexo e nota na largura inteira.
+  Nenhuma coluna de valor reservada à direita espremendo o texto. Exceção:
+  Abastecimentos mantém o consumo na borda direita (comparação entre paradas,
+  ADR-089) — a 1ª linha só tem números curtos.
+- **Filtros**: dentro do painel da lista, sob o título (Gastos e
+  Modificações); `FilterField` em grade, mesma altura de controle; abaixo de
+  400px empilham onde o rótulo da opção cortaria (Modificações). Sem
+  resultado, "Limpar filtros" aparece uma vez só, na mensagem.
+- **Indicadores** (`GarageTile`, dashboard, resumo de Abastecimentos,
+  detalhes da Garagem): rótulo em sobrelinha, como na faixa de resumo; valor
+  em `type-value`.
+- **Formulário em diálogo**: `FORM_DIALOG_CLASSNAME` (folha na base no
+  celular), `FORM_DIALOG_HEADER_CLASSNAME`, `FormBody` (só ele rola),
+  `FormSection` (fixa ou recolhível com resumo), `FormField`, `UnitAffix`,
+  `FormFooter` (erro de envio acima das ações, "Salvando…", botão travado
+  enquanto envia). Foco no diálogo ao abrir (`focusDialogOnOpen`), Escape
+  fecha (exceto com lista de combobox aberta), foco volta ao gatilho.
+- **Exclusão**: `AlertDialog` (fio carmim, ação `destructive`) +
+  `AlertDialogRecord`. O título e as consequências continuam escritos por
+  entidade; "Custo não informado" ≠ "R$ 0,00".
+- **Estados**: `SkeletonList` (lista), `InlineError` (bloco falhou, resto de
+  pé), `PageError` (página inteira), `NoResults` (filtro sem resultado, com
+  "Limpar filtros"), `EmptyState` (nada registrado + ação), `VehicleNotFound`.
+
+### Exemplos reais
+
+| Padrão | Telas |
+|---|---|
+| `PageHeader` + `ActionLabel` | Gastos, Abastecimentos, Problemas, Projetos, Modificações; Manutenção com duas ações |
+| `type-entity-title` | Dashboard (veículo), detalhe do projeto |
+| `SummaryStrip` | Modificações |
+| `PanelHeader`/`PanelCount`/`ListColumns` | as seis listas + "Progresso e custos" e "Notas do projeto" |
+| `Panel` (ex-`DashboardPanel`) | blocos do dashboard, "Detalhes da garagem", resumo de Abastecimentos, FIPE |
+| `RowActionsMenu` | Gastos, Abastecimentos, Manutenção (plano e serviço), Problemas, Projetos (lista e itens), Modificações |
+| `Badge` | situação em Manutenção, Problemas, Projetos e itens; condições de abastecimento; status no dashboard |
+| `AlertDialogRecord` | exclusão de gasto/upgrade, abastecimento, problema, serviço, projeto |
+| `Alert` | vencidas no dashboard, "crie um projeto primeiro", aviso de rota do shell |
+
+### Quando uma exceção local é aceitável
+
+Só quando a diferença é de **conteúdo ou função**, nunca de acabamento:
+
+- **Minha garagem** (`src/styles/garage.css`): capa, colagem, card de
+  veículo, grade por container query, abas da coleção, placa Mercosul. Usa os
+  tokens comuns (cores, raios, `--control-h`, `--focus-ring-field`) e a
+  escala própria `--garage-*`; nada dela escapa para outras telas.
+- **Dashboard**: o layout interno (ordem dos blocos, indicadores
+  `GarageTile size="lg"`, ações rápidas em contorno neutro — são ações, não
+  abas, nenhuma fica "acesa").
+- **Gráficos**: tipo, escala, período e significado são de cada gráfico;
+  compartilham só tipografia (`type-figure`), cores semânticas, legenda e
+  estados.
+- **Linhas de registro**: colunas e agrupamentos próprios (Manutenção por
+  vencimento, Problemas por aberto/resolvido, Projetos por ativo/encerrado).
+- **Formulários**: regras e seções de cada entidade.
+
+Regra prática: se a exceção precisaria de CSS global para existir, ela não é
+exceção — é um componente que falta ou uma tela que está errada.
+
 
 Estudo estático aprovado (propostas A3 e A3.1, `redesign-capturas/
 estudos-garagem-v2/`) levado ao app. **Vale só para a Minha garagem**; marca,
@@ -162,8 +335,6 @@ card), vale esta seção.
   do card neutra; muda só no hover.
 - **Grade**: card de no mínimo 19rem, conteúdo com no máximo 76rem
   centralizado — 3 colunas de 1280 a 2560, 2 em 1024/820, 1 no celular.
-
-## Redesign — etapa 01: Automotive Editorial (sistema visual + navegação)
 
 ## Redesign — etapa 01: Automotive Editorial (sistema visual + navegação)
 

@@ -8,7 +8,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  RECORD_CARD_CLASSNAME,
 } from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 import { FieldError } from "@/components/ui/field-error";
 import { PRIORITY_LEVEL_LABELS } from "@/features/maintenance/schemas";
 import { useReturnFocus } from "@/hooks/useReturnFocus";
@@ -34,7 +36,7 @@ function CostLine({ label, value }: { label: string; value: number | null }) {
       <span className="text-xs text-text-secondary">{label} </span>
       {/* Ausente não é zero: zero salvo mostra R$ 0,00. */}
       {money ? (
-        <span className="font-mono text-text-primary">{money}</span>
+        <span className="type-value text-sm text-text-primary">{money}</span>
       ) : (
         <span className="text-text-secondary">Custo não informado</span>
       )}
@@ -103,7 +105,7 @@ export function DeleteProjectItemDialog({ item, open, onOpenChange, onDeleted }:
           <AlertDialogTitle>Excluir item?</AlertDialogTitle>
           <AlertDialogDescription>{effects}</AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="flex flex-col gap-2 rounded-md border border-border bg-bg px-3 py-2.5">
+        <div className={cn("flex flex-col gap-2", RECORD_CARD_CLASSNAME)}>
           <div className="flex min-w-0 flex-col gap-0.5">
             <p className="text-sm font-medium break-words text-text-primary">{item.name}</p>
             <p className="text-xs break-words text-text-secondary">{meta}</p>

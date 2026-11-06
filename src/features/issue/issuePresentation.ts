@@ -1,3 +1,4 @@
+import type { BadgeTone } from "@/components/ui/badge";
 import { formatMoney } from "@/lib/format";
 import { ISSUE_STATUS_LABELS, ISSUE_STATUSES, OPEN_ISSUE_STATUSES } from "./schemas";
 
@@ -11,13 +12,13 @@ type IssueStatus = (typeof ISSUE_STATUSES)[number];
  * do `open_issues_count`), mas tracejado e neutro, pra não parecer reparo
  * concluído. Prioridade nunca usa estas cores.
  */
-export const ISSUE_STATUS_PRESENTATION: Record<IssueStatus, { label: string; className: string }> = {
-  open: { label: ISSUE_STATUS_LABELS.open, className: "border-warning/40 bg-warning/10 text-warning" },
-  investigating: { label: ISSUE_STATUS_LABELS.investigating, className: "border-border-strong text-text-primary" },
-  waiting_part: { label: ISSUE_STATUS_LABELS.waiting_part, className: "border-border-strong text-text-primary" },
-  in_repair: { label: ISSUE_STATUS_LABELS.in_repair, className: "border-border-strong text-text-primary" },
-  resolved: { label: ISSUE_STATUS_LABELS.resolved, className: "border-success/40 bg-success/10 text-success" },
-  dismissed: { label: ISSUE_STATUS_LABELS.dismissed, className: "border-dashed border-border-strong text-text-secondary" },
+export const ISSUE_STATUS_PRESENTATION: Record<IssueStatus, { label: string; tone: BadgeTone }> = {
+  open: { label: ISSUE_STATUS_LABELS.open, tone: "warning" },
+  investigating: { label: ISSUE_STATUS_LABELS.investigating, tone: "strong" },
+  waiting_part: { label: ISSUE_STATUS_LABELS.waiting_part, tone: "strong" },
+  in_repair: { label: ISSUE_STATUS_LABELS.in_repair, tone: "strong" },
+  resolved: { label: ISSUE_STATUS_LABELS.resolved, tone: "success" },
+  dismissed: { label: ISSUE_STATUS_LABELS.dismissed, tone: "dashed" },
 };
 
 /** Mesmo corte de antes (e do `open_issues_count` do dashboard): os quatro primeiros status são "abertos". */

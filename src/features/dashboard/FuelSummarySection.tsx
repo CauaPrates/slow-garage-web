@@ -1,6 +1,6 @@
 import { formatConsumption, formatLiters, formatMoney } from "@/lib/format";
 import { GarageTile, GarageTileGrid } from "@/features/vehicle/GarageTiles";
-import { DashboardPanel, PanelDisclosure } from "./DashboardPanel";
+import { Panel, PanelDisclosure } from "@/components/ui/panel";
 import type { DashboardFuelSummary } from "./types";
 
 type FuelSummarySectionProps = {
@@ -21,7 +21,7 @@ export function FuelSummarySection({ summary }: FuelSummarySectionProps) {
   const noConsumption = summary != null && summary.avg_km_per_liter == null;
 
   return (
-    <DashboardPanel
+    <Panel
       title="Combustível"
       description={
         summary == null
@@ -55,6 +55,6 @@ export function FuelSummarySection({ summary }: FuelSummarySectionProps) {
           média considera todos esses trechos.
         </p>
       </PanelDisclosure>
-    </DashboardPanel>
+    </Panel>
   );
 }

@@ -1,7 +1,7 @@
 import { useId, useState } from "react";
 import { Paperclip } from "lucide-react";
 import { PAYMENT_METHOD_LABELS } from "@/features/expense/schemas";
-import { RowActionsMenu } from "@/features/project/RowActionsMenu";
+import { RowActionsMenu } from "@/components/ui/menu";
 import type { ExpenseWithAttachment } from "@/features/expense/useExpenses";
 import { formatDateOnly, formatKm, formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -60,7 +60,7 @@ export function ModificationRow({ upgrade, onEdit, onDelete }: ModificationRowPr
   return (
     <li
       className={cn(
-        "grid grid-cols-[minmax(0,1fr)_2.75rem] items-start gap-x-2 gap-y-1 px-4 py-3",
+        "grid grid-cols-[minmax(0,1fr)_2.75rem] items-start gap-x-2 gap-y-1 px-(--panel-pad-x) py-3",
         MODIFICATION_ROW_GRID,
       )}
     >
@@ -71,8 +71,8 @@ export function ModificationRow({ upgrade, onEdit, onDelete }: ModificationRowPr
 
       <p
         className={cn(
-          "pt-0.5 text-sm break-words md:col-start-1 md:row-start-1 md:pt-px",
-          upgrade.description ? "font-medium text-text-primary" : "text-text-secondary",
+          "type-item-title pt-0.5 md:col-start-1 md:row-start-1 md:pt-px",
+          upgrade.description ? "text-text-primary" : "font-normal text-text-secondary",
         )}
       >
         {name}
@@ -89,7 +89,7 @@ export function ModificationRow({ upgrade, onEdit, onDelete }: ModificationRowPr
         />
       </div>
 
-      <p className="col-span-2 font-display text-base leading-5 font-semibold whitespace-nowrap text-text-primary tabular-nums md:col-span-1 md:col-start-3 md:row-start-1 md:pt-px md:text-right">
+      <p className="type-value col-span-2 whitespace-nowrap text-text-primary md:col-span-1 md:col-start-3 md:row-start-1 md:pt-px md:text-right">
         {amount}
       </p>
 

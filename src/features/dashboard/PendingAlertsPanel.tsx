@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { formatDateOnly, formatKm } from "@/lib/format";
 import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
-import { DashboardPanel } from "./DashboardPanel";
+import { Panel } from "@/components/ui/panel";
 import type { VehicleAlert } from "./types";
 
 type PendingAlertsPanelProps = {
@@ -122,7 +122,7 @@ function CountLink({ to, label, count }: { to: string; label: string; count: num
       className="flex min-h-11 items-center justify-between gap-2 px-4 py-2.5 text-sm transition-colors duration-(--duration-fast) hover:bg-state-hover"
     >
       <span className="text-text-secondary">{label}</span>
-      <span className="flex items-center gap-1 font-mono text-text-primary">
+      <span className="type-figure flex items-center gap-1 text-text-primary">
         {count ?? "—"}
         <ChevronRight className="h-4 w-4 text-accent" aria-hidden="true" />
       </span>
@@ -160,7 +160,7 @@ export function PendingAlertsPanel({ vehicleId, titleId, currentOdometerKm, quer
     .join(" · ");
 
   return (
-    <DashboardPanel
+    <Panel
       titleId={titleId}
       title={
         <span className="flex items-center gap-2">
@@ -170,7 +170,7 @@ export function PendingAlertsPanel({ vehicleId, titleId, currentOdometerKm, quer
             <span
               aria-hidden="true"
               className={cn(
-                "rounded-full px-1.5 py-px font-mono text-xs font-medium",
+                "rounded-full px-1.5 py-px text-xs font-medium tabular-nums",
                 criticalCount > 0 ? "bg-error/10 text-error" : "bg-warning/10 text-warning",
               )}
             >
@@ -257,6 +257,6 @@ export function PendingAlertsPanel({ vehicleId, titleId, currentOdometerKm, quer
           count={ready ? query.activeProjectsCount : null}
         />
       </div>
-    </DashboardPanel>
+    </Panel>
   );
 }

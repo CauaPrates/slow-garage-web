@@ -1,9 +1,12 @@
 import { useRef, useState } from "react";
-import { useParams, Link } from "react-router-dom";
-import { AlertCircle, AlertTriangle, Plus } from "lucide-react";
+import { useParams } from "react-router-dom";
+import { AlertTriangle, Plus } from "lucide-react";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { ActionLabel, Page, PageHeader } from "@/components/layout/Page";
 import { Button } from "@/components/ui/button";
-import { ROUTES } from "@/lib/routes";
+import { EmptyState, InlineError, PageError } from "@/components/ui/feedback";
+import { ListColumns, PANEL_CLASSNAME, PanelCount, PanelHeader } from "@/components/ui/panel";
+import { Skeleton, SkeletonList } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import { useVehicle } from "@/features/vehicle/useVehicles";
 import { CreateIssueDialog } from "./CreateIssueDialog";
@@ -11,13 +14,11 @@ import { DeleteIssueDialog } from "./DeleteIssueDialog";
 import { EditIssueDialog } from "./EditIssueDialog";
 import { ISSUE_ROW_GRID, IssueListRow } from "./IssueListRow";
 import { groupSummary, isOpenIssue } from "./issuePresentation";
+import { VehicleNotFound } from "@/components/shared/VehicleNotFound";
 import { useIssues, type IssueRow } from "./useIssues";
 
 const OPEN_TITLE_ID = "issues-open-title";
 const RESOLVED_TITLE_ID = "issues-resolved-title";
-// Largura toda, como as outras telas redesenhadas; em monitor largo quem se ajusta são as colunas.
-const PAGE_CLASSNAME = "flex flex-col gap-5 px-4 py-5 sm:px-6 sm:py-6";
-const PANEL_CLASSNAME = "overflow-hidden rounded-lg border border-border bg-surface";
 
 /**
  * Foco para depois que um diálogo fecha e o elemento que o abriu sumiu (a
@@ -52,27 +53,22 @@ type GroupProps = {
 function IssueGroup({ titleId, title, issues, emptyText, onEdit, onDelete }: GroupProps) {
   return (
     <section aria-labelledby={titleId} className={PANEL_CLASSNAME}>
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-border px-4 py-3">
-        <h2 id={titleId} className="text-sm font-medium text-text-primary">
-          {title}
-        </h2>
-        <p aria-live="polite" className="text-xs text-text-secondary">
-          {groupSummary(issues.map((i) => i.status))}
-        </p>
-      </div>
+      <PanelHeader
+        title={title}
+        titleId={titleId}
+        action={<PanelCount>{groupSummary(issues.map((i) => i.status))}</PanelCount>}
+      />
       {issues.length === 0 ? (
-        <p className="px-4 py-4 text-sm text-text-secondary">{emptyText}</p>
+        <p className="p-(--panel-pad-x) text-sm text-text-secondary">{emptyText}</p>
       ) : (
         <>
-          <div
-            aria-hidden="true"
-            className={cn("hidden border-b border-border px-4 py-2 text-xs text-text-secondary lg:grid", ISSUE_ROW_GRID)}
-          >
+          {/* As colunas de Problemas começam em `lg` (a situação precisa de espaço ao lado do título). */}
+          <ListColumns className={cn("md:hidden lg:grid", ISSUE_ROW_GRID)}>
             <span>Problema</span>
             <span>Situação</span>
             <span className="text-right">Custo informado</span>
             <span />
-          </div>
+          </ListColumns>
           <ul className="divide-y divide-border">
             {issues.map((issue) => (
               <IssueListRow key={issue.id} issue={issue} onEdit={onEdit} onDelete={onDelete} />
@@ -123,35 +119,20 @@ export function IssuesPage() {
 
   if (vehicleLoading) {
     return (
-      <div className={PAGE_CLASSNAME} aria-busy="true">
+      <Page aria-busy="true">
         <span className="sr-only">Carregando problemas…</span>
-        <div className="h-14 w-56 animate-pulse rounded-md bg-surface" aria-hidden="true" />
-        <div className="h-48 animate-pulse rounded-lg border border-border bg-surface" aria-hidden="true" />
-      </div>
+        <Skeleton className="h-14 w-56 bg-surface" />
+        <Skeleton className="h-48 rounded-lg border border-border bg-surface" />
+      </Page>
     );
   }
 
   if (vehicleError) {
-    return (
-      <div className="flex flex-col items-center gap-3 p-12 text-center">
-        <AlertCircle className="h-6 w-6 text-error" aria-hidden="true" />
-        <p className="text-sm text-text-secondary">Não foi possível carregar os problemas.</p>
-        <Button variant="ghost" onClick={() => refetchVehicle()}>
-          Tentar de novo
-        </Button>
-      </div>
-    );
+    return <PageError message="Não foi possível carregar os problemas." onRetry={() => void refetchVehicle()} />;
   }
 
   if (!vehicle) {
-    return (
-      <div className="flex flex-col items-center gap-4 p-12 text-center">
-        <p className="text-text-primary">Veículo não encontrado.</p>
-        <Link to={ROUTES.home} className="text-sm text-accent underline">
-          Voltar para a garagem
-        </Link>
-      </div>
-    );
+    return <VehicleNotFound />;
   }
 
   const issues = issuesQuery.data ?? [];
@@ -174,65 +155,44 @@ export function IssuesPage() {
   };
 
   return (
-    <div className={PAGE_CLASSNAME}>
+    <Page>
       <Breadcrumb items={[{ label: "Problemas" }]} />
 
-      <header className="flex items-start justify-between gap-3 sm:items-end sm:gap-4">
-        <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight text-text-primary">Problemas</h1>
-          <p className="text-sm text-text-secondary">Defeitos relatados neste veículo, do relato à resolução.</p>
-        </div>
-        {!noIssuesAtAll && (
-          <Button onClick={() => setCreateOpen(true)} className="shrink-0">
-            <Plus className="h-4 w-4" aria-hidden="true" />
-            {/* Um nó de texto só, como em Abastecimentos: no celular "Relatar", nome completo pro leitor de tela. */}
-            <span>
-              Relatar<span className="sr-only sm:not-sr-only"> problema</span>
-            </span>
-          </Button>
-        )}
-      </header>
+      <PageHeader
+        title="Problemas"
+        description="Defeitos relatados neste veículo, do relato à resolução."
+        actions={
+          !noIssuesAtAll && (
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              <ActionLabel short="Relatar" rest="problema" />
+            </Button>
+          )
+        }
+      />
 
       {issuesQuery.isLoading && (
-        <div className={PANEL_CLASSNAME} aria-busy="true">
-          <span className="sr-only">Carregando problemas…</span>
-          <div className="flex flex-col gap-2 p-4">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-14 animate-pulse rounded-md bg-state-hover" aria-hidden="true" />
-            ))}
-          </div>
+        <div className={PANEL_CLASSNAME}>
+          <SkeletonList label="Carregando problemas…" />
         </div>
       )}
 
       {issuesQuery.isError && (
-        <div role="alert" className={cn(PANEL_CLASSNAME, "flex flex-col items-start gap-2 p-4")}>
-          <p className="flex items-center gap-2 text-sm text-text-secondary">
-            <AlertCircle className="h-4 w-4 shrink-0 text-error" aria-hidden="true" />
-            Não foi possível carregar os problemas.
-          </p>
-          <Button variant="outline" onClick={() => issuesQuery.refetch()}>
-            Tentar de novo
-          </Button>
+        <div className={PANEL_CLASSNAME}>
+          <InlineError onRetry={() => void issuesQuery.refetch()}>Não foi possível carregar os problemas.</InlineError>
         </div>
       )}
 
       {noIssuesAtAll && (
-        <section
-          aria-labelledby={OPEN_TITLE_ID}
-          className={cn(PANEL_CLASSNAME, "flex flex-col items-center gap-3 px-6 py-12 text-center")}
+        <EmptyState
+          icon={AlertTriangle}
+          titleId={OPEN_TITLE_ID}
+          title="Nenhum problema relatado neste veículo."
+          action={<Button onClick={() => setCreateOpen(true)}>Relatar primeiro problema</Button>}
         >
-          <AlertTriangle className="h-6 w-6 text-text-secondary" aria-hidden="true" />
-          <h2 id={OPEN_TITLE_ID} className="font-medium text-text-primary">
-            Nenhum problema relatado neste veículo.
-          </h2>
-          <p className="max-w-md text-sm text-text-secondary">
-            Ruído, vazamento, falha elétrica: relate quando aparecer e acompanhe até a resolução. Só o título é
-            obrigatório.
-          </p>
-          <Button onClick={() => setCreateOpen(true)} className="mt-1">
-            Relatar primeiro problema
-          </Button>
-        </section>
+          Ruído, vazamento, falha elétrica: relate quando aparecer e acompanhe até a resolução. Só o título é
+          obrigatório.
+        </EmptyState>
       )}
 
       {issuesQuery.isSuccess && issues.length > 0 && (
@@ -288,6 +248,6 @@ export function IssuesPage() {
           }}
         />
       )}
-    </div>
+    </Page>
   );
 }

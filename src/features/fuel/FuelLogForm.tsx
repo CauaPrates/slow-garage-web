@@ -2,10 +2,6 @@ import { useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { Controller, useForm, useWatch, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { DialogClose } from "@/components/ui/dialog";
-import { FieldError } from "@/components/ui/field-error";
 import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -14,7 +10,9 @@ import {
   FormSection,
   NUMBER_INPUT_CLASSNAME,
   UnitAffix,
-} from "@/features/vehicle/VehicleFormParts";
+  FormBody,
+  FormFooter,
+} from "@/components/ui/form";
 import { FUEL_TYPES, FUEL_TYPE_LABELS } from "@/features/vehicle/schemas";
 import { formatDateOnly, todayDateOnly } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -142,7 +140,7 @@ export function FuelLogForm({
       noValidate
     >
       {/* A única região que rola: cabeçalho e rodapé do diálogo ficam fixos. */}
-      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 sm:px-6">
+      <FormBody>
         <FormSection title="Abastecimento" description="Litros e valor total são obrigatórios.">
           {/* Lado a lado também no celular: dois números curtos, o par que se confere na bomba. */}
           <div className="grid grid-cols-2 gap-3 sm:gap-4">
@@ -155,7 +153,7 @@ export function FuelLogForm({
                     inputMode="decimal"
                     step="0.01"
                     aria-required
-                    className={cn("pr-8 font-mono", NUMBER_INPUT_CLASSNAME)}
+                    className={cn("pr-8", NUMBER_INPUT_CLASSNAME)}
                     {...a11y}
                     {...register("liters")}
                   />
@@ -171,7 +169,7 @@ export function FuelLogForm({
                     inputMode="decimal"
                     step="0.01"
                     aria-required
-                    className={cn("pl-10 font-mono", NUMBER_INPUT_CLASSNAME)}
+                    className={cn("pl-10", NUMBER_INPUT_CLASSNAME)}
                     {...a11y}
                     {...register("totalAmount")}
                   />
@@ -193,7 +191,7 @@ export function FuelLogForm({
                   id="odometerKm"
                   type="number"
                   inputMode="numeric"
-                  className={cn("pr-11 font-mono", NUMBER_INPUT_CLASSNAME)}
+                  className={cn("pr-11", NUMBER_INPUT_CLASSNAME)}
                   {...a11y}
                   {...register("odometerKm")}
                 />
@@ -273,26 +271,9 @@ export function FuelLogForm({
             {(a11y) => <Textarea id="notes" rows={3} {...a11y} {...register("notes")} />}
           </FormField>
         </FormSection>
-      </div>
+      </FormBody>
 
-      <div className="shrink-0 border-t border-border px-5 pt-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-6 sm:pb-4">
-        {submitError && (
-          <div className="mb-3">
-            <FieldError>{submitError}</FieldError>
-          </div>
-        )}
-        <div className="flex gap-2 sm:justify-end sm:gap-3">
-          <DialogClose asChild>
-            <Button type="button" variant="ghost">
-              Cancelar
-            </Button>
-          </DialogClose>
-          <Button type="submit" disabled={isSubmitting} className="flex-1 sm:min-w-44 sm:flex-none">
-            {isSubmitting && <Loader2 className="h-4 w-4 motion-safe:animate-spin" aria-hidden="true" />}
-            {isSubmitting ? "Salvando…" : submitLabel}
-          </Button>
-        </div>
-      </div>
+      <FormFooter error={submitError} submitting={isSubmitting} submitLabel={submitLabel} />
     </form>
   );
 }

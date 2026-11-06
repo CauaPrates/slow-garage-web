@@ -1,6 +1,6 @@
 import { formatMoney } from "@/lib/format";
 import { GarageTile, GarageTileGrid } from "@/features/vehicle/GarageTiles";
-import { DashboardPanel, PanelDisclosure } from "./DashboardPanel";
+import { Panel, PanelDisclosure } from "@/components/ui/panel";
 import type { DashboardFinancialSummary } from "./types";
 
 type FinancialSummaryCardProps = {
@@ -22,7 +22,7 @@ const money = (value: number | null | undefined) => (value != null ? formatMoney
  */
 export function FinancialSummaryCard({ summary }: FinancialSummaryCardProps) {
   return (
-    <DashboardPanel
+    <Panel
       title="Financeiro"
       description={summary ? undefined : "Sem dado financeiro para este veículo."}
     >
@@ -50,6 +50,6 @@ export function FinancialSummaryCard({ summary }: FinancialSummaryCardProps) {
           combustível, manutenção e itens de projeto do período, sem a compra.
         </p>
       </PanelDisclosure>
-    </DashboardPanel>
+    </Panel>
   );
 }

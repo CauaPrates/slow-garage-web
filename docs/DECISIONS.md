@@ -3054,90 +3054,27 @@ fundo da página); "Minha garagem" numa linha no celular de 360px pra cima;
 no tema claro a foto de fundo da capa é chapa de borda seca em vez de
 degradê do claro para o escuro.
 
-**Imagem.** Uma imagem editorial gerada para o estudo A3.1 e fornecida pelo
-usuário (`src/assets/garage/cover.webp`, 88 KB). Decorativa (`alt=""`,
-`aria-hidden`), ilustrativa, sem crédito sobre a imagem. Servida por
-`<picture>` com `media` de `lg`: abaixo disso o navegador usa um pixel vazio e
-não baixa nada (`loading="lazy"` em bloco oculto não bastou — o Chrome baixava
-no celular). Fora do precache do PWA (o Workbox só pega js, css, html e
-woff2).
+**Imagem.** Uma imagem editorial **gerada** para o estudo A3.1 e fornecida
+pelo usuário (`src/assets/garage/cover.webp`, 2172×724, 88 KB; original em
+`redesign-capturas/estudos-garagem-v2/fonte/assets/capa-a3-1-gerada-original.png`).
+Ilustrativa, não representa veículo cadastrado. Decorativa (`alt=""`,
+`aria-hidden`), sem crédito sobre a imagem. Servida por `<picture>` com
+`media` de `lg`: abaixo disso o navegador usa um pixel vazio e não baixa nada
+(`loading="lazy"` em bloco oculto não bastou — o Chrome baixava no celular).
+Fora do precache do PWA (o Workbox só pega js, css, html e woff2).
+
+*Histórico da imagem.* A primeira montagem desta ADR usou quatro fotos reais
+do Unsplash, CC0 (oficina, garagem, motor, gaiola; 167 KB em WebP), remontadas
+em CSS como colagem — e por isso registrava "nenhuma imagem gerada por IA".
+O usuário apontou que não era a capa aprovada; a colagem saiu do app e a capa
+passou a ser a imagem gerada da A3.1 acima. As fotos CC0 seguem creditadas no
+`CREDITOS.txt` do estudo. A frase "nenhuma imagem gerada por IA" vale só para
+aquela primeira versão.
 
 **Rolagem dupla.** No desktop quem rola é o `<main>`; textos só para leitor de
 tela (`sr-only`, posição absoluta) sem ancestral posicionado se posicionavam
 pelo documento e esticavam a janela — aparecia uma segunda barra. A página
 da Garagem (`.garage-page`) é `position: relative`.
-
-**Não mudou.** Rotas, schemas, hooks, queries, chaves e invalidações,
-fórmulas (somas do resumo e do comparativo iguais), regras de status, banco,
-autenticação, permissões.
-
-**Verificação.** Capturas e relatórios em
-`redesign-capturas/recalibracao-visual-01/` (cenários `rv1`–`rv5` do
-`inspect.mjs`, antes e depois). Axe sem violações em 24 estados (1920, 2560,
-1440 claro, 1366, 1280, 1024, 820 claro/escuro, 390, 360 claro/escuro, 320;
-ficha, menu e detalhes abertos; um veículo; vazio); nenhum alvo menor que
-44px; sem rolagem horizontal; sem interativo aninhado; foco laranja visível
-na seta; build e lint limpos. Limitação: em 320×640 o nome do primeiro carro
-fica logo abaixo da dobra (621 × 583px), e o rodapé do card quebra em duas
-linhas.
-
-## ADR-094 — Garagem A3 + capa A3.1: revista automotiva japonesa
-
-**Status.** Implementada na Minha garagem, a partir do estudo estático
-aprovado (propostas A3 e A3.1). Outras telas, marca e shell não mudaram.
-
-**Contexto.** A recalibração 01 (ADR-093) aproximou a Garagem da referência,
-mas o usuário definiu a inspiração como revista automotiva japonesa de
-preparação — cultura de garagem e de projeto pessoal. Os estudos A → A2 →
-A3 → A3.1 (fora do repositório, `redesign-capturas/estudos-garagem-v2/`)
-fixaram a composição; a A3.1 trocou a capa por uma colagem fotográfica. O
-estudo foi aprovado visualmente antes desta implementação.
-
-**Decisão.**
-
-- Página sem largura máxima: capa, resumo e coleção na mesma margem depois
-  da sidebar, com escala fluida travada entre 1440 e 2560 (tokens
-  `--garage-*`). A recalibração 01 centralizava em 76rem e deixava faixa
-  vazia junto à sidebar no largo.
-- Capa desktop com a imagem da A3.1 (uma imagem já composta: carro +
-  recortes de roda e motor, 3:1) e coluna de texto alinhada à grade da
-  coleção; celular sem foto. Rejeitado: remontar a colagem em CSS com fotos
-  CC0 avulsas (primeira versão desta ADR) — o usuário apontou que não era a
-  capa aprovada.
-- Resumo em faixa colada à capa, com "Detalhes e comparativo" no fim; o
-  painel abre logo abaixo dela. Rejeitado: manter o gatilho no título da
-  seção depois da grade (ADR-093) com o botão novo só rolando até ela — dois
-  controles para a mesma região, e o botão da faixa abriria algo fora da
-  tela.
-- Card como ficha editorial em três composições por **container query** (a
-  largura do card decide, não a viewport): vertical, spread compacto e
-  spread largo com a ficha técnica aberta numa coluna. Rejeitado: ampliar
-  foto, nome e números no desktop largo (o que a A2 fazia) — no 2560 o card
-  ficava com texto grande demais e vazio interno.
-- Grade: 2 cards por linha com coleção ≥ 1100px, senão 1; 1 veículo vira um
-  spread de destaque. Rejeitado: "vaga livre" ou painel financeiro para
-  completar linha (enchimento sem função).
-- Status e "⋯" saíram de cima da foto para a linha do número; o degradê da
-  base da foto saiu. "Abrir veículo" existe em duas formas (seta no vertical,
-  rótulo no spread), só uma visível por vez — continua uma parada de Tab.
-- Composição em `src/styles/garage.css` (classes `garage-*`, só tokens) em
-  vez de utilitários: áreas de grade e container queries virariam dezenas de
-  classes arbitrárias por elemento. Exceção consciente à regra "tudo em
-  utilitário"; a regra de tokens continua valendo.
-
-**Ajustes da revisão visual.** Região sem foto com superfície própria (não o
-fundo da página); "Minha garagem" numa linha no celular de 360px pra cima;
-no tema claro a foto de fundo da capa é chapa de borda seca em vez de
-degradê do claro para o escuro.
-
-**Imagens.** Quatro fotos reais do Unsplash, CC0 (atribuição dispensada),
-tratadas e convertidas para WebP (167 KB no total), em `src/assets/garage/`.
-Decorativas (`alt=""`, `aria-hidden`), ilustrativas, sem crédito sobre a
-imagem; fontes no `docs/DESIGN.md`. Servidas por `<picture>` com `media`
-de `lg`: abaixo disso o navegador usa um pixel vazio e não baixa nada
-(`loading="lazy"` em bloco oculto não bastou — o Chrome baixava as quatro no
-celular). Fora do precache do PWA (o padrão do Workbox só pega js, css, html e
-woff2). Nenhuma imagem gerada por IA.
 
 **Não mudou.** Rotas, schemas, hooks, queries, chaves e invalidações,
 fórmulas (somas do resumo e do comparativo iguais), regras de status, banco,
@@ -3149,10 +3086,10 @@ o rótulo visível no spread largo. `CreateVehicleDialog.triggerLabel` aceita
 `ReactNode`.
 
 **Verificação.** Capturas e relatório em `redesign-capturas/garagem-a3/`
-(cenário `a3` do `inspect.mjs`, Supabase simulado; rodada final em `r8/`). Axe sem violações em 24
-estados (2560, 1920, 1440 claro/escuro, 1280, 1024 claro, 768, 390
-claro/escuro, 360, 320; quatro carros; ficha, menu e detalhes abertos em
-1440/390/2560; um veículo em 1440/2560/390; vazio em 1440/390). Sem rolagem
+(cenário `a3` do `inspect.mjs`, Supabase simulado; rodada final em `r8/`). Axe
+sem violações em 24 estados (2560, 1920, 1440 claro/escuro, 1280, 1024 claro,
+768, 390 claro/escuro, 360, 320; quatro carros; ficha, menu e detalhes abertos
+em 1440/390/2560; um veículo em 1440/2560/390; vazio em 1440/390). Sem rolagem
 horizontal, sem interativo aninhado, nenhum alvo menor que 44px, nenhum
 elemento fora do card, foto nunca sobre o texto, colagem nunca sobre o texto
 nem fora da capa (folga de 129px em 1024 a 633px em 2560). Celular: zero
@@ -3161,6 +3098,14 @@ indisponível no momento.". `npm run lint` e `npm run build` limpos.
 Limitações: em 320×640 o nome do primeiro carro termina em 637px, logo
 abaixo da dobra (583px) — como na ADR-093; em 1280 a coleção tem 960px e
 fica com 1 card por linha.
+
+**Consolidação (harmonização 01, 06/11/2026).** Esta ADR aparecia duas vezes,
+com o mesmo número: a primeira cópia trazia a descrição certa da capa gerada,
+mas repetia o parágrafo de verificação da ADR-093 (cenários `rv1`–`rv5`); a
+segunda trazia a verificação certa (cenário `a3`) e o "Não mudou" completo,
+mas ainda descrevia as quatro fotos CC0 da primeira montagem. As duas viraram
+esta entrada única: nenhum fato foi apagado — a primeira montagem está no
+histórico da imagem, a verificação da ADR-093 continua na própria ADR-093.
 
 ## ADR-095 — Revisão dos cards da Minha garagem: cards verticais da referência
 
@@ -3488,3 +3433,139 @@ exclusão real. Axe sem violações em 24 estados; `npm run lint` e
 - Verificação: cenário 121 (arquivo 227, `relatorio-ajustes.txt`) em 320,
   360, 390, 768, 1024, 1440 e 1920 — axe sem violações, nenhum alvo menor
   que 44px, sem rolagem horizontal, último conteúdo acima da barra.
+
+## ADR-099 — Harmonização 01: sistema visual compartilhado e etapas 01–10 no mesmo idioma
+
+**Status.** Implementada antes da etapa 11. Branch
+`feature/043-harmonizacao-design-system`, a partir da
+`feature/042-redesign-etapa-10` (árvore limpa na partida). **Revisão visual
+pendente** — nada aqui foi aprovado visualmente ainda.
+
+**Contexto.** As etapas 01–10 redesenharam uma tela por vez. Cada uma copiou
+a casca da anterior em vez de importá-la: o menu "⋯" existia em cinco cópias
+locais e uma em `features/project/`; o selo de situação em três; a classe de
+página e de painel em sete páginas; o botão "i" em três; o rodapé dos
+formulários em oito (sete idênticos byte a byte); o cartão do registro na
+exclusão em onze arquivos; e as peças de formulário moravam em
+`features/vehicle/VehicleFormParts` sendo usadas por oito formulários. A
+tipografia também divergia: Modificações (etapa 10, a referência das páginas
+de gestão) usava título em Archivo caixa-alta e valores em display tabular;
+Gastos, Abastecimentos, Manutenção, Problemas e Projetos ainda tinham título
+em Space Grotesk 24px e valores em mono — contra a regra (ADR-093) de mono só
+na placa. Uma mudança de acabamento precisava ser repetida tela a tela.
+
+**Decisão.**
+
+- **Tokens como fonte única** (`tokens.css`): papéis novos `text-muted` e
+  `info` (contraste calculado, claro e escuro com os mesmos papéis); escala de
+  página (`--page-*`), de painel (`--panel-*`), de controle (`--control-h`,
+  `--control-h-touch`, expostos ao Tailwind como `h-control` etc.), anel de
+  foco de campo, `--duration-flash` e a escala tipográfica `--type-*`.
+  `tailwind-merge` aprendeu `control` como tamanho, para `h-control` e um
+  `h-9` de quem usa não ficarem juntos.
+- **Papéis tipográficos como utilitários** (`@utility type-*` em
+  `globals.css`), aplicados por componente. Rejeitado: estilizar `h1`/`h2`/
+  `button` por seletor global — consistência simulada que quebra toda tela
+  que não segue a hierarquia esperada. Caixa-alta só no **título de tela**
+  (nome fixo e curto) e na sobrelinha; nome de registro (projeto, veículo)
+  usa `type-entity-title` em caixa normal. Rejeitado: caixa-alta em todo
+  título — nome digitado pelo usuário em caixa-alta perde legibilidade e
+  muda o que a pessoa escreveu.
+- **Valores em display tabular, mono só em identificador.** Dinheiro, km,
+  litros e consumo passaram de `font-mono` para `type-value`/`type-figure`
+  (Archivo 600 tabular): continuam comparáveis e alinhados. Mono ficou na
+  placa (`PlateTag`, três lugares), no campo de placa e em código de erro.
+- **Componentes básicos evoluídos ou extraídos, não uma segunda biblioteca**:
+  `Badge`, `RowActionsMenu`/`menuItemClassName`/`MenuSeparator`, `InfoTip`,
+  `Skeleton`/`SkeletonList`, `InlineError`/`PageError`/`NoResults`/
+  `EmptyState`/`Alert`, `DisclosureButton`/`DetailItem`, `AlertDialogRecord`,
+  `PlateTag`, `textLinkClassName` — todos em `components/ui/`, ao lado dos
+  que já existiam. `DashboardPanel` virou `Panel` + `PanelHeader` em
+  `components/ui/panel.tsx` (mesma API; os nove consumidores trocaram o
+  import). `VehicleFormParts` virou `components/ui/form.tsx`, com `FormBody`
+  e `FormFooter` novos. Os arquivos antigos (`DashboardPanel.tsx`,
+  `RowActionsMenu.tsx`, `VehicleFormParts.tsx`) saíram depois que nenhum
+  consumidor os importava.
+- **Padrões de página pequenos, não um componente universal**: `Page`,
+  `PageHeader` (com `stackActionsOnMobile` para Manutenção), `ActionLabel`,
+  `SummaryStrip`, `PanelHeader`, `PanelCount`, `ListColumns`, `FilterField`.
+  Rejeitado: um `ListPage` com dezenas de props para acomodar as seis listas
+  — cada tela mantém sua linha, colunas e agrupamentos; compartilham
+  respiro, tipografia, selo, "Detalhes", "⋯" e valor.
+- **Estados com componente**: carregando, falha de bloco, falha da página,
+  sem resultado e vazio deixaram de ser marcação repetida. O texto continua de
+  cada tela.
+- **Exceções delimitadas**: a Minha garagem continua em `garage.css` (capa,
+  colagem, card, grade, abas da coleção) e só passou a consumir
+  `--control-h`, `--focus-ring-field` e `--color-text-muted` — valores
+  iguais aos que tinha, nenhuma mudança de composição. Layout do dashboard,
+  configuração dos gráficos, regras de formulário e textos de exclusão
+  continuam de cada tela. Abastecimentos mantém o painel de indicadores em
+  vez da faixa de resumo (cada número tem ajuda, erro e "Detalhes" próprios).
+
+**Efeitos nas telas ainda não redesenhadas (etapas 11–16).** Documentos,
+Histórico, Fotos, Configurações, Convites e Admin usam os componentes comuns
+e receberam: placeholder no tom discreto, título de diálogo pelo papel (mesmo
+tamanho, peso e cor; espaçamento de letra −0,015em em vez de −0,025em), `Label`
+pelo papel (mesma medida), `Popover`/menus com a altura por token (mesmos
+44px), aviso de rota (`RouteNotice`) no `Alert` com fio lateral em vez de
+fundo âmbar. Admin continua com o próprio selo (`AdminBadges`) e mono nos
+números — redesign dessas telas fica para as etapas delas.
+
+**Não mudou.** Rotas, schemas, hooks, queries, chaves e invalidações,
+fórmulas, regras de vencimento e de progresso, ordem das escritas, banco,
+autenticação, permissões, textos de exclusão e de ajuda (só a forma). O limite
+de 1000 linhas de Modificações e as outras pendências documentadas seguem como
+estavam.
+
+**Verificação.** Dados simulados (ferramenta externa `redesign-capturas/ferramenta/inspect.mjs`,
+rede trancada, nenhuma chamada ao Supabase real, nenhuma gravação real).
+`npm run lint`, `npx tsc -b` e `npm run build` limpos.
+
+- Cenário novo `h01` (pasta `redesign-capturas/harmonizacao-01/`): as seis
+  páginas de registro, o detalhe do projeto e o dashboard em 320, 360, 390,
+  768, 1024, 1440, 1920 e 2560, claro e escuro alternados — título de tela em
+  Archivo 800 caixa-alta que cabe inteiro, ação com 44px, sem rolagem
+  horizontal, sem segunda rolagem da janela a partir de 1024, nenhum texto
+  em mono fora da placa, nenhum alvo menor que 44px, último conteúdo acima da
+  barra inferior; esqueleto pulsa com movimento e para com movimento
+  reduzido. 23 estados com axe sem violação. Doze capturas.
+- Cenários anteriores das telas afetadas rodados de novo **fora** das pastas
+  das etapas (rascunho, só conferência): Gastos 49–59, Abastecimentos 73–79,
+  Manutenção 84–91, Problemas 94–101, Projetos 103–113, Modificações
+  114–121, dashboard 31, 33, 34, 40–48, 61–66, formulários do veículo 22–29,
+  shell 2 e 7, garagem 11, 16, `a3c` e `a3d` (cards, grade, barra da coleção, busca, 320–2560). Somados ao `h01`, 242 estados com axe sem
+  violação; nenhum com rolagem horizontal; alinhamento das colunas medido
+  igual; foco de volta ao "⋯" e ao título da lista depois de excluir; dois
+  Enter → um POST; realce de valor só depois de registro novo, nunca na
+  primeira carga, na troca de veículo nem com movimento reduzido.
+- Cenário novo `h02` (só relatório, `relatorio-telas-nao-redesenhadas.txt`):
+  Documentos, Histórico, Fotos e Configurações em 360 e 1440 continuam sem
+  rolagem horizontal e com o placeholder no tom discreto; o diálogo de nota
+  do Histórico recebe o título pelo papel comum. Os achados de lá são
+  anteriores a esta rodada (ver "Pendências").
+
+Achado e corrigido durante a verificação: em 320–360px "ABASTECIMENTOS" não
+cabia ao lado de "Registrar" e passava por baixo do botão; o `PageHeader`
+agora quebra a ação para a linha de baixo quando a palavra mais longa do
+título e a ação não cabem juntas.
+
+**Ferramenta.** Três ajustes, registrados no README das capturas: leitura do
+rótulo do gráfico por mês aceita `span.type-figure` (o antigo `font-mono`
+continua aceito, as etapas anteriores seguem comparáveis); cenários `h01` e
+`h02` novos. Os cenários 17, 20 e 72 procuram o botão "Detalhes da garagem",
+que virou "Detalhes e comparativo" na ADR-094 — desatualizados desde antes
+desta rodada, não rodaram e não foram alterados.
+
+**Limitações.** Nenhum aparelho físico nem leitor de tela real; teclado
+virtual só emulado (390×380); Admin não medido (o handler da ferramenta não
+responde `is_admin`).
+
+**Pendências encontradas (não corrigidas aqui, telas das etapas 11–16).**
+Documentos: abas com 38px de altura. Histórico: link "Ver" de 35×16px em cada
+evento. Fotos: botão "Excluir foto" com 16px de largura e `image-alt`
+(crítico no axe) nas miniaturas com os dados simulados. Configurações:
+"Voltar" com 62×20px. Admin: selo próprio (`AdminBadges`) e números em mono.
+As pendências já documentadas (limite de 1000 registros de Modificações,
+ordem de exclusão de anexo e registro, recálculos de manutenção) seguem como
+estavam.

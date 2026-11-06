@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { Info } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { InfoTip } from "@/components/ui/info-tip";
+import { Skeleton } from "@/components/ui/skeleton";
 import { useFlashOnChange } from "@/hooks/useFlashOnChange";
 import { cn } from "@/lib/utils";
 
@@ -17,8 +17,12 @@ type GarageTileProps = {
   state?: GarageTileState;
   /** Nome longo (manutenção, veículo) quebra linha em vez de cortar: o painel é de leitura, não de varredura. */
   wrap?: boolean;
-  /** `font-mono` é de número de medição; nome (ex.: item de manutenção) fica na fonte de interface. */
-  mono?: boolean;
+  /**
+   * Número (padrão) usa o papel `type-value` — display com algarismos
+   * tabulares; nome (ex.: item de manutenção) fica na fonte de interface.
+   * Harmonização 01: era `mono`; mono ficou só para placa e código.
+   */
+  numeric?: boolean;
   /** Complemento da dica que só cabe a partir de `sm` (no celular o módulo é estreito). */
   hintDetail?: string;
   /** Com `wrap`, a dica fica em até 2 linhas; `fullHint` mostra inteira (painel de detalhes). */
@@ -36,21 +40,12 @@ type GarageTileProps = {
   className?: string;
 };
 
-/** Botão de ajuda do módulo: alvo de 44px com margem negativa, pra não aumentar a altura da linha do rótulo. */
+/** Botão de ajuda do módulo (o `InfoTip` comum): margem negativa, pra o alvo de 44px não aumentar a linha do rótulo. */
 function TileHelp({ label, help }: { label: string; help: ReactNode }) {
   return (
-    <Popover>
-      <PopoverTrigger
-        aria-label={`Como é calculado: ${label}`}
-        className="-my-3 -mr-2 inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-md text-text-secondary transition-colors duration-(--duration-fast) hover:bg-state-hover hover:text-text-primary data-[state=open]:bg-state-active data-[state=open]:text-text-primary"
-      >
-        <Info className="h-4 w-4" aria-hidden="true" />
-      </PopoverTrigger>
-      <PopoverContent align="start" aria-label={label} className="w-72 text-sm">
-        <p className="mb-1 font-medium text-text-primary">{label}</p>
-        <div className="text-text-secondary">{help}</div>
-      </PopoverContent>
-    </Popover>
+    <InfoTip label={`Como é calculado: ${label}`} heading={label} className="-my-3 -mr-2">
+      <div>{help}</div>
+    </InfoTip>
   );
 }
 
@@ -71,7 +66,7 @@ function TileValue({ value, flash, className }: { value: ReactNode; flash: boole
 }
 
 /**
- * Módulo da grade de instrumentos (ADR-070): rótulo, valor em `font-mono`,
+ * Módulo da grade de instrumentos (ADR-070): rótulo, valor no papel `type-value`,
  * dica opcional. Erro de consulta nunca vira zero nem "nada pendente": o
  * módulo mostra "—", diz que não carregou e oferece tentar de novo.
  */
@@ -81,7 +76,7 @@ export function GarageTile({
   hint,
   state = { status: "ready" },
   wrap = false,
-  mono = true,
+  numeric = true,
   hintDetail,
   fullHint = false,
   size = "default",
@@ -97,26 +92,23 @@ export function GarageTile({
       )}
     >
       {help ? (
-        <dt className="flex items-center justify-between gap-2 text-xs text-text-secondary">
+        <dt className="type-overline flex items-center justify-between gap-2 text-text-secondary">
           <span className="min-w-0">{label}</span>
           <TileHelp label={label} help={help} />
         </dt>
       ) : (
-        <dt className="text-xs text-text-secondary">{label}</dt>
+        <dt className="type-overline text-text-secondary">{label}</dt>
       )}
       <dd className="min-w-0">
         {state.status === "loading" && (
           <>
             <span className="sr-only">Carregando…</span>
-            <span
-              className="block h-5 w-20 animate-pulse rounded-sm bg-state-hover"
-              aria-hidden="true"
-            />
+            <Skeleton className="h-5 w-20 rounded-sm" />
           </>
         )}
         {state.status === "error" && (
           <span className="flex flex-col items-start">
-            <span className="font-mono text-text-primary" aria-hidden="true">
+            <span className="type-value text-text-primary" aria-hidden="true">
               —
             </span>
             <span className="text-xs text-error">Não foi possível carregar.</span>
@@ -136,8 +128,8 @@ export function GarageTile({
               flash={flashOnChange}
               className={cn(
                 "block text-text-primary",
-                size === "lg" && "text-xl leading-tight font-medium sm:text-2xl",
-                mono ? "font-mono" : "font-medium",
+                numeric ? "type-value" : "font-medium",
+                size === "lg" && "text-xl leading-tight sm:text-2xl",
                 wrap ? "break-words" : "truncate",
               )}
             />

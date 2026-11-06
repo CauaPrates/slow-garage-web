@@ -1,18 +1,18 @@
+import { Badge } from "@/components/ui/badge";
 import { useId } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { formatDateOnly } from "@/lib/format";
 import { ROUTES } from "@/lib/routes";
-import { cn } from "@/lib/utils";
 import { ProgressSummary } from "./ProjectProgress";
 import {
   PROJECT_STATUS_PRESENTATION,
-  STATUS_BADGE_CLASSNAME,
+
   moneyOrNull,
   projectDateParts,
   readProgress,
 } from "./projectPresentation";
-import { RowActionsMenu } from "./RowActionsMenu";
+import { RowActionsMenu } from "@/components/ui/menu";
 import type { ProjectWithProgress } from "./useProjects";
 
 type ProjectListRowProps = {
@@ -39,7 +39,7 @@ function Figure({ label, value, emptyText, srEmpty, maybeMissing }: FigureProps)
       <dd className="text-right text-sm break-words">
         {value && maybeMissing ? (
           <>
-            <span className="font-mono text-text-primary tabular-nums">{value}</span>
+            <span className="type-figure text-text-primary">{value}</span>
             <span className="block text-xs text-text-secondary">
               <span className="sr-only">, </span>
               valores podem não estar informados
@@ -49,7 +49,7 @@ function Figure({ label, value, emptyText, srEmpty, maybeMissing }: FigureProps)
             </span>
           </>
         ) : value ? (
-          <span className="font-mono text-text-primary tabular-nums">{value}</span>
+          <span className="type-figure text-text-primary">{value}</span>
         ) : srEmpty ? (
           <span className="text-text-secondary">
             <span aria-hidden="true">{emptyText}</span>
@@ -89,7 +89,7 @@ export function ProjectListRow({ vehicleId, project, onEdit, onDelete }: Project
   return (
     // A partir de `lg`: identificação e ações empilhadas à esquerda (sem vão entre elas), progresso e
     // valores à direita ocupando as duas linhas; a sobra de altura vai pra baixo das ações (`1fr`).
-    <li className="flex flex-col gap-3 px-4 py-4 lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:grid-rows-[auto_1fr] lg:gap-x-8 lg:gap-y-1">
+    <li className="flex flex-col gap-3 px-(--panel-pad-x) py-4 lg:grid lg:grid-cols-[minmax(0,1fr)_18rem] lg:grid-rows-[auto_1fr] lg:gap-x-8 lg:gap-y-1">
       <span id={identityId} className="sr-only">
         {project.name}, {status.label}
       </span>
@@ -104,7 +104,7 @@ export function ProjectListRow({ vehicleId, project, onEdit, onDelete }: Project
           >
             {project.name}
           </Link>
-          <span className={cn(STATUS_BADGE_CLASSNAME, status.className)}>{status.label}</span>
+          <Badge tone={status.tone}>{status.label}</Badge>
         </h3>
         {project.description && (
           <p className="line-clamp-2 text-sm break-words text-text-secondary">{project.description}</p>

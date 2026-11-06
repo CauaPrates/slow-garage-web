@@ -1,3 +1,4 @@
+import type { BadgeTone } from "@/components/ui/badge";
 import { formatDateOnly, formatKm, todayDateOnly } from "@/lib/format";
 import type { Database } from "@/types/database.types";
 import type { MaintenanceItemWithStatus } from "./useMaintenanceItems";
@@ -36,15 +37,15 @@ export function kmDistanceLabel(dueKm: number, currentKm: number | null): string
 }
 
 /** Situação temporal (da view). Texto + cor; prioridade e ativo/inativo nunca usam estas cores. */
-export const STATUS_PRESENTATION: Record<StatusLevel, { label: string; className: string }> = {
-  overdue: { label: "Vencida", className: "border-error/40 bg-error/10 text-error" },
-  due_soon: { label: "Próxima", className: "border-warning/40 bg-warning/10 text-warning" },
-  ok: { label: "Em dia", className: "border-success/40 bg-success/10 text-success" },
+export const STATUS_PRESENTATION: Record<StatusLevel, { label: string; tone: BadgeTone }> = {
+  overdue: { label: "Vencida", tone: "error" },
+  due_soon: { label: "Próxima", tone: "warning" },
+  ok: { label: "Em dia", tone: "success" },
   // `planned` = nunca executado (API_CONTRACT): não é "em dia".
-  planned: { label: "Sem execução", className: "border-border-strong text-text-secondary" },
+  planned: { label: "Sem execução", tone: "neutral" },
 };
 
-export const INACTIVE_PRESENTATION = { label: "Inativo", className: "border-dashed border-border-strong text-text-secondary" };
+export const INACTIVE_PRESENTATION: { label: string; tone: BadgeTone } = { label: "Inativo", tone: "dashed" };
 
 /** Mesma leitura de antes: `item.status` ausente conta como `planned`. */
 export function itemStatus(item: MaintenanceItemWithStatus): StatusLevel {

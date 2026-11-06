@@ -20,7 +20,7 @@ import { MoreSheet } from "./MoreSheet";
  */
 function tabClassName(isActive: boolean) {
   return cn(
-    "relative flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 px-0.5 text-[11px] transition-colors duration-(--duration-fast)",
+    "relative flex min-h-control-touch min-w-0 flex-1 flex-col items-center justify-center gap-1 px-0.5 text-[11px] transition-colors duration-(--duration-fast)",
     isActive
       ? "font-semibold text-text-primary before:absolute before:inset-x-3 before:top-0 before:h-0.5 before:rounded-full before:bg-accent"
       : "text-text-secondary hover:text-text-primary",
@@ -91,7 +91,7 @@ export function BottomNav() {
           aria-label={vehicleId ? undefined : "Registrar — selecione um veículo"}
           onClick={() => vehicleId && setAddOpen(true)}
           className={cn(
-            "flex min-h-14 min-w-0 flex-1 flex-col items-center justify-center gap-1 px-0.5 text-[11px] font-medium text-text-primary",
+            "flex min-h-control-touch min-w-0 flex-1 flex-col items-center justify-center gap-1 px-0.5 text-[11px] font-medium text-text-primary",
             !vehicleId && "cursor-not-allowed opacity-50",
           )}
         >

@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { FipeError, type FipeYear } from "@/lib/fipe/fipeExternal";
-import { DashboardPanel } from "@/features/dashboard/DashboardPanel";
+import { Panel } from "@/components/ui/panel";
 import { EditVehicleDialog } from "./EditVehicleDialog";
 import { useFipeEstimatedValue, useFipeModel, useFipeYears } from "./useFipe";
 import { useUpdateVehicle, type VehicleWithSummary } from "./useVehicles";
@@ -44,18 +44,18 @@ function pickYear(
 
 /**
  * Caixa comum às variações, pra que loading, erro e sucesso ocupem o mesmo lugar.
- * Etapa 04: mesma casca dos outros blocos do dashboard (`DashboardPanel`), no
+ * Etapa 04: mesma casca dos outros blocos do dashboard (`Panel`), no
  * fim da página, e o subtítulo diz o que o número é — referência de mercado,
  * não preço de venda garantido. A lógica do card não mudou.
  */
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <DashboardPanel
+    <Panel
       title="Referência FIPE"
       description="Valor médio de mercado da tabela FIPE. Referência, não preço de venda garantido."
     >
       <div className="flex flex-col gap-2 p-4">{children}</div>
-    </DashboardPanel>
+    </Panel>
   );
 }
 
@@ -229,7 +229,7 @@ export function VehicleFipeCard({ vehicle }: VehicleFipeCardProps) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-1">
-            <p className="font-mono text-2xl font-medium text-text-primary">
+            <p className="type-figure text-2xl text-text-primary">
               {formatMoney(valor.amount)}
             </p>
             {botaoAtualizar}
@@ -263,7 +263,7 @@ export function VehicleFipeCard({ vehicle }: VehicleFipeCardProps) {
             <>
               <p className="text-xs text-text-secondary">
                 Seu valor estimado é{" "}
-                <span className="font-mono text-text-primary">
+                <span className="type-figure text-text-primary">
                   {formatMoney(estimado)}
                 </span>
                 , {estimado < valor.amount ? "abaixo" : "acima"} da FIPE.

@@ -6,18 +6,11 @@ import { useCurrentVehicleId } from "@/hooks/useCurrentVehicleId";
 import { ROUTES } from "@/lib/routes";
 import type { VehicleWithSummary } from "@/features/vehicle/useVehicles";
 import { NAV_EYEBROW_CLASSNAME } from "./navStyles";
+import { PlateTag } from "@/components/ui/plate-tag";
 
 type HeaderVehicleSwitcherProps = {
   vehicles: VehicleWithSummary[];
 };
-
-function PlateTag({ plate }: { plate: string }) {
-  return (
-    <span className="shrink-0 rounded-sm border border-border px-1.5 py-px font-mono text-[11px] tracking-wider whitespace-nowrap text-text-secondary">
-      {plate}
-    </span>
-  );
-}
 
 /**
  * Troca rápida de veículo sem precisar ir em "Minha garagem" — só
@@ -51,7 +44,7 @@ export function HeaderVehicleSwitcher({ vehicles }: HeaderVehicleSwitcherProps) 
           className="flex h-11 max-w-full min-w-0 items-center gap-2 lg:max-w-md rounded-md border border-border px-2.5 text-sm text-text-primary transition-colors duration-(--duration-fast) hover:border-border-strong hover:bg-state-hover data-[state=open]:bg-state-active sm:px-3"
         >
           <span className="hidden min-w-0 truncate font-medium sm:inline">{currentName}</span>
-          {current.plate && <PlateTag plate={current.plate} />}
+          {current.plate && <PlateTag plate={current.plate} className="text-text-secondary" />}
           <ChevronsUpDown className="h-4 w-4 shrink-0 text-text-secondary" aria-hidden="true" />
         </button>
       </PopoverTrigger>
@@ -71,7 +64,7 @@ export function HeaderVehicleSwitcher({ vehicles }: HeaderVehicleSwitcherProps) 
               <span className="min-w-0 truncate">
                 {vehicle.make} {vehicle.model}
               </span>
-              {vehicle.plate && <PlateTag plate={vehicle.plate} />}
+              {vehicle.plate && <PlateTag plate={vehicle.plate} className="text-text-secondary" />}
             </button>
           ))}
         </div>

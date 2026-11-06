@@ -897,7 +897,7 @@
 .garage-search {
   position: relative;
   align-items: center;
-  height: 2.75rem;
+  height: var(--control-h);
   min-width: 0;
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
@@ -911,7 +911,7 @@
 }
 .garage-search:focus-within {
   border-color: var(--color-accent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-accent) 30%, transparent);
+  box-shadow: var(--focus-ring-field);
 }
 .garage-search__icon {
   position: absolute;
@@ -936,7 +936,7 @@
   }
 }
 .garage-search__input::placeholder {
-  color: var(--color-text-secondary);
+  color: var(--color-text-muted);
 }
 .garage-search__kbd {
   flex-shrink: 0;
@@ -954,7 +954,7 @@
   display: grid;
   place-items: center;
   flex-shrink: 0;
-  width: 2.75rem;
+  width: var(--control-h);
   height: 100%;
   border-radius: var(--radius-md);
   color: var(--color-text-secondary);
@@ -1072,7 +1072,7 @@
 .garage-tab {
   position: relative;
   flex-shrink: 0;
-  min-height: 2.75rem;
+  min-height: var(--control-h);
   padding-inline: 0.125rem;
   white-space: nowrap;
   font-size: 0.875rem;
@@ -1118,8 +1118,8 @@
 .garage-view__button {
   display: grid;
   place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: var(--control-h);
+  height: var(--control-h);
   border: 1px solid var(--color-border);
   border-radius: var(--radius-md);
   color: var(--color-text-secondary);
@@ -1282,8 +1282,8 @@
 .garage-slot__plus {
   display: grid;
   place-items: center;
-  width: 2.75rem;
-  height: 2.75rem;
+  width: var(--control-h);
+  height: var(--control-h);
   margin-bottom: 0.25rem;
   border-radius: 9999px;
   background: color-mix(in srgb, var(--color-accent) 14%, transparent);

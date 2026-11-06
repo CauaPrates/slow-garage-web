@@ -1,3 +1,4 @@
+import { PANEL_CLASSNAME, PanelHeader } from "@/components/ui/panel";
 import { cn } from "@/lib/utils";
 import {
   formatPercent,
@@ -35,7 +36,7 @@ export function ProgressSummary({ state }: { state: ProgressState }) {
     <div className="flex flex-col gap-1.5">
       <p className="flex items-baseline justify-between gap-2 text-xs text-text-secondary">
         <span>{progressLabel(state)}</span>
-        <span className="font-mono text-text-primary tabular-nums">{formatPercent(state.pct)}</span>
+        <span className="type-figure text-text-primary">{formatPercent(state.pct)}</span>
       </p>
       <ProgressBar pct={state.pct} />
     </div>
@@ -50,7 +51,7 @@ function Metric({ label, value, emptyText, note }: { label: string; value: strin
         <dt className="text-text-secondary">{label}</dt>
         <dd className="text-right">
           {value ? (
-            <span className="font-mono text-text-primary tabular-nums">{value}</span>
+            <span className="type-figure text-text-primary">{value}</span>
           ) : (
             <span className="text-text-secondary">{emptyText}</span>
           )}
@@ -128,27 +129,23 @@ export function ProjectProgress({ progress, items }: ProjectProgressPanelProps) 
       : undefined;
 
   return (
-    <section
-      aria-labelledby={PROJECT_PROGRESS_TITLE_ID}
-      className="overflow-hidden rounded-lg border border-border bg-surface"
-    >
-      <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-border px-4 py-3">
-        <h2 id={PROJECT_PROGRESS_TITLE_ID} className="text-sm font-medium text-text-primary">
-          Progresso e custos
-        </h2>
-        <p className="text-xs text-text-secondary">Medidos pelos itens não cancelados</p>
-      </div>
+    <section aria-labelledby={PROJECT_PROGRESS_TITLE_ID} className={PANEL_CLASSNAME}>
+      <PanelHeader
+        title="Progresso e custos"
+        titleId={PROJECT_PROGRESS_TITLE_ID}
+        action={<p className="type-caption pt-0.5 text-text-secondary">Medidos pelos itens não cancelados</p>}
+      />
 
       <div className="grid grid-cols-1 divide-y divide-border md:grid-cols-2 md:divide-x md:divide-y-0">
-        <div className="flex flex-col gap-2.5 px-4 py-4">
+        <div className="flex flex-col gap-2.5 px-(--panel-pad-x) py-4">
           <p className="text-xs text-text-secondary">Itens instalados</p>
           {state.kind === "ready" ? (
             <>
               <p className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-                <span className="font-mono text-2xl font-semibold text-text-primary tabular-nums">
+                <span className="type-figure text-2xl text-text-primary">
                   {state.completed} de {state.total}
                 </span>
-                <span className="font-mono text-sm text-text-secondary tabular-nums">{formatPercent(state.pct)}</span>
+                <span className="text-sm text-text-secondary tabular-nums">{formatPercent(state.pct)}</span>
               </p>
               <ProgressBar pct={state.pct} className="h-2" />
             </>
@@ -160,7 +157,7 @@ export function ProjectProgress({ progress, items }: ProjectProgressPanelProps) 
           <p className="text-xs text-text-secondary">{ruleText}</p>
         </div>
 
-        <div className="flex flex-col gap-3 px-4 py-4 text-sm">
+        <div className="flex flex-col gap-3 px-(--panel-pad-x) py-4 text-sm">
           <Metric label="Orçamento" value={moneyOrNull(budget)} emptyText="Não definido" />
           <Metric label="Custo real" value={actual} emptyText={noActual ? "Nenhum informado" : "—"} note={actualNote} />
           <Metric
@@ -172,7 +169,7 @@ export function ProjectProgress({ progress, items }: ProjectProgressPanelProps) 
         </div>
       </div>
 
-      <p className="border-t border-border px-4 py-3 text-xs text-text-secondary">
+      <p className="type-caption border-t border-border px-(--panel-pad-x) py-(--panel-pad-y) text-text-secondary">
         Nos totais do veículo entra só o custo real de itens Instalados (com data, no mês dessa data). Estimativas não
         entram.
       </p>

@@ -1,4 +1,4 @@
-import { DashboardPanel, PanelDisclosure } from "@/features/dashboard/DashboardPanel";
+import { Panel, PanelDisclosure } from "@/components/ui/panel";
 import { GarageTile, GarageTileGrid, type GarageTileState } from "@/features/vehicle/GarageTiles";
 import { formatConsumption, formatLiters, formatMoney, formatPricePerLiter } from "@/lib/format";
 import type { Database } from "@/types/database.types";
@@ -43,7 +43,7 @@ export function FuelSummaryPanel({ summary, financial }: FuelSummaryPanelProps) 
   const noConsumption = summary.status === "ready" && data?.avg_km_per_liter == null;
 
   return (
-    <DashboardPanel
+    <Panel
       title="Resumo"
       description={
         summary.status === "error"
@@ -128,6 +128,6 @@ export function FuelSummaryPanel({ summary, financial }: FuelSummaryPanelProps) 
           consumo na hora: o primeiro tanque cheio abre o trecho, o seguinte fecha.
         </p>
       </PanelDisclosure>
-    </DashboardPanel>
+    </Panel>
   );
 }

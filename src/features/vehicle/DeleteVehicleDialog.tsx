@@ -9,7 +9,9 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  RECORD_CARD_CLASSNAME,
 } from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 import { FieldError } from "@/components/ui/field-error";
 import { useDeleteVehicle, type VehicleWithSummary } from "./useVehicles";
 
@@ -76,7 +78,7 @@ export function DeleteVehicleDialog({
           {/* Tudo como descrição: o leitor de tela anuncia qual carro junto com o título. */}
           <AlertDialogDescription asChild>
             <div className="mt-2 flex flex-col gap-3">
-              <span className="flex flex-col gap-0.5 rounded-md border border-border bg-bg px-3 py-2.5">
+              <span className={cn("flex flex-col gap-0.5", RECORD_CARD_CLASSNAME)}>
                 <span className="text-xs text-text-secondary">{vehicle.make}</span>
                 <span className="font-medium break-words text-text-primary">
                   {vehicle.model}

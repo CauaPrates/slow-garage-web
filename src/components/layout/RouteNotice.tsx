@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { AlertTriangle, X } from "lucide-react";
+import { X } from "lucide-react";
+import { Alert } from "@/components/ui/feedback";
 import { Button } from "@/components/ui/button";
 
 /** Estado de navegação que leva um aviso pra próxima tela (ex.: `AdminRoute` tirando do painel quem perdeu o acesso). */
@@ -18,20 +19,23 @@ export function RouteNotice() {
   if (!notice) return null;
 
   return (
-    <div
+    // Harmonização 01: o aviso comum (`Alert`), com a margem da página.
+    <Alert
+      tone="warning"
       role="status"
-      className="mx-4 mt-4 flex items-center gap-3 rounded-lg border border-warning/40 bg-warning/10 py-1 pr-1 pl-4 sm:mx-6"
+      className="mx-(--page-gutter) mt-4 flex-row items-center py-1 pr-1"
+      action={
+        <Button
+          variant="ghost"
+          size="icon"
+          aria-label="Fechar aviso"
+          onClick={() => navigate(location.pathname + location.search, { replace: true, state: null })}
+        >
+          <X className="h-4 w-4" aria-hidden="true" />
+        </Button>
+      }
     >
-      <AlertTriangle className="h-4 w-4 shrink-0 text-warning" aria-hidden="true" />
-      <p className="flex-1 text-sm text-text-primary">{notice}</p>
-      <Button
-        variant="ghost"
-        size="icon"
-        aria-label="Fechar aviso"
-        onClick={() => navigate(location.pathname + location.search, { replace: true, state: null })}
-      >
-        <X className="h-4 w-4" aria-hidden="true" />
-      </Button>
-    </div>
+      <p className="text-text-primary">{notice}</p>
+    </Alert>
   );
 }

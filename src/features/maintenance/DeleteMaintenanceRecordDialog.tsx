@@ -8,6 +8,7 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogRecord,
 } from "@/components/ui/alert-dialog";
 import { FieldError } from "@/components/ui/field-error";
 import { useReturnFocus } from "@/hooks/useReturnFocus";
@@ -96,8 +97,16 @@ export function DeleteMaintenanceRecordDialog({
           <AlertDialogTitle>Excluir serviço?</AlertDialogTitle>
           <AlertDialogDescription>{effects}</AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="flex items-start justify-between gap-3 rounded-md border border-border bg-bg px-3 py-2.5">
-          <div className="flex min-w-0 flex-col gap-0.5">
+        <AlertDialogRecord
+          value={
+            /* Etapa 09: ausente não é zero — "Custo não informado"; zero salvo continua R$ 0,00. */
+            record.cost != null ? (
+              formatMoney(record.cost)
+            ) : (
+              <span className="font-sans font-normal text-text-secondary">Custo não informado</span>
+            )
+          }
+        >
             <p className="text-sm font-medium break-words text-text-primary">{record.name}</p>
             <p className="text-xs break-words text-text-secondary">{meta}</p>
             <p className="text-xs break-words text-text-secondary">
@@ -106,16 +115,7 @@ export function DeleteMaintenanceRecordDialog({
             {record.attachment && (
               <p className="text-xs break-all text-text-secondary">Anexo: {record.attachment.original_filename}</p>
             )}
-          </div>
-          <p className="shrink-0 font-mono text-sm text-text-primary">
-            {/* Etapa 09: ausente não é zero — "Custo não informado" (antes "Sem custo"); zero salvo continua R$ 0,00. */}
-            {record.cost != null ? (
-              formatMoney(record.cost)
-            ) : (
-              <span className="font-sans text-text-secondary">Custo não informado</span>
-            )}
-          </p>
-        </div>
+        </AlertDialogRecord>
         {error && (
           <div className="mt-3">
             <FieldError>{error}</FieldError>

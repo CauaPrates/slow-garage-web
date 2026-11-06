@@ -4,7 +4,7 @@ import { ptBR } from "date-fns/locale";
 import { ChevronDown } from "lucide-react";
 import { formatMoney, formatMoneyCompact } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { DashboardPanel } from "./DashboardPanel";
+import { Panel } from "@/components/ui/panel";
 import type { DashboardExpensesByMonth } from "./types";
 
 type ExpensesByMonthChartProps = {
@@ -43,12 +43,12 @@ export function ExpensesByMonthChart({ data, emptyAction, className }: ExpensesB
 
   if (data.length === 0) {
     return (
-      <DashboardPanel title="Gasto por mês" description={description} headingLevel="h3" className={className}>
+      <Panel title="Gasto por mês" description={description} headingLevel="h3" className={className}>
         <div className="flex flex-col items-start gap-3 p-4">
           <p className="text-sm text-text-secondary">Nenhum registro com valor ainda — o gráfico começa no primeiro.</p>
           {emptyAction}
         </div>
-      </DashboardPanel>
+      </Panel>
     );
   }
 
@@ -59,7 +59,7 @@ export function ExpensesByMonthChart({ data, emptyAction, className }: ExpensesB
   const total = chronological.length;
 
   return (
-    <DashboardPanel
+    <Panel
       title="Gasto por mês"
       description={
         <>
@@ -99,7 +99,7 @@ export function ExpensesByMonthChart({ data, emptyAction, className }: ExpensesB
                 />
                 <span
                   aria-hidden="true"
-                  className="absolute font-mono text-[11px] leading-4 whitespace-nowrap text-text-primary tabular-nums"
+                  className="type-figure absolute text-[0.6875rem] leading-4 whitespace-nowrap text-text-primary"
                   style={{ bottom: `calc(${pct}% + 0.25rem)` }}
                 >
                   {formatMoneyCompact(d.total_amount)}
@@ -164,7 +164,7 @@ export function ExpensesByMonthChart({ data, emptyAction, className }: ExpensesB
                 <th scope="row" className="px-4 py-2 text-left font-normal text-text-primary first-letter:uppercase">
                   {monthLong(d.month)}
                 </th>
-                <td className="px-4 py-2 text-right font-mono text-text-primary tabular-nums">
+                <td className="type-figure px-4 py-2 text-right text-text-primary">
                   {formatMoney(d.total_amount)}
                 </td>
               </tr>
@@ -172,6 +172,6 @@ export function ExpensesByMonthChart({ data, emptyAction, className }: ExpensesB
           </tbody>
         </table>
       </div>
-    </DashboardPanel>
+    </Panel>
   );
 }

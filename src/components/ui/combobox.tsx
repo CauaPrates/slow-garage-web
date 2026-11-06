@@ -64,7 +64,7 @@ export function Combobox({
           disabled={disabled || loading}
           className={cn(
             fieldClassName,
-            "flex h-11 items-center justify-between gap-2 text-left",
+            "flex h-control items-center justify-between gap-2 text-left",
           )}
         >
           <span
@@ -109,7 +109,7 @@ export function Combobox({
           */}
           <Command.Input
             placeholder={searchPlaceholder}
-            className="h-11 w-full border-b border-border bg-transparent px-3 text-base text-text-primary outline-none transition-colors focus-visible:border-accent placeholder:text-text-secondary md:text-sm"
+            className="h-control w-full border-b border-border bg-transparent px-3 text-base text-text-primary outline-none transition-colors focus-visible:border-accent placeholder:text-text-secondary md:text-sm"
           />
           <Command.List id={listboxId} className="max-h-64 overflow-y-auto p-1">
             <Command.Empty className="px-3 py-6 text-center text-sm text-text-secondary">

@@ -1,12 +1,16 @@
-import { useEffect, useId, useRef, useState, type ReactNode } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
-import { AlertCircle, ClipboardList, ListPlus, Wrench } from "lucide-react";
+import { ClipboardList, ListPlus, Wrench } from "lucide-react";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { Page, PageHeader } from "@/components/layout/Page";
 import { Button } from "@/components/ui/button";
+import { EmptyState, InlineError, PageError } from "@/components/ui/feedback";
+import { ListColumns, PANEL_CLASSNAME, PanelCount, PanelHeader } from "@/components/ui/panel";
+import { Skeleton, SkeletonList } from "@/components/ui/skeleton";
 import { formatCount, formatKm } from "@/lib/format";
 import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
-import { PANEL_LINK_CLASSNAME } from "@/features/dashboard/DashboardPanel";
+import { PANEL_LINK_CLASSNAME } from "@/components/ui/panel";
 import { useVehicle } from "@/features/vehicle/useVehicles";
 import { AlertBanner } from "./AlertBanner";
 import { CreateMaintenanceItemDialog } from "./CreateMaintenanceItemDialog";
@@ -18,16 +22,13 @@ import { RECORD_ROW_GRID, MaintenanceRecordRow } from "./MaintenanceRecordRow";
 import { itemStatus } from "./maintenancePresentation";
 import { useMaintenanceItems, type MaintenanceItemWithStatus } from "./useMaintenanceItems";
 import { useMaintenanceRecords } from "./useMaintenanceRecords";
+import { VehicleNotFound } from "@/components/shared/VehicleNotFound";
 import { useVehicleAlerts } from "./useVehicleAlerts";
 
 const OVERDUE_TITLE_ID = "maintenance-overdue-title";
 const OTHER_ALERTS_TITLE_ID = "maintenance-other-alerts-title";
 const PLAN_TITLE_ID = "maintenance-plan-title";
 const HISTORY_TITLE_ID = "maintenance-history-title";
-// Largura toda, como Gastos e Abastecimentos; em monitor largo quem se ajusta são as colunas das listas.
-const PAGE_CLASSNAME = "flex flex-col gap-5 px-4 py-5 sm:px-6 sm:py-6";
-const PANEL_CLASSNAME = "overflow-hidden rounded-lg border border-border bg-surface";
-const PANEL_HEADER_CLASSNAME = "flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 border-b border-border px-4 py-3";
 
 /** Próximas primeiro, depois em dia, depois as que nunca foram executadas — dentro de cada uma, a ordem da consulta (nome). */
 const PLAN_ORDER = { overdue: 0, due_soon: 0, ok: 1, planned: 2 } as const;
@@ -55,42 +56,6 @@ function focusHeadingIfLost(headingId: string) {
 
 function plural(count: number, one: string, many: string) {
   return `${formatCount(count)} ${count === 1 ? one : many}`;
-}
-
-function PanelError({ message, onRetry }: { message: string; onRetry: () => void }) {
-  return (
-    <div role="alert" className="flex flex-col items-start gap-2 p-4">
-      <p className="flex items-start gap-2 text-sm text-text-secondary">
-        <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-error" aria-hidden="true" />
-        {message}
-      </p>
-      <Button variant="outline" onClick={onRetry}>
-        Tentar de novo
-      </Button>
-    </div>
-  );
-}
-
-function PanelSkeleton({ label }: { label: string }) {
-  return (
-    <div className="flex flex-col gap-2 p-4" aria-busy="true">
-      <span className="sr-only">{label}</span>
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="h-14 animate-pulse rounded-md bg-state-hover" aria-hidden="true" />
-      ))}
-    </div>
-  );
-}
-
-function PanelEmpty({ icon, title, children, action }: { icon: ReactNode; title: string; children: ReactNode; action: ReactNode }) {
-  return (
-    <div className="flex flex-col items-center gap-3 px-6 py-10 text-center">
-      {icon}
-      <p className="font-medium text-text-primary">{title}</p>
-      <p className="max-w-md text-sm text-text-secondary">{children}</p>
-      {action}
-    </div>
-  );
 }
 
 /**
@@ -158,36 +123,21 @@ export function MaintenancePage() {
 
   if (vehicleLoading) {
     return (
-      <div className={PAGE_CLASSNAME} aria-busy="true">
+      <Page aria-busy="true">
         <span className="sr-only">Carregando manutenção…</span>
-        <div className="h-14 w-56 animate-pulse rounded-md bg-surface" aria-hidden="true" />
-        <div className="h-48 animate-pulse rounded-lg border border-border bg-surface" aria-hidden="true" />
-        <div className="h-64 animate-pulse rounded-lg border border-border bg-surface" aria-hidden="true" />
-      </div>
+        <Skeleton className="h-14 w-56 bg-surface" />
+        <Skeleton className="h-48 rounded-lg border border-border bg-surface" />
+        <Skeleton className="h-64 rounded-lg border border-border bg-surface" />
+      </Page>
     );
   }
 
   if (vehicleError) {
-    return (
-      <div className="flex flex-col items-center gap-3 p-12 text-center">
-        <AlertCircle className="h-6 w-6 text-error" aria-hidden="true" />
-        <p className="text-sm text-text-secondary">Não foi possível carregar a manutenção.</p>
-        <Button variant="ghost" onClick={() => refetchVehicle()}>
-          Tentar de novo
-        </Button>
-      </div>
-    );
+    return <PageError message="Não foi possível carregar a manutenção." onRetry={() => void refetchVehicle()} />;
   }
 
   if (!vehicle) {
-    return (
-      <div className="flex flex-col items-center gap-4 p-12 text-center">
-        <p className="text-text-primary">Veículo não encontrado.</p>
-        <Link to={ROUTES.home} className="text-sm text-accent underline">
-          Voltar para a garagem
-        </Link>
-      </div>
-    );
+    return <VehicleNotFound />;
   }
 
   const allItems = itemsQuery.data ?? [];
@@ -232,59 +182,66 @@ export function MaintenancePage() {
     },
   };
 
+  // As colunas do plano começam em `xl` (a referência precisa de espaço ao lado do item).
   const planHeader = (
-    <div
-      aria-hidden="true"
-      className={cn("hidden border-b border-border px-4 py-2 text-xs text-text-secondary xl:grid", PLAN_ROW_GRID)}
-    >
+    <ListColumns className={cn("md:hidden xl:grid", PLAN_ROW_GRID)}>
       <span>Item e situação</span>
       <span>Próxima referência</span>
       <span />
-    </div>
+    </ListColumns>
   );
 
   return (
-    <div className={PAGE_CLASSNAME}>
+    <Page>
       <Breadcrumb items={[{ label: "Manutenção" }]} />
 
-      <header className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div className="flex min-w-0 flex-col gap-1">
-          <h1 className="text-2xl font-semibold tracking-tight text-text-primary">Manutenção</h1>
-          <p className="text-sm text-text-secondary">
+      {/* Duas ações distintas (execução e planejamento): no celular empilham em largura cheia, serviço primeiro. */}
+      <PageHeader
+        title="Manutenção"
+        description={
+          <>
             Plano preventivo e serviços feitos neste veículo
             <span className="whitespace-nowrap tabular-nums">
               {" · "}
               {currentKm != null ? `odômetro ${formatKm(currentKm)}` : "odômetro não informado"}
             </span>
-          </p>
-        </div>
-        <div className="grid grid-cols-1 gap-2 sm:flex sm:shrink-0 sm:gap-3">
-          <Button onClick={() => openRecordDialog(null)}>
-            <Wrench className="h-4 w-4" aria-hidden="true" />
-            Registrar serviço
-          </Button>
-          <Button variant="outline" onClick={() => setCreateItemOpen(true)}>
-            <ListPlus className="h-4 w-4" aria-hidden="true" />
-            Adicionar ao plano
-          </Button>
-        </div>
-      </header>
+          </>
+        }
+        stackActionsOnMobile
+        actions={
+          <>
+            <Button onClick={() => openRecordDialog(null)}>
+              <Wrench className="h-4 w-4" aria-hidden="true" />
+              Registrar serviço
+            </Button>
+            <Button variant="outline" onClick={() => setCreateItemOpen(true)}>
+              <ListPlus className="h-4 w-4" aria-hidden="true" />
+              Adicionar ao plano
+            </Button>
+          </>
+        }
+      />
 
       {/* Vencidas: só existe com item vencido. Sem vencida, o resumo do plano diz "nada vencido"; com erro, o plano diz que não carregou. */}
       {itemsReady && overdueItems.length > 0 && (
         <section aria-labelledby={OVERDUE_TITLE_ID} className={cn(PANEL_CLASSNAME, "border-l-2 border-l-error")}>
-          <div className={PANEL_HEADER_CLASSNAME}>
-            <h2 id={OVERDUE_TITLE_ID} className="flex items-center gap-2 text-sm font-medium text-text-primary">
-              Vencidas
-              {/* A contagem está no texto ao lado; aqui é só reforço visual. */}
-              <span aria-hidden="true" className="rounded-full bg-error/10 px-1.5 py-px font-mono text-xs font-medium text-error">
-                {overdueItems.length}
+          <PanelHeader
+            titleId={OVERDUE_TITLE_ID}
+            title={
+              <span className="flex items-center gap-2">
+                Vencidas
+                {/* A contagem está no texto ao lado; aqui é só reforço visual. */}
+                <span aria-hidden="true" className="rounded-full bg-error/10 px-1.5 py-px text-xs font-medium text-error tabular-nums">
+                  {overdueItems.length}
+                </span>
               </span>
-            </h2>
-            <p className="text-xs text-text-secondary">
-              {plural(overdueItems.length, "item passou", "itens passaram")} da data ou da quilometragem prevista.
-            </p>
-          </div>
+            }
+            action={
+              <p className="type-caption pt-0.5 text-text-secondary">
+                {plural(overdueItems.length, "item passou", "itens passaram")} da data ou da quilometragem prevista.
+              </p>
+            }
+          />
           {planHeader}
           <ul className="divide-y divide-border">
             {overdueItems.map((item) => (
@@ -296,17 +253,17 @@ export function MaintenancePage() {
 
       {otherAlerts.length > 0 && (
         <section aria-labelledby={OTHER_ALERTS_TITLE_ID} className={PANEL_CLASSNAME}>
-          <div className={cn(PANEL_HEADER_CLASSNAME, "items-center")}>
-            <div className="flex min-w-0 flex-col gap-0.5">
-              <h2 id={OTHER_ALERTS_TITLE_ID} className="text-sm font-medium text-text-primary">
-                Documentos e obrigações
-              </h2>
-              <p className="text-xs text-text-secondary">Também pendentes neste veículo — tratados em Documentos.</p>
-            </div>
-            <Link to={ROUTES.vehicleDocuments(vehicle.id)} className={PANEL_LINK_CLASSNAME}>
-              Ver em Documentos
-            </Link>
-          </div>
+          <PanelHeader
+            titleId={OTHER_ALERTS_TITLE_ID}
+            title="Documentos e obrigações"
+            description="Também pendentes neste veículo — tratados em Documentos."
+            className="items-center"
+            action={
+              <Link to={ROUTES.vehicleDocuments(vehicle.id)} className={PANEL_LINK_CLASSNAME}>
+                Ver em Documentos
+              </Link>
+            }
+          />
           <div className="p-3">
             <AlertBanner alerts={otherAlerts} />
           </div>
@@ -315,49 +272,36 @@ export function MaintenancePage() {
 
       {/* Falha dos alertas não vira "nada pendente": uma linha só, sem tomar o lugar das listas. */}
       {alertsQuery.isError && (
-        <div role="alert" className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-text-secondary">
-          <span className="flex items-center gap-2">
-            <AlertCircle className="h-4 w-4 shrink-0 text-error" aria-hidden="true" />
-            Não foi possível carregar os alertas de documentos e obrigações.
-          </span>
-          <Button variant="ghost" onClick={() => void alertsQuery.refetch()} className="-ml-2 px-2">
-            Tentar de novo
-          </Button>
-        </div>
+        <InlineError onRetry={() => void alertsQuery.refetch()} className="p-0">
+          Não foi possível carregar os alertas de documentos e obrigações.
+        </InlineError>
       )}
 
       <section aria-labelledby={PLAN_TITLE_ID} className={PANEL_CLASSNAME}>
-        <div className={PANEL_HEADER_CLASSNAME}>
-          <h2 id={PLAN_TITLE_ID} className="text-sm font-medium text-text-primary">
-            Plano
-          </h2>
-          <p aria-live="polite" className="text-xs text-text-secondary">
-            {planSummary}
-          </p>
-        </div>
+        <PanelHeader title="Plano" titleId={PLAN_TITLE_ID} action={<PanelCount>{planSummary}</PanelCount>} />
 
-        {itemsQuery.isLoading && <PanelSkeleton label="Carregando o plano…" />}
+        {itemsQuery.isLoading && <SkeletonList label="Carregando o plano…" />}
 
         {itemsQuery.isError && (
-          <PanelError
-            message="Não foi possível carregar o plano. Sem ele, não dá para saber o que venceu nem o que vem a seguir."
-            onRetry={() => void itemsQuery.refetch()}
-          />
+          <InlineError onRetry={() => void itemsQuery.refetch()}>
+            Não foi possível carregar o plano. Sem ele, não dá para saber o que venceu nem o que vem a seguir.
+          </InlineError>
         )}
 
         {itemsReady && allItems.length === 0 && (
-          <PanelEmpty
-            icon={<ClipboardList className="h-6 w-6 text-text-secondary" aria-hidden="true" />}
+          <EmptyState
+            variant="inline"
+            icon={ClipboardList}
             title="Nenhum item no plano."
             action={
-              <Button variant="outline" onClick={() => setCreateItemOpen(true)} className="mt-1">
+              <Button variant="outline" onClick={() => setCreateItemOpen(true)}>
                 Adicionar ao plano
               </Button>
             }
           >
             Cadastre o que acompanhar periodicamente — por quilometragem, por meses ou pelos dois. Um serviço avulso
             pode ser registrado sem plano.
-          </PanelEmpty>
+          </EmptyState>
         )}
 
         {itemsReady && allItems.length > 0 && (
@@ -407,51 +351,41 @@ export function MaintenancePage() {
       </section>
 
       <section aria-labelledby={HISTORY_TITLE_ID} className={PANEL_CLASSNAME}>
-        <div className={PANEL_HEADER_CLASSNAME}>
-          <h2 id={HISTORY_TITLE_ID} className="text-sm font-medium text-text-primary">
-            Histórico de serviços
-          </h2>
-          <p aria-live="polite" className="text-xs text-text-secondary">
-            {recordsQuery.isSuccess && plural(records.length, "serviço", "serviços")}
-          </p>
-        </div>
+        <PanelHeader
+          title="Histórico de serviços"
+          titleId={HISTORY_TITLE_ID}
+          action={<PanelCount>{recordsQuery.isSuccess && plural(records.length, "serviço", "serviços")}</PanelCount>}
+        />
 
-        {recordsQuery.isLoading && <PanelSkeleton label="Carregando o histórico…" />}
+        {recordsQuery.isLoading && <SkeletonList label="Carregando o histórico…" />}
 
         {recordsQuery.isError && (
-          <PanelError
-            message="Não foi possível carregar o histórico de serviços."
-            onRetry={() => void recordsQuery.refetch()}
-          />
+          <InlineError onRetry={() => void recordsQuery.refetch()}>
+            Não foi possível carregar o histórico de serviços.
+          </InlineError>
         )}
 
         {recordsQuery.isSuccess && records.length === 0 && (
-          <PanelEmpty
-            icon={<Wrench className="h-6 w-6 text-text-secondary" aria-hidden="true" />}
+          <EmptyState
+            variant="inline"
+            icon={Wrench}
             title="Nenhum serviço registrado."
-            action={
-              <Button onClick={() => openRecordDialog(null)} className="mt-1">
-                Registrar serviço
-              </Button>
-            }
+            action={<Button onClick={() => openRecordDialog(null)}>Registrar serviço</Button>}
           >
             Trocas, revisões e reparos entram aqui — ligados a um item do plano ou avulsos.
-          </PanelEmpty>
+          </EmptyState>
         )}
 
         {recordsQuery.isSuccess && records.length > 0 && (
           <>
-            <div
-              aria-hidden="true"
-              className={cn("hidden border-b border-border px-4 py-2 text-xs text-text-secondary md:grid", RECORD_ROW_GRID)}
-            >
+            <ListColumns className={RECORD_ROW_GRID}>
               <span>Serviço</span>
               <span>Fornecedor</span>
               <span className="text-right">Data</span>
               <span className="text-right">Quilometragem</span>
               <span className="text-right">Custo</span>
               <span />
-            </div>
+            </ListColumns>
             <ul className="divide-y divide-border">
               {records.map((record) => (
                 <MaintenanceRecordRow
@@ -509,6 +443,6 @@ export function MaintenancePage() {
           }}
         />
       )}
-    </div>
+    </Page>
   );
 }

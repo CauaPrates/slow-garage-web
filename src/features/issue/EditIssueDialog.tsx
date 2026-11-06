@@ -8,9 +8,9 @@ import {
 } from "@/components/ui/dialog";
 import { AttachmentField } from "@/features/attachment/AttachmentField";
 import {
-  VEHICLE_FORM_DIALOG_HEADER_CLASSNAME,
+  FORM_DIALOG_HEADER_CLASSNAME,
   focusDialogOnOpen,
-} from "@/features/vehicle/VehicleFormParts";
+} from "@/components/ui/form";
 import { useReturnFocus } from "@/hooks/useReturnFocus";
 import { formatDateOnly } from "@/lib/format";
 import { translatePostgresError } from "@/lib/postgresErrors";
@@ -96,7 +96,7 @@ export function EditIssueDialog({ vehicleId, issue, open, onOpenChange, onSaved 
         }}
         onCloseAutoFocus={returnFocus.onCloseAutoFocus}
       >
-        <DialogHeader className={VEHICLE_FORM_DIALOG_HEADER_CLASSNAME}>
+        <DialogHeader className={FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>Editar problema</DialogTitle>
           <DialogDescription className="break-words">{identity}</DialogDescription>
         </DialogHeader>

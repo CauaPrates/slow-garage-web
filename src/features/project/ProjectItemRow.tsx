@@ -1,10 +1,12 @@
 import { useId, useState } from "react";
-import { ChevronDown, ExternalLink, Paperclip } from "lucide-react";
+import { ExternalLink, Paperclip } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { DetailItem as Detail, DisclosureButton, INSET_CLASSNAME } from "@/components/ui/disclosure";
 import { PRIORITY_LEVEL_LABELS } from "@/features/maintenance/schemas";
 import { formatDateOnly } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { PROJECT_ITEM_STATUS_PRESENTATION, STATUS_BADGE_CLASSNAME, moneyOrNull } from "./projectPresentation";
-import { RowActionsMenu } from "./RowActionsMenu";
+import { PROJECT_ITEM_STATUS_PRESENTATION, moneyOrNull } from "./projectPresentation";
+import { RowActionsMenu } from "@/components/ui/menu";
 import type { ProjectItemRow as ProjectItem } from "./useProjectItems";
 
 /**
@@ -28,21 +30,10 @@ export function safeExternalUrl(value: string | null): string | null {
   }
 }
 
-function Detail({ label, value, wide = false }: { label: string; value: string | null; wide?: boolean }) {
-  return (
-    <div className={cn("flex min-w-0 flex-col gap-0.5", wide && "sm:col-span-2")}>
-      <dt className="text-xs text-text-secondary">{label}</dt>
-      <dd className={cn("break-words whitespace-pre-line", value ? "text-text-primary" : "text-text-secondary")}>
-        {value ?? "Não informado"}
-      </dd>
-    </div>
-  );
-}
-
 /** Valor em coluna: ausente é "—" (lido como "não informado"), zero é R$ 0,00. */
 function MoneyCell({ value, srLabel }: { value: string | null; srLabel: string }) {
   return (
-    <p className="hidden text-right font-mono text-sm tabular-nums xl:block">
+    <p className="type-figure hidden text-right text-sm xl:block">
       {value ? (
         <span className="text-text-primary">
           <span className="sr-only">{srLabel} </span>
@@ -93,7 +84,7 @@ export function ProjectItemRow({ item, onEdit, onDelete }: ProjectItemRowProps) 
     .filter(Boolean)
     .join(" · ");
 
-  const badge = <span className={cn(STATUS_BADGE_CLASSNAME, status.className)}>{status.label}</span>;
+  const badge = <Badge tone={status.tone}>{status.label}</Badge>;
   const actualNote =
     actual == null
       ? null
@@ -102,23 +93,23 @@ export function ProjectItemRow({ item, onEdit, onDelete }: ProjectItemRowProps) 
         : `${actual} — fica só no projeto enquanto o item não estiver Instalado`;
 
   return (
-    <li className={cn("flex flex-col gap-2 px-4 py-3", PROJECT_ITEM_ROW_GRID)}>
+    <li className={cn("flex flex-col gap-2 px-(--panel-pad-x) py-3", PROJECT_ITEM_ROW_GRID)}>
       <span id={identityId} className="sr-only">
         {item.name}, {status.label}
       </span>
 
       <div className="flex min-w-0 flex-col gap-1">
         <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-          <span className="min-w-0 text-sm font-medium break-words text-text-primary">{item.name}</span>
+          <span className="type-item-title min-w-0 text-text-primary">{item.name}</span>
           <span className="xl:hidden">{badge}</span>
         </p>
         <p className="text-xs break-words text-text-secondary tabular-nums">{meta}</p>
         {/* Abaixo de xl os dois valores entram aqui, cada um com o próprio rótulo. */}
         <p className="text-xs text-text-secondary xl:hidden">
           Estimado{" "}
-          {estimated ? <span className="font-mono text-text-primary tabular-nums">{estimated}</span> : "não informado"}
+          {estimated ? <span className="type-figure text-text-primary">{estimated}</span> : "não informado"}
           {" · "}Real{" "}
-          {actual ? <span className="font-mono text-text-primary tabular-nums">{actual}</span> : "não informado"}
+          {actual ? <span className="type-figure text-text-primary">{actual}</span> : "não informado"}
         </p>
         {(item.attachment || link) && (
           <div className={cn("flex flex-wrap items-center gap-x-4", link && "-my-1")}>
@@ -151,23 +142,14 @@ export function ProjectItemRow({ item, onEdit, onDelete }: ProjectItemRowProps) 
 
       {/* No celular, margens negativas: os alvos de 44px não somam um vão em branco embaixo da linha. */}
       <div className="-mx-2 -mt-1 -mb-2 flex items-center gap-1 xl:mx-0 xl:-my-1 xl:justify-end">
-        <button
-          type="button"
-          aria-expanded={detailsOpen}
-          aria-controls={detailsId}
-          aria-describedby={identityId}
-          onClick={() => setDetailsOpen((open) => !open)}
-          className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-md px-2 text-sm text-text-secondary transition-colors duration-(--duration-fast) hover:bg-state-hover hover:text-text-primary"
+        <DisclosureButton
+          open={detailsOpen}
+          controls={detailsId}
+          describedBy={identityId}
+          onToggle={() => setDetailsOpen((open) => !open)}
         >
           Detalhes
-          <ChevronDown
-            className={cn(
-              "h-4 w-4 motion-safe:transition-transform motion-safe:duration-(--duration-base)",
-              detailsOpen && "rotate-180",
-            )}
-            aria-hidden="true"
-          />
-        </button>
+        </DisclosureButton>
         <span className="flex-1 xl:hidden" aria-hidden="true" />
         <RowActionsMenu
           label="Ações do item"
@@ -183,7 +165,7 @@ export function ProjectItemRow({ item, onEdit, onDelete }: ProjectItemRowProps) 
       <dl
         id={detailsId}
         hidden={!detailsOpen}
-        className="grid grid-cols-1 gap-x-6 gap-y-2 rounded-md border border-border bg-bg px-3 py-2.5 text-sm sm:grid-cols-2 xl:col-span-5"
+        className={cn("grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2 xl:col-span-5", INSET_CLASSNAME)}
       >
         <Detail label="Descrição" value={item.description} wide />
         <Detail label="Notas" value={item.notes} wide />

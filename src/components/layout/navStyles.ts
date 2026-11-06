@@ -1,6 +1,5 @@
-/** Rótulo de grupo/seção da navegação (sidebar, folhas) — texto pequeno em caixa alta, nunca link. */
-export const NAV_EYEBROW_CLASSNAME =
-  "text-[11px] font-medium tracking-[0.08em] text-text-secondary uppercase";
+/** Rótulo de grupo/seção da navegação (sidebar, folhas): o papel de sobrelinha, o mesmo da faixa de resumo. Nunca link. */
+export const NAV_EYEBROW_CLASSNAME = "type-overline text-text-secondary";
 
 /** Botão de ícone do cabeçalho (atividade, notificações, alertas) — 44px, neutro, marcado enquanto o popover está aberto. */
 export const HEADER_ICON_BUTTON_CLASSNAME =
