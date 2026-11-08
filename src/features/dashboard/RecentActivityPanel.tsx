@@ -5,6 +5,7 @@ import { ROUTES } from "@/lib/routes";
 import { TimelineItem } from "@/features/timeline/TimelineItem";
 import type { TimelineEventRow } from "@/features/timeline/useTimeline";
 import { Panel, PANEL_LINK_CLASSNAME } from "@/components/ui/panel";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type RecentActivityPanelProps = {
   vehicleId: string;
@@ -40,7 +41,7 @@ export function RecentActivityPanel({ vehicleId, query }: RecentActivityPanelPro
       {query.status === "loading" && (
         <div className="flex flex-col gap-2 p-4" aria-hidden="true">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-12 animate-pulse rounded-md bg-state-hover" />
+            <Skeleton key={i} className="h-12 rounded-md bg-state-hover" />
           ))}
         </div>
       )}

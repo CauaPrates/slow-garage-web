@@ -20,6 +20,7 @@ import { useTimeline } from "@/features/timeline/useTimeline";
 import { VehicleFipeCard } from "./VehicleFipeCard";
 import { VehicleNotFound } from "@/components/shared/VehicleNotFound";
 import { useVehicle, type VehicleWithSummary } from "./useVehicles";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const PAGE_CLASSNAME = "flex flex-col gap-4 px-4 py-5 sm:gap-5 sm:px-6 sm:py-6";
 
@@ -31,9 +32,9 @@ export function VehiclePage() {
     return (
       <div className={PAGE_CLASSNAME} aria-busy="true">
         <span className="sr-only">Carregando veículo…</span>
-        <div className="h-28 animate-pulse rounded-lg border border-border bg-surface sm:h-36" />
-        <div className="h-14 animate-pulse rounded-lg border border-border bg-surface sm:h-11" />
-        <div className="h-24 animate-pulse rounded-lg border border-border bg-surface" />
+        <Skeleton className="h-28 rounded-lg border border-border bg-surface sm:h-36" />
+        <Skeleton className="h-14 rounded-lg border border-border bg-surface sm:h-11" />
+        <Skeleton className="h-24 rounded-lg border border-border bg-surface" />
       </div>
     );
   }
@@ -96,8 +97,8 @@ function DashboardCharts({
       {query.isLoading && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2" aria-busy="true">
           <span className="sr-only">Carregando gráficos…</span>
-          <div className="h-72 animate-pulse rounded-lg border border-border bg-surface" aria-hidden="true" />
-          <div className="h-72 animate-pulse rounded-lg border border-border bg-surface" aria-hidden="true" />
+          <Skeleton className="h-72 rounded-lg border border-border bg-surface" />
+          <Skeleton className="h-72 rounded-lg border border-border bg-surface" />
         </div>
       )}
 
@@ -207,8 +208,8 @@ function VehicleDashboard({ vehicle }: { vehicle: VehicleWithSummary }) {
 
       {dashboardQuery.isLoading && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2" aria-hidden="true">
-          <div className="h-40 animate-pulse rounded-lg border border-border bg-surface" />
-          <div className="h-40 animate-pulse rounded-lg border border-border bg-surface" />
+          <Skeleton className="h-40 rounded-lg border border-border bg-surface" />
+          <Skeleton className="h-40 rounded-lg border border-border bg-surface" />
         </div>
       )}
 

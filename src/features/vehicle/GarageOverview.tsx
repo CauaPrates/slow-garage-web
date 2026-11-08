@@ -8,6 +8,7 @@ import { GarageComparisonDashboard } from "./GarageComparisonDashboard";
 import { GarageSummary } from "./GarageSummary";
 import { GarageTile, GarageTileGrid, type GarageTileState } from "./GarageTiles";
 import type { VehicleWithSummary } from "./useVehicles";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type GarageOverviewProps = {
   vehicles: VehicleWithSummary[];
@@ -62,7 +63,7 @@ function GarageStat({
         {state.status === "loading" && (
           <>
             <span className="sr-only">Carregando…</span>
-            <span className="mt-1 block h-5 w-16 animate-pulse rounded-sm bg-state-hover" aria-hidden="true" />
+            <Skeleton className="mt-1 block h-5 w-16 rounded-sm bg-state-hover" />
           </>
         )}
         {state.status === "error" && (

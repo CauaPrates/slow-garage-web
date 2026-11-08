@@ -16,6 +16,7 @@ import {
   type SortOption,
   type StatusFilter,
 } from "./garageFilters";
+import { Skeleton } from "@/components/ui/skeleton";
 
 /** Preferência só deste navegador (ordem e grade/lista); sem armazenamento, volta ao padrão. */
 function useStoredChoice<T extends string>(key: string, allowed: readonly T[], fallback: T) {
@@ -144,11 +145,11 @@ export function VehicleListPage() {
       {isLoading && (
         <div className="garage-gutter flex flex-col gap-5 pt-1 lg:pt-0" aria-busy="true">
           <span className="sr-only">Carregando sua garagem…</span>
-          <div className="h-14 animate-pulse rounded-sm bg-surface lg:h-18" aria-hidden="true" />
+          <Skeleton className="h-14 rounded-sm bg-surface lg:h-18" />
           <div className="garage-collection" aria-hidden="true">
             <div className="garage-grid">
               {[1, 2].map((i) => (
-                <div key={i} className="h-72 animate-pulse rounded-sm bg-surface lg:h-64" />
+                <Skeleton key={i} className="h-72 rounded-sm bg-surface lg:h-64" />
               ))}
             </div>
           </div>

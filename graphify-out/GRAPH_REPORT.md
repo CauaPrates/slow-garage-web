@@ -1,7 +1,7 @@
-# Graph Report - slow-garage-web  (2026-11-06)
+# Graph Report - slow-garage-web  (2026-11-08)
 
 ## Corpus Check
-- 376 files · ~296,690 words
+- 376 files · ~297,233 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5ba9ad4b`
+- Built from commit: `97ae82dc`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -241,8 +241,8 @@
   src/components/ui/password-input.tsx → package.json
 - `QuickActionsRow()` --references--> `ROUTES`  [EXTRACTED]
   src/features/dashboard/QuickActionsRow.tsx → src/lib/routes.ts
-- `DeleteProjectDialog()` --indirect_call--> `formatDateOnly()`  [INFERRED]
-  src/features/project/DeleteProjectDialog.tsx → src/lib/format.ts
+- `ProjectDetailPage()` --indirect_call--> `formatDateOnly()`  [INFERRED]
+  src/features/project/ProjectDetailPage.tsx → src/lib/format.ts
 - `VehicleForm()` --indirect_call--> `formatKm()`  [INFERRED]
   src/features/vehicle/VehicleForm.tsx → src/lib/format.ts
 - `VehicleForm()` --indirect_call--> `formatMoney()`  [INFERRED]
@@ -291,7 +291,7 @@ Nodes (38): ADR-0093, GarageComparisonDashboard(), GarageComparisonDashboardProp
 
 ### Community 9 - "projectPresentation.ts"
 Cohesion: 0.14
-Nodes (19): ADR-0085, CostLine(), FigureProps, ProjectListRowProps, formatPercent(), ITEM_COUNT_LABEL, moneyOrNull(), PERCENT (+11 more)
+Nodes (17): ADR-0085, FigureProps, ProjectListRowProps, formatPercent(), ITEM_COUNT_LABEL, PERCENT, progressLabel(), ProgressState (+9 more)
 
 ### Community 10 - "AdminAuditPage.tsx"
 Cohesion: 0.11
@@ -318,8 +318,8 @@ Cohesion: 0.08
 Nodes (24): ADR-0024, ADR-0046, ACCOUNT_NAV_ITEMS, ADD_SHEET_ITEMS, BOTTOM_NAV_ITEMS, DASHBOARD, DOCUMENTS, EXPENSES (+16 more)
 
 ### Community 16 - "AdminUserDetailPage.tsx"
-Cohesion: 0.13
-Nodes (18): ADR-0083, AdminUserDetailPage(), COUNT_LABELS, Feedback, RevokeInviteButton(), UserLink(), UserLinkProps, errorHint() (+10 more)
+Cohesion: 0.12
+Nodes (19): ADR-0083, AdminUserDetailPage(), COUNT_LABELS, Feedback, RevokeAdminDialog(), RevokeAdminDialogProps, UserLink(), UserLinkProps (+11 more)
 
 ### Community 17 - "compilerOptions"
 Cohesion: 0.08
@@ -330,8 +330,8 @@ Cohesion: 0.08
 Nodes (25): Caminho populado (a conta de teste não tem manutenção nem alerta), Checagem de tipos, Correção de premissa registrada, Critérios de aceite, Lint, Para o humano testar na mão, Pendências, Revisão 015b — atividade recente pela sidebar no desktop (+17 more)
 
 ### Community 19 - "ProjectDetailPage.tsx"
-Cohesion: 0.11
-Nodes (25): CreateProjectItemDialog(), DeleteProjectItemDialog(), DeleteProjectItemDialogProps, ADR-0092, focusItemsHeadingIfLost(), ProjectDetailPage(), ProjectItemRow(), ProjectItemRowProps (+17 more)
+Cohesion: 0.12
+Nodes (25): CreateProjectItemDialog(), CostLine(), DeleteProjectItemDialog(), DeleteProjectItemDialogProps, ADR-0092, focusItemsHeadingIfLost(), ProjectDetailPage(), ProjectItemRow() (+17 more)
 
 ### Community 20 - "DESIGN.md — Identidade visual do Slow Garage"
 Cohesion: 0.06
@@ -366,8 +366,8 @@ Cohesion: 0.20
 Nodes (16): CreateProjectDialogProps, PROJECT_FORM_DIALOG_CLASSNAME, EditProjectDialog(), EditProjectDialogProps, toFormDefaults(), hasValue(), PLAN_FIELDS, ProjectForm() (+8 more)
 
 ### Community 28 - "ProjectsPage.tsx"
-Cohesion: 0.12
-Nodes (25): ADR-0033, CreateProjectDialog(), DeleteProjectDialog(), DeleteProjectDialogProps, ADR-0092, ACTIVE_PROJECT_STATUSES, countSummary(), isActiveProject() (+17 more)
+Cohesion: 0.11
+Nodes (27): ADR-0033, CreateProjectDialog(), DeleteProjectDialog(), DeleteProjectDialogProps, ADR-0092, ProjectListRow(), ACTIVE_PROJECT_STATUSES, countSummary() (+19 more)
 
 ### Community 29 - "VehicleCard.tsx"
 Cohesion: 0.12
@@ -654,8 +654,8 @@ Cohesion: 0.19
 Nodes (8): CriticalAlertsNoticeProps, ExpensesByCategoryChartProps, consumption(), FuelSummarySection(), FuelSummarySectionProps, DashboardExpensesByCategory, DashboardFuelSummary, VehicleAlert
 
 ### Community 101 - "useAdmin.ts"
-Cohesion: 0.24
-Nodes (10): RevokeAdminDialog(), RevokeAdminDialogProps, normalizeFunctionError(), AdminUserEvent, AdminUserInvite, AdminUsersFilters, AuditLogFilters, useInvalidateAdmin() (+2 more)
+Cohesion: 0.27
+Nodes (9): RevokeInviteButton(), normalizeFunctionError(), AdminUserEvent, AdminUserInvite, AdminUsersFilters, AuditLogFilters, useInvalidateAdmin(), useInviteToAdmin() (+1 more)
 
 ### Community 102 - "document/schemas.ts"
 Cohesion: 0.33
@@ -933,7 +933,7 @@ Nodes (3): VehicleDashboard, fetchVehicleDashboard(), useVehicleDashboard()
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `ROUTES` connect `ROUTES` to `TimelineItem.tsx`, `MaintenancePage.tsx`, `navigation.ts`, `AdminUserDetailPage.tsx`, `ProjectDetailPage.tsx`, `PendingAlertsPanel.tsx`, `HeaderVehicleSwitcher.tsx`, `useVehicles.ts`, `QuickActionsRow.tsx`, `VehicleCard.tsx`, `useNotifications.ts`?**
+- **Why does `ROUTES` connect `ROUTES` to `TimelineItem.tsx`, `MaintenancePage.tsx`, `ProjectsPage.tsx`, `navigation.ts`, `AdminUserDetailPage.tsx`, `ProjectDetailPage.tsx`, `PendingAlertsPanel.tsx`, `HeaderVehicleSwitcher.tsx`, `useVehicles.ts`, `QuickActionsRow.tsx`, `VehicleCard.tsx`, `useNotifications.ts`?**
   _High betweenness centrality (0.096) - this node is a cross-community bridge._
 - **Why does `MaintenancePage()` connect `MaintenancePage.tsx` to `useMaintenanceItems.ts`, `maintenancePresentation.ts`, `useMaintenanceRecords.ts`, `ROUTES`?**
   _High betweenness centrality (0.038) - this node is a cross-community bridge._

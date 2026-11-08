@@ -9,6 +9,7 @@ import { TimelineItem } from "@/features/timeline/TimelineItem";
 import { useGarageTimeline } from "@/features/vehicle/useGarageTimeline";
 import type { VehicleWithSummary } from "@/features/vehicle/useVehicles";
 import { HEADER_ICON_BUTTON_CLASSNAME, NAV_EYEBROW_CLASSNAME } from "./navStyles";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type HeaderActivityMenuProps = {
   vehicles: VehicleWithSummary[];
@@ -32,7 +33,7 @@ export function ActivityFeedPanel({ vehicles }: HeaderActivityMenuProps) {
       {feedQuery.isLoading && (
         <div className="flex flex-col gap-2">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-16 animate-pulse rounded-lg bg-state-hover" />
+            <Skeleton key={i} className="h-16 rounded-lg bg-state-hover" />
           ))}
         </div>
       )}

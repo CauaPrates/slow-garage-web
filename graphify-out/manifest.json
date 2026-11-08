@@ -70,13 +70,13 @@
     "semantic_hash": ""
   },
   "src/components/layout/HeaderActivityMenu.tsx": {
-    "mtime": 1793378496.7881327,
-    "ast_hash": "122637def7a1fbcc6ca06199efce5b62",
+    "mtime": 1794000158.6811628,
+    "ast_hash": "1cf3df86df82f970da5fe7d0af63906b",
     "semantic_hash": ""
   },
   "src/components/layout/HeaderAlertsMenu.tsx": {
-    "mtime": 1793648172.4196606,
-    "ast_hash": "ccc832820cb2e5462316ff40b5b7f659",
+    "mtime": 1794000158.6811628,
+    "ast_hash": "af72715b090948edbe78a9fd3286b2f0",
     "semantic_hash": ""
   },
   "src/components/layout/HeaderInboxMenu.tsx": {
@@ -85,8 +85,8 @@
     "semantic_hash": ""
   },
   "src/components/layout/HeaderNotificationsMenu.tsx": {
-    "mtime": 1793378542.5870183,
-    "ast_hash": "b84eb0af7185381a435b3880fcc38f54",
+    "mtime": 1794000158.6826687,
+    "ast_hash": "d68c89eabcb2a37f57c39707f9a87543",
     "semantic_hash": ""
   },
   "src/components/layout/HeaderUserMenu.tsx": {
@@ -120,8 +120,8 @@
     "semantic_hash": ""
   },
   "src/components/layout/SidebarActivityFeed.tsx": {
-    "mtime": 1793375892.5060794,
-    "ast_hash": "96a5015f1d955bfbd3cc637197b3c24c",
+    "mtime": 1794000158.6837626,
+    "ast_hash": "9c1597293701571517aef95a9943f77b",
     "semantic_hash": ""
   },
   "src/components/layout/navStyles.ts": {
@@ -460,8 +460,8 @@
     "semantic_hash": ""
   },
   "src/features/dashboard/PendingAlertsPanel.tsx": {
-    "mtime": 1793997419.929569,
-    "ast_hash": "dd72133e7c4c2ac7b5b023b57b46f710",
+    "mtime": 1794000158.673695,
+    "ast_hash": "8e72e95fbbaf07112ed19bce0c337088",
     "semantic_hash": ""
   },
   "src/features/dashboard/QuickActionsRow.tsx": {
@@ -470,8 +470,8 @@
     "semantic_hash": ""
   },
   "src/features/dashboard/RecentActivityPanel.tsx": {
-    "mtime": 1793996149.2745712,
-    "ast_hash": "657cffa200d0302aa177ad3b9e3b20c4",
+    "mtime": 1794000158.6763017,
+    "ast_hash": "60a3c4b22243cfda21ccab9d7cfb1f39",
     "semantic_hash": ""
   },
   "src/features/dashboard/VehicleDashboardHeader.tsx": {
@@ -630,8 +630,8 @@
     "semantic_hash": ""
   },
   "src/features/expense/ExpenseRow.tsx": {
-    "mtime": 1793998002.9811013,
-    "ast_hash": "a20b1412f982b78d46e664245728b7f6",
+    "mtime": 1793999912.8662534,
+    "ast_hash": "d1c01210efa0e2f3178769eff735af74",
     "semantic_hash": ""
   },
   "src/features/expense/ExpensesPage.tsx": {
@@ -675,8 +675,8 @@
     "semantic_hash": ""
   },
   "src/features/fuel/FuelLogRow.tsx": {
-    "mtime": 1793997345.7033174,
-    "ast_hash": "1b60b3e15a9561f827d88f1c868e2f4c",
+    "mtime": 1793999931.986199,
+    "ast_hash": "f3cdfe6c755d4234975cf50949f421cf",
     "semantic_hash": ""
   },
   "src/features/fuel/FuelLogsPage.tsx": {
@@ -1075,13 +1075,13 @@
     "semantic_hash": ""
   },
   "src/features/vehicle/GarageOverview.tsx": {
-    "mtime": 1793996775.0364194,
-    "ast_hash": "1b7f73f423d524d1aaf876c1b26e1875",
+    "mtime": 1794000158.6773252,
+    "ast_hash": "9457e6964c813bd46382bf56e68ff98f",
     "semantic_hash": ""
   },
   "src/features/vehicle/GarageSummary.tsx": {
-    "mtime": 1793378428.6959763,
-    "ast_hash": "c5d7d0ed807758101a0f08c7c6904322",
+    "mtime": 1794000158.6778839,
+    "ast_hash": "53318c99b4c750214a71d8473ab071e2",
     "semantic_hash": ""
   },
   "src/features/vehicle/GarageTiles.tsx": {
@@ -1105,8 +1105,8 @@
     "semantic_hash": ""
   },
   "src/features/vehicle/VehicleFipeCard.tsx": {
-    "mtime": 1793997420.050485,
-    "ast_hash": "5d7a75fc595ebb1555786f2e2c642dc2",
+    "mtime": 1794000158.6788976,
+    "ast_hash": "c609cb214190546d1915fab3ce95761d",
     "semantic_hash": ""
   },
   "src/features/vehicle/VehicleForm.tsx": {
@@ -1115,13 +1115,13 @@
     "semantic_hash": ""
   },
   "src/features/vehicle/VehicleListPage.tsx": {
-    "mtime": 1793992685.069098,
-    "ast_hash": "57b623e1189d8b7570e0c0c668264ef6",
+    "mtime": 1794000158.6800447,
+    "ast_hash": "53bd4bdf0ffb1fded82a25c03f17de97",
     "semantic_hash": ""
   },
   "src/features/vehicle/VehiclePage.tsx": {
-    "mtime": 1793996441.5638952,
-    "ast_hash": "f9d55edbe6d01f78b00569b354ccbe6d",
+    "mtime": 1794000158.6800447,
+    "ast_hash": "140b369d6a1f259b6ee140d710317173",
     "semantic_hash": ""
   },
   "src/features/vehicle/VehiclePhotoUpload.tsx": {
@@ -1415,13 +1415,13 @@
     "semantic_hash": ""
   },
   "docs/DECISIONS.md": {
-    "mtime": 1793998979.670014,
-    "ast_hash": "a3724dc21575407fa2349af3fb955861",
+    "mtime": 1794156287.9149396,
+    "ast_hash": "33d52530b56b2c86800c0e6fa38e40ea",
     "semantic_hash": ""
   },
   "docs/DESIGN.md": {
-    "mtime": 1793998444.7780468,
-    "ast_hash": "294ad24bada5165cdbb2d1f5a5c15fbf",
+    "mtime": 1794156308.4928403,
+    "ast_hash": "e7e2bfb55d647bee73601111237dc037",
     "semantic_hash": ""
   },
   "index.html": {

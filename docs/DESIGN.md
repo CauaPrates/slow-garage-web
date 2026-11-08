@@ -119,6 +119,13 @@ financeiros sempre com algarismos tabulares, alinhados à direita nas colunas.
   Nenhuma coluna de valor reservada à direita espremendo o texto. Exceção:
   Abastecimentos mantém o consumo na borda direita (comparação entre paradas,
   ADR-089) — a 1ª linha só tem números curtos.
+- **Nada é cortado sem caminho de volta**: nome, descrição e nome de posto
+  quebram linha (Gastos deixou o `line-clamp-2` da etapa 05; Abastecimentos o
+  do posto). Corte só com caminho visível para o texto inteiro: "Ver nota
+  inteira" em Modificações, o detalhe do projeto para a descrição em Projetos.
+  Texto só no `sr-only` ou na edição não conta como caminho.
+- **Carregando**: sempre `Skeleton`/`SkeletonList` — pulso só com movimento
+  permitido. Nenhuma tela 01–10 tem `animate-pulse` próprio.
 - **Filtros**: dentro do painel da lista, sob o título (Gastos e
   Modificações); `FilterField` em grade, mesma altura de controle; abaixo de
   400px empilham onde o rótulo da opção cortaria (Modificações). Sem
@@ -614,8 +621,7 @@ Mesma direção e tokens; nenhuma cor nova. Decisão completa em
   a resposta pode ter sido cortada pelo `max_rows`). A partir de `md`, colunas
   alinhadas (descrição e detalhes · categoria · data · valor · ⋯) com cabeçalho
   em `xs`; no celular, descrição + valor em cima, categoria · data, e
-  fornecedor · pagamento · km · "Anexo" embaixo. Descrição quebra em até 2
-  linhas; vazia = "Sem descrição" em cinza; sem categoria = "Sem categoria" em
+  fornecedor · pagamento · km · "Anexo" embaixo. Descrição quebra em até 2linhas (harmonização 01: agora quebra sem limite — ver o topo); vazia = "Sem descrição" em cinza; sem categoria = "Sem categoria" em
   cinza, ícone neutro. Valor sempre em mono, alinhado à direita.
 - **Ações da linha**: menu "⋯" (mesma forma do card de veículo) com "Editar
   gasto" e, separado por divisor e em carmim, "Excluir gasto". O botão é

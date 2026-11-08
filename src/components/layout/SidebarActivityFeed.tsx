@@ -1,3 +1,4 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 import { formatDateOnly, formatMoney } from "@/lib/format";
 import {
@@ -91,7 +92,7 @@ export function SidebarActivityFeed({ vehicles }: SidebarActivityFeedProps) {
         {feedQuery.isLoading && (
           <div className="flex flex-col gap-1 px-3">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="h-8 animate-pulse rounded-md bg-state-hover" />
+              <Skeleton key={i} className="h-8 rounded-md bg-state-hover" />
             ))}
           </div>
         )}

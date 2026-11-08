@@ -15,6 +15,7 @@ import {
   useNotificationsRealtime,
   useUnreadNotificationsCount,
 } from "@/features/notification/useNotifications";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type NotificationsPanelProps = {
   /** Título à esquerda da linha de ações; omitido quando quem envolve já nomeia o painel (aba do `HeaderInboxMenu`). */
@@ -69,7 +70,7 @@ export function NotificationsPanel({ title, onNavigate }: NotificationsPanelProp
       {notificationsQuery.isLoading && (
         <div className="flex flex-col gap-2">
           {[1, 2].map((i) => (
-            <div key={i} className="h-16 animate-pulse rounded-lg bg-state-hover" />
+            <Skeleton key={i} className="h-16 rounded-lg bg-state-hover" />
           ))}
         </div>
       )}

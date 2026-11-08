@@ -7,6 +7,7 @@ import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import { Panel } from "@/components/ui/panel";
 import type { VehicleAlert } from "./types";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type PendingAlertsPanelProps = {
   vehicleId: string;
@@ -183,8 +184,8 @@ export function PendingAlertsPanel({ vehicleId, titleId, currentOdometerKm, quer
     >
       {query.status === "loading" && (
         <div className="flex flex-col gap-2 p-4" aria-hidden="true">
-          <div className="h-12 animate-pulse rounded-md bg-state-hover" />
-          <div className="h-12 animate-pulse rounded-md bg-state-hover" />
+          <Skeleton className="h-12 rounded-md bg-state-hover" />
+          <Skeleton className="h-12 rounded-md bg-state-hover" />
         </div>
       )}
 

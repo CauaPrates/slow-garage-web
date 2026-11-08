@@ -1,3 +1,4 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import { Bell } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
@@ -62,7 +63,7 @@ export function HeaderAlertsMenu({ vehicles }: HeaderAlertsMenuProps) {
         {alertsQuery.isLoading && (
           <div className="flex flex-col gap-2">
             {[1, 2].map((i) => (
-              <div key={i} className="h-14 animate-pulse rounded-lg bg-state-hover" />
+              <Skeleton key={i} className="h-14 rounded-lg bg-state-hover" />
             ))}
           </div>
         )}

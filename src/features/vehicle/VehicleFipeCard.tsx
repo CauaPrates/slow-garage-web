@@ -8,6 +8,7 @@ import { Panel } from "@/components/ui/panel";
 import { EditVehicleDialog } from "./EditVehicleDialog";
 import { useFipeEstimatedValue, useFipeModel, useFipeYears } from "./useFipe";
 import { useUpdateVehicle, type VehicleWithSummary } from "./useVehicles";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type VehicleFipeCardProps = { vehicle: VehicleWithSummary };
 
@@ -181,8 +182,8 @@ export function VehicleFipeCard({ vehicle }: VehicleFipeCardProps) {
   if (carregando) {
     return (
       <Card>
-        <div className="h-7 w-40 animate-pulse rounded bg-bg" />
-        <div className="h-4 w-56 animate-pulse rounded bg-bg" />
+        <Skeleton className="h-7 w-40 rounded bg-bg" />
+        <Skeleton className="h-4 w-56 rounded bg-bg" />
       </Card>
     );
   }

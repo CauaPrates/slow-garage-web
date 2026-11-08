@@ -3553,19 +3553,56 @@ título e a ação não cabem juntas.
 **Ferramenta.** Três ajustes, registrados no README das capturas: leitura do
 rótulo do gráfico por mês aceita `span.type-figure` (o antigo `font-mono`
 continua aceito, as etapas anteriores seguem comparáveis); cenários `h01` e
-`h02` novos. Os cenários 17, 20 e 72 procuram o botão "Detalhes da garagem",
-que virou "Detalhes e comparativo" na ADR-094 — desatualizados desde antes
-desta rodada, não rodaram e não foram alterados.
+`h02` novos. (Os cenários desatualizados foram corrigidos depois da revisão —
+ver abaixo.)
 
 **Limitações.** Nenhum aparelho físico nem leitor de tela real; teclado
-virtual só emulado (390×380); Admin não medido (o handler da ferramenta não
-responde `is_admin`).
+virtual só emulado (390×380).
 
 **Pendências encontradas (não corrigidas aqui, telas das etapas 11–16).**
 Documentos: abas com 38px de altura. Histórico: link "Ver" de 35×16px em cada
 evento. Fotos: botão "Excluir foto" com 16px de largura e `image-alt`
 (crítico no axe) nas miniaturas com os dados simulados. Configurações:
-"Voltar" com 62×20px. Admin: selo próprio (`AdminBadges`) e números em mono.
-As pendências já documentadas (limite de 1000 registros de Modificações,
-ordem de exclusão de anexo e registro, recálculos de manutenção) seguem como
-estavam.
+"Voltar" com 62×20px. Admin: selo próprio (`AdminBadges`), números em mono e,
+na confirmação "Remover admin", o foco não volta ao botão ao cancelar (o
+`RevokeAdminDialog` não usa o `useReturnFocus` que os diálogos das etapas
+05–10 adotaram; nenhum arquivo do Admin foi alterado nesta rodada). As
+pendências já documentadas (limite de 1000 registros de Modificações, ordem de
+exclusão de anexo e registro, recálculos de manutenção) seguem como estavam.
+
+**Ajustes da revisão (08/11/2026).**
+
+- **Texto cortado sem caminho de volta.** A descrição de Gastos (`line-clamp-2`
+  desde a etapa 05) e o nome do posto em Abastecimentos (etapa 06) cortavam em
+  duas linhas; o texto inteiro só existia no `sr-only` do "⋯" e no diálogo de
+  edição — quem enxerga não tinha como ler. Agora quebram e nunca cortam, a
+  regra de Modificações e Problemas. Os outros cortes têm caminho: nota de
+  Modificações ("Ver nota inteira"), descrição de Projetos (o detalhe do
+  projeto). Medido em 320, 360 e 1440: 0 de 7 descrições e 0 de 6 nomes de
+  posto cortados. Captura localizada `h13`.
+- **Esqueletos.** Onze esqueletos locais (painéis do dashboard, garagem,
+  página do veículo, FIPE, menus do cabeçalho, atividade da sidebar) ainda
+  tinham `animate-pulse` próprio e pulsavam com movimento reduzido. Passaram
+  ao `Skeleton` comum; nenhum `animate-pulse` local restou nas telas 01–10.
+  Cenários 21 e 47 (carregando) rodados de novo.
+- **Cenários desatualizados da ferramenta.** 12, 17, 19, 20, 72 e `rv5`
+  procuravam "Detalhes da garagem"; agora aceitam também "Detalhes e
+  comparativo" (o nome antigo segue aceito para etapas anteriores). 12, 17,
+  19, 20 e 72 rodaram inteiros: detalhes abrem/fecham com `aria-expanded`,
+  com um veículo o gatilho não aparece (ADR-094), o erro parcial mostra a
+  falha do gráfico e "Foto indisponível", os gráficos dentro dos detalhes
+  passam no axe.
+- **Admin** (cenário novo `h03`, RPCs `admin_*` simuladas, nenhuma escrita):
+  visão geral, usuários, detalhe do usuário, convites e auditoria em 360 e
+  1440 — montam com `Button`, `Input`, `Select`, `Label` e `FieldError`
+  comuns, todos os controles com 44px, sem rolagem horizontal, axe sem
+  violação; a confirmação "Remover admin" usa o `AlertDialog` comum (título
+  pelo papel, foco em Cancelar, cabe em 360 com e-mail longo); quem não é
+  admin volta à garagem com o aviso no `Alert` comum (fio âmbar de 2px).
+  Achados preexistentes acima ("Pendências").
+- **Centralização conferida no código** (telas 01–10 e shell): nenhuma classe
+  local de item de menu, selo, página, painel, cartão de exclusão, popover
+  "i", rodapé de formulário ou esqueleto; mono só no campo de placa e no
+  `PlateTag`. Ficam locais por motivo: o "⋯" do card do veículo (chapa
+  escura sobre a foto, `garage.css`, já usa `menuItemClassName`) e o
+  "Ficha técnica" do card (parte da composição da Garagem).

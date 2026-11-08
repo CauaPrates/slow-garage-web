@@ -7,6 +7,7 @@ import { ExpensesByMonthChart } from "@/features/dashboard/ExpensesByMonthChart"
 import { useGarageSummary } from "./useGarageSummary";
 import { GarageTile, GarageTileGrid } from "./GarageTiles";
 import type { VehicleWithSummary } from "./useVehicles";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type GarageSummaryProps = {
   vehicles: VehicleWithSummary[];
@@ -90,8 +91,8 @@ export function GarageSummary({ vehicles }: GarageSummaryProps) {
 
       {summaryQuery.isLoading && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2" aria-hidden="true">
-          <div className="h-48 animate-pulse rounded-lg border border-border bg-surface" />
-          <div className="h-48 animate-pulse rounded-lg border border-border bg-surface" />
+          <Skeleton className="h-48 rounded-lg border border-border bg-surface" />
+          <Skeleton className="h-48 rounded-lg border border-border bg-surface" />
         </div>
       )}
 

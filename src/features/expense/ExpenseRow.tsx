@@ -113,7 +113,9 @@ export function ExpenseRow({ vehicleId, expense, categories, listTitleId }: Expe
 
       <p
         className={cn(
-          "type-item-title line-clamp-2 pt-0.5 md:col-start-1 md:row-start-1 md:pt-0",
+          // Quebra e nunca corta (como em Modificações e Problemas): o `line-clamp-2` da etapa 05 escondia o fim da
+          // descrição sem caminho de volta para quem enxerga — o texto inteiro só existia no `sr-only` e na edição.
+          "type-item-title pt-0.5 md:col-start-1 md:row-start-1 md:pt-0",
           expense.description ? "text-text-primary" : "font-normal text-text-secondary",
         )}
       >

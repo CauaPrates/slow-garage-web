@@ -139,7 +139,7 @@ export function FuelLogRow({ vehicleId, log, listTitleId }: FuelLogRowProps) {
         <p className="text-sm font-medium text-text-primary tabular-nums">
           {log.occurred_on ? <time dateTime={log.occurred_on}>{date}</time> : date}
         </p>
-        {placeAndFuel && <p className="line-clamp-2 text-xs break-words text-text-secondary">{placeAndFuel}</p>}
+        {placeAndFuel && <p className="text-xs break-words text-text-secondary">{placeAndFuel}</p>}
         <Tags partial={partial} missed={missed} />
       </div>
 
@@ -201,14 +201,14 @@ export function FuelLogRow({ vehicleId, log, listTitleId }: FuelLogRowProps) {
       {/*
         Celular, faixa de baixo em largura inteira (depois do "⋯" no DOM, então
         começa na 2ª linha da grade): data e odômetro, posto e combustível, os
-        números do trecho e as condições. Só o nome do posto pode ser cortado
-        (2 linhas, como no desktop); número nunca.
+        números do trecho e as condições. Nada é cortado: o nome do posto quebra
+        (harmonização 01; antes cortava em 2 linhas sem caminho de volta).
       */}
       <div className="col-span-3 mt-0.5 flex min-w-0 flex-col gap-0.5 text-xs text-text-secondary md:hidden">
         <p className="tabular-nums">
           {date} · {odometer ?? "sem quilometragem"}
         </p>
-        {placeAndFuel && <p className="line-clamp-2 break-words">{placeAndFuel}</p>}
+        {placeAndFuel && <p className="break-words">{placeAndFuel}</p>}
         {(price || distance || log.cost_per_km != null) && (
           <p className="tabular-nums">
             {[price, distance && `trecho ${distance}`, log.cost_per_km != null && `${formatMoney(log.cost_per_km)}/km`]
