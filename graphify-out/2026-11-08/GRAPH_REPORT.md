@@ -1,16 +1,16 @@
-# Graph Report - slow-garage-web  (2026-11-06)
+# Graph Report - slow-garage-web  (2026-11-08)
 
 ## Corpus Check
-- 376 files · ~296,690 words
+- 383 files · ~303,432 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 2617 nodes · 3589 edges · 229 communities (189 shown, 40 thin omitted)
-- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 12 edges (avg confidence: 0.62)
+- 2661 nodes · 3723 edges · 226 communities (186 shown, 40 thin omitted)
+- Extraction: 100% EXTRACTED · 0% INFERRED · 0% AMBIGUOUS · INFERRED: 13 edges (avg confidence: 0.64)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `5ba9ad4b`
+- Built from commit: `56ff845a`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -25,23 +25,23 @@
 - dependencies
 - GarageOverview.tsx
 - projectPresentation.ts
-- AdminAuditPage.tsx
+- AdminUsersPage.tsx
 - PhotoGallery.tsx
 - format.ts
 - Slow Garage — Web
-- DocumentsPage.tsx
+- ObligationsTab.tsx
 - navigation.ts
-- AdminUserDetailPage.tsx
+- useAdmin.ts
 - compilerOptions
 - Verificação 015 — Atividade recente no cabeçalho + painel comparativo da garagem
 - ProjectDetailPage.tsx
 - DESIGN.md — Identidade visual do Slow Garage
 - components.json
 - compilerOptions
-- useDocuments.ts
+- DocumentsTab.tsx
 - Contrato com o frontend
 - useVehicles.ts
-- useFinancing.ts
+- FinancingTab.tsx
 - project/schemas.ts
 - ProjectsPage.tsx
 - VehicleCard.tsx
@@ -55,8 +55,8 @@
 - VehicleListPage.tsx
 - VehicleFipeCard.tsx
 - AdminDashboardPage.tsx
-- GarageCover.tsx
-- VehicleMetricsRow.tsx
+- CreateVehicleDialog.tsx
+- AdminAuditPage.tsx
 - ProjectItemForm.tsx
 - Spec 000 — Fundação do frontend (scaffold, identidade visual, infraestrutura de dados)
 - Spec 001 — Autenticação e rotas protegidas
@@ -75,7 +75,7 @@
 - Spec 014 — Navegação sem clutter, breadcrumb temático, dashboard com identidade, sistema de resposta
 - Spec 015 — Atividade recente no cabeçalho + painel comparativo da garagem
 - useAttachment.ts
-- EditObligationDialog.tsx
+- document/schemas.ts
 - fipeExternal.ts
 - Verificação 010 — Polimento, acessibilidade, performance e deploy
 - Spec 020 — Assistente de preenchimento por FIPE
@@ -116,8 +116,8 @@
 - Spec 031 — Painel admin, convites de admin e notificações
 - AdminInvitesPage.tsx
 - types.ts
-- useAdmin.ts
-- document/schemas.ts
+- DocumentsPage.tsx
+- CreateDocumentDialog.tsx
 - MaintenancePage.tsx
 - form.tsx
 - database.types.ts
@@ -128,7 +128,7 @@
 - Verificação 005 — Abastecimento e métricas de consumo
 - Verificação 006 — Manutenção preventiva e execução
 - Verificação 007 — Problemas e projetos
-- CreateFinancingDialog.tsx
+- useProjects.ts
 - useMaintenanceItems.ts
 - AppShell.tsx
 - Tasks 008 — Documentos, obrigações, financiamento e galeria de fotos
@@ -140,7 +140,7 @@
 - Verificação 031 — Painel admin, convites e notificações
 - providers.tsx
 - QuickActionsRow.tsx
-- EditVehicleDialog.tsx
+- GarageSummary.tsx
 - package.json
 - ui-check.mjs
 - schemaHelpers.ts
@@ -209,10 +209,8 @@
 - supabase.ts
 - utils.ts
 - MORE_SHEET_GROUPS
-- PendingAlertsPanel.tsx
 - HeaderVehicleSwitcher.tsx
 - BrandLogo.tsx
-- ExpensesByMonthChart.tsx
 - globals
 - panel.tsx
 - Page.tsx
@@ -220,7 +218,6 @@
 - summary-strip.tsx
 - badge.tsx
 - skeleton.tsx
-- useVehicleDashboard.ts
 - info-tip.tsx
 - RECORD_CARD_CLASSNAME
 
@@ -239,19 +236,19 @@
 ## Surprising Connections (you probably didn't know these)
 - `PasswordInput()` --references--> `react`  [EXTRACTED]
   src/components/ui/password-input.tsx → package.json
+- `PersonCell()` --references--> `ROUTES`  [EXTRACTED]
+  src/features/admin/AdminAuditPage.tsx → src/lib/routes.ts
+- `UserName()` --references--> `ROUTES`  [EXTRACTED]
+  src/features/admin/AdminUsersPage.tsx → src/lib/routes.ts
+- `AlertSource` --references--> `ROUTES`  [EXTRACTED]
+  src/features/dashboard/PendingAlertsPanel.tsx → src/lib/routes.ts
 - `QuickActionsRow()` --references--> `ROUTES`  [EXTRACTED]
   src/features/dashboard/QuickActionsRow.tsx → src/lib/routes.ts
-- `DeleteProjectDialog()` --indirect_call--> `formatDateOnly()`  [INFERRED]
-  src/features/project/DeleteProjectDialog.tsx → src/lib/format.ts
-- `VehicleForm()` --indirect_call--> `formatKm()`  [INFERRED]
-  src/features/vehicle/VehicleForm.tsx → src/lib/format.ts
-- `VehicleForm()` --indirect_call--> `formatMoney()`  [INFERRED]
-  src/features/vehicle/VehicleForm.tsx → src/lib/format.ts
 
 ## Import Cycles
 - None detected.
 
-## Communities (229 total, 40 thin omitted)
+## Communities (226 total, 40 thin omitted)
 
 ### Community 0 - "DECISIONS.md — ADRs curtos"
 Cohesion: 0.02
@@ -286,40 +283,40 @@ Cohesion: 0.04
 Nodes (48): class-variance-authority, clsx, cmdk, date-fns, @fontsource/jetbrains-mono, @fontsource/noto-sans-jp, @fontsource/rajdhani, @fontsource/space-grotesk (+40 more)
 
 ### Community 8 - "GarageOverview.tsx"
-Cohesion: 0.07
-Nodes (38): ADR-0093, GarageComparisonDashboard(), GarageComparisonDashboardProps, ADR-0070, GarageDetails(), GarageDetailsControl, GarageOverview(), GarageOverviewProps (+30 more)
+Cohesion: 0.08
+Nodes (30): ADR-0093, GarageComparisonDashboard(), GarageComparisonDashboardProps, ADR-0070, GarageDetails(), GarageDetailsControl, GarageOverview(), GarageOverviewProps (+22 more)
 
 ### Community 9 - "projectPresentation.ts"
-Cohesion: 0.14
-Nodes (19): ADR-0085, CostLine(), FigureProps, ProjectListRowProps, formatPercent(), ITEM_COUNT_LABEL, moneyOrNull(), PERCENT (+11 more)
+Cohesion: 0.16
+Nodes (15): countSummary(), formatPercent(), ITEM_COUNT_LABEL, PERCENT, progressLabel(), ProgressState, PROJECT_COUNT_LABEL, projectGroupSummary() (+7 more)
 
-### Community 10 - "AdminAuditPage.tsx"
-Cohesion: 0.11
-Nodes (22): ACTION_OPTIONS, AdminAuditPage(), parseAction(), PersonProps, AdminUsersPage(), parseRole(), ROLE_OPTIONS, INVITE_STATUS_CLASSNAME (+14 more)
+### Community 10 - "AdminUsersPage.tsx"
+Cohesion: 0.15
+Nodes (14): AdminUsersPage(), parseRole(), ROLE_OPTIONS, UserName(), INVITE_STATUS_CLASSNAME, RoleBadge(), Pagination(), PaginationProps (+6 more)
 
 ### Community 11 - "PhotoGallery.tsx"
 Cohesion: 0.14
 Nodes (21): PhotoCard(), PhotoCardProps, CategoryFilter, PhotoGallery(), PhotoGalleryProps, PhotoUploadFormInput, PhotoUploadFormOutput, photoUploadSchema (+13 more)
 
 ### Community 12 - "format.ts"
-Cohesion: 0.09
-Nodes (6): compactFormatter, currencyFormatter, integerFormatter, litersExactFormatter, oneDecimalFormatter, pricePerLiterFormatter
+Cohesion: 0.08
+Nodes (7): compactFormatter, currencyFormatter, integerFormatter, litersExactFormatter, oneDecimalFormatter, pricePerLiterFormatter, rateFormatter
 
 ### Community 13 - "Slow Garage — Web"
 Cohesion: 0.07
 Nodes (25): Contributing, Data layer, Definition of done, Git, Interface, Language, The cycle, Contributing (+17 more)
 
-### Community 14 - "DocumentsPage.tsx"
-Cohesion: 0.14
-Nodes (22): CreateObligationDialog(), DeleteObligationDialog(), DeleteObligationDialogProps, ADR-0031, DOCUMENT_ALERT_TYPES, DocumentsPage(), TabKey, TABS (+14 more)
+### Community 14 - "ObligationsTab.tsx"
+Cohesion: 0.11
+Nodes (26): CreateObligationDialog(), DeleteObligationDialog(), DeleteObligationDialogProps, ADR-0031, obligationDateLabel(), obligationStatus(), MarkObligationPaidDialog(), MarkObligationPaidDialogProps (+18 more)
 
 ### Community 15 - "navigation.ts"
-Cohesion: 0.08
+Cohesion: 0.07
 Nodes (24): ADR-0024, ADR-0046, ACCOUNT_NAV_ITEMS, ADD_SHEET_ITEMS, BOTTOM_NAV_ITEMS, DASHBOARD, DOCUMENTS, EXPENSES (+16 more)
 
-### Community 16 - "AdminUserDetailPage.tsx"
-Cohesion: 0.13
-Nodes (18): ADR-0083, AdminUserDetailPage(), COUNT_LABELS, Feedback, RevokeInviteButton(), UserLink(), UserLinkProps, errorHint() (+10 more)
+### Community 16 - "useAdmin.ts"
+Cohesion: 0.11
+Nodes (28): ADR-0083, AdminActions(), AdminUserDetailPage(), COUNT_LABELS, Feedback, RevokeAdminDialog(), RevokeAdminDialogProps, RevokeInviteButton() (+20 more)
 
 ### Community 17 - "compilerOptions"
 Cohesion: 0.08
@@ -330,8 +327,8 @@ Cohesion: 0.08
 Nodes (25): Caminho populado (a conta de teste não tem manutenção nem alerta), Checagem de tipos, Correção de premissa registrada, Critérios de aceite, Lint, Para o humano testar na mão, Pendências, Revisão 015b — atividade recente pela sidebar no desktop (+17 more)
 
 ### Community 19 - "ProjectDetailPage.tsx"
-Cohesion: 0.11
-Nodes (25): CreateProjectItemDialog(), DeleteProjectItemDialog(), DeleteProjectItemDialogProps, ADR-0092, focusItemsHeadingIfLost(), ProjectDetailPage(), ProjectItemRow(), ProjectItemRowProps (+17 more)
+Cohesion: 0.12
+Nodes (24): CreateProjectItemDialog(), CostLine(), DeleteProjectItemDialog(), DeleteProjectItemDialogProps, ADR-0092, focusItemsHeadingIfLost(), ProjectDetailPage(), ProjectItemRow() (+16 more)
 
 ### Community 20 - "DESIGN.md — Identidade visual do Slow Garage"
 Cohesion: 0.06
@@ -345,33 +342,33 @@ Nodes (21): aliases, components, hooks, lib, ui, utils, iconLibrary, menuAccent 
 Cohesion: 0.09
 Nodes (21): ES2023, scripts/generate-icons.mjs, vite.config.ts, compilerOptions, allowImportingTsExtensions, erasableSyntaxOnly, lib, module (+13 more)
 
-### Community 23 - "useDocuments.ts"
-Cohesion: 0.16
-Nodes (18): CreateDocumentDialog(), DeleteDocumentDialog(), DeleteDocumentDialogProps, DocumentListItem(), DocumentListItemProps, EditDocumentDialog(), EditDocumentDialogProps, toFormDefaults() (+10 more)
+### Community 23 - "DocumentsTab.tsx"
+Cohesion: 0.19
+Nodes (19): DeleteDocumentDialog(), DeleteDocumentDialogProps, DocumentListItem(), DocumentListItemProps, documentStatus(), documentValidityLabel(), fileKindLabel(), findAlert() (+11 more)
 
 ### Community 24 - "Contrato com o frontend"
 Cohesion: 0.10
 Nodes (20): `attachments`, Contrato com o frontend, `documents` / `obligations` / `financings`, `expense_categories`, `expenses`, Fase 9 — Hardening, `fuel_log_metrics` / `vehicle_fuel_summary` (views, somente leitura), `fuel_logs` (+12 more)
 
 ### Community 25 - "useVehicles.ts"
-Cohesion: 0.16
-Nodes (15): DeleteVehicleDialog(), DeleteVehicleDialogProps, fetchVehicles(), FinancialSummary, useDeleteVehicle(), useVehicle(), useVehicles(), VehicleInsert (+7 more)
+Cohesion: 0.17
+Nodes (14): DeleteVehicleDialog(), DeleteVehicleDialogProps, fetchVehicles(), FinancialSummary, useDeleteVehicle(), useVehicle(), useVehicles(), VehicleInsert (+6 more)
 
-### Community 26 - "useFinancing.ts"
-Cohesion: 0.19
-Nodes (16): DeleteFinancingDialog(), DeleteFinancingDialogProps, EditFinancingDialog(), EditFinancingDialogProps, toFormDefaults(), FinancingCard(), FinancingCardProps, fetchFinancing() (+8 more)
+### Community 26 - "FinancingTab.tsx"
+Cohesion: 0.11
+Nodes (29): DOCUMENT_FORM_DIALOG_CLASSNAME, CreateFinancingDialog(), CreateFinancingDialogProps, DeleteFinancingDialog(), DeleteFinancingDialogProps, EditFinancingDialog(), EditFinancingDialogProps, toFormDefaults() (+21 more)
 
 ### Community 27 - "project/schemas.ts"
 Cohesion: 0.20
 Nodes (16): CreateProjectDialogProps, PROJECT_FORM_DIALOG_CLASSNAME, EditProjectDialog(), EditProjectDialogProps, toFormDefaults(), hasValue(), PLAN_FIELDS, ProjectForm() (+8 more)
 
 ### Community 28 - "ProjectsPage.tsx"
-Cohesion: 0.12
-Nodes (25): ADR-0033, CreateProjectDialog(), DeleteProjectDialog(), DeleteProjectDialogProps, ADR-0092, ACTIVE_PROJECT_STATUSES, countSummary(), isActiveProject() (+17 more)
+Cohesion: 0.15
+Nodes (19): ADR-0033, ADR-0085, DeleteProjectDialog(), DeleteProjectDialogProps, ADR-0092, FigureProps, ProjectListRow(), ProjectListRowProps (+11 more)
 
 ### Community 29 - "VehicleCard.tsx"
 Cohesion: 0.12
-Nodes (16): ADR-0052, FUEL_TYPE_LABELS, TRANSMISSION_LABELS, moneyOrDash(), ADR-0095, ADR-0097, VehicleCard(), VehicleCardProps (+8 more)
+Nodes (15): ADR-0052, moneyOrDash(), ADR-0095, ADR-0097, VehicleCard(), VehicleCardProps, VehicleCardMenu(), ADR-0081 (+7 more)
 
 ### Community 30 - "Verificação 020 — Assistente FIPE"
 Cohesion: 0.11
@@ -383,7 +380,7 @@ Nodes (11): InviteResponse(), InviteResponseProps, NotificationItem(), Notificat
 
 ### Community 32 - "useInvites.ts"
 Cohesion: 0.18
-Nodes (12): ADMIN_TABS, AdminLayout(), ADMIN_INVITES_KEY, ADMIN_KEY, adminKeys, IS_ADMIN_KEY, NOTIFICATIONS_KEY, AdminInviteRow (+4 more)
+Nodes (12): ADMIN_TABS, AdminLayout(), ADMIN_INVITES_KEY, ADMIN_KEY, adminKeys, IS_ADMIN_KEY, NOTIFICATIONS_KEY, AdminInviteStatus (+4 more)
 
 ### Community 33 - "maintenance/schemas.ts"
 Cohesion: 0.20
@@ -407,19 +404,19 @@ Nodes (28): byNumberDesc(), getSearch(), listeners, matchesSearch(), normalize()
 
 ### Community 38 - "VehicleFipeCard.tsx"
 Cohesion: 0.20
-Nodes (12): FipeValueLookup(), FipeValueLookupProps, CATALOG_OPTIONS, useFipeBrands(), useFipeEstimatedValue(), useFipeModel(), useFipeModels(), useFipeYears() (+4 more)
+Nodes (13): EditVehicleDialog(), toFormDefaults(), FipeValueLookup(), FipeValueLookupProps, CATALOG_OPTIONS, useFipeEstimatedValue(), useFipeModel(), useFipeYears() (+5 more)
 
 ### Community 39 - "AdminDashboardPage.tsx"
 Cohesion: 0.18
 Nodes (12): AdminDashboardPage(), entityStats(), SIGNUP_PERIODS, userStats(), SignupsChart(), SignupsChartProps, Stat, StatList() (+4 more)
 
-### Community 40 - "GarageCover.tsx"
-Cohesion: 0.29
-Nodes (5): CreateVehicleDialog(), GarageCover(), GarageCoverProps, ADR-0094, useCreateVehicle()
+### Community 40 - "CreateVehicleDialog.tsx"
+Cohesion: 0.24
+Nodes (7): CreateVehicleDialog(), CreateVehicleDialogProps, ADR-0075, GarageCover(), GarageCoverProps, ADR-0094, useCreateVehicle()
 
-### Community 41 - "VehicleMetricsRow.tsx"
-Cohesion: 0.27
-Nodes (8): FinancialSummaryCard(), FinancialSummaryCardProps, money(), DashboardFinancialSummary, consumptionHint(), costPerKmHint(), VehicleMetricsRow(), VehicleMetricsRowProps
+### Community 41 - "AdminAuditPage.tsx"
+Cohesion: 0.18
+Nodes (12): ACTION_OPTIONS, AdminAuditPage(), parseAction(), PersonCell(), PersonProps, AUDIT_ACTION_LABELS, describeAuditMetadata(), ROLE_CHANGE_SOURCE_LABELS (+4 more)
 
 ### Community 42 - "ProjectItemForm.tsx"
 Cohesion: 0.16
@@ -493,9 +490,9 @@ Nodes (13): 10. Requisitos não-funcionais, 11. Dependências e riscos, 12. Perg
 Cohesion: 0.26
 Nodes (11): AttachmentField(), AttachmentFieldProps, fileKind(), AttachmentEntityType, AttachmentRow, deleteAttachmentIfExists(), getAttachmentSignedUrl(), removeAttachment() (+3 more)
 
-### Community 60 - "EditObligationDialog.tsx"
-Cohesion: 0.22
-Nodes (11): CreateObligationDialogProps, EditObligationDialog(), EditObligationDialogProps, toFormDefaults(), ObligationForm(), ObligationFormProps, OBLIGATION_KINDS, ObligationFormInput (+3 more)
+### Community 60 - "document/schemas.ts"
+Cohesion: 0.20
+Nodes (14): CreateObligationDialogProps, EditObligationDialog(), EditObligationDialogProps, toFormDefaults(), DETAIL_FIELDS, FIELD_ORDER, hasValue(), ObligationForm() (+6 more)
 
 ### Community 61 - "fipeExternal.ts"
 Cohesion: 0.19
@@ -534,8 +531,8 @@ Cohesion: 0.17
 Nodes (11): ACs, Avaliação visual (screenshots revisados de verdade), Build, tipo e lint, Fora de escopo (não implementado nesta fase, por decisão explícita), G4 — Gate de verificação, Método, O que o humano precisa testar na mão, Paleta — validação (skill `dataviz`) (+3 more)
 
 ### Community 71 - "ROUTES"
-Cohesion: 0.13
-Nodes (9): Breadcrumb(), BreadcrumbProps, BreadcrumbSegment, PersonCell(), UserName(), AlertSource, RecentActivityPanel(), RecentActivityPanelProps (+1 more)
+Cohesion: 0.20
+Nodes (6): Breadcrumb(), BreadcrumbProps, BreadcrumbSegment, RecentActivityPanel(), RecentActivityPanelProps, ROUTES
 
 ### Community 72 - "alert-dialog.tsx"
 Cohesion: 0.14
@@ -646,20 +643,20 @@ Cohesion: 0.18
 Nodes (10): 12. Perguntas abertas, 1. Problema, 2. Resultado esperado, 3. Cenários, 4. Escopo, 5. Critérios de aceite, 6. Regras de negócio, 7. Dados (+2 more)
 
 ### Community 99 - "AdminInvitesPage.tsx"
-Cohesion: 0.25
-Nodes (10): AdminInvitesPage(), parseStatus(), STATUS_OPTIONS, AdminActions(), InviteStatusBadge(), InviteStatusFilter, useAdminInvites(), AdminInviteStatus (+2 more)
+Cohesion: 0.33
+Nodes (8): AdminInvitesPage(), parseStatus(), STATUS_OPTIONS, InviteStatusBadge(), InviteStatusFilter, useAdminInvites(), useAdminListParams(), effectiveInviteStatus()
 
 ### Community 100 - "types.ts"
-Cohesion: 0.19
-Nodes (8): CriticalAlertsNoticeProps, ExpensesByCategoryChartProps, consumption(), FuelSummarySection(), FuelSummarySectionProps, DashboardExpensesByCategory, DashboardFuelSummary, VehicleAlert
+Cohesion: 0.07
+Nodes (30): CriticalAlertsNoticeProps, ExpensesByCategoryChartProps, ExpensesByMonthChart(), ExpensesByMonthChartProps, monthLong(), monthShort(), FinancialSummaryCard(), FinancialSummaryCardProps (+22 more)
 
-### Community 101 - "useAdmin.ts"
-Cohesion: 0.24
-Nodes (10): RevokeAdminDialog(), RevokeAdminDialogProps, normalizeFunctionError(), AdminUserEvent, AdminUserInvite, AdminUsersFilters, AuditLogFilters, useInvalidateAdmin() (+2 more)
+### Community 101 - "DocumentsPage.tsx"
+Cohesion: 0.29
+Nodes (11): DOCUMENT_ALERT_TYPES, DocumentsWorkspace(), plural(), DOCUMENT_TABS, DocumentTabKey, DocumentTabs(), DocumentTabsProps, panelId() (+3 more)
 
-### Community 102 - "document/schemas.ts"
-Cohesion: 0.33
-Nodes (8): CreateDocumentDialogProps, DocumentForm(), DocumentFormProps, DOCUMENT_TYPE_LABELS, DOCUMENT_TYPES, DocumentFormInput, DocumentFormOutput, documentSchema
+### Community 102 - "CreateDocumentDialog.tsx"
+Cohesion: 0.16
+Nodes (17): CreateDocumentDialog(), CreateDocumentDialogProps, DETAIL_FIELDS, DocumentForm(), DocumentFormProps, FIELD_ORDER, hasValue(), EditDocumentDialog() (+9 more)
 
 ### Community 103 - "MaintenancePage.tsx"
 Cohesion: 0.23
@@ -701,9 +698,9 @@ Nodes (9): Achados durante a verificação, Build (`tsc -b && vite build`), Crit
 Cohesion: 0.20
 Nodes (9): Achados durante a verificação, Build (`tsc -b && vite build`), Critérios de aceite, Lint (`eslint .`), Para o humano testar na mão, Pendências, Saída dos comandos, Verificação 007 — Problemas e projetos (+1 more)
 
-### Community 113 - "CreateFinancingDialog.tsx"
-Cohesion: 0.27
-Nodes (8): CreateFinancingDialog(), CreateFinancingDialogProps, FinancingForm(), FinancingFormProps, FinancingFormInput, FinancingFormOutput, financingSchema, useCreateFinancing()
+### Community 113 - "useProjects.ts"
+Cohesion: 0.23
+Nodes (11): CreateProjectDialog(), fetchProject(), fetchProjects(), ProjectInsert, ProjectRow, ProjectUpdate, useCreateProject(), useDeleteProject() (+3 more)
 
 ### Community 114 - "useMaintenanceItems.ts"
 Cohesion: 0.24
@@ -749,9 +746,9 @@ Nodes (7): handleNotAdmin(), Providers(), queryClient, subscribeToSystemTheme(),
 Cohesion: 0.25
 Nodes (5): ActionButtonProps, ActionLabels, DialogKey, QuickActionsRow(), QuickActionsRowProps
 
-### Community 125 - "EditVehicleDialog.tsx"
-Cohesion: 0.19
-Nodes (12): EditVehicleDialog(), EditVehicleDialogProps, toFormDefaults(), ADR-0075, VehicleFormInput, vehiclePhotoSchema, EXTENSION_BY_MIME_TYPE, fileExtension() (+4 more)
+### Community 125 - "GarageSummary.tsx"
+Cohesion: 0.29
+Nodes (8): GarageSummary(), GarageSummaryProps, sumField(), ADR-0051, ADR-0070, fetchGarageSummary(), GarageSummary, useGarageSummary()
 
 ### Community 126 - "package.json"
 Cohesion: 0.29
@@ -890,12 +887,8 @@ Cohesion: 0.20
 Nodes (6): ADMIN_NAV_ITEM, SidebarProps, ADR-0049, ADR-0097, SidebarActivityFeed(), SidebarActivityFeedProps
 
 ### Community 182 - "VehicleForm.tsx"
-Cohesion: 0.13
-Nodes (20): CreateVehicleDialogProps, ADR-0075, ACCEPTED_PHOTO_TYPES, FUEL_TYPES, TRANSMISSIONS, VEHICLE_STATUS_LABELS, VEHICLE_STATUSES, VehicleFormOutput (+12 more)
-
-### Community 212 - "PendingAlertsPanel.tsx"
-Cohesion: 0.38
-Nodes (5): AlertRow(), kmDetail(), PendingAlertsPanel(), PendingAlertsPanelProps, sortAlerts()
+Cohesion: 0.09
+Nodes (31): EditVehicleDialogProps, ADR-0075, ACCEPTED_PHOTO_TYPES, FUEL_TYPE_LABELS, FUEL_TYPES, TRANSMISSION_LABELS, TRANSMISSIONS, VEHICLE_STATUS_LABELS (+23 more)
 
 ### Community 213 - "HeaderVehicleSwitcher.tsx"
 Cohesion: 0.50
@@ -904,10 +897,6 @@ Nodes (3): ADR-0062, HeaderVehicleSwitcher(), HeaderVehicleSwitcherProps
 ### Community 214 - "BrandLogo.tsx"
 Cohesion: 0.33
 Nodes (4): AuthLayoutProps, BrandLogo(), BrandLogoProps, LOGO_FILES
-
-### Community 215 - "ExpensesByMonthChart.tsx"
-Cohesion: 0.47
-Nodes (5): ExpensesByMonthChart(), ExpensesByMonthChartProps, monthLong(), monthShort(), DashboardExpensesByMonth
 
 ### Community 217 - "panel.tsx"
 Cohesion: 0.20
@@ -921,29 +910,25 @@ Nodes (3): menuItemClassName(), RowActionsMenu(), RowActionsMenuProps
 Cohesion: 0.67
 Nodes (3): Badge(), BadgeTone, badgeVariants
 
-### Community 223 - "useVehicleDashboard.ts"
-Cohesion: 0.67
-Nodes (3): VehicleDashboard, fetchVehicleDashboard(), useVehicleDashboard()
-
 ## Knowledge Gaps
-- **1342 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+1337 more)
+- **1352 isolated node(s):** `$schema`, `style`, `rsc`, `tsx`, `config` (+1347 more)
   These have ≤1 connection - possible missing edges or undocumented components.
 - **40 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
-- **Why does `ROUTES` connect `ROUTES` to `TimelineItem.tsx`, `MaintenancePage.tsx`, `navigation.ts`, `AdminUserDetailPage.tsx`, `ProjectDetailPage.tsx`, `PendingAlertsPanel.tsx`, `HeaderVehicleSwitcher.tsx`, `useVehicles.ts`, `QuickActionsRow.tsx`, `VehicleCard.tsx`, `useNotifications.ts`?**
-  _High betweenness centrality (0.096) - this node is a cross-community bridge._
-- **Why does `MaintenancePage()` connect `MaintenancePage.tsx` to `useMaintenanceItems.ts`, `maintenancePresentation.ts`, `useMaintenanceRecords.ts`, `ROUTES`?**
-  _High betweenness centrality (0.038) - this node is a cross-community bridge._
-- **Why does `VehicleCard()` connect `VehicleCard.tsx` to `VehicleListPage.tsx`, `ROUTES`?**
-  _High betweenness centrality (0.030) - this node is a cross-community bridge._
+- **Why does `ROUTES` connect `ROUTES` to `TimelineItem.tsx`, `types.ts`, `MaintenancePage.tsx`, `AdminAuditPage.tsx`, `AdminUsersPage.tsx`, `ProjectsPage.tsx`, `navigation.ts`, `useAdmin.ts`, `ProjectDetailPage.tsx`, `HeaderVehicleSwitcher.tsx`, `useVehicles.ts`, `QuickActionsRow.tsx`, `VehicleCard.tsx`, `useNotifications.ts`?**
+  _High betweenness centrality (0.097) - this node is a cross-community bridge._
+- **Why does `todayDateOnly()` connect `ObligationsTab.tsx` to `format.ts`?**
+  _High betweenness centrality (0.033) - this node is a cross-community bridge._
 - **What connects `$schema`, `style`, `rsc` to the rest of the system?**
-  _1342 weakly-connected nodes found - possible documentation gaps or missing edges._
+  _1352 weakly-connected nodes found - possible documentation gaps or missing edges._
 - **Should `DECISIONS.md — ADRs curtos` be split into smaller, more focused modules?**
   _Cohesion score 0.019801980198019802 - nodes in this community are weakly interconnected._
 - **Should `useAuth` be split into smaller, more focused modules?**
   _Cohesion score 0.06594071385359952 - nodes in this community are weakly interconnected._
 - **Should `TimelineItem.tsx` be split into smaller, more focused modules?**
   _Cohesion score 0.07441016333938294 - nodes in this community are weakly interconnected._
+- **Should `useExpenses.ts` be split into smaller, more focused modules?**
+  _Cohesion score 0.08897959183673469 - nodes in this community are weakly interconnected._

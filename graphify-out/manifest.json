@@ -500,93 +500,93 @@
     "semantic_hash": ""
   },
   "src/features/document/CreateDocumentDialog.tsx": {
-    "mtime": 1789094653.2792337,
-    "ast_hash": "735a1b6fea72fad037f46c3c50b6240d",
+    "mtime": 1794157311.7908244,
+    "ast_hash": "d8f8cb407ea6faeb4c981f32e52cb7c1",
     "semantic_hash": ""
   },
   "src/features/document/CreateFinancingDialog.tsx": {
-    "mtime": 1788552149.016766,
-    "ast_hash": "5858a845ebe85583e8cd65fbc50ead50",
+    "mtime": 1794157464.196194,
+    "ast_hash": "fb56ac870c5fb83233485c60d3b124df",
     "semantic_hash": ""
   },
   "src/features/document/CreateObligationDialog.tsx": {
-    "mtime": 1788552149.016766,
-    "ast_hash": "7c5f13d6127bc312e6ffdc4bda35e5a4",
+    "mtime": 1794157401.6268532,
+    "ast_hash": "cc01b4b8d19ae9c675b995fcc07690ca",
     "semantic_hash": ""
   },
   "src/features/document/DeleteDocumentDialog.tsx": {
-    "mtime": 1788446079.202878,
-    "ast_hash": "86f3640016818d4e2f7f5698e70ac40e",
+    "mtime": 1794157329.7607963,
+    "ast_hash": "b987d4b7818a48331ff3e7dbd213b12a",
     "semantic_hash": ""
   },
   "src/features/document/DeleteFinancingDialog.tsx": {
-    "mtime": 1788446079.2050076,
-    "ast_hash": "7e40851aaf486323006f5eedb2bccf81",
+    "mtime": 1794157467.4897776,
+    "ast_hash": "aedf4305730a044ffd82819c2d0d91db",
     "semantic_hash": ""
   },
   "src/features/document/DeleteObligationDialog.tsx": {
-    "mtime": 1788446079.2050076,
-    "ast_hash": "5f30f99bbf25d0aa4ab476ee7e7d0af8",
+    "mtime": 1794157406.5234075,
+    "ast_hash": "9487755a96e1db3b4d55bea4f8060979",
     "semantic_hash": ""
   },
   "src/features/document/DocumentForm.tsx": {
-    "mtime": 1788571789.80523,
-    "ast_hash": "bc8e769ac5ab598279721d07d3d5337b",
+    "mtime": 1794157289.1481056,
+    "ast_hash": "ba9b40dfc993af44e25308281cc417b9",
     "semantic_hash": ""
   },
   "src/features/document/DocumentListItem.tsx": {
-    "mtime": 1788446079.2050076,
-    "ast_hash": "eef2649f10a538fe737276cda37773a3",
+    "mtime": 1794158229.2132442,
+    "ast_hash": "8503c1a44f8be14689a1db20609a0f1d",
     "semantic_hash": ""
   },
   "src/features/document/DocumentsPage.tsx": {
-    "mtime": 1789078902.5568187,
-    "ast_hash": "962c8c277922a86466290938568001f8",
+    "mtime": 1794159056.3474855,
+    "ast_hash": "15b4e789c2e7ab5d0e545a90787b7cdf",
     "semantic_hash": ""
   },
   "src/features/document/EditDocumentDialog.tsx": {
-    "mtime": 1788446079.2050076,
-    "ast_hash": "67d4c518b5c38e09c79589bb6d53f20b",
+    "mtime": 1794157313.4133277,
+    "ast_hash": "1149ef3662ee2ef04f178883cc1812c1",
     "semantic_hash": ""
   },
   "src/features/document/EditFinancingDialog.tsx": {
-    "mtime": 1788552149.016766,
-    "ast_hash": "253b518737f8b83cc9d51ad0263570db",
+    "mtime": 1794159006.650887,
+    "ast_hash": "a82f73a56cd52fa75e6da7239d0fe5ce",
     "semantic_hash": ""
   },
   "src/features/document/EditObligationDialog.tsx": {
-    "mtime": 1788554607.1036823,
-    "ast_hash": "4b7327b8af30c1cef656eabefbc9912a",
+    "mtime": 1794157403.2536588,
+    "ast_hash": "1f43c9a9946c35dc7124aa4e18e6ae5e",
     "semantic_hash": ""
   },
   "src/features/document/FinancingCard.tsx": {
-    "mtime": 1788552149.0187943,
-    "ast_hash": "b5bfa4c68bab88fe59e288a10ca6107a",
+    "mtime": 1794159011.4301054,
+    "ast_hash": "2f1523a4b5e5be648efa5120f226693c",
     "semantic_hash": ""
   },
   "src/features/document/FinancingForm.tsx": {
-    "mtime": 1788571789.8057356,
-    "ast_hash": "269c6b76a3b9b70ee6ae5837943f9538",
+    "mtime": 1794159006.6496296,
+    "ast_hash": "066e5dce7c16ab0ef2ff98abab7197ed",
     "semantic_hash": ""
   },
   "src/features/document/MarkObligationPaidDialog.tsx": {
-    "mtime": 1788446079.2088552,
-    "ast_hash": "1de283e290e3d3743d2f9a640a41c81a",
+    "mtime": 1794157570.8756008,
+    "ast_hash": "1e3f655a7a7e049334280dbb9c68b85a",
     "semantic_hash": ""
   },
   "src/features/document/ObligationForm.tsx": {
-    "mtime": 1788571789.8062491,
-    "ast_hash": "c5bf819cd27bb0eb29db85e49e47c9fa",
+    "mtime": 1794157355.8213444,
+    "ast_hash": "14721f16aebebc80473bb8dc51830d59",
     "semantic_hash": ""
   },
   "src/features/document/ObligationListItem.tsx": {
-    "mtime": 1788552149.0187943,
-    "ast_hash": "55435eb151a45f2f8ef6f5f988421245",
+    "mtime": 1794158229.2160244,
+    "ast_hash": "59ed79d6cce57853ad652bd29ea78c9f",
     "semantic_hash": ""
   },
   "src/features/document/schemas.ts": {
-    "mtime": 1789078835.048906,
-    "ast_hash": "af89ca241d023386f6c2a3be3d104aeb",
+    "mtime": 1794157361.2200096,
+    "ast_hash": "242a63cb9100f72f5880ea2042526d67",
     "semantic_hash": ""
   },
   "src/features/document/useDocuments.ts": {
@@ -1225,8 +1225,8 @@
     "semantic_hash": ""
   },
   "src/lib/format.ts": {
-    "mtime": 1793641931.071945,
-    "ast_hash": "2ee594ee8b552c2f2605024c720209e1",
+    "mtime": 1794157247.1150358,
+    "ast_hash": "0d847cf100b454ff58c68ea6f7db0985",
     "semantic_hash": ""
   },
   "src/lib/imageCrop.ts": {
@@ -1415,8 +1415,8 @@
     "semantic_hash": ""
   },
   "docs/DECISIONS.md": {
-    "mtime": 1794156287.9149396,
-    "ast_hash": "33d52530b56b2c86800c0e6fa38e40ea",
+    "mtime": 1794158840.4646513,
+    "ast_hash": "516abe541466e8a011587beaac3ce557",
     "semantic_hash": ""
   },
   "docs/DESIGN.md": {
@@ -1962,6 +1962,46 @@
   "src/components/ui/text-link.ts": {
     "mtime": 1793996103.1880085,
     "ast_hash": "8cab294ab2bc98700f075c591fb26599",
+    "semantic_hash": ""
+  },
+  "src/features/document/DocumentTabs.tsx": {
+    "mtime": 1794157167.0956535,
+    "ast_hash": "cce32b1a6eb676d44170134e311ab150",
+    "semantic_hash": ""
+  },
+  "src/features/document/DocumentsTab.tsx": {
+    "mtime": 1794157508.7700467,
+    "ast_hash": "91778b3ad72d939bf477519cb039dcd5",
+    "semantic_hash": ""
+  },
+  "src/features/document/FinancingTab.tsx": {
+    "mtime": 1794159006.6496296,
+    "ast_hash": "c51be014b1380f98c74ce8fbbfa924aa",
+    "semantic_hash": ""
+  },
+  "src/features/document/ObligationsTab.tsx": {
+    "mtime": 1794157652.6815732,
+    "ast_hash": "5acccebf5ab4fb48b3c4701972a519d6",
+    "semantic_hash": ""
+  },
+  "src/features/document/documentPresentation.ts": {
+    "mtime": 1794157131.8893,
+    "ast_hash": "f326562c28014e5e993c9cd59a5af1de",
+    "semantic_hash": ""
+  },
+  "src/features/document/focus.ts": {
+    "mtime": 1794157142.2562928,
+    "ast_hash": "dcfd4eed131961b885bc39da94044920",
+    "semantic_hash": ""
+  },
+  "src/features/document/tabParts.tsx": {
+    "mtime": 1794157541.1389885,
+    "ast_hash": "51944d4a7d028d8230428499ad91162a",
+    "semantic_hash": ""
+  },
+  "src/features/document/PendingSummary.tsx": {
+    "mtime": 1794159056.3474855,
+    "ast_hash": "812d0928d817db8bdef56a15d14aa059",
     "semantic_hash": ""
   }
 }

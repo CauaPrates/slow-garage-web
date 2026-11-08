@@ -3606,3 +3606,191 @@ exclusão de anexo e registro, recálculos de manutenção) seguem como estavam.
   `PlateTag`. Ficam locais por motivo: o "⋯" do card do veículo (chapa
   escura sobre a foto, `garage.css`, já usa `menuItemClassName`) e o
   "Ficha técnica" do card (parte da composição da Garagem).
+
+## ADR-100 — Redesign etapa 11: Documentos, obrigações e financiamento
+
+**Status.** Implementada. **Revisão visual pendente** — não aprovada. Branch
+`feature/044-redesign-etapa-11`, a partir da
+`feature/043-harmonizacao-design-system` (árvore limpa na partida, nada
+pendente a preservar). Sem commit, push nem merge.
+
+**Contexto.** Documentos era a primeira tela do veículo ainda sem redesign:
+título `text-lg`, abas de 38px (pendência da ADR-099), cartões com lápis e
+lixeira soltos, alertas em caixas coloridas ocupando a primeira tela,
+formulários com "Mais detalhes" em `<details>` e o botão de envio no fim do
+corpo, confirmações sem o registro. Banco, hooks, consultas, chaves,
+invalidações, rota, `?aba=`, payloads e regras não mudaram.
+
+**Comportamento conferido no código (inventário).**
+
+| Ponto | Regra |
+|---|---|
+| Rota | `/v/:vehicleId/documentos`, `?aba=documentos` (padrão, também para valor desconhecido) / `obrigacoes` / `financiamento`; trocar de aba faz `replace`. `?novo=1` é retirado da URL e não abre nada (como antes; nada no app aponta pra cá com ele). |
+| Origem | `documents`, `obligations` e `financings` (0 ou 1 por veículo, `vehicle_id` único), chaves `["vehicles", id, ...]`; toda escrita invalida `["vehicles"]`. As três consultas e `vehicle_alerts` começam junto com a página. |
+| Documento | Título obrigatório; tipo (padrão Outro), emitido em, vence em, valor e notas opcionais. Arquivo **obrigatório no cadastro** (JPEG/PNG/WebP/PDF, até 10 MB): sobe ao Storage antes da linha. Edição só de metadado — trocar o arquivo não existe. Abrir: link assinado de 5 min, em outra aba. Excluir: Storage → linha. Entra no Histórico (`vehicle_timeline`, data = emissão ou criação) e na busca. |
+| Obrigação | Nome obrigatório; tipo, vencimento, valor, fornecedor e notas opcionais; "Paga em" só na edição (limpar volta a pendente). Marcar como paga: data padrão hoje. Pagar é o único jeito de tirar o alerta (RN-3). Não entra em Histórico nem em total. |
+| Alertas | `vehicle_alerts`: obrigação pendente com `due_on < hoje` = vencida (`critical`), `hoje ≤ due_on ≤ hoje+30` = a vencer (`warning`); documento igual por `expires_on`; sem data, nunca. Lidos pelo sino, pelo painel de pendências do dashboard (obrigação → `?aba=obrigacoes`, documento → aba padrão), pela Manutenção ("Ver em Documentos", aba padrão) e por esta tela. |
+| Financiamento | Tudo opcional (início em branco: hoje no cadastro, mantém na edição). Restantes e saldo são colunas geradas (`qtd − pagas`; `restantes × parcela`; nulas se faltar parte). Pagas ≤ quantidade. "+1" soma em `installments_paid`. Não há tabela de parcelas, valor pago nem estado do contrato; nada entra em Gastos, Histórico ou total investido. |
+
+**Decisão.**
+
+- Página no padrão comum (`Page`, `PageHeader`, `Breadcrumb`): título
+  "DOCUMENTOS" e uma frase; o veículo segue na trilha e no seletor do shell.
+  Sem ação no cabeçalho: cada aba leva a sua.
+- **Pendências** num painel compacto com fio lateral (carmim se houver
+  vencido): a contagem por aba à vista ("Documentos: 1 vencido, 2 a vencer ·
+  Obrigações: …") e a lista de antes (o mesmo `AlertBanner`) atrás de "Ver a
+  lista" (`PanelDisclosure`). Aberta, ela empurrava abas e lista para fora da
+  primeira tela, e cada linha agora tem o próprio selo. A falha dos alertas
+  vira uma linha com "Tentar de novo".
+- **Abas** (`DocumentTabs`, local): 44px, as três sempre inteiras (dividem a
+  largura em proporção ao rótulo de 320px até `sm`), ativa por peso, cor,
+  fio laranja e `aria-selected`; teclado no padrão WAI-ARIA (só a ativa no
+  Tab; setas circulares, Home, End). Os três `tabpanel` existem (cada
+  `aria-controls` aponta pra um); só o ativo tem conteúdo. A aba vive na URL
+  e sobrevive a erro, cadastro e exclusão; trocar de veículo remonta a área
+  (diálogos e foco) e mantém a aba.
+- Cada aba abre com uma frase do que entra ali e a ação real: "Enviar
+  documento", "Registrar obrigação"; Financiamento só tem ação no estado
+  vazio ("Cadastrar financiamento"). Carregando (`SkeletonList`, sem zero),
+  falha (`InlineError` com "Tentar de novo", só naquela aba) e vazio
+  (`EmptyState` com a ação) são estados distintos.
+- **Situação** de documento e obrigação vem de `vehicle_alerts` — a mesma do
+  dashboard, da Manutenção e do sino —, com os rótulos do painel de
+  pendências: Vencido/Vencida, Vence em breve/Próxima e "Vence hoje" (aviso
+  cuja data é hoje; a view conta o próprio dia como a vencer). Paga =
+  "Paga". Sem a lista de alertas fica a regra antiga da tela (data < hoje =
+  vencido) e nenhum aviso é inventado. Rejeitado: refazer a janela de 30
+  dias no cliente.
+- **Documentos**: painel com colunas a partir de `md` (documento · validade ·
+  arquivo · "⋯"); nome, detalhes (tipo, emissão, valor — R$ 0,00 aparece,
+  ausente some) e notas quebram, nunca cortam. Arquivo: tipo e tamanho
+  ("PDF · 117 KB") e "Abrir" (alvo de 44px, outra aba); a falha ao abrir
+  aparece na própria linha. "Sem arquivo" só se `storage_path` vier vazio —
+  o banco não deixa.
+- **Obrigações**: Pendentes e Pagas (os grupos de antes) com colunas
+  (obrigação · situação · valor · "⋯"); "Valor não informado" escrito;
+  "Marcar como paga" à vista em cada pendente, como ação em texto junto da
+  situação (o botão cheio pesava a linha); paga mostra a data do pagamento e
+  o vencimento que tinha.
+- **Financiamento**: dois painéis — **Contrato** (valor financiado, parcela,
+  quantidade, início, juros por `formatMonthlyRate`, "Não informado" quando
+  nulo; editar/excluir no "⋯") e **Parcelas** (pagas "46 de 48", restantes,
+  valor das parcelas restantes — ver os ajustes da revisão; "Não calculado"
+  com o motivo quando a coluna gerada vem
+  nula; a conta escrita na legenda; selo "Quitado"/"Em aberto" só com
+  quantidade informada; "Registrar parcela paga" com o erro junto do botão —
+  antes a falha era silenciosa).
+- **Formulários** no padrão comum (`FORM_DIALOG_CLASSNAME`, cabeçalho e
+  rodapé fixos, só o corpo rola, `FormSection`/`FormField`/`FormFooter`,
+  `UnitAffix`, foco no diálogo ao abrir e no primeiro campo inválido ao
+  enviar, segundo envio bloqueado). Documento: Identificação · Arquivo
+  (escolher/trocar; erro de tipo e tamanho junto do campo; enviar sem
+  arquivo marca o campo) · Validade (o texto diz que entra nos alertas 30
+  dias antes) · Detalhes recolhível. Obrigação: Obrigação · Vencimento (e
+  pagamento, na edição) · Detalhes. Financiamento: Contrato · Parcelas
+  pagas. Marcar como paga: a mesma casca, estreita, com o registro no cartão
+  comum.
+- **Confirmações** com `AlertDialogRecord` e só as consequências
+  verificadas: documento ("O arquivo é apagado junto… sai desta lista e do
+  Histórico", mais "o alerta dele sai do dashboard, da Manutenção e do sino"
+  só se ele está em `vehicle_alerts`); obrigação (lista e, se houver,
+  alerta); financiamento (contrato e contagem apagados; gastos da categoria
+  Financiamento ficam). O foco volta ao gatilho ou, se a linha saiu, ao
+  título da seção.
+- Texto: "Informe o rótulo." → "Informe o nome da obrigação." (o campo
+  passou a se chamar "Nome"; a regra não mudou). Helper novo
+  `formatMonthlyRate` em `lib/format.ts`.
+
+**Componentes compartilhados usados.** `Page`, `PageHeader`, `Breadcrumb`,
+`Panel`/`PanelHeader`/`PanelCount`/`ListColumns`/`PanelDisclosure`/
+`PANEL_CLASSNAME`, `Badge`, `RowActionsMenu`, `DetailItem`, `EmptyState`,
+`InlineError`, `PageError`, `SkeletonList`/`Skeleton`, `FormBody`,
+`FormFooter`, `FormSection`, `FormField`, `UnitAffix`, `AlertDialogRecord`,
+`textLinkClassName`, `FieldError`, `useReturnFocus`, `VehicleNotFound`,
+`AlertBanner`. Locais por necessidade da área: `DocumentTabs` (único lugar
+com abas de página), `TabIntro`, `documentPresentation.ts`, `focus.ts`.
+
+**Alternativas descartadas.** Pendências sempre abertas (seis alertas
+tomavam a primeira tela). Ação de cadastro no cabeçalho da página, trocando
+com a aba (perde o contexto e o rótulo muda sob o título). Abas com rolagem
+lateral no celular (escondia "Financiamento"). "Marcar como paga" dentro do
+"⋯" (é a ação principal da pendente e a única que tira o alerta). Total pago
+ou saldo com juros no financiamento (o modelo não sustenta). Situação
+recalculada no cliente com a janela de 30 dias.
+
+**Pendências registradas (anteriores, não alteradas).**
+
+- Etapa 07/11 — **"Ver em Documentos" da Manutenção** abre a aba Documentos
+  mesmo quando as pendências são só obrigações (o dashboard já usa
+  `?aba=obrigacoes`).
+- Etapa 04 — o **painel de pendências do dashboard** escreve "Vence em
+  08/11/2026" para o que vence hoje, onde o `AlertBanner` (sino, Manutenção,
+  esta tela) escreve "Vence hoje". Mesmo dado, texto diferente.
+- Etapa 11 — a **exclusão de documento** apaga o arquivo antes da linha: se
+  a linha falha, o arquivo já foi (conferido no mock, cenário 127). Mesma
+  ordem de gasto, manutenção, problema e item.
+- Etapa 11 — **"Abrir"** chama `window.open` depois de esperar o link
+  assinado; bloqueador de pop-up (Safari/iOS) pode barrar. Não testado em
+  aparelho.
+- Etapa 11 — **Marcar como paga com a data apagada** manda `paid_on: ""` e
+  o banco recusa com o erro genérico (o campo não valida). Conferido no
+  código, não alterado.
+- Etapa 11 — **"Hoje"**: o selo vem da view (`current_date` do servidor) e
+  a linha de data, do cliente (data local); perto da meia-noite os dois
+  podem divergir. O mesmo vale para o dashboard e a Manutenção.
+- Etapa 11 — **financiamento sem quantidade de parcelas** aceita "+1" sem
+  limite (o banco só limita com quantidade). Sem tabela de parcelas, não há
+  valor previsto × pago por parcela.
+- Shell — os itens do **sino** não levam a Documentos (texto sem link).
+
+**Verificação.** Dados simulados (ferramenta externa
+`redesign-capturas/ferramenta/inspect.mjs`, `docHandler` novo, cenários
+122–128, arquivos 228–233, `etapa-11/relatorio.txt`): cinco documentos do
+Civic (vencido há 3 dias, vence hoje com título longo e notas com quebra,
++18, +31 com R$ 0,00, sem validade; PDF, PNG e JPEG), sete obrigações (−12,
+hoje, +30, +31 com R$ 0,00, sem data, duas pagas), financiamento 46/48 e as
+variantes "zero" e "parcial"; Gol com um documento sem alerta; Maverick
+vazio. `vehicle_alerts` recalculado do estado a cada escrita com a regra da
+view; escritas, Storage e link assinado interceptados; rede trancada,
+nenhuma chamada ao Supabase real. Conferido: selos iguais à regra; as mesmas
+seis pendências na tela, no sino, no dashboard e na Manutenção; pagar tira
+um alerta do sino (9 → 8) e limpar "Paga em" devolve; links do dashboard
+(`?aba=obrigacoes`), da Manutenção e do Histórico abrem a aba certa; `?aba`
+inválida cai em Documentos; troca de veículo mantém a aba; carregando sem
+zero; falha e nova tentativa em cada aba, sem perder a aba; vazio das três;
+envio sem arquivo, arquivo de texto, PDF de 11 MB, falha no envio (nada
+gravado, formulário preservado) e Storage antes da linha; pagas >
+quantidade; teclado nas abas (setas, Home, End, Tab), Escape e volta do
+foco; teclado virtual emulado (390×380) com a ação alcançável. 320, 360,
+390, 768, 1024, 1280, 1440, 1920 e 2560, claro e escuro alternados: sem
+rolagem horizontal, nenhum alvo menor que 44px, colunas alinhadas ao
+cabeçalho, último conteúdo acima da barra inferior, sem segunda rolagem.
+Axe sem violações em 33 estados. `npm run lint`, `npx tsc -b` e `npm run
+build` limpos. Nenhum aparelho físico nem leitor de tela real.
+
+**Ajustes da revisão (08/11/2026).**
+
+- **Pendências no celular** (`PendingSummary`): em 320px o bloco recolhido
+  ocupava ~180px (título, frase, contagem por aba e "Ver a lista") e a lista
+  de documentos quase não aparecia na primeira tela. Abaixo de `sm` o bloco
+  inteiro agora é **um botão** — "6 pendências · 2 vencidas" (singular com
+  1; "nenhuma vencida" sem vencido, aí com o fio âmbar) — e a frase
+  explicativa e a contagem por aba ficam dentro, antes da lista. A partir de
+  `sm`, o cabeçalho com a contagem e "Ver a lista" de antes. Os dois botões
+  abrem a mesma região; cada um só existe na sua largura. Medido: 46px
+  recolhido em 320, 360, 390 e 639 (era ~180 em 320); o nome do primeiro
+  registro aparece na primeira tela em 320×640, e o registro inteiro a
+  partir de 360. A partir de 640, 130px (640) e 108px (1440), como antes.
+- **"Saldo a pagar" → "Valor das parcelas restantes"**: o número é
+  `outstanding_balance` = parcelas restantes × valor da parcela, não o saldo
+  devedor do contrato. Legenda, motivo de "Não calculado", estado vazio, a
+  descrição do formulário e a da edição acompanham ("as parcelas restantes e
+  o valor delas"). Em 640px o rótulo quebra em duas linhas, sem corte.
+- Verificação: cenário 129 (`etapa-11/relatorio-ajustes.txt`, captura
+  `234-mobile320-topo-ate-primeiro-registro-light`, do topo da página ao fim
+  do primeiro registro, pendências recolhidas): 320, 360, 390, 639, 640 e
+  1440 — recolhido e aberto pelo teclado (`aria-expanded`, foco fica no
+  botão), axe sem violações nos 12 estados e nos 4 do financiamento, nenhum
+  alvo menor que 44px, sem rolagem horizontal. `npm run lint`, `npx tsc -b`
+  e `npm run build` limpos.

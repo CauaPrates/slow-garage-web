@@ -113,6 +113,19 @@ export function formatCount(value: number): string {
   return integerFormatter.format(value);
 }
 
+const rateFormatter = new Intl.NumberFormat("pt-BR", {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+});
+
+/**
+ * `1.99` -> `"1,99% ao mês"`, `0` -> `"0% ao mês"` — taxa de juros mensal em
+ * pontos percentuais, como a coluna do banco (`numeric(5, 2)`).
+ */
+export function formatMonthlyRate(value: number): string {
+  return `${rateFormatter.format(value)}% ao mês`;
+}
+
 /** `12.4` -> `"12,4 km/L"` */
 export function formatConsumption(value: number): string {
   return `${oneDecimalFormatter.format(value)} km/L`;

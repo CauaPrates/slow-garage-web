@@ -1,13 +1,10 @@
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { FieldError } from "@/components/ui/field-error";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FORM_DIALOG_HEADER_CLASSNAME, focusDialogOnOpen } from "@/components/ui/form";
+import { useReturnFocus } from "@/hooks/useReturnFocus";
 import { translatePostgresError } from "@/lib/postgresErrors";
 import { DocumentForm } from "./DocumentForm";
+import { DOCUMENT_FORM_DIALOG_CLASSNAME } from "./CreateDocumentDialog";
 import { useUpdateDocument, type DocumentRow } from "./useDocuments";
 import type { DocumentFormInput, DocumentFormOutput } from "./schemas";
 
@@ -33,6 +30,12 @@ function toFormDefaults(doc: DocumentRow): Partial<DocumentFormInput> {
 export function EditDocumentDialog({ vehicleId, doc, open, onOpenChange }: EditDocumentDialogProps) {
   const updateDocument = useUpdateDocument(vehicleId);
   const [error, setError] = useState<string | null>(null);
+  const returnFocus = useReturnFocus();
+
+  function handleOpenChange(next: boolean) {
+    if (!next) setError(null);
+    onOpenChange(next);
+  }
 
   async function handleSubmit(values: DocumentFormOutput) {
     setError(null);
@@ -46,25 +49,34 @@ export function EditDocumentDialog({ vehicleId, doc, open, onOpenChange }: EditD
         amount: values.amount ?? null,
         notes: values.notes ?? null,
       });
-      onOpenChange(false);
+      handleOpenChange(false);
     } catch (mutationError) {
       setError(translatePostgresError(mutationError));
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className={DOCUMENT_FORM_DIALOG_CLASSNAME}
+        onOpenAutoFocus={(event) => {
+          returnFocus.capture();
+          focusDialogOnOpen(event);
+        }}
+        onCloseAutoFocus={returnFocus.onCloseAutoFocus}
+      >
+        <DialogHeader className={FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>Editar documento</DialogTitle>
+          <DialogDescription className="break-words">{doc.title}</DialogDescription>
         </DialogHeader>
         <DocumentForm
           mode="edit"
           defaultValues={toFormDefaults(doc)}
           onSubmit={handleSubmit}
           submitLabel="Salvar alterações"
+          submitError={error}
+          savedFile={{ mimeType: doc.mime_type, sizeBytes: doc.file_size_bytes }}
         />
-        <FieldError>{error}</FieldError>
       </DialogContent>
     </Dialog>
   );

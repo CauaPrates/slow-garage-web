@@ -1,94 +1,114 @@
-import { useState } from "react";
-import { CheckCircle2, Pencil, Trash2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useId, useRef } from "react";
+import { CheckCircle2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { RowActionsMenu } from "@/components/ui/menu";
+import { textLinkClassName } from "@/components/ui/text-link";
+import { formatDateOnly, formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { formatDateOnly, formatMoney, todayDateOnly } from "@/lib/format";
 import { OBLIGATION_KIND_LABELS } from "./schemas";
 import type { ObligationRow } from "./useObligations";
-import { EditObligationDialog } from "./EditObligationDialog";
-import { DeleteObligationDialog } from "./DeleteObligationDialog";
-import { MarkObligationPaidDialog } from "./MarkObligationPaidDialog";
+import type { RecordStatus } from "./documentPresentation";
+
+/** Colunas a partir de `md`: obrigação (e detalhes) · situação e data · valor · "⋯". */
+export const OBLIGATION_ROW_GRID =
+  "md:grid-cols-[minmax(0,1fr)_11rem_9rem_2.75rem] md:grid-rows-[auto_1fr] md:gap-x-4 2xl:grid-cols-[minmax(0,3fr)_minmax(0,1fr)_minmax(0,1fr)_2.75rem] 2xl:gap-x-6";
 
 type ObligationListItemProps = {
-  vehicleId: string;
   obligation: ObligationRow;
+  status: RecordStatus | null;
+  dateLabel: string;
+  onMarkPaid: (obligation: ObligationRow, trigger: HTMLElement | null) => void;
+  onEdit: (obligation: ObligationRow, trigger: HTMLElement | null) => void;
+  onDelete: (obligation: ObligationRow, trigger: HTMLElement | null) => void;
 };
 
-export function ObligationListItem({ vehicleId, obligation }: ObligationListItemProps) {
-  const [editOpen, setEditOpen] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [markPaidOpen, setMarkPaidOpen] = useState(false);
-
+/**
+ * Etapa 11: uma obrigação. O vencimento e a situação vêm em destaque (selo +
+ * data); valor ausente é escrito ("Valor não informado"), nunca vira R$ 0,00.
+ * Pendente ganha "Marcar como paga" à vista — é a única forma de silenciar o
+ * alerta (RN-3); editar e excluir ficam no "⋯". Paga mostra a data do
+ * pagamento e, embaixo, o vencimento que tinha.
+ */
+export function ObligationListItem({ obligation, status, dateLabel, onMarkPaid, onEdit, onDelete }: ObligationListItemProps) {
+  const identityId = useId();
+  const markPaidRef = useRef<HTMLButtonElement>(null);
   const isPaid = obligation.paid_on != null;
-  const isOverdue = !isPaid && obligation.due_on != null && obligation.due_on < todayDateOnly();
+  const amount = obligation.amount != null ? formatMoney(obligation.amount) : null;
+  const details = [OBLIGATION_KIND_LABELS[obligation.kind], obligation.provider].filter(Boolean);
+  const notes = obligation.notes?.trim() ? obligation.notes : null;
+  const dateIso = isPaid ? obligation.paid_on : obligation.due_on;
 
   return (
-    <div className="flex items-start justify-between gap-3 rounded-lg border border-border bg-surface p-4">
-      <div className="min-w-0">
-        <p className="font-medium text-text-primary">{obligation.label}</p>
-        <p className="text-sm text-text-secondary">
-          {OBLIGATION_KIND_LABELS[obligation.kind]}
-          {obligation.amount != null ? ` · ${formatMoney(obligation.amount)}` : ""}
-        </p>
-        <p
-          className={cn(
-            "mt-1 flex items-center gap-1 text-xs",
-            isPaid ? "text-success" : isOverdue ? "text-error" : "text-text-secondary",
-          )}
-        >
-          {isPaid && <CheckCircle2 className="h-3 w-3" aria-hidden="true" />}
-          {isPaid
-            ? `Paga em ${formatDateOnly(obligation.paid_on as string)}`
-            : obligation.due_on != null
-              ? `${isOverdue ? "Vencida em " : "Vence em "}${formatDateOnly(obligation.due_on)}`
-              : "Sem vencimento"}
-        </p>
+    <li
+      className={cn(
+        "grid grid-cols-[minmax(0,1fr)_2.75rem] items-start gap-x-2 gap-y-1.5 px-(--panel-pad-x) py-3",
+        OBLIGATION_ROW_GRID,
+      )}
+    >
+      <span id={identityId} className="sr-only">
+        {obligation.label}, {dateLabel}
+        {amount ? `, ${amount}` : ""}
+      </span>
+
+      <p className="type-item-title pt-0.5 break-words text-text-primary md:col-start-1 md:row-start-1 md:pt-px">
+        {obligation.label}
+      </p>
+
+      <div className="-my-2.5 flex justify-end md:col-start-4 md:row-span-2 md:row-start-1">
+        <RowActionsMenu
+          label="Ações da obrigação"
+          editLabel="Editar obrigação"
+          deleteLabel="Excluir obrigação"
+          describedBy={identityId}
+          onEdit={(trigger) => onEdit(obligation, trigger)}
+          onDelete={(trigger) => onDelete(obligation, trigger)}
+        />
       </div>
 
-      <div className="flex shrink-0 flex-col items-end gap-2">
-        <div className="flex gap-1">
-          {!isPaid && (
-            <Button variant="ghost" onClick={() => setMarkPaidOpen(true)}>
-              Marcar como paga
-            </Button>
-          )}
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Editar obrigação"
-            onClick={() => setEditOpen(true)}
+      <div className="col-span-2 flex flex-wrap items-center gap-x-2 gap-y-1 md:col-span-1 md:col-start-2 md:row-span-2 md:row-start-1 md:flex-col md:items-start md:pt-px">
+        {status && <Badge tone={status.tone}>{status.label}</Badge>}
+        <p className={cn("text-sm tabular-nums", dateIso ? "text-text-primary" : "text-text-secondary")}>
+          {/* "Vence hoje" já está no selo: aqui fica a data. */}
+          {dateIso ? <time dateTime={dateIso}>{status?.label === dateLabel ? formatDateOnly(dateIso) : dateLabel}</time> : dateLabel}
+        </p>
+        {!isPaid && (
+          // Ação em texto (alvo de 44px, margem negativa): à vista em cada pendente sem pesar a linha como um botão cheio.
+          <button
+            ref={markPaidRef}
+            type="button"
+            aria-describedby={identityId}
+            onClick={() => onMarkPaid(obligation, markPaidRef.current)}
+            className={cn(textLinkClassName(), "-my-2 -ml-1 basis-full md:basis-auto")}
           >
-            <Pencil className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            aria-label="Excluir obrigação"
-            onClick={() => setDeleteOpen(true)}
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
+            <CheckCircle2 className="h-4 w-4 text-accent" aria-hidden="true" />
+            Marcar como paga
+          </button>
+        )}
+        {isPaid && obligation.due_on && (
+          <p className="text-xs text-text-secondary tabular-nums md:-mt-0.5">
+            Vencimento {formatDateOnly(obligation.due_on)}
+          </p>
+        )}
       </div>
 
-      <EditObligationDialog
-        vehicleId={vehicleId}
-        obligation={obligation}
-        open={editOpen}
-        onOpenChange={setEditOpen}
-      />
-      <DeleteObligationDialog
-        vehicleId={vehicleId}
-        obligation={obligation}
-        open={deleteOpen}
-        onOpenChange={setDeleteOpen}
-      />
-      <MarkObligationPaidDialog
-        vehicleId={vehicleId}
-        obligation={obligation}
-        open={markPaidOpen}
-        onOpenChange={setMarkPaidOpen}
-      />
-    </div>
+      <p
+        className={cn(
+          "col-span-2 md:col-span-1 md:col-start-3 md:row-span-2 md:row-start-1 md:pt-px md:text-right",
+          amount ? "type-value whitespace-nowrap text-text-primary" : "text-sm text-text-secondary",
+        )}
+      >
+        {amount ?? "Valor não informado"}
+      </p>
+
+      <div className="col-span-2 flex min-w-0 flex-col items-start gap-1 md:col-span-1 md:col-start-1 md:row-start-2">
+        <p className="text-xs break-words text-text-secondary">{details.join(" · ")}</p>
+        {notes && (
+          <p className="max-w-prose text-xs break-words whitespace-pre-line text-text-secondary">
+            <span className="sr-only">Notas: </span>
+            {notes}
+          </p>
+        )}
+      </div>
+    </li>
   );
 }
