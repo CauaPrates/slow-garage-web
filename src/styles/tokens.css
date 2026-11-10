@@ -86,6 +86,14 @@
   /* Altura de controle: 44px é o alvo mínimo do app; 56px para alvo de toque com ícone sobre rótulo. */
   --control-h: 2.75rem;
   --control-h-touch: 3.5rem;
+  /*
+   * Etapa 12 — grade de Fotos: largura mínima de cada miniatura (a grade
+   * cria quantas colunas couberem na largura útil e mantém as vazias, então
+   * uma foto só nunca estica até a largura toda) e o vão entre elas. Duas
+   * colunas a partir de 320px; cresce em `sm`, `xl` e no desktop largo.
+   */
+  --gallery-tile-min: 8.5rem;
+  --gallery-gap: 0.75rem;
   /* Anel de foco de campo (soma ao contorno global de `:focus-visible`). */
   --focus-ring-field: 0 0 0 3px color-mix(in srgb, var(--color-accent) 30%, transparent);
 
@@ -178,6 +186,20 @@
     --type-page-title-size: 1.875rem;
     --type-entity-title-size: 1.5rem;
     --type-stat-size: 1.25rem;
+    --gallery-tile-min: 12rem;
+    --gallery-gap: 1rem;
+  }
+}
+
+/* Etapa 12: miniaturas maiores no notebook (4 colunas em 1440) e no desktop largo (5 em 1920, 7 em 2560). */
+@media (min-width: 80rem) {
+  :root {
+    --gallery-tile-min: 15rem;
+  }
+}
+@media (min-width: 120rem) {
+  :root {
+    --gallery-tile-min: 17rem;
   }
 }
 

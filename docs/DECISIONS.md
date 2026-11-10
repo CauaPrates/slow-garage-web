@@ -3794,3 +3794,188 @@ build` limpos. Nenhum aparelho físico nem leitor de tela real.
   botão), axe sem violações nos 12 estados e nos 4 do financiamento, nenhum
   alvo menor que 44px, sem rolagem horizontal. `npm run lint`, `npx tsc -b`
   e `npm run build` limpos.
+
+## ADR-101 — Redesign etapa 12: Fotos
+
+**Status.** Implementada. **Revisão visual pendente** — não aprovada. Branch
+`feature/045-redesign-etapa-12`, a partir da
+`feature/044-redesign-etapa-11` (árvore limpa na partida, nada pendente a
+preservar). Sem commit, push nem merge.
+
+**Contexto.** Fotos era a próxima tela do veículo sem redesign: título
+`text-lg`, filtro de categoria em oito botões com rolagem lateral no
+celular, cartões com "Definir como capa" e a lixeira lado a lado — a lixeira
+encolhia a 16px de largura (pendência da ADR-099) —, selo "Capa" laranja
+sobre a foto, legenda cortada numa linha sem caminho de volta, miniatura
+`object-cover` (cortava o carro de foto fora de 4:3) e `alt` só com a
+categoria, que o axe acusou como `image-alt` crítico nas fotos sem
+legenda. O envio tinha o botão no fim do corpo, sem rodapé fixo nem volta de
+foco. Banco, hooks, consultas, chaves, invalidações de sucesso, rota,
+caminho no Storage e regras não mudaram.
+
+**Comportamento conferido no código (inventário).**
+
+| Ponto | Regra |
+|---|---|
+| Rota | `/v/:vehicleId/fotos` (item "Fotos" no grupo Arquivo da lateral e da folha Mais). `?novo=1` abre o envio — único parâmetro. |
+| Entradas de envio | Cabeçalho e estado vazio da tela; folha "Registrar" → "Foto" (`?novo=1`); ação rápida "Adicionar foto" do dashboard (abre o diálogo por cima e leva à galeria depois do envio); "Adicionar foto" do card da garagem (faixa de registros e quadro vazio; idem). Editar veículo tem um envio de capa à parte (`VehiclePhotoUpload`, sempre vira capa) — não faz parte desta tela. |
+| Consulta | `vehicle_photos` do veículo, `order(sort_order)` e depois `created_at` decrescente; links assinados de 1 h em lote (`createSignedUrls`). Chave `["vehicles", id, "gallery"]`; toda escrita invalida `["vehicles"]`. O app nunca grava `sort_order` nem `taken_at`: na prática a ordem é a mais recente primeiro, e não existe reordenação. |
+| Envio | Seletor com curinga `image/*` (galeria nativa no Android); recorte obrigatório em 4:3 (arrastar, aproximar, setas), maior lado até 1600 px, WebP (PNG se o navegador não codifica WebP); o arquivo final passa por `imageFileSchema` (JPEG, PNG ou WebP, até 10 MB). Categoria (7, padrão Exterior) e legenda opcional sem limite. Ordem: Storage → linha → capa, esta só se o veículo estiver sem (`primary_photo_id is null`). |
+| Capa | `vehicles.primary_photo_id`. É a foto do card da garagem (16:9, `object-cover`) e da miniatura do dashboard (4:3). "Definir como capa" troca na hora. A primeira foto de um veículo sem capa vira capa. |
+| Exclusão | Se for a capa, limpa `primary_photo_id` → apaga o arquivo → apaga a linha. Capa excluída **não** é substituída: card e dashboard ficam sem foto até outra ser escolhida ou o próximo envio. |
+| Abertura | **Não existe** visualização ampliada nem abertura da foto; a miniatura é o único lugar de vê-la. |
+| Histórico | `vehicle_timeline` não tem evento de foto; nenhum total soma fotos. |
+
+**Decisão.**
+
+- Página no padrão comum (`Page`, `Breadcrumb`, `PageHeader`): "FOTOS",
+  o veículo e a quantidade na linha de contexto (com o "i" que explica a
+  capa, junto da contagem para não ficar sozinho numa linha) e "Adicionar
+  foto" — a única ação laranja da tela. Com a galeria vazia a ação sai do
+  cabeçalho e fica no estado vazio. A grade começa logo abaixo.
+- **Grade pela largura útil**: `repeat(auto-fill, minmax(min(100%,
+  --gallery-tile-min), 1fr))`, tokens novos `--gallery-tile-min` (8,5 /
+  12 / 15 / 17rem em base, `sm`, 80rem e 120rem) e `--gallery-gap`. Medido:
+  2 colunas de 320 a 640, 3 em 768–1280, 4 em 1440, 5 em 1920, 7 em 2560.
+  `auto-fill` mantém as colunas vazias, então uma foto só ocupa uma coluna
+  (276px em 1440, 309px em 2560), sem esticar nem preencher com
+  falsos vazios.
+- **Foto inteira no quadro 4:3** (`object-contain` sobre o fundo neutro):
+  4:3 é a proporção do recorte, então as fotos enviadas pelo app ocupam o
+  quadro todo; foto de outra proporção (vertical, larga, anterior ao
+  recorte) aparece inteira com sobra neutra, e o carro encostado na borda
+  não é cortado. Rejeitado: `object-cover` (cortava justamente essas, e não
+  há visualização ampliada onde ver o resto). Nenhum texto, selo ou botão
+  sobre a foto — o tratamento da Garagem.
+- Embaixo da foto: legenda (quebra, nunca corta), categoria, "Tirada em"
+  quando `taken_at` existe, o selo **"Capa"** (`Badge` neutro — o estado
+  existe no produto; o laranja ficou para a ação) e o **"⋯"** de 44px com
+  "Definir como capa" (só nas outras fotos) e, depois do divisor, "Excluir
+  foto". Rejeitado: os dois botões à vista (pesavam cada foto e foram a
+  origem do alvo de 16px).
+- **Acessibilidade.** A foto não é controle (não existe "abrir"): `alt` é a
+  legenda; sem legenda, só o contexto conhecido — "Foto 2 de 12 do Honda
+  Civic Si" (posição na galeria inteira, não no filtro). A legenda à vista
+  fica `aria-hidden` para não ser lida duas vezes; a categoria não entra no
+  `alt` porque está escrita embaixo. O "⋯" é descrito por "Foto 2 de 12,
+  capa do veículo" / "Foto 3 de 12: legenda". Ordem de Tab: envio → filtro →
+  um "⋯" por foto (e "Tentar de novo" onde houver). Sem controle dentro de
+  controle.
+- **Foco.** Escape e "Cancelar" devolvem ao "⋯" ou ao botão que abriu;
+  depois de excluir, ao "⋯" da foto seguinte (ou da anterior), senão ao
+  envio do cabeçalho, senão ao do estado vazio (`focusAfterDialog`, local);
+  depois de "Tentar de novo" que dá certo (o botão some), ao filtro, ao
+  primeiro "⋯" ou à ação do vazio — na foto, ao "⋯" dela. Trocar a capa,
+  enviar e excluir são anunciados numa região `status`.
+- **Filtro de categoria** (existia): vira um `Select` comum com a contagem
+  ("Interior (2)"), só com as categorias que têm foto, e só aparece quando
+  há fotos de mais de uma categoria. Filtro que ficou sem foto mostra
+  `NoResults` com "Limpar filtros". O envio abre na categoria filtrada.
+- **Envio** na casca comum (`FORM_DIALOG_CLASSNAME` estreita, cabeçalho e
+  rodapé fixos, só o corpo rola, `FormSection`/`FormField`/`FormFooter`,
+  foco no diálogo ao abrir, segundo envio bloqueado): seção Foto com os
+  formatos e limites conferidos, prévia 4:3 com o peso ("Ajustada em 4:3 ·
+  217 KB · enviada ao salvar"), "Escolher/Trocar foto" e "Ajustar
+  enquadramento"; Detalhes com categoria e legenda (a ajuda diz que ela é o
+  texto lido no lugar da foto). A descrição avisa quando a foto vai virar a
+  capa (veículo sem capa). Erro de arquivo junto do botão, com o foco nele;
+  falha no rodapé ("O envio não foi concluído…") com foto, categoria e
+  legenda preservadas. O mesmo diálogo atende o dashboard e a garagem.
+- **Exclusão** no cartão de registro comum (miniatura, legenda ou "Sem
+  legenda", categoria, posição, selo) e só as consequências do código:
+  arquivo apagado, sai da galeria, sem volta; na capa, "o card da garagem e
+  o dashboard ficam sem foto. A próxima foto enviada vira a capa, ou
+  escolha outra em 'Definir como capa'".
+- **Estados distintos**: carregando (grade de esqueletos, sem "0 fotos"),
+  falha da consulta (`InlineError` com nova tentativa; cabeçalho e envio
+  continuam), vazio (`EmptyState` com o que entra aqui e que a primeira
+  vira capa), filtro sem resultado e **foto indisponível** — link vencido,
+  arquivo que não carrega ou ausente no Storage: quadro reservado com
+  ícone, "Foto indisponível" e "Tentar de novo" (pede links novos).
+- Três correções de comportamento, pequenas e verificadas:
+  1. `?novo=1` sai da URL depois de abrir o envio (como Gastos,
+     Abastecimentos, Manutenção e Histórico) — antes, recarregar reabria.
+  2. A categoria do filtro chega ao envio: o diálogo lia a categoria só na
+     montagem e ficava "Exterior" (o comentário dizia o contrário); agora
+     remonta (fechado) quando o filtro muda.
+  3. Depois de uma falha no envio ou na exclusão a tela relê `["vehicles"]`:
+     o hook pode ter andado em parte (capa já limpa, arquivo já apagado,
+     linha já gravada) e a tela mostrava o estado antigo — no mock, o selo
+     "Capa" continuava numa foto que já não era capa.
+- Textos: "Categoria (opcional)" → "Categoria" (o campo sempre tem valor);
+  "Adicionar foto" (envio) → "Enviar foto"; "É a capa"/"Definir como capa"
+  em botão → selo + item de menu.
+
+**Componentes compartilhados usados.** `Page`, `PageHeader`, `Breadcrumb`,
+`Button`, `Badge`, `InfoTip`, `FilterField`, `Select`, `Input`,
+`Skeleton`, `EmptyState`, `InlineError`, `NoResults`, `PageError`,
+`PANEL_CLASSNAME`, `menuItemClassName`/`MenuSeparator`/
+`ROW_ACTIONS_TRIGGER_CLASSNAME` + `Popover`, `FORM_DIALOG_CLASSNAME`/
+`FORM_DIALOG_HEADER_CLASSNAME`/`focusDialogOnOpen`, `FormBody`,
+`FormSection`, `FormField`, `FormFooter`, `FieldError`, `AlertDialog` +
+`RECORD_CARD_CLASSNAME`, `useReturnFocus`, `VehicleNotFound`,
+`ImageCropDialog` (sem mudança). Locais por necessidade da área:
+`PhotoTile`, `PhotoActionsMenu` (o `RowActionsMenu` é fixo em
+editar/excluir; este compõe as mesmas peças com "Definir como capa"),
+`DeletePhotoDialog`, `photoPresentation.ts`, `focus.ts`. `PhotoCard.tsx`
+saiu (nenhum consumidor).
+
+**Alternativas descartadas.** Visualização ampliada ou "abrir foto" (não
+existe no produto; seria requisito novo). Selo "Capa" sobre a foto
+(contraste depende da foto; texto sobre o carro). Filtro em botões com
+rolagem lateral. Grade centralizada ou com a foto única esticada.
+`object-cover` nas miniaturas. Reordenar a capa para o início (a ordem é a
+da consulta).
+
+**Pendências registradas (anteriores, não alteradas).**
+
+- **Exclusão em três passos sem transação** (capa → arquivo → linha).
+  Falha no arquivo: a capa já foi limpa e a foto continua na galeria
+  (conferido no mock, cenário 133: card e dashboard "Sem foto"). Falha na
+  linha: o arquivo já foi e a foto fica "Foto indisponível" para sempre
+  (133). Mesma família da ordem de exclusão de anexo e registro.
+- **Envio em três passos** (arquivo → linha → capa). Falha na linha deixa o
+  arquivo órfão no Storage, invisível na tela. Falha só na capa (rara): a
+  linha existe, o diálogo diz "O envio não foi concluído" e a galeria —
+  agora relida — mostra a foto; enviar de novo cria uma segunda. Não
+  simulado separadamente.
+- **Fechar o envio no meio**: a mutação continua; se terminar, a foto é
+  gravada e, pelo dashboard ou pela garagem, a tela ainda navega para a
+  galeria. Conferido no código, não alterado.
+- `sort_order` e `taken_at` nunca são gravados pelo app; legenda sem limite
+  de tamanho; HEIC e outros formatos só falham no recorte ("Não foi possível
+  abrir essa imagem…"), não no seletor — não testado em aparelho.
+- Links assinados valem 1 h: galeria aberta por mais tempo passa a mostrar
+  "Foto indisponível" até "Tentar de novo" (ou outra releitura).
+- `VehiclePhotoUpload` (editar veículo) tem a própria cópia de
+  `fileExtension` e sempre troca a capa — fora do escopo desta etapa.
+
+**Verificação.** Dados simulados (ferramenta externa
+`redesign-capturas/ferramenta/inspect.mjs`, `photoHandler` novo, cenários
+130–136, arquivos 235–240, `etapa-12/relatorio.txt`): Civic com 12 fotos
+em quatro proporções (4:3, 1,6:1, 3:4 e carro encostado na borda), legenda
+longa, sem legenda, `taken_at`, um arquivo 404 e um ausente no Storage;
+Opala com uma foto, Uno com três, Gol e Maverick sem nenhuma. Upload
+multipart guardado e servido de volta, links assinados, escritas com
+corpo; rede trancada, nenhuma chamada ao Supabase real. Conferido: ordem da
+tela = ordem da consulta; nenhum `img` sem nome; teclado (Tab, Enter no
+"⋯", Escape) e volta do foco em todos os diálogos; envio vazio, arquivo de
+texto, cancelar o recorte, prévia 4:3 (1600×1197), falha do Storage e queda
+de rede (nada gravado na tabela, formulário preservado), dois cliques → um
+envio, sucesso (anúncio, foco, foto em primeiro, `PATCH … is.null` sem
+trocar a capa existente), cancelar com foto escolhida (nada gravado,
+formulário limpo ao reabrir); exclusão comum (Storage + linha, foco no
+vizinho), da capa (três escritas, card e dashboard "Sem foto", próximo
+envio vira capa e aparece nos dois), da última (estado vazio, foco na ação),
+falhas no arquivo e na linha; troca de capa com falha (erro na foto, selo
+fica) e pelo teclado (um PATCH, selo e anúncio, card e dashboard com a foto
+nova, ordem mantida); carregando, falha da consulta e nova tentativa, vazio,
+foto indisponível e nova tentativa, filtro sem resultado; entradas pelo
+dashboard, pelo card da garagem (vira capa) e por `?novo=1` (sai da URL,
+recarregar não reabre). 320, 360, 390, 640, 768, 1024, 1280, 1440, 1920 e
+2560, claro e escuro alternados: sem rolagem horizontal, nenhum alvo menor
+que 44px, rolagem real (roda do mouse) até o fim com o último "⋯" acima da
+barra inferior e alcançável; teclado virtual emulado (390×380) com "Enviar
+foto" à vista. Axe sem violações em 22 estados. `npm run lint`, `npx tsc
+-b` e `npm run build` limpos. Nenhum aparelho físico nem leitor de tela
+real.

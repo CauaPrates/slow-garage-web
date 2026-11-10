@@ -6060,8 +6060,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_dashboard_expensesbymonthchart",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 215,
+      "community_name": "ExpensesByMonthChart.tsx",
       "norm_label": "expensesbymonthchart.tsx"
     },
     {
@@ -6071,8 +6071,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_features_dashboard_expensesbymonthchart_expensesbymonthchartprops",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 215,
+      "community_name": "ExpensesByMonthChart.tsx",
       "norm_label": "expensesbymonthchartprops"
     },
     {
@@ -6082,8 +6082,8 @@
       "source_location": "L22",
       "_origin": "ast",
       "id": "src_features_dashboard_expensesbymonthchart_monthlong",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 215,
+      "community_name": "ExpensesByMonthChart.tsx",
       "norm_label": "monthlong()"
     },
     {
@@ -6093,8 +6093,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_features_dashboard_expensesbymonthchart_monthshort",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 215,
+      "community_name": "ExpensesByMonthChart.tsx",
       "norm_label": "monthshort()"
     },
     {
@@ -6104,8 +6104,8 @@
       "source_location": "L38",
       "_origin": "ast",
       "id": "src_features_dashboard_expensesbymonthchart_expensesbymonthchart",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 215,
+      "community_name": "ExpensesByMonthChart.tsx",
       "norm_label": "expensesbymonthchart()"
     },
     {
@@ -6115,8 +6115,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_dashboard_financialsummarycard",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 125,
+      "community_name": "VehicleMetricsRow.tsx",
       "norm_label": "financialsummarycard.tsx"
     },
     {
@@ -6126,8 +6126,8 @@
       "source_location": "L6",
       "_origin": "ast",
       "id": "src_features_dashboard_financialsummarycard_financialsummarycardprops",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 125,
+      "community_name": "VehicleMetricsRow.tsx",
       "norm_label": "financialsummarycardprops"
     },
     {
@@ -6137,8 +6137,8 @@
       "source_location": "L10",
       "_origin": "ast",
       "id": "src_features_dashboard_financialsummarycard_money",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 125,
+      "community_name": "VehicleMetricsRow.tsx",
       "norm_label": "money()"
     },
     {
@@ -6148,8 +6148,8 @@
       "source_location": "L23",
       "_origin": "ast",
       "id": "src_features_dashboard_financialsummarycard_financialsummarycard",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 125,
+      "community_name": "VehicleMetricsRow.tsx",
       "norm_label": "financialsummarycard()"
     },
     {
@@ -6203,8 +6203,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_dashboard_pendingalertspanel",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 212,
+      "community_name": "PendingAlertsPanel.tsx",
       "norm_label": "pendingalertspanel.tsx"
     },
     {
@@ -6214,8 +6214,8 @@
       "source_location": "L12",
       "_origin": "ast",
       "id": "src_features_dashboard_pendingalertspanel_pendingalertspanelprops",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 212,
+      "community_name": "PendingAlertsPanel.tsx",
       "norm_label": "pendingalertspanelprops"
     },
     {
@@ -6225,8 +6225,8 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_features_dashboard_pendingalertspanel_alertsource",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 71,
+      "community_name": "ROUTES",
       "norm_label": "alertsource"
     },
     {
@@ -6236,8 +6236,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "src_features_dashboard_pendingalertspanel_sortalerts",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 212,
+      "community_name": "PendingAlertsPanel.tsx",
       "norm_label": "sortalerts()"
     },
     {
@@ -6247,8 +6247,8 @@
       "source_location": "L63",
       "_origin": "ast",
       "id": "src_features_dashboard_pendingalertspanel_kmdetail",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 212,
+      "community_name": "PendingAlertsPanel.tsx",
       "norm_label": "kmdetail()"
     },
     {
@@ -6258,8 +6258,8 @@
       "source_location": "L73",
       "_origin": "ast",
       "id": "src_features_dashboard_pendingalertspanel_alertrow",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 212,
+      "community_name": "PendingAlertsPanel.tsx",
       "norm_label": "alertrow()"
     },
     {
@@ -6269,8 +6269,8 @@
       "source_location": "L119",
       "_origin": "ast",
       "id": "src_features_dashboard_pendingalertspanel_countlink",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 212,
+      "community_name": "PendingAlertsPanel.tsx",
       "norm_label": "countlink()"
     },
     {
@@ -6280,8 +6280,8 @@
       "source_location": "L145",
       "_origin": "ast",
       "id": "src_features_dashboard_pendingalertspanel_pendingalertspanel",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 212,
+      "community_name": "PendingAlertsPanel.tsx",
       "norm_label": "pendingalertspanel()"
     },
     {
@@ -6368,8 +6368,8 @@
       "source_location": "L89",
       "_origin": "ast",
       "id": "src_features_dashboard_quickactionsrow_quickactionsrow",
-      "community": 71,
-      "community_name": "ROUTES",
+      "community": 124,
+      "community_name": "QuickActionsRow.tsx",
       "norm_label": "quickactionsrow()"
     },
     {
@@ -6511,8 +6511,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_dashboard_vehiclemetricsrow",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 125,
+      "community_name": "VehicleMetricsRow.tsx",
       "norm_label": "vehiclemetricsrow.tsx"
     },
     {
@@ -6522,8 +6522,8 @@
       "source_location": "L7",
       "_origin": "ast",
       "id": "src_features_dashboard_vehiclemetricsrow_vehiclemetricsrowprops",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 125,
+      "community_name": "VehicleMetricsRow.tsx",
       "norm_label": "vehiclemetricsrowprops"
     },
     {
@@ -6533,8 +6533,8 @@
       "source_location": "L21",
       "_origin": "ast",
       "id": "src_features_dashboard_vehiclemetricsrow_consumptionhint",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 125,
+      "community_name": "VehicleMetricsRow.tsx",
       "norm_label": "consumptionhint()"
     },
     {
@@ -6544,8 +6544,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_features_dashboard_vehiclemetricsrow_costperkmhint",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 125,
+      "community_name": "VehicleMetricsRow.tsx",
       "norm_label": "costperkmhint()"
     },
     {
@@ -6555,8 +6555,8 @@
       "source_location": "L51",
       "_origin": "ast",
       "id": "src_features_dashboard_vehiclemetricsrow_vehiclemetricsrow",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 125,
+      "community_name": "VehicleMetricsRow.tsx",
       "norm_label": "vehiclemetricsrow()"
     },
     {
@@ -6588,8 +6588,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_features_dashboard_types_dashboardfinancialsummary",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 125,
+      "community_name": "VehicleMetricsRow.tsx",
       "norm_label": "dashboardfinancialsummary"
     },
     {
@@ -6610,8 +6610,8 @@
       "source_location": "L27",
       "_origin": "ast",
       "id": "src_features_dashboard_types_dashboardexpensesbymonth",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 215,
+      "community_name": "ExpensesByMonthChart.tsx",
       "norm_label": "dashboardexpensesbymonth"
     },
     {
@@ -6632,8 +6632,8 @@
       "source_location": "L47",
       "_origin": "ast",
       "id": "src_features_dashboard_types_vehicledashboard",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 223,
+      "community_name": "useVehicleDashboard.ts",
       "norm_label": "vehicledashboard"
     },
     {
@@ -6643,8 +6643,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_dashboard_usevehicledashboard",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 223,
+      "community_name": "useVehicleDashboard.ts",
       "norm_label": "usevehicledashboard.ts"
     },
     {
@@ -6654,8 +6654,8 @@
       "source_location": "L5",
       "_origin": "ast",
       "id": "src_features_dashboard_usevehicledashboard_fetchvehicledashboard",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 223,
+      "community_name": "useVehicleDashboard.ts",
       "norm_label": "fetchvehicledashboard()"
     },
     {
@@ -6665,8 +6665,8 @@
       "source_location": "L14",
       "_origin": "ast",
       "id": "src_features_dashboard_usevehicledashboard_usevehicledashboard",
-      "community": 100,
-      "community_name": "types.ts",
+      "community": 223,
+      "community_name": "useVehicleDashboard.ts",
       "norm_label": "usevehicledashboard()"
     },
     {
@@ -7737,7 +7737,7 @@
       "norm_label": "filekindlabel()"
     },
     {
-      "label": "focus.ts",
+      "label": "document/focus.ts",
       "file_type": "code",
       "source_file": "src/features/document/focus.ts",
       "source_location": "L1",
@@ -7745,7 +7745,7 @@
       "id": "src_features_document_focus",
       "community": 23,
       "community_name": "ObligationsTab.tsx",
-      "norm_label": "focus.ts"
+      "norm_label": "document/focus.ts"
     },
     {
       "label": "restoreFocus()",
@@ -11208,8 +11208,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_notification_inviteresponse",
-      "community": 125,
-      "community_name": "InviteResponse.tsx",
+      "community": 31,
+      "community_name": "useNotifications.ts",
       "norm_label": "inviteresponse.tsx"
     },
     {
@@ -11219,8 +11219,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_features_notification_inviteresponse_inviteresponseprops",
-      "community": 125,
-      "community_name": "InviteResponse.tsx",
+      "community": 31,
+      "community_name": "useNotifications.ts",
       "norm_label": "inviteresponseprops"
     },
     {
@@ -11230,8 +11230,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_features_notification_inviteresponse_inviteresponse",
-      "community": 125,
-      "community_name": "InviteResponse.tsx",
+      "community": 31,
+      "community_name": "useNotifications.ts",
       "norm_label": "inviteresponse()"
     },
     {
@@ -11241,8 +11241,8 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_notification_myinvitespage",
-      "community": 125,
-      "community_name": "InviteResponse.tsx",
+      "community": 31,
+      "community_name": "useNotifications.ts",
       "norm_label": "myinvitespage.tsx"
     },
     {
@@ -11252,8 +11252,8 @@
       "source_location": "L16",
       "_origin": "ast",
       "id": "src_features_notification_myinvitespage_myinvitespage",
-      "community": 125,
-      "community_name": "InviteResponse.tsx",
+      "community": 31,
+      "community_name": "useNotifications.ts",
       "norm_label": "myinvitespage()"
     },
     {
@@ -11411,37 +11411,70 @@
       "norm_label": "usenotificationsrealtime()"
     },
     {
-      "label": "PhotoCard.tsx",
+      "label": "DeletePhotoDialog.tsx",
       "file_type": "code",
-      "source_file": "src/features/photo/PhotoCard.tsx",
+      "source_file": "src/features/photo/DeletePhotoDialog.tsx",
       "source_location": "L1",
       "_origin": "ast",
-      "id": "src_features_photo_photocard",
+      "id": "src_features_photo_deletephotodialog",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
-      "norm_label": "photocard.tsx"
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "deletephotodialog.tsx"
     },
     {
-      "label": "PhotoCardProps",
+      "label": "DeletePhotoDialogProps",
       "file_type": "code",
-      "source_file": "src/features/photo/PhotoCard.tsx",
-      "source_location": "L24",
+      "source_file": "src/features/photo/DeletePhotoDialog.tsx",
+      "source_location": "L22",
       "_origin": "ast",
-      "id": "src_features_photo_photocard_photocardprops",
+      "id": "src_features_photo_deletephotodialog_deletephotodialogprops",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
-      "norm_label": "photocardprops"
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "deletephotodialogprops"
     },
     {
-      "label": "PhotoCard()",
+      "label": "DeletePhotoDialog()",
       "file_type": "code",
-      "source_file": "src/features/photo/PhotoCard.tsx",
-      "source_location": "L30",
+      "source_file": "src/features/photo/DeletePhotoDialog.tsx",
+      "source_location": "L43",
       "_origin": "ast",
-      "id": "src_features_photo_photocard_photocard",
+      "id": "src_features_photo_deletephotodialog_deletephotodialog",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
-      "norm_label": "photocard()"
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "deletephotodialog()"
+    },
+    {
+      "label": "PhotoActionsMenu.tsx",
+      "file_type": "code",
+      "source_file": "src/features/photo/PhotoActionsMenu.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_features_photo_photoactionsmenu",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "photoactionsmenu.tsx"
+    },
+    {
+      "label": "PhotoActionsMenuProps",
+      "file_type": "code",
+      "source_file": "src/features/photo/PhotoActionsMenu.tsx",
+      "source_location": "L8",
+      "_origin": "ast",
+      "id": "src_features_photo_photoactionsmenu_photoactionsmenuprops",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "photoactionsmenuprops"
+    },
+    {
+      "label": "PhotoActionsMenu()",
+      "file_type": "code",
+      "source_file": "src/features/photo/PhotoActionsMenu.tsx",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "src_features_photo_photoactionsmenu_photoactionsmenu",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "photoactionsmenu()"
     },
     {
       "label": "PhotoGallery.tsx",
@@ -11451,41 +11484,85 @@
       "_origin": "ast",
       "id": "src_features_photo_photogallery",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "photogallery.tsx"
-    },
-    {
-      "label": "PhotoGalleryProps",
-      "file_type": "code",
-      "source_file": "src/features/photo/PhotoGallery.tsx",
-      "source_location": "L10",
-      "_origin": "ast",
-      "id": "src_features_photo_photogallery_photogalleryprops",
-      "community": 11,
-      "community_name": "PhotoGallery.tsx",
-      "norm_label": "photogalleryprops"
     },
     {
       "label": "CategoryFilter",
       "file_type": "code",
       "source_file": "src/features/photo/PhotoGallery.tsx",
-      "source_location": "L17",
+      "source_location": "L23",
       "_origin": "ast",
       "id": "src_features_photo_photogallery_categoryfilter",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "categoryfilter"
+    },
+    {
+      "label": "PhotoGalleryProps",
+      "file_type": "code",
+      "source_file": "src/features/photo/PhotoGallery.tsx",
+      "source_location": "L33",
+      "_origin": "ast",
+      "id": "src_features_photo_photogallery_photogalleryprops",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "photogalleryprops"
     },
     {
       "label": "PhotoGallery()",
       "file_type": "code",
       "source_file": "src/features/photo/PhotoGallery.tsx",
-      "source_location": "L19",
+      "source_location": "L58",
       "_origin": "ast",
       "id": "src_features_photo_photogallery_photogallery",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "photogallery()"
+    },
+    {
+      "label": "PhotoTile.tsx",
+      "file_type": "code",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_features_photo_phototile",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "phototile.tsx"
+    },
+    {
+      "label": "PhotoTileProps",
+      "file_type": "code",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "src_features_photo_phototile_phototileprops",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "phototileprops"
+    },
+    {
+      "label": "PhotoTile()",
+      "file_type": "code",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "src_features_photo_phototile_phototile",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "phototile()"
+    },
+    {
+      "label": "ADR-0081",
+      "file_type": "concept",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L10",
+      "_origin": "ast",
+      "id": "src_features_photo_phototile_tsx_docref_adr_0081",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "adr-0081"
     },
     {
       "label": "PhotosPage.tsx",
@@ -11495,19 +11572,41 @@
       "_origin": "ast",
       "id": "src_features_photo_photospage",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "photospage.tsx"
     },
     {
       "label": "PhotosPage()",
       "file_type": "code",
       "source_file": "src/features/photo/PhotosPage.tsx",
-      "source_location": "L14",
+      "source_location": "L31",
       "_origin": "ast",
       "id": "src_features_photo_photospage_photospage",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "photospage()"
+    },
+    {
+      "label": "DeleteTarget",
+      "file_type": "code",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L37",
+      "_origin": "ast",
+      "id": "src_features_photo_photospage_deletetarget",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "deletetarget"
+    },
+    {
+      "label": "PhotosWorkspace()",
+      "file_type": "code",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "src_features_photo_photospage_photosworkspace",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "photosworkspace()"
     },
     {
       "label": "UploadPhotoDialog.tsx",
@@ -11517,30 +11616,173 @@
       "_origin": "ast",
       "id": "src_features_photo_uploadphotodialog",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "uploadphotodialog.tsx"
+    },
+    {
+      "label": "UPLOAD_DIALOG_CLASSNAME",
+      "file_type": "code",
+      "source_file": "src/features/photo/UploadPhotoDialog.tsx",
+      "source_location": "L31",
+      "_origin": "ast",
+      "id": "src_features_photo_uploadphotodialog_upload_dialog_classname",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "upload_dialog_classname"
     },
     {
       "label": "UploadPhotoDialogProps",
       "file_type": "code",
       "source_file": "src/features/photo/UploadPhotoDialog.tsx",
-      "source_location": "L21",
+      "source_location": "L42",
       "_origin": "ast",
       "id": "src_features_photo_uploadphotodialog_uploadphotodialogprops",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "uploadphotodialogprops"
     },
     {
       "label": "UploadPhotoDialog()",
       "file_type": "code",
       "source_file": "src/features/photo/UploadPhotoDialog.tsx",
-      "source_location": "L31",
+      "source_location": "L62",
       "_origin": "ast",
       "id": "src_features_photo_uploadphotodialog_uploadphotodialog",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "uploadphotodialog()"
+    },
+    {
+      "label": "photo/focus.ts",
+      "file_type": "code",
+      "source_file": "src/features/photo/focus.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_features_photo_focus",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "photo/focus.ts"
+    },
+    {
+      "label": "refocusAfterRetry()",
+      "file_type": "code",
+      "source_file": "src/features/photo/focus.ts",
+      "source_location": "L6",
+      "_origin": "ast",
+      "id": "src_features_photo_focus_refocusafterretry",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "refocusafterretry()"
+    },
+    {
+      "label": "focusAfterDialog()",
+      "file_type": "code",
+      "source_file": "src/features/photo/focus.ts",
+      "source_location": "L23",
+      "_origin": "ast",
+      "id": "src_features_photo_focus_focusafterdialog",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "focusafterdialog()"
+    },
+    {
+      "label": "photoPresentation.ts",
+      "file_type": "code",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L1",
+      "_origin": "ast",
+      "id": "src_features_photo_photopresentation",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "photopresentation.ts"
+    },
+    {
+      "label": "photoActionsId()",
+      "file_type": "code",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L13",
+      "_origin": "ast",
+      "id": "src_features_photo_photopresentation_photoactionsid",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "photoactionsid()"
+    },
+    {
+      "label": "photoLabelId()",
+      "file_type": "code",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L14",
+      "_origin": "ast",
+      "id": "src_features_photo_photopresentation_photolabelid",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "photolabelid()"
+    },
+    {
+      "label": "photoPosition()",
+      "file_type": "code",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L22",
+      "_origin": "ast",
+      "id": "src_features_photo_photopresentation_photoposition",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "photoposition()"
+    },
+    {
+      "label": "photoCaption()",
+      "file_type": "code",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L27",
+      "_origin": "ast",
+      "id": "src_features_photo_photopresentation_photocaption",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "photocaption()"
+    },
+    {
+      "label": "photoAlt()",
+      "file_type": "code",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L37",
+      "_origin": "ast",
+      "id": "src_features_photo_photopresentation_photoalt",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "photoalt()"
+    },
+    {
+      "label": "photoIdentification()",
+      "file_type": "code",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L42",
+      "_origin": "ast",
+      "id": "src_features_photo_photopresentation_photoidentification",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "photoidentification()"
+    },
+    {
+      "label": "photoMeta()",
+      "file_type": "code",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L48",
+      "_origin": "ast",
+      "id": "src_features_photo_photopresentation_photometa",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "photometa()"
+    },
+    {
+      "label": "photoCountLabel()",
+      "file_type": "code",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L54",
+      "_origin": "ast",
+      "id": "src_features_photo_photopresentation_photocountlabel",
+      "community": 11,
+      "community_name": "PhotosPage.tsx",
+      "norm_label": "photocountlabel()"
     },
     {
       "label": "photo/schemas.ts",
@@ -11550,7 +11792,7 @@
       "_origin": "ast",
       "id": "src_features_photo_schemas",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "photo/schemas.ts"
     },
     {
@@ -11561,7 +11803,7 @@
       "_origin": "ast",
       "id": "src_features_photo_schemas_vehicle_photo_categories",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "vehicle_photo_categories"
     },
     {
@@ -11572,7 +11814,7 @@
       "_origin": "ast",
       "id": "src_features_photo_schemas_vehicle_photo_category_labels",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "vehicle_photo_category_labels"
     },
     {
@@ -11583,7 +11825,7 @@
       "_origin": "ast",
       "id": "src_features_photo_schemas_photouploadschema",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "photouploadschema"
     },
     {
@@ -11594,7 +11836,7 @@
       "_origin": "ast",
       "id": "src_features_photo_schemas_photouploadforminput",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "photouploadforminput"
     },
     {
@@ -11605,7 +11847,7 @@
       "_origin": "ast",
       "id": "src_features_photo_schemas_photouploadformoutput",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "photouploadformoutput"
     },
     {
@@ -11616,7 +11858,7 @@
       "_origin": "ast",
       "id": "src_features_photo_usevehiclegallery",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "usevehiclegallery.ts"
     },
     {
@@ -11627,7 +11869,7 @@
       "_origin": "ast",
       "id": "src_features_photo_usevehiclegallery_vehiclephotorow",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "vehiclephotorow"
     },
     {
@@ -11638,7 +11880,7 @@
       "_origin": "ast",
       "id": "src_features_photo_usevehiclegallery_galleryphoto",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "galleryphoto"
     },
     {
@@ -11649,7 +11891,7 @@
       "_origin": "ast",
       "id": "src_features_photo_usevehiclegallery_fetchgalleryphotos",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "fetchgalleryphotos()"
     },
     {
@@ -11660,7 +11902,7 @@
       "_origin": "ast",
       "id": "src_features_photo_usevehiclegallery_usevehiclegallery",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "usevehiclegallery()"
     },
     {
@@ -11671,7 +11913,7 @@
       "_origin": "ast",
       "id": "src_features_photo_usevehiclegallery_useinvalidatevehicles",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "useinvalidatevehicles()"
     },
     {
@@ -11682,7 +11924,7 @@
       "_origin": "ast",
       "id": "src_features_photo_usevehiclegallery_uploadgalleryphotoinput",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "uploadgalleryphotoinput"
     },
     {
@@ -11693,7 +11935,7 @@
       "_origin": "ast",
       "id": "src_features_photo_usevehiclegallery_useuploadgalleryphoto",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "useuploadgalleryphoto()"
     },
     {
@@ -11704,7 +11946,7 @@
       "_origin": "ast",
       "id": "src_features_photo_usevehiclegallery_usesetprimaryphoto",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "usesetprimaryphoto()"
     },
     {
@@ -11715,7 +11957,7 @@
       "_origin": "ast",
       "id": "src_features_photo_usevehiclegallery_usedeletegalleryphoto",
       "community": 11,
-      "community_name": "PhotoGallery.tsx",
+      "community_name": "PhotosPage.tsx",
       "norm_label": "usedeletegalleryphoto()"
     },
     {
@@ -13771,7 +14013,7 @@
       "source_location": "L1",
       "_origin": "ast",
       "id": "src_features_vehicle_editvehicledialog",
-      "community": 38,
+      "community": 113,
       "community_name": "EditVehicleDialog.tsx",
       "norm_label": "editvehicledialog.tsx"
     },
@@ -13782,7 +14024,7 @@
       "source_location": "L20",
       "_origin": "ast",
       "id": "src_features_vehicle_editvehicledialog_editvehicledialogprops",
-      "community": 38,
+      "community": 113,
       "community_name": "EditVehicleDialog.tsx",
       "norm_label": "editvehicledialogprops"
     },
@@ -13793,7 +14035,7 @@
       "source_location": "L26",
       "_origin": "ast",
       "id": "src_features_vehicle_editvehicledialog_toformdefaults",
-      "community": 38,
+      "community": 113,
       "community_name": "EditVehicleDialog.tsx",
       "norm_label": "toformdefaults()"
     },
@@ -13804,7 +14046,7 @@
       "source_location": "L69",
       "_origin": "ast",
       "id": "src_features_vehicle_editvehicledialog_editvehicledialog",
-      "community": 38,
+      "community": 113,
       "community_name": "EditVehicleDialog.tsx",
       "norm_label": "editvehicledialog()"
     },
@@ -13815,7 +14057,7 @@
       "source_location": "L106",
       "_origin": "ast",
       "id": "src_features_vehicle_editvehicledialog_tsx_docref_adr_0075",
-      "community": 38,
+      "community": 113,
       "community_name": "EditVehicleDialog.tsx",
       "norm_label": "adr-0075"
     },
@@ -13827,7 +14069,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_fipevaluelookup",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "fipevaluelookup.tsx"
     },
     {
@@ -13838,7 +14080,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_fipevaluelookup_fipevaluelookupprops",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "fipevaluelookupprops"
     },
     {
@@ -13849,7 +14091,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_fipevaluelookup_errorline",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "errorline()"
     },
     {
@@ -13860,7 +14102,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_fipevaluelookup_fipevaluelookup",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "fipevaluelookup()"
     },
     {
@@ -14464,8 +14706,8 @@
       "source_location": "L30",
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclecardmenu_vehiclecardmenu",
-      "community": 29,
-      "community_name": "VehicleCard.tsx",
+      "community": 25,
+      "community_name": "useVehicles.ts",
       "norm_label": "vehiclecardmenu()"
     },
     {
@@ -14531,7 +14773,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclefipecard",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "vehiclefipecard.tsx"
     },
     {
@@ -14542,7 +14784,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclefipecard_vehiclefipecardprops",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "vehiclefipecardprops"
     },
     {
@@ -14553,7 +14795,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclefipecard_fuel_hints",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "fuel_hints"
     },
     {
@@ -14564,7 +14806,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclefipecard_pickyear",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "pickyear()"
     },
     {
@@ -14575,7 +14817,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclefipecard_card",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "card()"
     },
     {
@@ -14586,7 +14828,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclefipecard_vehiclefipecard",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "vehiclefipecard()"
     },
     {
@@ -14828,7 +15070,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclephotoupload",
       "community": 113,
-      "community_name": "VehiclePhotoUpload.tsx",
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "vehiclephotoupload.tsx"
     },
     {
@@ -14839,7 +15081,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclephotoupload_vehiclephotouploadprops",
       "community": 113,
-      "community_name": "VehiclePhotoUpload.tsx",
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "vehiclephotouploadprops"
     },
     {
@@ -14850,7 +15092,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_vehiclephotoupload_vehiclephotoupload",
       "community": 113,
-      "community_name": "VehiclePhotoUpload.tsx",
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "vehiclephotoupload()"
     },
     {
@@ -15124,8 +15366,8 @@
       "source_location": "L19",
       "_origin": "ast",
       "id": "src_features_vehicle_schemas_fuel_type_labels",
-      "community": 182,
-      "community_name": "VehicleForm.tsx",
+      "community": 29,
+      "community_name": "VehicleCard.tsx",
       "norm_label": "fuel_type_labels"
     },
     {
@@ -15168,8 +15410,8 @@
       "source_location": "L48",
       "_origin": "ast",
       "id": "src_features_vehicle_schemas_vehicle_status_labels",
-      "community": 29,
-      "community_name": "VehicleCard.tsx",
+      "community": 182,
+      "community_name": "VehicleForm.tsx",
       "norm_label": "vehicle_status_labels"
     },
     {
@@ -15190,8 +15432,8 @@
       "source_location": "L107",
       "_origin": "ast",
       "id": "src_features_vehicle_schemas_vehicleforminput",
-      "community": 182,
-      "community_name": "VehicleForm.tsx",
+      "community": 113,
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "vehicleforminput"
     },
     {
@@ -15224,7 +15466,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_schemas_vehiclephotoschema",
       "community": 113,
-      "community_name": "VehiclePhotoUpload.tsx",
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "vehiclephotoschema"
     },
     {
@@ -15235,7 +15477,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_usefipe",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "usefipe.ts"
     },
     {
@@ -15246,7 +15488,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_usefipe_catalog_options",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "catalog_options"
     },
     {
@@ -15257,7 +15499,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_usefipe_usefipebrands",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "usefipebrands()"
     },
     {
@@ -15268,7 +15510,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_usefipe_usefipemodels",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "usefipemodels()"
     },
     {
@@ -15279,7 +15521,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_usefipe_usefipemodel",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "usefipemodel()"
     },
     {
@@ -15290,7 +15532,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_usefipe_usefipeyears",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "usefipeyears()"
     },
     {
@@ -15301,7 +15543,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_usefipe_usefipeestimatedvalue",
       "community": 38,
-      "community_name": "EditVehicleDialog.tsx",
+      "community_name": "VehicleFipeCard.tsx",
       "norm_label": "usefipeestimatedvalue()"
     },
     {
@@ -15554,7 +15796,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_usevehiclephoto",
       "community": 113,
-      "community_name": "VehiclePhotoUpload.tsx",
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "usevehiclephoto.ts"
     },
     {
@@ -15565,7 +15807,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_usevehiclephoto_extension_by_mime_type",
       "community": 113,
-      "community_name": "VehiclePhotoUpload.tsx",
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "extension_by_mime_type"
     },
     {
@@ -15576,7 +15818,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_usevehiclephoto_fileextension",
       "community": 113,
-      "community_name": "VehiclePhotoUpload.tsx",
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "fileextension()"
     },
     {
@@ -15587,7 +15829,7 @@
       "_origin": "ast",
       "id": "src_features_vehicle_usevehiclephoto_useuploadvehiclephoto",
       "community": 113,
-      "community_name": "VehiclePhotoUpload.tsx",
+      "community_name": "EditVehicleDialog.tsx",
       "norm_label": "useuploadvehiclephoto()"
     },
     {
@@ -15707,7 +15949,7 @@
       "source_location": "L123",
       "_origin": "ast",
       "id": "src_features_vehicle_usevehicles_useupdatevehicle",
-      "community": 38,
+      "community": 113,
       "community_name": "EditVehicleDialog.tsx",
       "norm_label": "useupdatevehicle()"
     },
@@ -20847,6 +21089,17 @@
       "community": 0,
       "community_name": "DECISIONS.md \u2014 ADRs curtos",
       "norm_label": "adr-100 \u2014 redesign etapa 11: documentos, obrigacoes e financiamento"
+    },
+    {
+      "label": "ADR-101 \u2014 Redesign etapa 12: Fotos",
+      "file_type": "document",
+      "source_file": "docs/DECISIONS.md",
+      "source_location": "L3798",
+      "_origin": "ast",
+      "id": "docs_decisions_adr_101_redesign_etapa_12_fotos",
+      "community": 0,
+      "community_name": "DECISIONS.md \u2014 ADRs curtos",
+      "norm_label": "adr-101 \u2014 redesign etapa 12: fotos"
     },
     {
       "label": "DESIGN.md",
@@ -50015,58 +50268,82 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/features/photo/PhotoCard.tsx",
-      "source_location": "L30",
+      "source_file": "src/features/photo/DeletePhotoDialog.tsx",
+      "source_location": "L43",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "src_features_photo_photocard",
-      "target": "src_features_photo_photocard_photocard",
+      "source": "src_features_photo_deletephotodialog",
+      "target": "src_features_photo_deletephotodialog_deletephotodialog",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
-      "source_file": "src/features/photo/PhotoCard.tsx",
-      "source_location": "L24",
+      "source_file": "src/features/photo/DeletePhotoDialog.tsx",
+      "source_location": "L22",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "src_features_photo_photocard",
-      "target": "src_features_photo_photocard_photocardprops",
+      "source": "src_features_photo_deletephotodialog",
+      "target": "src_features_photo_deletephotodialog_deletephotodialogprops",
       "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/features/photo/PhotoCard.tsx",
-      "source_location": "L17",
+      "source_file": "src/features/photo/DeletePhotoDialog.tsx",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "src_features_photo_photocard",
-      "target": "src_features_photo_schemas",
+      "source": "src_features_photo_deletephotodialog",
+      "target": "src_features_photo_photopresentation",
       "confidence_score": 1.0
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/features/photo/PhotoCard.tsx",
-      "source_location": "L17",
+      "source_file": "src/features/photo/DeletePhotoDialog.tsx",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "src_features_photo_photocard",
-      "target": "src_features_photo_schemas_vehicle_photo_category_labels",
+      "source": "src_features_photo_deletephotodialog",
+      "target": "src_features_photo_photopresentation_photocaption",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/DeletePhotoDialog.tsx",
+      "source_location": "L18",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_deletephotodialog",
+      "target": "src_features_photo_photopresentation_photometa",
       "confidence_score": 1.0
     },
     {
       "relation": "imports_from",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/features/photo/PhotoCard.tsx",
-      "source_location": "L18",
+      "source_file": "src/features/photo/DeletePhotoDialog.tsx",
+      "source_location": "L19",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "src_features_photo_photocard",
+      "source": "src_features_photo_deletephotodialog",
+      "target": "src_features_photo_phototile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/DeletePhotoDialog.tsx",
+      "source_location": "L20",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_deletephotodialog",
       "target": "src_features_photo_usevehiclegallery",
       "confidence_score": 1.0
     },
@@ -50074,11 +50351,11 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/features/photo/PhotoCard.tsx",
-      "source_location": "L18",
+      "source_file": "src/features/photo/DeletePhotoDialog.tsx",
+      "source_location": "L20",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "src_features_photo_photocard",
+      "source": "src_features_photo_deletephotodialog",
       "target": "src_features_photo_usevehiclegallery_galleryphoto",
       "confidence_score": 1.0
     },
@@ -50086,24 +50363,178 @@
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/features/photo/PhotoCard.tsx",
-      "source_location": "L18",
+      "source_file": "src/features/photo/DeletePhotoDialog.tsx",
+      "source_location": "L20",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "src_features_photo_photocard",
+      "source": "src_features_photo_deletephotodialog",
       "target": "src_features_photo_usevehiclegallery_usedeletegalleryphoto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_deletephotodialog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/features/photo/DeletePhotoDialog.tsx",
+      "source_location": "L72",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_deletephotodialog_deletephotodialog",
+      "target": "src_features_photo_photopresentation_photocaption"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/features/photo/DeletePhotoDialog.tsx",
+      "source_location": "L100",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_deletephotodialog_deletephotodialog",
+      "target": "src_features_photo_photopresentation_photometa"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/features/photo/DeletePhotoDialog.tsx",
+      "source_location": "L44",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_deletephotodialog_deletephotodialog",
+      "target": "src_features_photo_usevehiclegallery_usedeletegalleryphoto"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_deletephotodialog_deletephotodialog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoActionsMenu.tsx",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photoactionsmenu",
+      "target": "src_features_photo_photoactionsmenu_photoactionsmenu",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoActionsMenu.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photoactionsmenu",
+      "target": "src_features_photo_photoactionsmenu_photoactionsmenuprops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoActionsMenu.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photoactionsmenu",
+      "target": "src_features_photo_photopresentation",
       "confidence_score": 1.0
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/features/photo/PhotoCard.tsx",
-      "source_location": "L18",
+      "source_file": "src/features/photo/PhotoActionsMenu.tsx",
+      "source_location": "L6",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "src_features_photo_photocard",
-      "target": "src_features_photo_usevehiclegallery_usesetprimaryphoto",
+      "source": "src_features_photo_photoactionsmenu",
+      "target": "src_features_photo_photopresentation_photoactionsid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoActionsMenu.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photoactionsmenu",
+      "target": "src_features_photo_photopresentation_photolabelid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile",
+      "target": "src_features_photo_photoactionsmenu",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/features/photo/PhotoActionsMenu.tsx",
+      "source_location": "L31",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photoactionsmenu_photoactionsmenu",
+      "target": "src_features_photo_photopresentation_photoactionsid"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/features/photo/PhotoActionsMenu.tsx",
+      "source_location": "L35",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photoactionsmenu_photoactionsmenu",
+      "target": "src_features_photo_photopresentation_photolabelid"
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile",
+      "target": "src_features_photo_photoactionsmenu_photoactionsmenu",
       "confidence_score": 1.0
     },
     {
@@ -50111,54 +50542,30 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/PhotoGallery.tsx",
-      "source_location": "L7",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_photogallery",
-      "target": "src_features_photo_photocard",
+      "target": "src_features_photo_focus",
       "confidence_score": 1.0
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/features/photo/PhotoCard.tsx",
-      "source_location": "L34",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_features_photo_photocard_photocard",
-      "target": "src_features_photo_usevehiclegallery_usedeletegalleryphoto"
-    },
-    {
-      "relation": "calls",
-      "context": "call",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "src/features/photo/PhotoCard.tsx",
-      "source_location": "L33",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_features_photo_photocard_photocard",
-      "target": "src_features_photo_usevehiclegallery_usesetprimaryphoto"
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/PhotoGallery.tsx",
-      "source_location": "L7",
+      "source_location": "L18",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_photogallery",
-      "target": "src_features_photo_photocard_photocard",
+      "target": "src_features_photo_focus_refocusafterretry",
       "confidence_score": 1.0
     },
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/PhotoGallery.tsx",
-      "source_location": "L17",
+      "source_location": "L23",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_photogallery",
@@ -50169,7 +50576,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/PhotoGallery.tsx",
-      "source_location": "L19",
+      "source_location": "L58",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_photogallery",
@@ -50180,7 +50587,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/PhotoGallery.tsx",
-      "source_location": "L10",
+      "source_location": "L33",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_photogallery",
@@ -50192,7 +50599,79 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/PhotoGallery.tsx",
-      "source_location": "L5",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photogallery",
+      "target": "src_features_photo_photopresentation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoGallery.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photogallery",
+      "target": "src_features_photo_photopresentation_photoactionsid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoGallery.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photogallery",
+      "target": "src_features_photo_photopresentation_photocountlabel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoGallery.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photogallery",
+      "target": "src_features_photo_photopresentation_photoposition",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoGallery.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photogallery",
+      "target": "src_features_photo_phototile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoGallery.tsx",
+      "source_location": "L17",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photogallery",
+      "target": "src_features_photo_phototile_phototile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoGallery.tsx",
+      "source_location": "L9",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_photogallery",
@@ -50204,7 +50683,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/PhotoGallery.tsx",
-      "source_location": "L5",
+      "source_location": "L9",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_photogallery",
@@ -50216,7 +50695,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/PhotoGallery.tsx",
-      "source_location": "L5",
+      "source_location": "L9",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_photogallery",
@@ -50228,31 +50707,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/PhotoGallery.tsx",
-      "source_location": "L8",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_features_photo_photogallery",
-      "target": "src_features_photo_uploadphotodialog",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/features/photo/PhotoGallery.tsx",
-      "source_location": "L8",
-      "weight": 1.0,
-      "_origin": "ast",
-      "source": "src_features_photo_photogallery",
-      "target": "src_features_photo_uploadphotodialog_uploadphotodialog",
-      "confidence_score": 1.0
-    },
-    {
-      "relation": "imports_from",
-      "context": "import",
-      "confidence": "EXTRACTED",
-      "source_file": "src/features/photo/PhotoGallery.tsx",
-      "source_location": "L6",
+      "source_location": "L21",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_photogallery",
@@ -50264,11 +50719,23 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/PhotoGallery.tsx",
-      "source_location": "L6",
+      "source_location": "L21",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_photogallery",
-      "target": "src_features_photo_usevehiclegallery_usevehiclegallery",
+      "target": "src_features_photo_usevehiclegallery_galleryphoto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoGallery.tsx",
+      "source_location": "L21",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photogallery",
+      "target": "src_features_photo_usevehiclegallery_vehiclephotorow",
       "confidence_score": 1.0
     },
     {
@@ -50276,11 +50743,23 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/PhotosPage.tsx",
-      "source_location": "L7",
+      "source_location": "L15",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_photospage",
       "target": "src_features_photo_photogallery",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L15",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_photogallery_categoryfilter",
       "confidence_score": 1.0
     },
     {
@@ -50289,18 +50768,54 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/features/photo/PhotoGallery.tsx",
-      "source_location": "L26",
+      "source_location": "L88",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_photogallery_photogallery",
-      "target": "src_features_photo_usevehiclegallery_usevehiclegallery"
+      "target": "src_features_photo_focus_refocusafterretry"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/features/photo/PhotoGallery.tsx",
+      "source_location": "L178",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photogallery_photogallery",
+      "target": "src_features_photo_photopresentation_photoactionsid"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/features/photo/PhotoGallery.tsx",
+      "source_location": "L147",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photogallery_photogallery",
+      "target": "src_features_photo_photopresentation_photocountlabel"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/features/photo/PhotoGallery.tsx",
+      "source_location": "L119",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photogallery_photogallery",
+      "target": "src_features_photo_photopresentation_photoposition"
     },
     {
       "relation": "imports",
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/PhotosPage.tsx",
-      "source_location": "L7",
+      "source_location": "L15",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_photospage",
@@ -50308,14 +50823,132 @@
       "confidence_score": 1.0
     },
     {
-      "relation": "contains",
+      "relation": "imports_from",
+      "context": "import",
       "confidence": "EXTRACTED",
-      "source_file": "src/features/photo/PhotosPage.tsx",
-      "source_location": "L14",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L7",
       "weight": 1.0,
       "_origin": "ast",
-      "source": "src_features_photo_photospage",
-      "target": "src_features_photo_photospage_photospage",
+      "source": "src_features_photo_phototile",
+      "target": "src_features_photo_photopresentation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile",
+      "target": "src_features_photo_photopresentation_photoalt",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile",
+      "target": "src_features_photo_photopresentation_photocaption",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile",
+      "target": "src_features_photo_photopresentation_photoidentification",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile",
+      "target": "src_features_photo_photopresentation_photolabelid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L7",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile",
+      "target": "src_features_photo_photopresentation_photometa",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L42",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile",
+      "target": "src_features_photo_phototile_phototile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile",
+      "target": "src_features_photo_phototile_phototileprops",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "cites",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L10",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile",
+      "target": "src_features_photo_phototile_tsx_docref_adr_0081",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile",
+      "target": "src_features_photo_usevehiclegallery",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L8",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile",
+      "target": "src_features_photo_usevehiclegallery_galleryphoto",
       "confidence_score": 1.0
     },
     {
@@ -50323,7 +50956,328 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/UploadPhotoDialog.tsx",
-      "source_location": "L17",
+      "source_location": "L26",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_uploadphotodialog",
+      "target": "src_features_photo_phototile",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L74",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile_phototile",
+      "target": "src_features_photo_photopresentation_photoalt"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L55",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile_phototile",
+      "target": "src_features_photo_photopresentation_photocaption"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L56",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile_phototile",
+      "target": "src_features_photo_photopresentation_photoidentification"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L67",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile_phototile",
+      "target": "src_features_photo_photopresentation_photolabelid"
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "src/features/photo/PhotoTile.tsx",
+      "source_location": "L93",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_phototile_phototile",
+      "target": "src_features_photo_photopresentation_photometa"
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_focus",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_focus_focusafterdialog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_photopresentation",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_photopresentation_photoactionsid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_photopresentation_photocountlabel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L16",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_photopresentation_photoidentification",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L37",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_photospage_deletetarget",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L31",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_photospage_photospage",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L54",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_photospage_photosworkspace",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_uploadphotodialog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_uploadphotodialog_uploadphotodialog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_usevehiclegallery",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_usevehiclegallery_galleryphoto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_usevehiclegallery_usesetprimaryphoto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L24",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage",
+      "target": "src_features_photo_usevehiclegallery_usevehiclegallery",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L109",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage_photosworkspace",
+      "target": "src_features_photo_focus_focusafterdialog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L129",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage_photosworkspace",
+      "target": "src_features_photo_photopresentation_photoactionsid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L157",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage_photosworkspace",
+      "target": "src_features_photo_photopresentation_photocountlabel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L117",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage_photosworkspace",
+      "target": "src_features_photo_photopresentation_photoidentification",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L68",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage_photosworkspace",
+      "target": "src_features_photo_usevehiclegallery_usesetprimaryphoto",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/PhotosPage.tsx",
+      "source_location": "L67",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photospage_photosworkspace",
+      "target": "src_features_photo_usevehiclegallery_usevehiclegallery",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/UploadPhotoDialog.tsx",
+      "source_location": "L25",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_uploadphotodialog",
@@ -50335,7 +51289,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/UploadPhotoDialog.tsx",
-      "source_location": "L17",
+      "source_location": "L25",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_uploadphotodialog",
@@ -50347,7 +51301,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/UploadPhotoDialog.tsx",
-      "source_location": "L17",
+      "source_location": "L25",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_uploadphotodialog",
@@ -50362,6 +51316,17 @@
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_uploadphotodialog",
+      "target": "src_features_photo_uploadphotodialog_upload_dialog_classname",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/UploadPhotoDialog.tsx",
+      "source_location": "L62",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_uploadphotodialog",
       "target": "src_features_photo_uploadphotodialog_uploadphotodialog",
       "confidence_score": 1.0
     },
@@ -50369,7 +51334,7 @@
       "relation": "contains",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/UploadPhotoDialog.tsx",
-      "source_location": "L21",
+      "source_location": "L42",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_uploadphotodialog",
@@ -50381,7 +51346,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/UploadPhotoDialog.tsx",
-      "source_location": "L19",
+      "source_location": "L28",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_uploadphotodialog",
@@ -50393,7 +51358,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/UploadPhotoDialog.tsx",
-      "source_location": "L18",
+      "source_location": "L27",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_uploadphotodialog",
@@ -50405,7 +51370,7 @@
       "context": "import",
       "confidence": "EXTRACTED",
       "source_file": "src/features/photo/UploadPhotoDialog.tsx",
-      "source_location": "L19",
+      "source_location": "L28",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_uploadphotodialog",
@@ -50418,11 +51383,193 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "src/features/photo/UploadPhotoDialog.tsx",
-      "source_location": "L49",
+      "source_location": "L83",
       "weight": 1.0,
       "_origin": "ast",
       "source": "src_features_photo_uploadphotodialog_uploadphotodialog",
       "target": "src_features_photo_usevehiclegallery_useuploadgalleryphoto"
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/focus.ts",
+      "source_location": "L23",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_focus",
+      "target": "src_features_photo_focus_focusafterdialog",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/focus.ts",
+      "source_location": "L6",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_focus",
+      "target": "src_features_photo_focus_refocusafterretry",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L13",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photopresentation",
+      "target": "src_features_photo_photopresentation_photoactionsid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L37",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photopresentation",
+      "target": "src_features_photo_photopresentation_photoalt",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L27",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photopresentation",
+      "target": "src_features_photo_photopresentation_photocaption",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L54",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photopresentation",
+      "target": "src_features_photo_photopresentation_photocountlabel",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L42",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photopresentation",
+      "target": "src_features_photo_photopresentation_photoidentification",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L14",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photopresentation",
+      "target": "src_features_photo_photopresentation_photolabelid",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L48",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photopresentation",
+      "target": "src_features_photo_photopresentation_photometa",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L22",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photopresentation",
+      "target": "src_features_photo_photopresentation_photoposition",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photopresentation",
+      "target": "src_features_photo_schemas",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L2",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photopresentation",
+      "target": "src_features_photo_schemas_vehicle_photo_category_labels",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports_from",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photopresentation",
+      "target": "src_features_photo_usevehiclegallery",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "imports",
+      "context": "import",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L3",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photopresentation",
+      "target": "src_features_photo_usevehiclegallery_vehiclephotorow",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L38",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photopresentation_photoalt",
+      "target": "src_features_photo_photopresentation_photocaption",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "calls",
+      "context": "call",
+      "confidence": "EXTRACTED",
+      "source_file": "src/features/photo/photoPresentation.ts",
+      "source_location": "L43",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "src_features_photo_photopresentation_photoidentification",
+      "target": "src_features_photo_photopresentation_photocaption",
+      "confidence_score": 1.0
     },
     {
       "relation": "contains",
@@ -64228,6 +65375,17 @@
     {
       "relation": "contains",
       "confidence": "EXTRACTED",
+      "source_file": "docs/DECISIONS.md",
+      "source_location": "L3798",
+      "weight": 1.0,
+      "_origin": "ast",
+      "source": "docs_decisions_decisions_md_adrs_curtos",
+      "target": "docs_decisions_adr_101_redesign_etapa_12_fotos",
+      "confidence_score": 1.0
+    },
+    {
+      "relation": "contains",
+      "confidence": "EXTRACTED",
       "source_file": "docs/DESIGN.md",
       "source_location": "L1",
       "weight": 1.0,
@@ -71850,5 +73008,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "56ff845a5c32e6c28aad34d49bb81794ca8a7a62"
+  "built_at_commit": "b4562af4988a1625702bf2f61c49e8593dd14e3c"
 }

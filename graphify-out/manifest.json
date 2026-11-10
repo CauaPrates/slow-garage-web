@@ -869,24 +869,19 @@
     "ast_hash": "2d2c090cac3bdfca78155df67f85c397",
     "semantic_hash": ""
   },
-  "src/features/photo/PhotoCard.tsx": {
-    "mtime": 1789095348.5354517,
-    "ast_hash": "df69df9841be74506c114c728cb2460b",
-    "semantic_hash": ""
-  },
   "src/features/photo/PhotoGallery.tsx": {
-    "mtime": 1789095348.5354517,
-    "ast_hash": "f31f516ae6ccae84969a35664041c148",
+    "mtime": 1794277996.3689103,
+    "ast_hash": "3f6be367fc0877b11cfc937a2cfee315",
     "semantic_hash": ""
   },
   "src/features/photo/PhotosPage.tsx": {
-    "mtime": 1789095348.5354517,
-    "ast_hash": "178f08488375d7244878910b269d2bcf",
+    "mtime": 1794278312.3458397,
+    "ast_hash": "a3b35c9abfbd7954f1561a8e13ee42b6",
     "semantic_hash": ""
   },
   "src/features/photo/UploadPhotoDialog.tsx": {
-    "mtime": 1789096981.9039357,
-    "ast_hash": "882f5e28c6ed4a4a420cddaadb1d932b",
+    "mtime": 1794278022.4338205,
+    "ast_hash": "8c2f55a9d108a4bd5adac8a4c0563768",
     "semantic_hash": ""
   },
   "src/features/photo/schemas.ts": {
@@ -1415,8 +1410,8 @@
     "semantic_hash": ""
   },
   "docs/DECISIONS.md": {
-    "mtime": 1794158840.4646513,
-    "ast_hash": "516abe541466e8a011587beaac3ce557",
+    "mtime": 1794278778.6743958,
+    "ast_hash": "ea6eac2c1c4015391ed1167dd3e1a1aa",
     "semantic_hash": ""
   },
   "docs/DESIGN.md": {
@@ -2002,6 +1997,31 @@
   "src/features/document/PendingSummary.tsx": {
     "mtime": 1794159056.3474855,
     "ast_hash": "812d0928d817db8bdef56a15d14aa059",
+    "semantic_hash": ""
+  },
+  "src/features/photo/DeletePhotoDialog.tsx": {
+    "mtime": 1794278017.6589372,
+    "ast_hash": "acb4bb5d1eef722c7880b5199782e255",
+    "semantic_hash": ""
+  },
+  "src/features/photo/PhotoActionsMenu.tsx": {
+    "mtime": 1794277093.308931,
+    "ast_hash": "a1973af70a3df8359a28fc213c497537",
+    "semantic_hash": ""
+  },
+  "src/features/photo/PhotoTile.tsx": {
+    "mtime": 1794277112.4340653,
+    "ast_hash": "b6207a2da89865dfd74e45740acdaa0e",
+    "semantic_hash": ""
+  },
+  "src/features/photo/focus.ts": {
+    "mtime": 1794277988.1628332,
+    "ast_hash": "06a949a9bb49a9d04a794e8ef0a97635",
+    "semantic_hash": ""
+  },
+  "src/features/photo/photoPresentation.ts": {
+    "mtime": 1794277081.631568,
+    "ast_hash": "38d7903a907aca9b6cd70281407911f1",
     "semantic_hash": ""
   }
 }
