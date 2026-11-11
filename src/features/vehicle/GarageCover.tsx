@@ -1,22 +1,5 @@
-import coverImage from "@/assets/garage/cover.webp";
+import { CoverImage } from "@/components/shared/CoverImage";
 import { CreateVehicleDialog } from "./CreateVehicleDialog";
-
-/** GIF transparente de 1px: o que o `<img>` carrega quando a capa não aparece (abaixo de `lg`). */
-const BLANK_PIXEL = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
-
-/**
- * Imagem da capa só a partir de `lg` (64rem, o mesmo corte do CSS): fora
- * disso o navegador escolhe o pixel vazio e não baixa nada. `loading="lazy"`
- * dentro de bloco oculto não bastava — o Chrome baixava a imagem no celular.
- */
-function CoverImage({ src }: { src: string }) {
-  return (
-    <picture>
-      <source media="(min-width: 64rem)" srcSet={src} />
-      <img src={BLANK_PIXEL} alt="" decoding="async" />
-    </picture>
-  );
-}
 
 type GarageCoverProps = {
   /** Sem veículo, a chamada de cadastro fica só no painel do estado vazio — uma por contexto. */
@@ -49,7 +32,7 @@ export function GarageCover({ showCreate }: GarageCoverProps) {
     <div className="garage-cover">
       <div className="garage-cover__art" aria-hidden="true">
         <div className="garage-cover__photo">
-          <CoverImage src={coverImage} />
+          <CoverImage />
         </div>
       </div>
 

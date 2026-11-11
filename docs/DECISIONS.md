@@ -4212,3 +4212,268 @@ físico nem leitor de tela real.
   item de projeto → lista de Projetos. Todos com o nome começando por "Ver" e
   44×44; os 18 nomes da lista do Civic diferentes entre si; axe sem
   violações em 320.
+
+## ADR-103 — Redesign etapa 14: Login, cadastro e Configurações
+
+**Status.** Implementada. **Revisão visual pendente** — não aprovada. Branch
+`feature/047-redesign-etapa-14`, a partir da `feature/046-redesign-etapa-13`
+(árvore limpa na partida, nada pendente a preservar). Sem commit, push nem
+merge. Convites e notificações ficam para a etapa 15.
+
+**Contexto.** As telas de entrada eram um card centralizado com a marca v1
+(a única tela que ainda usava a v1), título `text-lg`, links de 142×20 e
+74×18, erro de envio que levava o foco ao `<body>` e nenhum requisito de
+senha à vista. Configurações: "Voltar" de **62×20px** (pendência da
+ADR-099), coluna única em caixa só, tema num `<select>` sem retorno da
+gravação. Banco, rotas, parâmetros, regras de autenticação, validação e
+persistência não mudaram (exceto os dois defeitos em "Correções").
+
+**Fluxos confirmados no código (inventário).**
+
+| Rota | Guarda | Regra |
+|---|---|---|
+| `/entrar` | `GuestRoute` | `signInWithPassword`. Sucesso → `?redirect=` validado por `safeRedirectTarget` (só caminho interno; externo vira `/`). Erros por código: credencial inválida (sem dizer qual), e-mail não confirmado, limite, rede. Sessão ativa → vai direto ao `redirect` (ou `/`). |
+| `/cadastro` | `GuestRoute` | `signUp` com `emailRedirectTo = /entrar`. Aberto a qualquer e-mail — **não existe cadastro por convite** (os "convites" do app são para virar Administrador Gearhead). Senha ≥ 6. Sucesso → `/confirme-seu-email`, também com e-mail já cadastrado (RN-6, anti-enumeração). |
+| `/confirme-seu-email` | nenhuma | Texto fixo + "ir para Entrar". **Não existe reenvio.** O link do e-mail traz a sessão no hash (fluxo implícito) e cai em `/entrar`, que leva à garagem (conferido no mock). |
+| `/recuperar-senha` | `GuestRoute` | `resetPasswordForEmail` com `redirectTo = /redefinir-senha`. Mesma frase exista ou não a conta (RN-4). |
+| `/redefinir-senha` | nenhuma | Formulário só com o evento `PASSWORD_RECOVERY`; sem ele (vencido, usado, sem link): "Este link expirou ou já foi usado." + "Pedir um novo link". Sucesso → `/`. |
+| Rota protegida sem sessão | `ProtectedRoute` | → `/entrar?redirect=<rota+busca>`. |
+| `/configuracoes` | `ProtectedRoute` | Pelo menu do perfil ("Configurações"), pela lateral (rodapé) e, no celular, pela barra inferior ("Ajustes"). Mantém o veículo lembrado na lateral (Fase 14o). |
+
+**Configurações — o que é local, o que é persistido e quando vale.**
+
+| Opção | Onde fica | Quando vale |
+|---|---|---|
+| E-mail | sessão (só leitura) | — |
+| Nome de exibição | `profiles.display_name` | Ao "Salvar nome" |
+| Tema | `localStorage` + `profiles.theme` | Na hora, neste aparelho; gravado na conta em seguida |
+| Senha nova | Supabase Auth (`updateUser`) | Ao "Salvar nova senha"; a sessão atual continua |
+| Convites / Painel admin | links | — |
+| Sair | `signOut()` — escopo `global` | Depois da confirmação |
+
+**Decisão — entrada.**
+
+- `AuthLayout` refeito em página dupla no idioma da Minha garagem
+  (ADR-094): no desktop (`lg`+) a coluna editorial com a **marca v2**, a
+  chamada da Garagem ("Seus carros. Suas histórias.", Archivo 800
+  caixa-alta, `--auth-slogan-size`) e a **capa A3.1** (`cover.webp`, uso
+  documentado na ADR-094) enquadrada como foto 3:1 com filete — nunca atrás
+  de texto, legível nos dois temas — e a linha de apoio da capa; à direita o
+  formulário sobre `surface`, separado por fio. No celular: marca pequena,
+  título e formulário de cima pra baixo, sem foto (o `<picture>` não baixa a
+  imagem abaixo de `lg`); primeiro campo a 190–213px do topo de 320 a 390.
+  A imagem saiu de `GarageCover` para `components/shared/CoverImage` (agora
+  com dois usos; a capa da Garagem mediu igual).
+- Título de tela (`type-page-title`) é o `h1` ("ENTRAR", "CRIAR CONTA"…);
+  antes o `h1` era a marca.
+- Campos pelo `FormField` comum (rótulo persistente, ajuda e erro ligados por
+  `aria-describedby`, `aria-invalid`, foco no primeiro inválido). E-mail com
+  `type=email`, `inputmode=email`, sem maiúscula nem corretor;
+  `autocomplete` `username` no login, `email` no cadastro e na recuperação,
+  `current-password`/`new-password` nas senhas. Formulários de senha nova
+  (redefinir e Configurações) levam o e-mail num campo `username` oculto para
+  o gerenciador de senhas.
+- Requisito da senha nova à vista ("Pelo menos 6 caracteres", ícone e
+  "(atendido)" para leitor de tela), com o número do schema
+  (`PASSWORD_MIN_LENGTH`).
+- Falha de envio num `Alert` de erro logo acima da ação, com o que foi
+  digitado preservado. Envio: `useGuardedSubmit` (trava por `ref`) e botão
+  `aria-disabled` com "Entrando…" — o botão continua focado, então o erro não
+  manda o foco pro `<body>` (antes mandava).
+- Caminhos: "Esqueci minha senha" sob a ação; "Ainda não tem conta? / Criar
+  conta" e "Já tem conta? / Entrar" em contorno, separados por fio;
+  recuperação e link vencido ganharam "Voltar para Entrar".
+- Estados que não são formulário num painel próprio (`AuthStatusPanel`, fio
+  na cor do papel): "Falta confirmar o e-mail" (pedido feito; diz que o link
+  abre a garagem já com a sessão), "Pedido enviado" (mesma frase
+  anti-enumeração, com o e-mail digitado; o foco vai ao título), "Este link
+  expirou ou já foi usado" (`alert`, com "Pedir um novo link") e "Verificando
+  o link…".
+- Revelar senha: nome "Mostrar senha"/"Ocultar senha" como único sinal de
+  estado (saiu o `aria-pressed`, que fazia ler "Ocultar senha,
+  pressionado"). Continua fora do Tab (decisão da Fase 17, mantida).
+
+**Decisão — Configurações.**
+
+- `Page` + `PageHeader` + `Panel` comuns. Painéis: Perfil, Aparência,
+  Segurança, Convites (ou Administração, para admin) e Sessão. Cada cabeçalho
+  diz se vale na hora ou depende de salvar.
+- **"Voltar"**: botão de 44px de altura e ≥ 44 de largura (78×44), foco
+  visível pelo contorno global, a seta alinhada ao título. Destino o de
+  antes — a tela anterior (`navigate(-1)`) —; aberta direto (sem tela
+  anterior no app), vai para a Minha garagem em vez de sair do app.
+- Tema em rádios nativos (setas trocam, Tab entra e sai) com a escolha à
+  vista, alvo de 56px por opção e "Agora: claro/escuro" em "Seguir o
+  sistema". Retorno da gravação junto do grupo: "Salvando na sua conta…",
+  "Salvo na sua conta." ou o aviso "Aplicado neste aparelho, mas não foi
+  salvo na sua conta…" com "Tentar de novo".
+- Nome: esqueleto enquanto o perfil carrega e `InlineError` com nova
+  tentativa se não carregar (ver Correções); "Alteração não salva." / "Nome
+  salvo." junto de "Salvar nome"; falha com o texto preservado.
+- "Sair" num painel próprio, em contorno carmim ("Sair da conta"), longe dos
+  controles de edição; confirmação no `AlertDialog` comum com o efeito real
+  (abaixo) e o foco de volta ao botão ao cancelar (`useReturnFocus`; antes
+  caía no `<body>`).
+- **Layout (ajuste na revisão com o usuário, 11/11/2026).** A primeira versão
+  era uma coluna de 48rem: deixava ~900px vazios em 1920 e rolava em
+  1440×900. Agora uma coluna até 1280 e duas a partir de `xl` (Perfil e
+  Aparência | Segurança, Convites e Sessão), largura toda como as outras
+  páginas; os controles internos se ajustam pela largura do painel
+  (container query). Medido: não rola em 1440×900 nem 1920×1080; 28px em
+  1280×800.
+
+**Correções (pequenas, verificadas no mock).**
+
+1. **Tema voltava ao anterior.** `ThemeProfileSync` puxava `profiles.theme`
+   também quando a escolha **local** mudava: escolher "Claro" fazia claro →
+   escuro → claro durante a gravação (medido) e, se a gravação falhava, a
+   escolha era desfeita em silêncio. Agora puxa só quando o valor do perfil
+   chega ou muda — o que a ADR-069 descreve. Push, pull entre aparelhos e
+   `localStorage` iguais.
+2. **Nome apagado com o perfil carregando ou em falha.** O campo nascia vazio
+   com "Salvar" ativo; salvar gravava `null`. Agora o campo só existe com o
+   perfil carregado; recarga do perfil não apaga o que está sendo digitado.
+3. **Texto de "Sair".** Configurações dizia "Sair da conta neste
+   dispositivo", mas `signOut()` usa o escopo padrão `global`
+   (`POST /logout?scope=global`, conferido): encerra também as outras
+   sessões da conta. O texto do painel e o da confirmação (compartilhada com
+   o menu do perfil) dizem isso. Comportamento não mudou.
+
+**Componentes compartilhados usados.** `Page`, `PageHeader`, `Panel`,
+`FormField`, `Input`, `PasswordInput`, `Button`, `Alert`, `InlineError`,
+`Skeleton`, `AlertDialog`, `useReturnFocus`, `textLinkClassName`,
+`BrandLogo`. Novos e locais da área: `AuthAlternate` (em `AuthLayout`),
+`AuthFormParts` (`EMAIL_FIELD_PROPS`, `useGuardedSubmit`, `SubmitButton`,
+`SubmitError`, `PasswordRule`), `AuthStatusPanel`,
+`ThemePreferenceOptions` (era `ThemePreferenceSelect`). Tokens aditivos
+`--auth-gutter` e `--auth-slogan-size`.
+
+**Alternativas descartadas.** Foto de fundo com o formulário por cima (a
+capa é escura nos dois temas; texto e campos sobre ela pediriam cor fixa
+fora dos tokens no claro). Foto no celular (o primeiro campo desceria; a
+imagem só é servida a partir de `lg`). Manter a v1 no login (seria a única
+tela com outra marca). "Sair" no cabeçalho da página (ficaria colado ao
+título, acima dos controles de edição). Tornar o olho focável (muda a ordem
+de Tab dos três formulários; fica registrado). Reenvio de confirmação e
+"usar outro e-mail" (o produto não tem — não inventado).
+
+**Pendências registradas (anteriores, não alteradas).**
+
+- **Corrida no link de recuperação.** O evento `PASSWORD_RECOVERY` é
+  emitido pelo cliente do Supabase num `setTimeout` depois de validar o
+  link; se a resposta de `/auth/v1/user` chega antes de o `AuthProvider`
+  assinar `onAuthStateChange`, o evento se perde e um link **válido**
+  aparece como "expirou" (reproduzido com resposta instantânea; com 300ms de
+  rede funciona). Regra de autenticação — não alterada; o mock usa 300ms.
+- **Link de confirmação vencido** (`#error_code=otp_expired` em `/entrar`)
+  mostra o login sem aviso nenhum. Tratamento atual preservado.
+- **Sair com a rede fora**: `signOut()` devolve erro sem limpar a sessão; o
+  app navega para `/entrar` e o `GuestRoute` devolve à garagem, sem aviso.
+- `signOut()` encerra **todas** as sessões da conta (escopo `global`); se a
+  intenção do produto for "só neste aparelho", é `scope: 'local'` — decisão
+  de produto.
+- Olho de revelar senha fora do Tab (sem acesso por teclado).
+- Os links do cadastro/login não carregam o `?redirect=` adiante.
+
+**Verificação.** Dados simulados (ferramenta externa
+`redesign-capturas/ferramenta/inspect.mjs`, `authHandler` novo, cenários
+145–150, arquivos 247–252, `etapa-14/relatorio.txt`; antes em
+`relatorio-antes.txt`, a mesma sonda no código da etapa 13). GoTrue simulado
+por código de erro (credencial, e-mail não confirmado, limite, rede, mesma
+senha), cadastro com confirmação, recuperação, link de recuperação e de
+confirmação no hash (válido e vencido), logout; perfil com estado e falha
+por cenário; rede trancada, nenhuma chamada ao Supabase real, senha nunca no
+relatório. Conferido: login válido e inválido, e-mail pendente, rede fora,
+limite, dois Enter → um POST (login, cadastro, recuperação, redefinição),
+retorno pelo `?redirect=` (e externo recusado), sessão ativa em `/entrar`,
+`/cadastro` e `/recuperar-senha`, rota protegida sem sessão; cadastro com
+erros, requisito, limite e rede fora com dados preservados, sucesso →
+confirmação; recuperação enviada (foco no aviso), rede fora; redefinição
+com divergência, mesma senha, sucesso → `/`, link vencido e ausente;
+Configurações: "Voltar" por clique, toque (centro e canto), Enter e aberta
+direto; nome (carregando, salvando, salvo, falha preservada, 61
+caracteres, perfil que não carrega), tema (na hora, gravado, recarga,
+falha + "Tentar de novo", setas), senha (inválida, recusada, salva), sair
+(texto, Escape devolve o foco, confirmação → `/entrar`), e-mail e nome
+longos em 320, teclado virtual 390×380 e rolagem real até "Sair da conta".
+Seis rotas em 320, 360, 390, 768, 1024, 1280, 1440, 1920 e 2560, claro e
+escuro alternados: sem rolagem lateral, nenhum alvo menor que 44px (os
+rádios de 16px estão dentro de rótulos de 56px, que são o alvo), axe sem
+violações. Regressão: menu do perfil ("Sair", foco de volta ao avatar) e
+capa da Garagem (`a3c`/`a3d`: mesmas medidas da ADR-094, imagem só a partir
+de `lg`). `npm run lint`, `npx tsc -b` e `npm run build` limpos. Nenhum
+aparelho físico nem leitor de tela real.
+
+## ADR-104 — Login desktop: revista Slow Garage, Edição 01
+
+**Status.** Implementada sobre a etapa 14 (ADR-103), na mesma branch
+`feature/047-redesign-etapa-14`. **Revisão visual pendente.** Escopo: só o
+painel esquerdo do `/entrar` no desktop. Formulário, fluxos de autenticação,
+login no celular, cadastro, recuperação e Configurações não mudaram — as
+outras telas de entrada continuam com a chamada e a capa A3.1 da ADR-103.
+
+**Decisão.**
+
+- A coluna editorial do `/entrar` (a partir de `lg`, o mesmo corte em que ela
+  já aparecia) troca a chamada e a capa A3.1 por uma **revista folheável**
+  (`LoginMagazine`): uma página 3:4 por vez, sempre na mesma moldura, com as
+  cinco artes finais fornecidas pelo usuário, nesta ordem — capa, Encontro
+  noturno (abertura e detalhes), Um dia na oficina (abertura e detalhes). A
+  capa já traz a marca e a chamada; fora da arte só fica a marca v2 do topo
+  da coluna. `AuthLayout` ganhou `editorial` (opcional): com ele a coluna
+  tem a altura da janela e fica parada (`sticky`), e a revista se dimensiona
+  pelo espaço que sobra — sem ele, o layout da ADR-103.
+- **Tamanho**: a maior moldura 3:4 que cabe na largura da coluna e na altura
+  que sobra depois dos controles (container query de tamanho em
+  `magazine.css`). Medido: 435×580 em 1024×768 e 1366×768, 399×532 em
+  1280×720, 534×712 em 1440×900, 669×892 em 1920×1080, 939×1252 em
+  2560×1440 — página e controles inteiros na janela, centrada na coluna, sem
+  rolagem; o formulário não se mexe durante a virada nem entre larguras.
+- **Virada** em React + CSS 3D (`magazine.css`): avançar gira a página atual
+  pela borda esquerda (`rotateY` 0 → −90°, perspectiva de 4200px) e revela a
+  seguinte por baixo; voltar traz a anterior de volta (−90° → 0). A moldura
+  recorta só na horizontal — a folha some na lombada e não sai pela lateral.
+  Sombra discreta na folha e na página de baixo; verso da folha em papel liso
+  (`--magazine-paper`, nunca uma página espelhada). Ao fim de cada virada
+  sobra uma imagem só na moldura. 450ms (`--magazine-turn-duration`) — acima
+  dos 200ms de transição de interface de propósito: abaixo de ~400ms a folha
+  não é percebida virando.
+- **Controles**: "Página anterior" e "Próxima página" (44×44, contorno, foco
+  pelo contorno global) e "N de 5" entre eles. Nos extremos, `aria-disabled`
+  (não `disabled`: o botão focado não perde o foco ao chegar na última
+  página). Clique durante a virada é ignorado — cinco cliques seguidos
+  viram uma página só. Leitor de tela: a região "Revista Slow Garage,
+  Edição 01", o `alt` da página ativa (o que a arte mostra; o japonês faz
+  parte da arte) e "Página 3 de 5, Encontro noturno — detalhes" numa região
+  `polite`; a folha que vira é `aria-hidden`.
+- **Movimento reduzido**: troca imediata, sem folha (o componente nem monta;
+  `magazine.css` esconde a folha como segunda trava).
+- **Imagens**: as cinco artes em `src/assets/magazine/`, WebP na resolução
+  original (1086×1448 a capa, 768×1024 as internas), qualidade 90 — de 8,7 MB
+  em PNG para 795 KB; legendas e números de página conferidos 2× contra o
+  PNG, sem diferença visível. A capa carrega primeiro (`fetchpriority=high`);
+  a página vizinha é baixada e decodificada depois, e a virada espera a
+  página estar decodificada (nunca revela página em branco). Abaixo de `lg`
+  o `SignInPage` nem monta a revista (`useMediaQuery`, lido no primeiro
+  render): nenhuma imagem dela é pedida. Fora do precache do PWA (Workbox só
+  pega js, css, html e woff2).
+
+**Alternativas descartadas.** Duas páginas lado a lado (o pedido é uma por
+vez; as artes são páginas completas). Biblioteca de flipbook (dependência
+nova para cinco imagens; a virada cabe em CSS). Virada completa até −180°
+mostrando o verso fora da moldura (a folha passaria por cima da margem e da
+marca). Avanço automático (o pedido é manual). Setas do teclado na página
+(conflitariam com os campos; os botões já respondem a Enter e Espaço).
+
+**Verificação.** Cenário 151 de `inspect.mjs` (`etapa-14/revista/`): 1024,
+1280, 1366, 1440, 1536, 1920 e 2560 claro e escuro; ordem das cinco páginas
+com a folha e a página de baixo certas a cada virada (avanço e retorno);
+Enter e Espaço nos botões, foco que fica no botão, extremos sem efeito;
+cinco cliques rápidos → uma folha, uma página; anterior/próxima/anterior em
+sequência; movimento reduzido (troca em < 30ms, sem folha); redimensionar
+1920 → 1280×720 → 1024×640 → 900 (desmonta) → 1440 sem perder a página;
+axe sem violações na capa (escuro) e na página 3 (claro). Produção (`vite
+preview`): 390, 768 e 1023 não pedem nenhuma imagem da revista; 1024 e 1440
+pedem a capa, depois a página 2, e a 3 só depois de avançar. Regressão do
+login (146–148 e 150) sem diferença. `npm run lint`, `npx tsc -b` e `npm run
+build` limpos. Nenhum aparelho físico nem leitor de tela real.

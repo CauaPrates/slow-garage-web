@@ -6,8 +6,9 @@ type BrandLogoProps = {
   variant?: "full" | "symbol";
   /**
    * `2` é a marca da recalibração visual 01 (lettering encorpado e inclinado,
-   * ✕ quadriculado laranja). Por enquanto só o shell autenticado usa a v2; a
-   * tela de login segue na v1 até a direção nova ser aprovada.
+   * ✕ quadriculado laranja), usada pelo shell autenticado e, desde a etapa
+   * 14, pelas telas de entrada (`AuthLayout`) — a mesma marca antes e depois
+   * do login. A v1 continua no repositório (padrão do componente).
    */
   version?: 1 | 2;
   /** Vazio por padrão: quase sempre a marca está dentro de um link que já tem nome acessível próprio. */

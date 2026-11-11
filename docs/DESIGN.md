@@ -301,7 +301,9 @@ card), vale esta seção.
   bitmap, sem marca de terceiro; katakana fora nesta rodada. Laranja
   `#EF792D` no escuro, `#D9661C` no claro (decorativo, não texto). Usada pelo
   shell autenticado (`BrandLogo version={2}`: sidebar `h-12`, cabeçalho do
-  celular `h-8` ≈ 81px). Login (`AuthLayout`) segue na v1. v1, símbolo,
+  celular `h-8` ≈ 81px). Desde a etapa 14 (ADR-103) também nas telas de
+  entrada (`AuthLayout`: `h-12` na coluna editorial do desktop, `h-9`/`h-10`
+  no celular) — antes elas seguiam na v1. v1, símbolo,
   favicon, manifest e ícones PWA não mudaram.
 - **Fonte display**: Archivo (variável, eixo de peso; OFL;
   `@fontsource-variable/archivo`, local, ~35 KB no subset latin), token
@@ -1035,8 +1037,12 @@ portanto já é CSS variable):
 - Formulário (Fase 1 em diante): campos empilhados com `gap-4`, label e
   campo com `gap-1.5`, mensagem de erro logo abaixo do campo que ela
   descreve — nunca um bloco de erro genérico separado do campo
-- Card de formulário de auth (`AuthLayout`): `max-w-sm`, `p-6`, `rounded-lg`,
-  centralizado vertical e horizontalmente
+- Telas de entrada (`AuthLayout`, etapa 14 / ADR-103 — substitui o card
+  centralizado de antes): formulário em coluna de `max-w-sm` sem card; no
+  desktop (`lg`+) página dupla — coluna editorial (marca v2, chamada da
+  Garagem, capa A3.1 como foto enquadrada) à esquerda e o formulário sobre
+  `surface` à direita; no celular marca, título e formulário de cima pra
+  baixo, sem foto
 - Card de item de lista (Fase 2 em diante): foto/placeholder `h-40`,
   corpo `p-4`, grid de dados `gap-2`, ações (editar/excluir) alinhadas à
   direita no rodapé do card

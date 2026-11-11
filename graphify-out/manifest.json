@@ -50,8 +50,8 @@
     "semantic_hash": ""
   },
   "src/components/layout/AuthLayout.tsx": {
-    "mtime": 1793376064.1968827,
-    "ast_hash": "cf5febf8eb4af858cec13bb5eb18a3a8",
+    "mtime": 1794436922.1316118,
+    "ast_hash": "b6fb16c5a95a9e41b11d406a9e8de546",
     "semantic_hash": ""
   },
   "src/components/layout/BottomNav.tsx": {
@@ -60,8 +60,8 @@
     "semantic_hash": ""
   },
   "src/components/layout/BrandLogo.tsx": {
-    "mtime": 1793810476.3484707,
-    "ast_hash": "33e92b7f10dfc42cff2cc58690d71bde",
+    "mtime": 1794433348.5873086,
+    "ast_hash": "1becf8ca73759c19a6195a2e06edb5f1",
     "semantic_hash": ""
   },
   "src/components/layout/Breadcrumb.tsx": {
@@ -159,11 +159,6 @@
     "ast_hash": "e14b9c5a2d86c7fbd17ef7b44575f67a",
     "semantic_hash": ""
   },
-  "src/components/shared/ThemePreferenceSelect.tsx": {
-    "mtime": 1788633091.4983213,
-    "ast_hash": "85116683fe550a988396cad5a6ef277a",
-    "semantic_hash": ""
-  },
   "src/components/shared/UserAvatar.tsx": {
     "mtime": 1793375367.4470103,
     "ast_hash": "f17267b19a8a91c892eed126d0417de1",
@@ -210,8 +205,8 @@
     "semantic_hash": ""
   },
   "src/components/ui/password-input.tsx": {
-    "mtime": 1793996008.06005,
-    "ast_hash": "1cd823503bcab8a2d0f1940c6d40da9f",
+    "mtime": 1794433113.912735,
+    "ast_hash": "62957f16c63a67c91c1fa0725605c821",
     "semantic_hash": ""
   },
   "src/components/ui/popover.tsx": {
@@ -345,78 +340,78 @@
     "semantic_hash": ""
   },
   "src/features/auth/AuthProvider.tsx": {
-    "mtime": 1788300940.1516693,
+    "mtime": 1794432711.6167245,
     "ast_hash": "acd0c18fc6b6f856fb52cbf44a608f96",
     "semantic_hash": ""
   },
   "src/features/auth/ConfirmEmailPendingPage.tsx": {
-    "mtime": 1788300940.1516693,
-    "ast_hash": "2e2ef3fc97bb1cfad99cea27fc267884",
+    "mtime": 1794433093.1873994,
+    "ast_hash": "bd833025db197a72a65f35776690c62e",
     "semantic_hash": ""
   },
   "src/features/auth/RequestPasswordResetPage.tsx": {
-    "mtime": 1788300940.1526692,
-    "ast_hash": "ed84bfb8ce0e9969849b57cafc0fc9e3",
+    "mtime": 1794433093.155959,
+    "ast_hash": "b84028dd6e91749374528d865da3fcd7",
     "semantic_hash": ""
   },
   "src/features/auth/SettingsPage.tsx": {
-    "mtime": 1793375367.462098,
-    "ast_hash": "9eda939217e8a9ee3a14f8e901b9e681",
+    "mtime": 1794434546.3905833,
+    "ast_hash": "e09e61ddbbbc2f1768bd32a6ab74cc9d",
     "semantic_hash": ""
   },
   "src/features/auth/SignInPage.tsx": {
-    "mtime": 1788300940.1536696,
-    "ast_hash": "7e23fbbbcfdeb4dc9e13701e3005f6c4",
+    "mtime": 1794436888.4860022,
+    "ast_hash": "0b54ed3ec439b42dea819fca7af30898",
     "semantic_hash": ""
   },
   "src/features/auth/SignUpPage.tsx": {
-    "mtime": 1788300940.1536696,
-    "ast_hash": "36ebe4593cb59752c4aa0687a2275bcb",
+    "mtime": 1794433093.1357586,
+    "ast_hash": "48cb696c4bcccfb5df9467ff1351775d",
     "semantic_hash": ""
   },
   "src/features/auth/ThemeProfileSync.tsx": {
-    "mtime": 1788633091.4998343,
-    "ast_hash": "89efe8e21c0a70b4f9456669c85add0d",
+    "mtime": 1794433135.323693,
+    "ast_hash": "9992a515f2bc32ccd06bf00f2ecaec74",
     "semantic_hash": ""
   },
   "src/features/auth/UpdatePasswordPage.tsx": {
-    "mtime": 1788300940.1536696,
-    "ast_hash": "77935d56e0b2569d766c8380fb5d3432",
+    "mtime": 1794433080.7500043,
+    "ast_hash": "7ee3f02be417f7fb868e4328a1f0311a",
     "semantic_hash": ""
   },
   "src/features/auth/components/ChangePasswordForm.tsx": {
-    "mtime": 1788650584.7202415,
-    "ast_hash": "c35046cb4ce8860de426652040dbc97e",
+    "mtime": 1794434352.3417692,
+    "ast_hash": "06434525798280b8a658a6aeaf225320",
     "semantic_hash": ""
   },
   "src/features/auth/components/DisplayNameForm.tsx": {
-    "mtime": 1788587789.6625624,
-    "ast_hash": "bbe6fdfb357ff4e3aec334ea944f9892",
+    "mtime": 1794433191.0682604,
+    "ast_hash": "d8d57059404f42e11db9482e288fcfad",
     "semantic_hash": ""
   },
   "src/features/auth/components/RequestPasswordResetForm.tsx": {
-    "mtime": 1788300940.155175,
-    "ast_hash": "d226f81e459e7aac7991c292e6de4e92",
+    "mtime": 1794433029.7070534,
+    "ast_hash": "bf98ad325a20794f75f1317c630f4f2e",
     "semantic_hash": ""
   },
   "src/features/auth/components/SignInForm.tsx": {
-    "mtime": 1788650584.7202415,
-    "ast_hash": "17c4564d71b0ce57cdaa974f3c5bef46",
+    "mtime": 1794433005.7067802,
+    "ast_hash": "df4c0eb94faa440e9938231dcbe05142",
     "semantic_hash": ""
   },
   "src/features/auth/components/SignOutDialog.tsx": {
-    "mtime": 1788587789.6635623,
-    "ast_hash": "8f15781e02ba41911abef531f1319b04",
+    "mtime": 1794433162.5248046,
+    "ast_hash": "aa696ee7e9794c5e28077b97d2d9a750",
     "semantic_hash": ""
   },
   "src/features/auth/components/SignUpForm.tsx": {
-    "mtime": 1788650584.722757,
-    "ast_hash": "a5e343d6270ee99eb9965cde6e5ca270",
+    "mtime": 1794433321.2019062,
+    "ast_hash": "d1848fc18808c79bfb112ad165a49179",
     "semantic_hash": ""
   },
   "src/features/auth/components/UpdatePasswordForm.tsx": {
-    "mtime": 1788650584.722757,
-    "ast_hash": "4ec66bc37cdd5821bd6033740330ef58",
+    "mtime": 1794433321.2019062,
+    "ast_hash": "1137b61fba1ac120ff5a800dd208fff7",
     "semantic_hash": ""
   },
   "src/features/auth/errors.ts": {
@@ -425,8 +420,8 @@
     "semantic_hash": ""
   },
   "src/features/auth/schemas.ts": {
-    "mtime": 1788300940.1564012,
-    "ast_hash": "9f9b2d0724c28fd53fc8404cf7bd3b6d",
+    "mtime": 1794432993.4254005,
+    "ast_hash": "5fac05370bc0f15d31f782fb75060e21",
     "semantic_hash": ""
   },
   "src/features/auth/useProfile.ts": {
@@ -1400,13 +1395,13 @@
     "semantic_hash": ""
   },
   "docs/DECISIONS.md": {
-    "mtime": 1794283049.3058963,
-    "ast_hash": "b836942daab9e1d15e93c75ca329612e",
+    "mtime": 1794437668.9568715,
+    "ast_hash": "8a09e9ad4ddafe06a9d6ca0f0f22c1cf",
     "semantic_hash": ""
   },
   "docs/DESIGN.md": {
-    "mtime": 1794156308.4928403,
-    "ast_hash": "e7e2bfb55d647bee73601111237dc037",
+    "mtime": 1794434589.20011,
+    "ast_hash": "a2a7a91922177df533707c6e2f5b5814",
     "semantic_hash": ""
   },
   "index.html": {
@@ -1850,8 +1845,8 @@
     "semantic_hash": ""
   },
   "src/features/vehicle/GarageCover.tsx": {
-    "mtime": 1793823506.2373147,
-    "ast_hash": "99e175088cffa3caafd8aa637b05952b",
+    "mtime": 1794432946.4232433,
+    "ast_hash": "c1503761c557e55ad24476ca2827e276",
     "semantic_hash": ""
   },
   "src/assets/garage/cover.webp": {
@@ -2022,6 +2017,61 @@
   "src/features/timeline/timelinePresentation.ts": {
     "mtime": 1794282880.0237496,
     "ast_hash": "4794e2da50f3976bc977eb341ecbe07a",
+    "semantic_hash": ""
+  },
+  "src/components/shared/CoverImage.tsx": {
+    "mtime": 1794432943.1315553,
+    "ast_hash": "44c6b4ee4f3453aa3d4bb4cf5136265d",
+    "semantic_hash": ""
+  },
+  "src/components/shared/ThemePreferenceOptions.tsx": {
+    "mtime": 1794434352.3407636,
+    "ast_hash": "0a4425c4da90b1af61110c021bf4bc85",
+    "semantic_hash": ""
+  },
+  "src/features/auth/components/AuthFormParts.tsx": {
+    "mtime": 1794432991.7219336,
+    "ast_hash": "13ae21e89adf7418ccedfc3210a3451a",
+    "semantic_hash": ""
+  },
+  "src/features/auth/components/AuthStatusPanel.tsx": {
+    "mtime": 1794433070.9631274,
+    "ast_hash": "eea3cb94e841e5c80c24c6ac437101ac",
+    "semantic_hash": ""
+  },
+  "src/features/auth/components/LoginMagazine.tsx": {
+    "mtime": 1794437135.0990148,
+    "ast_hash": "92d4e613d97e020880f928bce2cfb2c5",
+    "semantic_hash": ""
+  },
+  "src/hooks/useMediaQuery.ts": {
+    "mtime": 1794436833.267271,
+    "ast_hash": "53c32e93ce471e196a16071176a5f3c7",
+    "semantic_hash": ""
+  },
+  "src/assets/magazine/01-capa.webp": {
+    "mtime": 1794436742.952,
+    "ast_hash": "444e902e1592aa9893bc080fccf9aff1",
+    "semantic_hash": ""
+  },
+  "src/assets/magazine/02-encontro-noturno.webp": {
+    "mtime": 1794436743.138,
+    "ast_hash": "e0084f77987958fe33084f657cdf7686",
+    "semantic_hash": ""
+  },
+  "src/assets/magazine/03-encontro-noturno.webp": {
+    "mtime": 1794436743.312,
+    "ast_hash": "c13a37d6f3ecf1943da1b7841cf999e7",
+    "semantic_hash": ""
+  },
+  "src/assets/magazine/04-um-dia-na-oficina.webp": {
+    "mtime": 1794436743.516,
+    "ast_hash": "be0b0dc28e71ea945dca2a65d920e4b9",
+    "semantic_hash": ""
+  },
+  "src/assets/magazine/05-um-dia-na-oficina.webp": {
+    "mtime": 1794436743.721,
+    "ast_hash": "0cac975e9fa8065054c34d3e26847486",
     "semantic_hash": ""
   }
 }

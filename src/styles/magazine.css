@@ -1,0 +1,162 @@
+/*
+ * Revista Slow Garage — Edição 01 (painel editorial do login desktop, ADR-104).
+ *
+ * Fora das utilitárias pelo mesmo motivo do garage.css: o tamanho da página
+ * depende de container query de altura e largura, e a virada é um conjunto de
+ * keyframes 3D. Só tokens, exceto o `black` das sombras (alfa, não cor).
+ *
+ * - `.magazine`: ocupa o espaço livre da coluna (`container-type: size`, então
+ *   o conteúdo nunca empurra a coluna nem o formulário ao lado).
+ * - `.magazine__frame`: a moldura 3:4, a maior que cabe na largura e na altura
+ *   que sobra depois dos controles. Recorta só na horizontal: a folha que vira
+ *   não sai pela lateral (some na lombada, à esquerda), mas pode crescer um
+ *   pouco em cima e embaixo com a perspectiva.
+ * - `.magazine__leaf`: a folha que vira, ancorada na borda esquerda.
+ */
+@layer components {
+  .magazine {
+    container-type: size;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--magazine-controls-gap);
+    min-height: 0;
+    width: 100%;
+  }
+
+  .magazine__frame {
+    position: relative;
+    flex-shrink: 0;
+    width: min(100cqw, calc((100cqh - var(--control-h) - var(--magazine-controls-gap)) * 3 / 4));
+    aspect-ratio: 3 / 4;
+    overflow-x: clip;
+    overflow-y: visible;
+    perspective: var(--magazine-perspective);
+    border-radius: var(--radius-sm);
+    background: var(--magazine-paper);
+    box-shadow: var(--magazine-frame-shadow);
+  }
+
+  .magazine__page {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: var(--radius-sm);
+  }
+
+  /* Sombra que a folha deixa na página de baixo: some ao avançar, aparece ao voltar. */
+  .magazine__underlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    border-radius: var(--radius-sm);
+    background: linear-gradient(to right, rgb(0 0 0 / 0.28), rgb(0 0 0 / 0.08) 40%, transparent 80%);
+    opacity: 0;
+  }
+
+  .magazine__leaf {
+    position: absolute;
+    inset: 0;
+    transform-origin: left center;
+    transform-style: preserve-3d;
+    will-change: transform;
+    pointer-events: none;
+  }
+
+  .magazine__leaf-front,
+  .magazine__leaf-back {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-sm);
+    backface-visibility: hidden;
+  }
+
+  .magazine__leaf-front {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: var(--magazine-paper);
+  }
+
+  /* Verso da folha: papel liso, sem arte (nunca uma página espelhada). */
+  .magazine__leaf-back {
+    transform: rotateY(180deg);
+    background: var(--magazine-paper);
+  }
+
+  /* Sombreado da própria folha: escurece ao se inclinar, discreto. */
+  .magazine__leaf-shade {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-sm);
+    backface-visibility: hidden;
+    background: linear-gradient(to left, rgb(0 0 0 / 0.32), rgb(0 0 0 / 0.06) 60%, transparent);
+    opacity: 0;
+  }
+
+  .magazine__leaf--next {
+    animation: magazine-turn-next var(--magazine-turn-duration) cubic-bezier(0.55, 0.05, 0.7, 0.4) both;
+  }
+  .magazine__leaf--next .magazine__leaf-shade {
+    animation: magazine-shade-in var(--magazine-turn-duration) ease-in both;
+  }
+  .magazine__underlay--next {
+    animation: magazine-shade-out var(--magazine-turn-duration) ease-in both;
+  }
+
+  .magazine__leaf--prev {
+    animation: magazine-turn-prev var(--magazine-turn-duration) cubic-bezier(0.3, 0.6, 0.45, 0.95) both;
+  }
+  .magazine__leaf--prev .magazine__leaf-shade {
+    animation: magazine-shade-out var(--magazine-turn-duration) ease-out both;
+  }
+  .magazine__underlay--prev {
+    animation: magazine-shade-in var(--magazine-turn-duration) ease-out both;
+  }
+
+  @keyframes magazine-turn-next {
+    from {
+      transform: rotateY(0deg);
+    }
+    to {
+      transform: rotateY(-90deg);
+    }
+  }
+  @keyframes magazine-turn-prev {
+    from {
+      transform: rotateY(-90deg);
+    }
+    to {
+      transform: rotateY(0deg);
+    }
+  }
+  @keyframes magazine-shade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes magazine-shade-out {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+
+  /* Movimento reduzido: troca imediata (o componente nem monta a folha; isto é a segunda trava). */
+  @media (prefers-reduced-motion: reduce) {
+    .magazine__leaf,
+    .magazine__leaf-shade,
+    .magazine__underlay {
+      animation: none;
+      display: none;
+    }
+  }
+}

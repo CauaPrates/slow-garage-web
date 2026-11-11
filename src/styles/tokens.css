@@ -118,6 +118,25 @@
   --color-hairline-strong: color-mix(in srgb, var(--color-text-primary) 20%, transparent);
 
   /*
+   * Etapa 14 — telas de entrada (login, cadastro, recuperação), só a partir
+   * de `lg`: margem da coluna editorial e chamada fluidas de 1024 a 2560,
+   * paradas nos extremos.
+   */
+  --auth-gutter: clamp(2.5rem, calc(2.5rem + 24 * (100vw - 1024px) / 1536), 4rem);
+  --auth-slogan-size: clamp(2.5rem, calc(2.5rem + 24 * (100vw - 1024px) / 1536), 4rem);
+  /*
+   * Revista do login desktop (ADR-104, magazine.css). O papel é o das artes
+   * (amostrado nas cinco páginas) e vale nos dois temas — é a cor do impresso,
+   * não da interface. A virada passa dos 200ms de transição de interface de
+   * propósito: abaixo de ~400ms a folha não é percebida virando.
+   */
+  --magazine-paper: #efe5d6;
+  --magazine-frame-shadow: var(--shadow-overlay);
+  --magazine-controls-gap: 1rem;
+  --magazine-perspective: 4200px;
+  --magazine-turn-duration: 450ms;
+
+  /*
    * Escala fluida da Garagem A3, só a partir de `lg`: cada medida vai do valor
    * do notebook (1440) ao do desktop largo (2560) e para nos extremos —
    * nada cresce sem limite com a viewport.

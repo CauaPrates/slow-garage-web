@@ -8,6 +8,10 @@ import { cn } from "@/lib/utils";
  * quem usa não passa `type`. O botão fica dentro do campo, com 44px de alvo
  * de toque como o resto do app, e `tabIndex={-1}` de propósito: no Tab, quem
  * digita a senha vai direto pro próximo campo/botão, não pro olho.
+ *
+ * Etapa 14: o nome diz o que o toque faz agora ("Mostrar senha" / "Ocultar
+ * senha") e é o único sinal de estado — o `aria-pressed` saiu porque, somado
+ * ao nome que já muda, era lido como "Ocultar senha, pressionado".
  */
 export function PasswordInput({
   className,
@@ -27,7 +31,6 @@ export function PasswordInput({
         onClick={() => setVisible((current) => !current)}
         tabIndex={-1}
         aria-label={visible ? "Ocultar senha" : "Mostrar senha"}
-        aria-pressed={visible}
         className="absolute inset-y-0 right-0 flex size-control items-center justify-center rounded-md text-text-secondary transition-colors hover:text-text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
       >
         {visible ? (
