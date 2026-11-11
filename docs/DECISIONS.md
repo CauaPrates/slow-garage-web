@@ -3979,3 +3979,236 @@ barra inferior e alcançável; teclado virtual emulado (390×380) com "Enviar
 foto" à vista. Axe sem violações em 22 estados. `npm run lint`, `npx tsc
 -b` e `npm run build` limpos. Nenhum aparelho físico nem leitor de tela
 real.
+
+## ADR-102 — Redesign etapa 13: Histórico
+
+**Status.** Implementada. **Revisão visual pendente** — não aprovada. Branch
+`feature/046-redesign-etapa-13`, a partir da
+`feature/045-redesign-etapa-12` (árvore limpa na partida, nada pendente a
+preservar). Sem commit, push nem merge.
+
+**Contexto.** O Histórico era a próxima tela do veículo sem redesign: título
+`text-lg`, busca solta com um "×" de 16px, filtros fora de painel, um cartão
+com borda por evento, texto cortado em duas linhas sem caminho de volta e o
+link "Ver" de **35×16px** (pendência da ADR-099) com o nome acessível só
+"Ver" — dezoito iguais na mesma lista. Os diálogos de nota eram os antigos
+(botão no fim do corpo, sem rodapé fixo, sem volta de foco, erro de envio
+solto) e a quilometragem dizia "a quilometragem inválido." (anotado na etapa
+10). Banco, hooks, consultas, chaves, invalidações, rota e regras não mudaram.
+
+**Comportamento conferido no código (inventário).**
+
+| Ponto | Regra |
+|---|---|
+| Rota | `/v/:vehicleId/historico` (lateral e folha Mais: "Histórico"; dashboard: "Ver histórico"). `?novo=1` abre a nota nova e sai da URL — único parâmetro. Atalho: folha "Registrar" → "Nota". |
+| Consulta | `vehicle_timeline` inteira do veículo, `order(occurred_on desc)`, chave `["vehicles", id, "timeline"]`. Sem paginação. A ordem na tela é a que a view devolve; **empate na mesma data não tem chave secundária** (a view não expõe `created_at`). |
+| Eventos (view) | Gasto (`expenses`; título = rótulo da categoria ou "Gasto"; data = `occurred_on`), Abastecimento (`fuel_logs`; título fixo "Abastecimento"), Manutenção (`maintenance_records`; data = `performed_on`), Problema (`issues`; data = `reported_on`), Item de projeto (`project_items` **só com data**), Documento (`documents`; data = emissão ou, sem ela, criação), Nota (`notes`). Obrigações e financiamento não entram. Tipo desconhecido não quebra a tela. |
+| Filtros | Tipo (os sete) e período (Tudo, Este mês, Mês passado, Este ano), no cliente, sobre a lista; evento sem data nunca aparece (não acontece com a view atual). Não ficam na URL. |
+| Busca | RPC `search_vehicle` 300 ms depois de digitar, ordenada por relevância. Cobre gastos (só pela descrição), manutenções, problemas, **projetos**, itens de projeto, documentos e notas — abastecimento não. Devolve título, trecho (200 primeiros caracteres) e data; sem valor, km nem `metadata`. Buscando, tipo e período não se aplicam (somem de vista e voltam como estavam). |
+| Ações por origem | Nota: editar e excluir aqui (`notes`, a única origem que o Histórico edita). As demais: "Ver" leva à tela de origem. Sem destino (nota, tipo desconhecido): nenhum link. |
+| Nota | Tudo opcional: título e corpo podem ser nulos; data em branco grava hoje (`default current_date`) no cadastro e fica como está na edição (o campo não vai no PATCH); km inteiro ≥ 0, vazio e 0 aceitos. Toda escrita invalida `["vehicles"]` (Histórico, atividade recente do dashboard e da lateral). |
+
+**Destino de cada "Ver" (conferido no código e no mock).**
+
+| Origem | Destino |
+|---|---|
+| Gasto | `/gastos` (a lista; um upgrade também aparece em Modificações, mas o link é o de Gastos, como antes) |
+| Abastecimento | `/abastecimentos` |
+| Manutenção | `/manutencao` |
+| Problema | `/problemas` |
+| Item de projeto | `/projetos/:projectId` pelo `metadata.project_id`; sem ele, `/projetos`. Projeto inexistente: a tela de destino mostra "Projeto não encontrado." com "Voltar para projetos" (não acontece pela view: excluir projeto leva os itens) |
+| Documento | `/documentos` (aba Documentos, a padrão) |
+| Projeto (só na busca) | `/projetos/:id` — novo, ver "Correções" |
+| Nota, tipo desconhecido | sem link |
+
+Na busca o item de projeto leva a `/projetos` (a função não devolve o
+projeto). O destino é sempre a lista da tela de origem, nunca o registro —
+limitação anterior, registrada abaixo.
+
+**Decisão.**
+
+- Página no padrão comum (`Page`, `Breadcrumb`, `PageHeader`): "HISTÓRICO",
+  o veículo e a quantidade de registros na linha de contexto, com o "i" do
+  que entra (e de onde se edita cada coisa), e "Nova nota" — a única ação
+  laranja da tela. Abaixo de `sm` a ação desce para baixo do título
+  (`stackActionsOnMobile`): o nome do veículo, que pode ser longo, fica com a
+  largura toda. Com o histórico vazio a ação sai do cabeçalho e fica no
+  estado vazio.
+- **Um painel** "Registros" com a busca, o tipo e o período no topo (abaixo
+  de 400px empilham — medido: opções inteiras em 320, 360 e 390) e a lista.
+  Buscando, o painel vira "Resultados da busca" e diz que a busca é por
+  relevância, no veículo inteiro, sem tipo e período.
+- **Diário**: separadores discretos por mês (sobrelinha + contagem do mês),
+  na ordem que a view devolve — agrupar não reordena nada. Desktop: data
+  (dia e dia da semana) · registro · valor · ação; a data aparece uma vez por
+  dia (as linhas seguintes do mesmo dia deixam a coluna vazia) e continua na
+  linha para o leitor de tela. Celular: "tipo · data" com a ação no canto e,
+  embaixo, título, valor/km e texto na largura toda — sem coluna de ações
+  apertando o texto.
+- Tipo por **ícone + rótulo escrito** (cor nenhuma); quando o título é o
+  próprio tipo ("Abastecimento", "Gasto" sem categoria), o rótulo não se
+  repete. Valores em display tabular. Laranja: só "Nova nota" e os estados
+  de interação (medido: nenhum texto ou fundo laranja na lista).
+- Texto do registro com mais de 140 caracteres ou com quebra de linha: duas
+  linhas e "Ver nota inteira"/"Ver texto inteiro" (`aria-expanded`), a regra
+  de Modificações. Título quebra, nunca corta.
+- Nota: "⋯" comum (`RowActionsMenu`, "Editar nota"/"Excluir nota"), descrito
+  pelo registro. Eventos de outras áreas: "Ver". A linha nunca é clicável.
+- Formulário de nota no padrão comum (`FORM_DIALOG_CLASSNAME` estreita,
+  `FormSection`/`FormField`/`FormFooter`, rótulos visíveis com "(opcional)",
+  erro junto do campo com foco nele, dois Enter → um envio, falha no rodapé
+  com o preenchimento preservado, foco devolvido). A ajuda da data diz o que
+  acontece em branco em cada modo. Exclusão no cartão de registro comum,
+  com o reflexo real ("Sai do Histórico, da atividade recente e da busca").
+  Os diálogos ficam na página: uma nota editada pode sair do filtro e
+  desmontar a linha (foco vai ao título da lista). Salvar, editar e excluir
+  são anunciados numa região `status`.
+- **Estados distintos**: carregando (esqueleto, sem "0 registros"), falha da
+  consulta (`InlineError` no painel; cabeçalho, busca e "Nova nota" seguem),
+  vazio (`EmptyState` com o que entra aqui e "Escrever primeira nota"),
+  filtro sem resultado (`NoResults` com a seleção e quantos ficaram fora),
+  busca carregando, falhando (com nova tentativa) e sem resultado ("Limpar
+  busca", e o que a busca cobre). Depois de "Tentar de novo" que dá certo, o
+  foco vai ao título da lista.
+
+**O link "Ver" (ajuste obrigatório).** Continua link (navega) e discreto
+(`textLinkClassName("xs")`, sem laranja), agora com **44×44px**
+(`min-h-control` + `min-w-11`) e nome com contexto: para onde leva e de
+qual registro parte (ver "Ajustes da revisão" abaixo — a primeira versão,
+"Ver manutenção: Troca de óleo e filtro, 10/11/2026", sugeria abrir o
+registro). O texto visível "Ver" é o começo do nome. Ajuste **só no Histórico**
+(`TimelineEntryRow`): `textLinkClassName` não mudou e nenhum outro link do
+app foi tocado. Medição (ferramenta, cenário 137, mesma sonda antes e
+depois: o `<a>` que recebe o clique, `elementFromPoint` numa grade de 7×7 no
+link e num quadrado de 44×44 centrado nele):
+
+| | Antes (etapa 12) | Depois |
+|---|---|---|
+| Alvo | 35×16 nos 18 links, em 320, 390 e 1440 | 44×44 nos 18 links, de 320 a 2560, claro e escuro |
+| Quadrado de 44×44 no link | 15 de 49 pontos | 49 de 49; nenhum ponto em outro controle |
+| Nome acessível | "Ver" | "Ver lista de Gastos, a partir de Pneus, 07/11/2026" etc. |
+
+Achado na primeira medição e corrigido: no celular o título (depois do link
+no DOM) cobria os 6px de baixo do alvo e ficava com o toque (43/49). A
+primeira linha agora tem a altura que a ação ocupa e nada fica por cima.
+Toque real (tela de toque emulada) no canto do alvo navega; no começo do
+título, não. Um toque 6px abaixo do alvo, já sobre o título, também navega:
+é o ajuste de toque do Chromium, que leva ao link mais próximo — o mesmo
+"Ver", nunca um vizinho. Foco visível (contorno de 2px) e Enter navegam.
+
+**Correções (pequenas, verificadas no mock).**
+
+1. **Nota editada pela busca perdia dados.** O diálogo era montado com o
+   trecho da busca (200 caracteres) e `odometer_km: null`: salvar gravava o
+   corpo cortado e apagava a quilometragem. Agora a nota da busca usa os
+   dados completos da lista do Histórico (mesma consulta); sem eles (lista
+   com falha), o resultado aparece sem "⋯". Medido: corpo de 323 caracteres
+   e km 87.400 no PATCH.
+2. "Informe uma quilometragem válida." (2º parâmetro do helper, como na
+   etapa 10); regra igual — 0 e vazio aceitos, −5 e 12,5 recusados.
+3. Projeto na busca mostrava o nome cru da tabela ("projects") e não tinha
+   link; agora "Projeto", com ícone próprio, e "Ver" abre o detalhe (o
+   `source_id` é o projeto). Tipo desconhecido diz "Registro", não o nome
+   da tabela.
+4. Trocar de veículo sem sair da tela (Voltar entre dois Históricos) levava
+   a busca e o filtro para o outro veículo; agora a tela remonta por
+   veículo, como as outras.
+5. "Excluir \"\"?" em nota sem título → "Excluir nota?" com o registro no
+   cartão. A falha da busca ganhou "Tentar de novo"; o "×" da busca tem 44px.
+
+**Componentes compartilhados usados.** `Page`, `PageHeader`, `Breadcrumb`,
+`Button`, `InfoTip`, `PANEL_CLASSNAME`, `PanelHeader`, `PanelCount`,
+`ListColumns`, `FilterField`, `Input`, `Select`, `Textarea`,
+`Skeleton`/`SkeletonList`, `EmptyState`, `InlineError`, `NoResults` (ganhou
+`clearLabel`, padrão "Limpar filtros" — os outros usos não mudam),
+`PageError`, `VehicleNotFound`, `RowActionsMenu`, `textLinkClassName`,
+`FORM_DIALOG_CLASSNAME`/`FORM_DIALOG_HEADER_CLASSNAME`/`focusDialogOnOpen`,
+`FormBody`, `FormSection`, `FormField`, `FormFooter`, `UnitAffix`,
+`AlertDialog` + `AlertDialogRecord`, `useReturnFocus`. Locais por
+necessidade da área: `TimelineEntryRow` (a composição do diário),
+`timelinePresentation.ts`. `SearchResultItem.tsx` e `TimelineFilters.tsx`
+saíram (nenhum consumidor). O `TimelineItem` (atividade recente do dashboard
+e do cabeçalho) só passou a montar a nota pelo mesmo `noteFromEvent`
+(título nulo continua nulo) e recebe os diálogos novos.
+
+**Alternativas descartadas.** Linha inteira clicável (controle dentro de
+controle com o "⋯" e o "Ver texto inteiro"). Coluna fixa de ações no celular
+(apertava o título). Agrupar por dia com cabeçalho próprio (dobrava a altura
+da lista com um evento por dia; a data uma vez por dia na coluna faz o mesmo
+papel). Mudar `textLinkClassName` para todos os links (o ajuste é desta
+lista). Filtros visíveis e desabilitados durante a busca (controle que não
+faz nada). Ordenar o mesmo dia no cliente (inventaria uma regra que a view
+não tem).
+
+**Pendências registradas (anteriores, não alteradas).**
+
+- **"Atividade" do cabeçalho** (popover do desktop e aba "Atividade" da
+  caixa de entrada no celular): o cartão do `TimelineItem` ainda tem "Ver"
+  de **35×16** com nome só "Ver" (medido no cenário 143). Fora desta tela;
+  fica para a etapa do shell.
+- **Mesmo dia sem ordem garantida**: a view não tem chave secundária; dois
+  registros da mesma data podem trocar de lugar entre leituras.
+- **Limite de 1000 linhas** (PostgREST `max_rows`): sem paginação, um
+  veículo com mais de 1000 eventos mostra só os 1000 mais recentes; filtros
+  e contagens valem só sobre eles, sem aviso.
+- "Ver" leva à **lista** da tela de origem, não ao registro (exceto item de
+  projeto e projeto).
+- Busca: abastecimento não entra; gasto é buscado só pela descrição; o
+  resultado não traz valor nem km; item de projeto leva à lista de Projetos.
+- Vazio sem busca: com zero eventos a busca não aparece — projeto sem item
+  datado (que não é evento da view) só se acha em Projetos.
+- Nota toda em branco é aceita ("Sem título", sem texto) — regra de
+  liberdade de preenchimento (Fase 10), preservada.
+- Filtros e busca não ficam na URL (recarregar volta ao padrão).
+- No dashboard os diálogos de nota continuam dentro da linha do
+  `TimelineItem` (fora do escopo).
+
+**Verificação.** Dados simulados (ferramenta externa
+`redesign-capturas/ferramenta/inspect.mjs`, `timelineHandler` novo, cenários
+137–143, arquivos 241–246, `etapa-13/relatorio.txt`; antes em
+`relatorio-antes.txt`): 22 eventos do Civic das sete origens + um tipo
+desconhecido, três no mesmo dia, título longo, nota em várias linhas, nota
+sem título com km 0, valor R$ 0,00 e ausente, km ausente, gasto sem
+categoria, item de projeto com projeto inexistente; Gol com item de projeto
+real; Maverick vazio. Busca como a função (sem acento, sem abastecimento,
+com projeto, trecho de 200), escritas em `notes` com corpo registrado; rede
+trancada, nenhuma chamada ao Supabase real, nenhuma escrita real.
+Conferido: ordem da tela = ordem da view (22/22); "Ver" de cada origem com o
+handler da tela de destino; teclado (Tab, Enter no "⋯", Escape) e volta do
+foco em todos os diálogos; nota: cancelar, Escape, km inválido (foco e
+`aria-invalid`), falha (preservado), dois Enter → um POST, nota em branco
+(data do banco), edição com data em branco (fora do PATCH), falha na edição,
+editada para fora do filtro, exclusão (Escape, falha com duplo clique → um
+DELETE, sucesso, foco); `?novo=1` (sai da URL, recarregar não reabre),
+folha Registrar, item ativo; filtros, sem resultado, busca (carregando,
+falha e nova tentativa, sem resultado, limpar); carregando, falha da lista
+e nova tentativa, vazio e primeira nota, veículo inexistente; troca de
+veículo; atividade recente do dashboard com os diálogos novos. 320, 360,
+390, 640, 768, 1024, 1280, 1440, 1920 e 2560, claro e escuro alternados: sem
+rolagem horizontal, sem segunda rolagem a partir de 1024, nenhum alvo menor
+que 44px, nenhum texto cortado, rolagem real (roda do mouse) até o fim com o
+último "Ver" acima da barra inferior e alcançável; teclado virtual emulado
+(390×380) com "Salvar nota" à vista. Axe sem violações em 21 estados.
+`npm run lint`, `npx tsc -b` e `npm run build` limpos. Nenhum aparelho
+físico nem leitor de tela real.
+
+**Ajustes da revisão (10/11/2026).**
+
+- **Nome de "Ver" pelo destino.** "Ver manutenção: Troca de óleo e filtro"
+  sugeria abrir o serviço, mas o link leva à lista de Manutenção. O nome
+  agora diz o destino e o registro de partida: "Ver lista de Manutenção, a
+  partir de Troca de óleo e filtro, 10/11/2026"; item de projeto que abre o
+  detalhe, "Ver projeto, a partir de Comando de válvulas 272°, 11/07/2026";
+  o projeto achado na busca, "Ver projeto: Suspensão coilover, 11/09/2026";
+  sem título, "Ver lista de Abastecimentos, a partir do abastecimento de
+  10/11/2026". O nome continua começando pela palavra visível "Ver" (WCAG
+  2.5.3, comando de voz) — por isso não "Ir para Manutenção…", que pediria
+  trocar também o texto visível. O destino vem do mesmo dado do link
+  (`TimelineEntry.destination`); rota, alvo e aparência não mudaram.
+- Verificação: cenário 144 (`etapa-13/relatorio-ajustes.txt`, sem capturas),
+  um caso de cada destino com o handler da tela de origem — gasto (com e sem
+  categoria), abastecimento, manutenção, problema e documento → a lista
+  certa; item de projeto → detalhe do projeto; na busca, projeto → detalhe e
+  item de projeto → lista de Projetos. Todos com o nome começando por "Ver" e
+  44×44; os 18 nomes da lista do Civic diferentes entre si; axe sem
+  violações em 320.

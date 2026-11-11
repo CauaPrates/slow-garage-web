@@ -980,48 +980,38 @@
     "semantic_hash": ""
   },
   "src/features/timeline/CreateNoteDialog.tsx": {
-    "mtime": 1788552149.027865,
-    "ast_hash": "5079b30fd6d2582f47a9ba6d342f03f0",
+    "mtime": 1794280080.9535224,
+    "ast_hash": "e00fb685952915ffe2a29bf7cb2a8917",
     "semantic_hash": ""
   },
   "src/features/timeline/DeleteNoteDialog.tsx": {
-    "mtime": 1788462193.6086695,
-    "ast_hash": "5b1cf209d943956c09c8bc0e006bc6ba",
+    "mtime": 1794280139.9325824,
+    "ast_hash": "ac15bd9975ae3ad72a8f33083c8c13fc",
     "semantic_hash": ""
   },
   "src/features/timeline/EditNoteDialog.tsx": {
-    "mtime": 1788552149.0288756,
-    "ast_hash": "c126e8e8768a40ca0b3ec4fb602a9ee4",
+    "mtime": 1794280082.6868331,
+    "ast_hash": "06f036b2d18e0de29bc341a898b47f27",
     "semantic_hash": ""
   },
   "src/features/timeline/NoteForm.tsx": {
-    "mtime": 1788571789.8091779,
-    "ast_hash": "43a4590b503fdfc9b1a6f3dd3705056a",
-    "semantic_hash": ""
-  },
-  "src/features/timeline/SearchResultItem.tsx": {
-    "mtime": 1788462193.609667,
-    "ast_hash": "1242cebce640a8a9c7a62eae498cd222",
-    "semantic_hash": ""
-  },
-  "src/features/timeline/TimelineFilters.tsx": {
-    "mtime": 1788462193.609667,
-    "ast_hash": "b55b28561be20e7982bbf29072b78e6e",
+    "mtime": 1794280050.0687315,
+    "ast_hash": "2cb27a1d239df95c00008f201a105cba",
     "semantic_hash": ""
   },
   "src/features/timeline/TimelineItem.tsx": {
-    "mtime": 1793484161.6563382,
-    "ast_hash": "7d9ed86e3019a6d542807659c2d3ed9d",
+    "mtime": 1794280183.673122,
+    "ast_hash": "b2c30d350b03d0b0fbb41fa57d884e89",
     "semantic_hash": ""
   },
   "src/features/timeline/TimelinePage.tsx": {
-    "mtime": 1788574574.4859428,
-    "ast_hash": "fcfdda0bbcdf4afe87ae5e100273f960",
+    "mtime": 1794280846.321806,
+    "ast_hash": "6b392cd37984a2c56dc6d55ff0ccf81e",
     "semantic_hash": ""
   },
   "src/features/timeline/schemas.ts": {
-    "mtime": 1788552149.0288756,
-    "ast_hash": "52a30bf839599accd26bc722128005aa",
+    "mtime": 1794279887.5240757,
+    "ast_hash": "58b0e9643f775a7251f5b04819aa0866",
     "semantic_hash": ""
   },
   "src/features/timeline/timelineLinks.ts": {
@@ -1410,8 +1400,8 @@
     "semantic_hash": ""
   },
   "docs/DECISIONS.md": {
-    "mtime": 1794278778.6743958,
-    "ast_hash": "ea6eac2c1c4015391ed1167dd3e1a1aa",
+    "mtime": 1794283049.3058963,
+    "ast_hash": "b836942daab9e1d15e93c75ca329612e",
     "semantic_hash": ""
   },
   "docs/DESIGN.md": {
@@ -1915,8 +1905,8 @@
     "semantic_hash": ""
   },
   "src/components/ui/feedback.tsx": {
-    "mtime": 1793996998.052218,
-    "ast_hash": "cf0cc11e643274295b763c51482e0f1f",
+    "mtime": 1794279895.502692,
+    "ast_hash": "7d36fd07f7b729a2ae7b1f8031e29583",
     "semantic_hash": ""
   },
   "src/components/ui/form.tsx": {
@@ -2022,6 +2012,16 @@
   "src/features/photo/photoPresentation.ts": {
     "mtime": 1794277081.631568,
     "ast_hash": "38d7903a907aca9b6cd70281407911f1",
+    "semantic_hash": ""
+  },
+  "src/features/timeline/TimelineEntryRow.tsx": {
+    "mtime": 1794282021.9452806,
+    "ast_hash": "54c5174980d4779d1d4a771374f42dc4",
+    "semantic_hash": ""
+  },
+  "src/features/timeline/timelinePresentation.ts": {
+    "mtime": 1794282880.0237496,
+    "ast_hash": "4794e2da50f3976bc977eb341ecbe07a",
     "semantic_hash": ""
   }
 }

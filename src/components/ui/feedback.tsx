@@ -63,16 +63,18 @@ type NoResultsProps = {
   /** A seleção atual e o que ficou fora dela. */
   detail?: ReactNode;
   onClear: () => void;
+  /** Etapa 13: a busca do Histórico desfaz o termo, não os filtros ("Limpar busca"). */
+  clearLabel?: string;
 };
 
 /** Filtro sem resultado: dentro da lista, com a seleção escrita e "Limpar filtros" — os filtros continuam à vista. */
-export function NoResults({ message, detail, onClear }: NoResultsProps) {
+export function NoResults({ message, detail, onClear, clearLabel = "Limpar filtros" }: NoResultsProps) {
   return (
     <div className="flex flex-col items-start gap-2 px-(--panel-pad-x) py-6">
-      <p className="text-sm text-text-primary">{message}</p>
+      <p className="text-sm break-words text-text-primary">{message}</p>
       {detail && <p className="text-sm break-words text-text-secondary">{detail}</p>}
       <Button variant="outline" onClick={onClear}>
-        Limpar filtros
+        {clearLabel}
       </Button>
     </div>
   );

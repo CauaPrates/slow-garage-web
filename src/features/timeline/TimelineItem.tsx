@@ -10,6 +10,7 @@ import {
   TIMELINE_EVENT_TYPE_LABELS,
 } from "./schemas";
 import { resolveTimelineLink } from "./timelineLinks";
+import { noteFromEvent } from "./timelinePresentation";
 import type { TimelineEventRow } from "./useTimeline";
 import { EditNoteDialog } from "./EditNoteDialog";
 import { DeleteNoteDialog } from "./DeleteNoteDialog";
@@ -38,6 +39,8 @@ export function TimelineItem({ vehicleId, event, variant = "card" }: TimelineIte
     ? TIMELINE_EVENT_TYPE_LABELS[eventType]
     : (event.source_table ?? eventType ?? "Evento");
   const isNote = event.event_type === "note";
+  // Etapa 13: a mesma nota (título nulo continua nulo) que o Histórico passa aos diálogos.
+  const note = noteFromEvent(event);
   const targetHref = resolveTimelineLink(vehicleId, event);
   const isRow = variant === "row";
 
@@ -111,32 +114,10 @@ export function TimelineItem({ vehicleId, event, variant = "card" }: TimelineIte
         )}
       </div>
 
-      {isNote && event.source_id && (
+      {note && (
         <>
-          <EditNoteDialog
-            vehicleId={vehicleId}
-            note={{
-              id: event.source_id,
-              title: event.title ?? "",
-              body: event.description,
-              occurred_on: event.occurred_on ?? "",
-              odometer_km: event.odometer_km,
-            }}
-            open={editOpen}
-            onOpenChange={setEditOpen}
-          />
-          <DeleteNoteDialog
-            vehicleId={vehicleId}
-            note={{
-              id: event.source_id,
-              title: event.title ?? "",
-              body: event.description,
-              occurred_on: event.occurred_on ?? "",
-              odometer_km: event.odometer_km,
-            }}
-            open={deleteOpen}
-            onOpenChange={setDeleteOpen}
-          />
+          <EditNoteDialog vehicleId={vehicleId} note={note} open={editOpen} onOpenChange={setEditOpen} />
+          <DeleteNoteDialog vehicleId={vehicleId} note={note} open={deleteOpen} onOpenChange={setDeleteOpen} />
         </>
       )}
     </div>
