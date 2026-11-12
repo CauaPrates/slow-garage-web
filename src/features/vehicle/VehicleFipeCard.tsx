@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { formatMoney } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { FipeError, type FipeYear } from "@/lib/fipe/fipeExternal";
+import { Panel } from "@/components/ui/panel";
 import { EditVehicleDialog } from "./EditVehicleDialog";
 import { useFipeEstimatedValue, useFipeModel, useFipeYears } from "./useFipe";
 import { useUpdateVehicle, type VehicleWithSummary } from "./useVehicles";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type VehicleFipeCardProps = { vehicle: VehicleWithSummary };
 
@@ -41,18 +43,20 @@ function pickYear(
   return doAno[0];
 }
 
-/** Caixa comum às variações, pra que loading, erro e sucesso ocupem o mesmo lugar. */
+/**
+ * Caixa comum às variações, pra que loading, erro e sucesso ocupem o mesmo lugar.
+ * Etapa 04: mesma casca dos outros blocos do dashboard (`Panel`), no
+ * fim da página, e o subtítulo diz o que o número é — referência de mercado,
+ * não preço de venda garantido. A lógica do card não mudou.
+ */
 function Card({ children }: { children: React.ReactNode }) {
   return (
-    <section
-      aria-labelledby="fipe-card-titulo"
-      className="flex flex-col gap-2 rounded-lg border border-border bg-surface p-4"
+    <Panel
+      title="Referência FIPE"
+      description="Valor médio de mercado da tabela FIPE. Referência, não preço de venda garantido."
     >
-      <h2 id="fipe-card-titulo" className="text-xs text-text-secondary">
-        Valor na tabela FIPE
-      </h2>
-      {children}
-    </section>
+      <div className="flex flex-col gap-2 p-4">{children}</div>
+    </Panel>
   );
 }
 
@@ -178,8 +182,8 @@ export function VehicleFipeCard({ vehicle }: VehicleFipeCardProps) {
   if (carregando) {
     return (
       <Card>
-        <div className="h-7 w-40 animate-pulse rounded bg-bg" />
-        <div className="h-4 w-56 animate-pulse rounded bg-bg" />
+        <Skeleton className="h-7 w-40 rounded bg-bg" />
+        <Skeleton className="h-4 w-56 rounded bg-bg" />
       </Card>
     );
   }
@@ -226,7 +230,7 @@ export function VehicleFipeCard({ vehicle }: VehicleFipeCardProps) {
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-1">
-            <p className="font-mono text-2xl font-medium text-text-primary">
+            <p className="type-figure text-2xl text-text-primary">
               {formatMoney(valor.amount)}
             </p>
             {botaoAtualizar}
@@ -260,7 +264,7 @@ export function VehicleFipeCard({ vehicle }: VehicleFipeCardProps) {
             <>
               <p className="text-xs text-text-secondary">
                 Seu valor estimado é{" "}
-                <span className="font-mono text-text-primary">
+                <span className="type-figure text-text-primary">
                   {formatMoney(estimado)}
                 </span>
                 , {estimado < valor.amount ? "abaixo" : "acima"} da FIPE.

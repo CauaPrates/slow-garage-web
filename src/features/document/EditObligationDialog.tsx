@@ -1,13 +1,10 @@
 import { useState } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { FieldError } from "@/components/ui/field-error";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FORM_DIALOG_HEADER_CLASSNAME, focusDialogOnOpen } from "@/components/ui/form";
+import { useReturnFocus } from "@/hooks/useReturnFocus";
 import { translatePostgresError } from "@/lib/postgresErrors";
 import { ObligationForm } from "./ObligationForm";
+import { DOCUMENT_FORM_DIALOG_CLASSNAME } from "./CreateDocumentDialog";
 import { useUpdateObligation, type ObligationRow } from "./useObligations";
 import type { ObligationFormInput, ObligationFormOutput } from "./schemas";
 
@@ -30,14 +27,15 @@ function toFormDefaults(obligation: ObligationRow): Partial<ObligationFormInput>
   };
 }
 
-export function EditObligationDialog({
-  vehicleId,
-  obligation,
-  open,
-  onOpenChange,
-}: EditObligationDialogProps) {
+export function EditObligationDialog({ vehicleId, obligation, open, onOpenChange }: EditObligationDialogProps) {
   const updateObligation = useUpdateObligation(vehicleId);
   const [error, setError] = useState<string | null>(null);
+  const returnFocus = useReturnFocus();
+
+  function handleOpenChange(next: boolean) {
+    if (!next) setError(null);
+    onOpenChange(next);
+  }
 
   async function handleSubmit(values: ObligationFormOutput) {
     setError(null);
@@ -52,25 +50,33 @@ export function EditObligationDialog({
         notes: values.notes ?? null,
         paid_on: values.paidOn ?? null,
       });
-      onOpenChange(false);
+      handleOpenChange(false);
     } catch (mutationError) {
       setError(translatePostgresError(mutationError));
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className={DOCUMENT_FORM_DIALOG_CLASSNAME}
+        onOpenAutoFocus={(event) => {
+          returnFocus.capture();
+          focusDialogOnOpen(event);
+        }}
+        onCloseAutoFocus={returnFocus.onCloseAutoFocus}
+      >
+        <DialogHeader className={FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>Editar obrigação</DialogTitle>
+          <DialogDescription className="break-words">{obligation.label}</DialogDescription>
         </DialogHeader>
         <ObligationForm
           mode="edit"
           defaultValues={toFormDefaults(obligation)}
           onSubmit={handleSubmit}
           submitLabel="Salvar alterações"
+          submitError={error}
         />
-        <FieldError>{error}</FieldError>
       </DialogContent>
     </Dialog>
   );

@@ -1,15 +1,98 @@
-import { useEffect, useState } from "react";
-import { useParams, useSearchParams, Link } from "react-router-dom";
-import { AlertCircle } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useParams, useSearchParams } from "react-router-dom";
+import { ClipboardList, Plus } from "lucide-react";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { ActionLabel, Page, PageHeader } from "@/components/layout/Page";
 import { Button } from "@/components/ui/button";
-import { ROUTES } from "@/lib/routes";
+import { Alert, EmptyState, InlineError, PageError } from "@/components/ui/feedback";
+import { PANEL_CLASSNAME, PanelCount, PanelHeader } from "@/components/ui/panel";
+import { Skeleton, SkeletonList } from "@/components/ui/skeleton";
 import { useVehicle } from "@/features/vehicle/useVehicles";
 import { CreateProjectDialog } from "./CreateProjectDialog";
 import { CreateProjectItemDialog } from "./CreateProjectItemDialog";
-import { ProjectCard } from "./ProjectCard";
-import { useProjects } from "./useProjects";
+import { DeleteProjectDialog } from "./DeleteProjectDialog";
+import { EditProjectDialog } from "./EditProjectDialog";
+import { ProjectListRow } from "./ProjectListRow";
+import { isActiveProject, projectGroupSummary } from "./projectPresentation";
+import { VehicleNotFound } from "@/components/shared/VehicleNotFound";
+import { useProjects, type ProjectWithProgress } from "./useProjects";
 
+const ACTIVE_TITLE_ID = "projects-active-title";
+const CLOSED_TITLE_ID = "projects-closed-title";
+
+/**
+ * Foco para depois que um diálogo fecha e o elemento que o abriu sumiu (a
+ * linha trocou de grupo ou foi excluída): espera o diálogo sair e, se o foco
+ * caiu no `<body>`, vai pro título do grupo.
+ */
+function focusHeadingIfLost(headingId: string) {
+  const startedAt = performance.now();
+  const check = () => {
+    if (document.querySelector('[role="dialog"], [role="alertdialog"]')) {
+      if (performance.now() - startedAt < 10_000) requestAnimationFrame(check);
+      return;
+    }
+    if (document.activeElement && document.activeElement !== document.body) return;
+    const target = document.getElementById(headingId) ?? document.querySelector<HTMLElement>("main h1");
+    if (!target) return;
+    target.tabIndex = -1;
+    target.focus();
+  };
+  requestAnimationFrame(check);
+}
+
+type GroupProps = {
+  vehicleId: string;
+  titleId: string;
+  title: string;
+  description: string;
+  projects: ProjectWithProgress[];
+  emptyText: string;
+  onEdit: (project: ProjectWithProgress, trigger: HTMLElement | null) => void;
+  onDelete: (project: ProjectWithProgress, trigger: HTMLElement | null) => void;
+};
+
+function ProjectGroup({ vehicleId, titleId, title, description, projects, emptyText, onEdit, onDelete }: GroupProps) {
+  return (
+    <section aria-labelledby={titleId} className={PANEL_CLASSNAME}>
+      <PanelHeader
+        title={title}
+        titleId={titleId}
+        description={description}
+        action={<PanelCount>{projectGroupSummary(projects.map((p) => p.status))}</PanelCount>}
+      />
+      {projects.length === 0 ? (
+        <p className="p-(--panel-pad-x) text-sm text-text-secondary">{emptyText}</p>
+      ) : (
+        <ul className="divide-y divide-border">
+          {projects.map((project) => (
+            <ProjectListRow
+              key={project.id}
+              vehicleId={vehicleId}
+              project={project}
+              onEdit={onEdit}
+              onDelete={onDelete}
+            />
+          ))}
+        </ul>
+      )}
+    </section>
+  );
+}
+
+/**
+ * Etapa 09: cabeçalho com "Novo projeto" e dois painéis — **Ativos** (ideia,
+ * planejado, em andamento, pausado: o mesmo corte de "Projetos ativos" do
+ * dashboard) e **Encerrados** (concluídos e cancelados). Os dois aparecem
+ * sempre que há projeto; nada fica escondido. Dentro de cada um, a ordem da
+ * consulta (mais recente primeiro). Sem busca, filtro nem ordenação nova.
+ *
+ * Mesmas consultas, chaves e invalidações. `?novo=1` é tratado como antes:
+ * com projeto, abre "Adicionar item" com o seletor de projeto; sem projeto,
+ * mostra o aviso para criar um. (Nada no app aponta mais pra cá com `?novo=1`
+ * — o "Upgrade" da folha Registrar vai para Modificações; o comportamento e o
+ * texto do aviso ficaram como estavam, ADR-092.)
+ */
 export function ProjectsPage() {
   const { vehicleId } = useParams<{ vehicleId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -17,6 +100,13 @@ export function ProjectsPage() {
   const [createItemOpen, setCreateItemOpen] = useState(false);
   const [needsProjectFirst, setNeedsProjectFirst] = useState(false);
   const [novoHandled, setNovoHandled] = useState(false);
+  // O projeto aberto fica guardado aqui, não na linha: mudar o status troca a linha de grupo e a desmonta.
+  const [editingProject, setEditingProject] = useState<ProjectWithProgress | null>(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const [deletingProject, setDeletingProject] = useState<ProjectWithProgress | null>(null);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const triggerRef = useRef<HTMLElement | null>(null);
+  const savedStatusRef = useRef<string | null>(null);
 
   const {
     vehicle,
@@ -43,107 +133,179 @@ export function ProjectsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, projectsQuery.isLoading]);
 
+  /** Volta ao "⋯" da linha se ele ainda existe; senão, ao título do grupo onde o projeto está agora. */
+  function restoreFocus(fallbackStatus: string | null) {
+    const trigger = triggerRef.current;
+    requestAnimationFrame(() => {
+      if (trigger?.isConnected) trigger.focus();
+      else focusHeadingIfLost(fallbackStatus && !isActiveProject(fallbackStatus) ? CLOSED_TITLE_ID : ACTIVE_TITLE_ID);
+    });
+  }
+
   if (vehicleLoading) {
     return (
-      <div className="flex flex-col gap-4 p-6">
-        <div className="h-8 w-48 animate-pulse rounded-md bg-surface" />
-        <div className="h-24 animate-pulse rounded-lg border border-border bg-surface" />
-      </div>
+      <Page aria-busy="true">
+        <span className="sr-only">Carregando projetos…</span>
+        <Skeleton className="h-14 w-56 bg-surface" />
+        <Skeleton className="h-48 rounded-lg border border-border bg-surface" />
+      </Page>
     );
   }
 
   if (vehicleError) {
-    return (
-      <div className="flex flex-col items-center gap-3 p-12 text-center">
-        <AlertCircle className="h-6 w-6 text-error" aria-hidden="true" />
-        <p className="text-sm text-text-secondary">Não foi possível carregar os projetos.</p>
-        <Button variant="ghost" onClick={() => refetchVehicle()}>
-          Tentar de novo
-        </Button>
-      </div>
-    );
+    return <PageError message="Não foi possível carregar os projetos." onRetry={() => void refetchVehicle()} />;
   }
 
   if (!vehicle) {
-    return (
-      <div className="flex flex-col items-center gap-4 p-12 text-center">
-        <p className="text-text-primary">Veículo não encontrado.</p>
-        <Link to={ROUTES.home} className="text-sm text-accent underline">
-          Voltar para a garagem
-        </Link>
-      </div>
-    );
+    return <VehicleNotFound />;
   }
 
   const projects = projectsQuery.data ?? [];
+  const activeProjects = projects.filter((p) => isActiveProject(p.status));
+  const closedProjects = projects.filter((p) => !isActiveProject(p.status));
+  const noProjectsAtAll = projectsQuery.isSuccess && projects.length === 0;
+
+  const rowHandlers = {
+    onEdit: (project: ProjectWithProgress, trigger: HTMLElement | null) => {
+      triggerRef.current = trigger;
+      savedStatusRef.current = null;
+      setEditingProject(project);
+      setEditOpen(true);
+    },
+    onDelete: (project: ProjectWithProgress, trigger: HTMLElement | null) => {
+      triggerRef.current = trigger;
+      setDeletingProject(project);
+      setDeleteOpen(true);
+    },
+  };
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <Page>
       <Breadcrumb items={[{ label: "Projetos" }]} />
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-lg font-medium text-text-primary">Projetos</h1>
-        <Button onClick={() => setCreateProjectOpen(true)}>Novo projeto</Button>
-      </div>
+
+      <PageHeader
+        title="Projetos"
+        description="Planos de evolução deste veículo, do item desejado ao instalado."
+        actions={
+          !noProjectsAtAll && (
+            <Button onClick={() => setCreateProjectOpen(true)}>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              <ActionLabel short="Novo" rest="projeto" />
+            </Button>
+          )
+        }
+      />
 
       {needsProjectFirst && (
-        <div className="flex flex-col items-start gap-3 rounded-lg border border-warning/40 bg-warning/10 p-4 text-sm text-warning sm:flex-row sm:items-center sm:justify-between">
-          <p>Crie um projeto primeiro para usar o atalho "Upgrade".</p>
-          <Button
-            variant="ghost"
-            onClick={() => {
-              setNeedsProjectFirst(false);
-              setCreateProjectOpen(true);
-            }}
-          >
-            Criar projeto
-          </Button>
-        </div>
+        <Alert
+          tone="warning"
+          action={
+            <Button
+              variant="ghost"
+              onClick={() => {
+                setNeedsProjectFirst(false);
+                setCreateProjectOpen(true);
+              }}
+            >
+              Criar projeto
+            </Button>
+          }
+        >
+          <p className="text-text-primary">Crie um projeto primeiro para usar o atalho "Upgrade".</p>
+        </Alert>
       )}
 
       {projectsQuery.isLoading && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-32 animate-pulse rounded-lg border border-border bg-surface" />
-          ))}
+        <div className={PANEL_CLASSNAME}>
+          <SkeletonList label="Carregando projetos…" />
         </div>
       )}
 
       {projectsQuery.isError && (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-surface p-8 text-center">
-          <AlertCircle className="h-6 w-6 text-error" aria-hidden="true" />
-          <p className="text-sm text-text-secondary">Não foi possível carregar os projetos.</p>
-          <Button variant="ghost" onClick={() => projectsQuery.refetch()}>
-            Tentar de novo
-          </Button>
+        <div className={PANEL_CLASSNAME}>
+          <InlineError onRetry={() => void projectsQuery.refetch()}>Não foi possível carregar os projetos.</InlineError>
         </div>
       )}
 
-      {!projectsQuery.isLoading && !projectsQuery.isError && projects.length === 0 && (
-        <div className="flex flex-col items-center gap-4 rounded-lg border border-border bg-surface p-12 text-center">
-          <p className="text-text-primary">Nenhum projeto ainda.</p>
-          <Button onClick={() => setCreateProjectOpen(true)}>Criar meu primeiro projeto</Button>
-        </div>
+      {noProjectsAtAll && (
+        <EmptyState
+          icon={ClipboardList}
+          titleId={ACTIVE_TITLE_ID}
+          title="Nenhum projeto neste veículo."
+          action={<Button onClick={() => setCreateProjectOpen(true)}>Criar meu primeiro projeto</Button>}
+        >
+          Motor, suspensão, restauração: um projeto reúne os itens que você quer, compra e instala, e mostra quanto já
+          foi instalado. Só o nome é obrigatório.
+        </EmptyState>
       )}
 
-      {!projectsQuery.isLoading && !projectsQuery.isError && projects.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {projects.map((project) => (
-            <ProjectCard key={project.id} vehicleId={vehicle.id} project={project} />
-          ))}
-        </div>
+      {projectsQuery.isSuccess && projects.length > 0 && (
+        <>
+          <ProjectGroup
+            vehicleId={vehicle.id}
+            titleId={ACTIVE_TITLE_ID}
+            title="Ativos"
+            description="Ideia, planejado, em andamento e pausado — contam em Projetos ativos do painel."
+            projects={activeProjects}
+            emptyText="Nenhum projeto ativo."
+            {...rowHandlers}
+          />
+          <ProjectGroup
+            vehicleId={vehicle.id}
+            titleId={CLOSED_TITLE_ID}
+            title="Encerrados"
+            description="Concluídos e cancelados."
+            projects={closedProjects}
+            emptyText="Nenhum projeto concluído ou cancelado."
+            {...rowHandlers}
+          />
+        </>
       )}
 
       <CreateProjectDialog
         vehicleId={vehicle.id}
         open={createProjectOpen}
-        onOpenChange={setCreateProjectOpen}
+        onOpenChange={(open) => {
+          setCreateProjectOpen(open);
+          // Aberto pelo estado vazio ou pelo aviso: o botão some quando o primeiro projeto entra; o foco vai pro grupo.
+          if (!open) focusHeadingIfLost(ACTIVE_TITLE_ID);
+        }}
       />
       <CreateProjectItemDialog
         vehicleId={vehicle.id}
         projects={projects}
         open={createItemOpen}
-        onOpenChange={setCreateItemOpen}
+        onOpenChange={(open) => {
+          setCreateItemOpen(open);
+          // Aberto pelo `?novo=1`, sem gatilho na tela: o foco vai pro título.
+          if (!open) focusHeadingIfLost(ACTIVE_TITLE_ID);
+        }}
       />
-    </div>
+      {editingProject && (
+        <EditProjectDialog
+          vehicleId={vehicle.id}
+          project={editingProject}
+          open={editOpen}
+          onSaved={(status) => {
+            savedStatusRef.current = status;
+          }}
+          onOpenChange={(open) => {
+            setEditOpen(open);
+            if (!open) restoreFocus(savedStatusRef.current ?? editingProject.status);
+          }}
+        />
+      )}
+      {deletingProject && (
+        <DeleteProjectDialog
+          vehicleId={vehicle.id}
+          project={deletingProject}
+          open={deleteOpen}
+          onOpenChange={(open) => {
+            setDeleteOpen(open);
+            if (!open) restoreFocus(deletingProject.status);
+          }}
+        />
+      )}
+    </Page>
   );
 }

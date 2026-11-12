@@ -7,6 +7,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { fieldClassName } from "./input";
 
 export type ComboboxOption = { value: string; label: string };
 
@@ -29,8 +30,8 @@ type ComboboxProps = {
  * modelos da FIPE passa de 500 itens numa marca comum (585 na Fiat, medido),
  * e `<select>` nativo não filtra por digitação.
  *
- * O gatilho copia os mesmos tokens de borda/foco do `Input` e do `Select` do
- * projeto — a caixa precisa parecer campo de formulário, não botão.
+ * O gatilho usa a mesma casca (`fieldClassName`) do `Input` e do `Select` —
+ * a caixa precisa parecer campo de formulário, não botão.
  */
 export function Combobox({
   id,
@@ -62,7 +63,8 @@ export function Combobox({
           aria-describedby={describedBy}
           disabled={disabled || loading}
           className={cn(
-            "flex h-11 w-full items-center justify-between gap-2 rounded-md border border-border bg-surface px-3 py-2 text-left text-base text-text-primary outline-none transition-colors hover:border-text-secondary focus-visible:border-accent focus-visible:ring-2 focus-visible:ring-accent/40 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:border-border md:text-sm",
+            fieldClassName,
+            "flex h-control items-center justify-between gap-2 text-left",
           )}
         >
           <span
@@ -107,7 +109,7 @@ export function Combobox({
           */}
           <Command.Input
             placeholder={searchPlaceholder}
-            className="h-11 w-full border-b border-border bg-transparent px-3 text-base text-text-primary outline-none transition-colors focus-visible:border-accent placeholder:text-text-secondary md:text-sm"
+            className="h-control w-full border-b border-border bg-transparent px-3 text-base text-text-primary outline-none transition-colors focus-visible:border-accent placeholder:text-text-secondary md:text-sm"
           />
           <Command.List id={listboxId} className="max-h-64 overflow-y-auto p-1">
             <Command.Empty className="px-3 py-6 text-center text-sm text-text-secondary">
@@ -121,7 +123,7 @@ export function Combobox({
                   onChange(option.value, option);
                   setOpen(false);
                 }}
-                className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-text-primary transition-colors duration-150 data-[selected=true]:bg-bg"
+                className="flex cursor-pointer items-center gap-2 rounded-md px-3 py-2 text-sm text-text-primary transition-colors duration-150 data-[selected=true]:bg-state-hover"
               >
                 <Check
                   aria-hidden="true"

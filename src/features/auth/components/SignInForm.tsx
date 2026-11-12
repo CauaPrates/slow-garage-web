@@ -2,82 +2,59 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Label } from "@/components/ui/label";
-import { FieldError } from "@/components/ui/field-error";
+import { FormField } from "@/components/ui/form";
+import { textLinkClassName } from "@/components/ui/text-link";
+import { AuthAlternate } from "@/components/layout/AuthLayout";
 import { ROUTES, safeRedirectTarget } from "@/lib/routes";
+import { cn } from "@/lib/utils";
 import { useAuth } from "../AuthProvider";
 import { signInSchema, type SignInInput } from "../schemas";
+import { EMAIL_FIELD_PROPS, SubmitButton, SubmitError, useGuardedSubmit } from "./AuthFormParts";
 
 export function SignInForm() {
   const { signIn } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const { pending, run } = useGuardedSubmit();
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
   } = useForm<SignInInput>({ resolver: zodResolver(signInSchema) });
 
-  async function onSubmit(values: SignInInput) {
-    setSubmitError(null);
-    const { error } = await signIn(values.email, values.password);
-    if (error) {
-      setSubmitError(error);
-      return;
-    }
-    navigate(safeRedirectTarget(searchParams.get("redirect")), {
-      replace: true,
-    });
-  }
+  const onSubmit = handleSubmit((values) =>
+    run(async () => {
+      setSubmitError(null);
+      const { error } = await signIn(values.email, values.password);
+      if (error) {
+        // E-mail e senha continuam no formulário: a pessoa corrige o que errou e envia de novo.
+        setSubmitError(error);
+        return;
+      }
+      navigate(safeRedirectTarget(searchParams.get("redirect")), { replace: true });
+    }),
+  );
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="signin-email">E-mail</Label>
-        <Input
-          id="signin-email"
-          type="email"
-          autoComplete="email"
-          aria-invalid={!!errors.email}
-          {...register("email")}
-        />
-        <FieldError>{errors.email?.message}</FieldError>
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="signin-password">Senha</Label>
-        <PasswordInput
-          id="signin-password"
-          autoComplete="current-password"
-          aria-invalid={!!errors.password}
-          {...register("password")}
-        />
-        <FieldError>{errors.password?.message}</FieldError>
-      </div>
-      <FieldError>{submitError}</FieldError>
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Entrando…" : "Entrar"}
-      </Button>
-      <div className="flex flex-col items-center gap-2 text-sm text-text-secondary">
-        <Link
-          to={ROUTES.recuperarSenha}
-          className="text-accent underline underline-offset-2"
-        >
+    <>
+      <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
+        <FormField id="signin-email" label="E-mail" error={errors.email?.message}>
+          {(a11y) => <Input id="signin-email" autoComplete="username" {...EMAIL_FIELD_PROPS} {...a11y} {...register("email")} />}
+        </FormField>
+        <FormField id="signin-password" label="Senha" error={errors.password?.message}>
+          {(a11y) => <PasswordInput id="signin-password" autoComplete="current-password" {...a11y} {...register("password")} />}
+        </FormField>
+        <SubmitError>{submitError}</SubmitError>
+        <SubmitButton pending={pending} label="Entrar" pendingLabel="Entrando…" className="mt-1 w-full" />
+        {/* No desktop, colado no "Entrar" (o alvo continua com 44px; só a folga do `gap` diminui). */}
+        <Link to={ROUTES.recuperarSenha} className={cn(textLinkClassName(), "self-center lg:-mt-3")}>
           Esqueci minha senha
         </Link>
-        <p>
-          Não tem conta?{" "}
-          <Link
-            to={ROUTES.cadastro}
-            className="text-accent underline underline-offset-2"
-          >
-            Criar conta
-          </Link>
-        </p>
-      </div>
-    </form>
+      </form>
+      <AuthAlternate question="Ainda não tem conta?" to={ROUTES.cadastro} label="Criar conta" />
+    </>
   );
 }

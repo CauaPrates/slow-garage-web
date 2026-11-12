@@ -1,0 +1,1326 @@
+/*
+ * Minha garagem — proposta A3 + capa A3.1 (ADR-094).
+ *
+ * Fica fora das classes utilitárias porque a composição depende de áreas de
+ * grade e de container queries que, escritas inline, virariam dezenas de
+ * classes arbitrárias por elemento. Só tokens: nenhuma cor, raio ou sombra
+ * literal (exceção: o `black` da máscara, que é alfa e não cor visível).
+ *
+ * Três decisões de layout carregam o resto:
+ * - capa, resumo e coleção começam na mesma margem depois da sidebar
+ *   (`--garage-gutter`), sem largura máxima nem centralização;
+ * - a coleção decide quantas colunas tem pela própria largura (cards de
+ *   ~336–440 px; com poucos veículos a grade encolhe e fica na margem), não
+ *   pela viewport;
+ * - o card é vertical em toda largura (revisão dos cards): foto 16:10,
+ *   identificação, indicadores + seta, faixa de ficha e registros.
+ */
+
+@layer components {
+  /* ---------- Página ---------- */
+  /* `relative`: os textos só pra leitor de tela (`sr-only`, posição absoluta) ficam presos
+     à página. Sem isso eles se posicionavam pelo documento e, no desktop (onde quem rola é
+     o <main>), esticavam a janela — aparecia uma segunda barra de rolagem. */
+  .garage-page {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 2rem;
+  }
+  .garage-gutter {
+    padding-inline: 1rem;
+  }
+  .garage-inset {
+    margin-inline: 1rem;
+  }
+  @media (min-width: 40rem) {
+    .garage-gutter {
+      padding-inline: 1.5rem;
+    }
+    .garage-inset {
+      margin-inline: 1.5rem;
+    }
+  }
+  @media (min-width: 64rem) {
+    .garage-page {
+      padding-bottom: 3rem;
+    }
+    .garage-gutter {
+      padding-inline: var(--garage-gutter);
+    }
+    .garage-inset {
+      margin-inline: var(--garage-gutter);
+    }
+  }
+
+  /* ---------- Capa ----------
+   * Celular: cabeçalho compacto, sem foto — sobrelinha com o slogan, "Minha
+   * garagem" grande e o botão ao lado. Desktop (lg+): página dupla, texto no
+   * grafite à esquerda e colagem à direita.
+   */
+  .garage-cover {
+    position: relative;
+  }
+  .garage-cover__art {
+    display: none;
+  }
+  .garage-cover__text {
+    position: relative;
+    z-index: 1;
+    padding-block: 0.875rem 0.75rem;
+  }
+  .garage-cover__titles {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "slogan slogan"
+      "title action";
+    align-items: center;
+    column-gap: 0.75rem;
+    row-gap: 0.5rem;
+  }
+  /* Uma linha ao lado de "Cadastrar" de 360 px pra cima (~22px em 390); só em 320 volta a quebrar. */
+  .garage-cover__title {
+    grid-area: title;
+    font-family: var(--font-display);
+    font-size: clamp(1.125rem, 5.8vw, 1.6875rem);
+    font-weight: 800;
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    text-transform: uppercase;
+    color: var(--color-text-primary);
+  }
+  .garage-cover__slogan {
+    grid-area: slogan;
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    font-size: 0.65625rem;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--color-text-secondary);
+  }
+  .garage-cover__slogan::before {
+    content: "";
+    width: 0.875rem;
+    height: 2px;
+    flex-shrink: 0;
+    background: var(--color-accent);
+  }
+  .garage-cover__slogan::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--color-hairline);
+  }
+  .garage-cover__slogan br {
+    display: none;
+  }
+  .garage-cover__actions {
+    grid-area: action;
+    display: flex;
+    align-items: center;
+    gap: 1.375rem;
+  }
+  .garage-cover__lede {
+    display: none;
+  }
+
+  @media (min-width: 64rem) {
+    .garage-cover {
+      --garage-title-size: clamp(2.25rem, calc(2.25rem + 10 * (100vw - 1024px) / 416), 2.875rem);
+      display: flex;
+      min-height: var(--garage-cover-h);
+      overflow: hidden;
+    }
+    .garage-cover__art {
+      display: block;
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    /* Até 1280 a colagem tem um recorte só; o texto ganha mais da metade. */
+    .garage-cover__text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      width: 56%;
+      padding: 1.5rem 0 1.5rem var(--garage-gutter);
+    }
+    .garage-cover__titles {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    /* "Minha garagem" vira a sobrelinha com o traço laranja e o filete até a borda da coluna. */
+    .garage-cover__title {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-family: var(--font-sans);
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1.2;
+      letter-spacing: 0.24em;
+    }
+    .garage-cover__title::before {
+      content: "";
+      width: 1.125rem;
+      height: 2px;
+      flex-shrink: 0;
+      background: var(--color-accent);
+    }
+    .garage-cover__title::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: var(--color-hairline);
+    }
+    .garage-cover__slogan {
+      display: block;
+      margin-top: 1rem;
+      font-family: var(--font-display);
+      font-size: var(--garage-title-size);
+      font-weight: 800;
+      line-height: 0.9;
+      letter-spacing: -0.022em;
+      color: var(--color-text-primary);
+    }
+    .garage-cover__slogan::before,
+    .garage-cover__slogan::after {
+      content: none;
+    }
+    .garage-cover__slogan br {
+      display: inline;
+    }
+    .garage-cover__actions {
+      flex-wrap: wrap;
+      row-gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+    .garage-cover__lede {
+      display: block;
+      max-width: 27ch;
+      font-size: 0.9375rem;
+      line-height: 1.42;
+      color: var(--color-text-secondary);
+    }
+  }
+  @media (min-width: 80rem) {
+    /* A coluna do texto termina na metade da área (50% − meio vão). Era onde começava o 2º spread
+       da coleção; com os cards verticais (ADR-095) a grade não segue mais esta linha — a capa não mudou. */
+    .garage-cover__text {
+      width: calc(50% - var(--garage-gap) / 2 - 0.75rem);
+    }
+  }
+  @media (min-width: 90rem) {
+    .garage-cover {
+      --garage-title-size: var(--garage-title);
+    }
+    .garage-cover__slogan {
+      margin-top: clamp(1rem, calc(1rem + 4 * (100vw - 1440px) / 1120), 1.25rem);
+    }
+    .garage-cover__actions {
+      margin-top: clamp(1.25rem, calc(1.25rem + 6 * (100vw - 1440px) / 1120), 1.625rem);
+    }
+    .garage-cover__lede {
+      font-size: clamp(0.9375rem, calc(0.9375rem + 1 * (100vw - 1440px) / 1120), 1rem);
+    }
+  }
+
+  /* Capa (A3.1): uma imagem só, já composta (carro + recortes de roda e motor), 3:1, com a
+     esquerda quase preta. A partir de 1280 ela aparece inteira, alinhada à direita, na altura
+     da capa — o título fica sobre a área escura dela, o carro começa depois do texto. Entre
+     1024 e 1279 mostra só o trecho do carro e dos recortes, ao lado do texto. */
+  .garage-cover__photo {
+    position: absolute;
+    inset-block: 0;
+    left: 56%;
+    right: 0;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, black 22%);
+    mask-image: linear-gradient(90deg, transparent 0, black 22%);
+  }
+  .garage-cover__photo picture,
+  .garage-cover__photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+  .garage-cover__photo img {
+    object-fit: cover;
+    object-position: 81% 50%;
+  }
+  @media (min-width: 80rem) {
+    .garage-cover__photo {
+      left: auto;
+      aspect-ratio: 3 / 1;
+    }
+    .garage-cover__photo img {
+      object-position: center;
+    }
+  }
+  /* Tema claro: nada de degradê do claro para a foto escura — chapa de borda seca. No desktop
+     ela começa um pouco antes do carro (33% da imagem), longe do texto. */
+  .light .garage-cover__photo {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  @media (min-width: 80rem) {
+    .light .garage-cover__photo {
+      clip-path: inset(0 0 0 33%);
+    }
+  }
+
+  /* ---------- Resumo: ficha de dados da garagem ---------- */
+  /* Filete à esquerda de cada célula; o da primeira célula visível fica fora da caixa
+     (margem negativa + overflow) — célula escondida por largura não deixa filete órfão. */
+  .garage-summary {
+    --stat-pad: 0.875rem;
+    display: flex;
+    align-items: stretch;
+    gap: 0.5rem;
+    min-height: 3.625rem;
+    border-block: 1px solid var(--color-hairline);
+  }
+  .garage-summary__cells {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    min-width: 0;
+    margin-left: calc(-1 * var(--stat-pad) - 1px);
+    clip-path: inset(0 0 0 calc(var(--stat-pad) + 1px));
+  }
+  /* Rótulos alinhados no topo: com ou sem dica embaixo, os valores ficam na mesma linha. */
+  .garage-stat {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    gap: 0.1875rem;
+    min-width: 0;
+    padding: 0.625rem var(--stat-pad) 0.5rem;
+    border-left: 1px solid var(--color-hairline);
+  }
+  .garage-stat__label {
+    font-size: 0.625rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--color-text-secondary);
+  }
+  .garage-stat__value {
+    font-family: var(--font-display);
+    font-size: 1.0625rem;
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    color: var(--color-text-primary);
+  }
+  .garage-stat__value--text {
+    max-width: 18rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 600;
+    line-height: 1.3;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .garage-stat__ok {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    color: var(--color-text-primary);
+  }
+  .garage-stat__ok svg {
+    color: var(--color-success);
+  }
+  .garage-stat__hint {
+    font-size: 0.75rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--color-text-secondary);
+  }
+  .garage-summary__details {
+    margin-left: auto;
+    align-self: center;
+    flex-shrink: 0;
+  }
+  @media (min-width: 64rem) {
+    .garage-summary {
+      min-height: var(--garage-summary-h);
+      border-top: 0;
+    }
+    .garage-summary {
+      --stat-pad: clamp(1.75rem, calc(1.75rem + 12 * (100vw - 1440px) / 1120), 2.5rem);
+    }
+    .garage-summary__cells {
+      flex-wrap: nowrap;
+    }
+    .garage-stat {
+      flex-shrink: 0;
+      gap: 0.3125rem;
+      padding-block: clamp(0.875rem, calc(0.875rem + 4 * (100vw - 1440px) / 1120), 1.125rem) 0.625rem;
+    }
+    /* Manutenção prevista é a única que encolhe: nome e dica cortam com reticências, nunca quebram a faixa. */
+    .garage-stat:has(.garage-stat__value--text) {
+      flex-shrink: 1;
+    }
+    .garage-stat__value--text {
+      -webkit-line-clamp: 1;
+    }
+    .garage-stat__label {
+      font-size: 0.65625rem;
+      letter-spacing: 0.14em;
+    }
+    .garage-stat__value {
+      font-size: var(--garage-stat);
+      line-height: 1.05;
+    }
+    .garage-stat__ok,
+    .garage-stat__value--text {
+      font-size: 0.9375rem;
+    }
+  }
+
+  /* ---------- Coleção ---------- */
+  .garage-collection {
+    container: garage-collection / inline-size;
+    padding-top: 1.125rem;
+  }
+  /*
+   * Grade de cards verticais (revisão dos cards A3). Três regras:
+   * - colunas pela largura útil: cabem quantas tiverem `--garage-card-min`
+   *   (auto-fit), e os cards repartem a linha;
+   * - teto da grade = min(nº de veículos, colunas da faixa) × `--garage-card-max`.
+   *   Com poucos veículos a grade encolhe — os cards não esticam até virar
+   *   painel — e fica na margem da página, embaixo do título, alinhada à capa
+   *   e ao resumo. Rejeitado: centralizar a grade (os cards ficavam soltos no
+   *   meio, desalinhados de todo o resto);
+   * - colunas da faixa por container query (largura da coleção, não viewport):
+   *   1 até 687px, 2 até 1055, 3 até 1503, 4 até 2047, 5 acima.
+   */
+  .garage-grid {
+    --grid-gap: 1.125rem;
+    --cols: 5;
+    --n: 99;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--garage-card-min)), 1fr));
+    gap: var(--grid-gap);
+    width: 100%;
+    max-width: calc(min(var(--n), var(--cols)) * (var(--garage-card-max) + var(--grid-gap)) - var(--grid-gap));
+  }
+  .garage-grid:has(> :last-child:nth-child(1)) {
+    --n: 1;
+  }
+  .garage-grid:has(> :last-child:nth-child(2)) {
+    --n: 2;
+  }
+  .garage-grid:has(> :last-child:nth-child(3)) {
+    --n: 3;
+  }
+  .garage-grid:has(> :last-child:nth-child(4)) {
+    --n: 4;
+  }
+  @container garage-collection (max-width: 42.99rem) {
+    .garage-grid {
+      --cols: 1;
+    }
+  }
+  @container garage-collection (min-width: 43rem) and (max-width: 65.99rem) {
+    .garage-grid {
+      --cols: 2;
+    }
+  }
+  @container garage-collection (min-width: 66rem) and (max-width: 93.99rem) {
+    .garage-grid {
+      --cols: 3;
+    }
+  }
+  @container garage-collection (min-width: 94rem) and (max-width: 127.99rem) {
+    .garage-grid {
+      --cols: 4;
+    }
+  }
+  @media (min-width: 64rem) {
+    .garage-collection {
+      padding-top: clamp(1.875rem, calc(1.875rem + 10 * (100vw - 1440px) / 1120), 2.5rem);
+    }
+    .garage-grid {
+      --grid-gap: var(--garage-gap);
+    }
+  }
+  /* Com uma ficha aberta, o card cresce sozinho: o vizinho da linha não estica (senão ganharia
+     um vão entre o nome e os números). Fechada, os cards da linha têm a mesma altura e os
+     indicadores e a faixa de registros alinhados no fundo. */
+  .garage-grid:has(.garage-card__specs[data-open="true"]) {
+    align-items: start;
+  }
+
+  /* ---------- Card vertical ----------
+   * Mesma composição em toda largura: foto 16:10 (status e "⋯" sobre ela),
+   * identificação, indicadores + seta, faixa de ficha técnica e registros.
+   * Sem `overflow: hidden` no card: as dicas dos ícones podem passar da
+   * faixa; a foto arredonda os próprios cantos de cima.
+   */
+  .garage-card {
+    --card-pad: 1rem;
+    --card-radius: var(--radius-lg);
+    container: garage-card / inline-size;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--card-radius);
+    background: var(--color-surface);
+    transition: border-color var(--duration-fast) var(--ease-standard);
+  }
+  /* Laranja só como estado de interação — nunca borda permanente de "selecionado". */
+  .garage-card:hover {
+    border-color: color-mix(in srgb, var(--color-accent) 50%, var(--color-border));
+  }
+  .garage-card__grid {
+    flex: 1;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto 1fr auto auto auto;
+    grid-template-areas:
+      "photo"
+      "body"
+      "figures"
+      "foot"
+      "specs";
+  }
+
+  /* Foto: largura toda, 16:9 — panorâmica como na referência. As fotos do app saem 4:3 do
+     recorte (ADR-081) e perdem ~12% em cima e embaixo, centralizadas; nada de filtro nem troca
+     de fundo. */
+  .garage-card__photo {
+    grid-area: photo;
+    width: 100%;
+    min-width: 0;
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    border-radius: calc(var(--card-radius) - 1px) calc(var(--card-radius) - 1px) 0 0;
+    background: var(--color-bg);
+  }
+  /* Tema escuro: como na referência, a foto se funde no corpo do card — o terço de baixo
+     escurece até a cor do card, sem borda entre os dois. Nenhum texto fica sobre a foto.
+     No claro, chapa de borda seca (degradê para o claro lavaria o carro). */
+  :root:not(.light) .garage-card__photo:not([data-empty])::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 42%;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      color-mix(in srgb, var(--color-surface) 45%, transparent) 55%,
+      var(--color-surface)
+    );
+    pointer-events: none;
+  }
+  /* Sem foto / foto que falhou: superfície um degrau acima do card, filete interno. */
+  .garage-card__photo[data-empty] {
+    background: color-mix(in srgb, var(--color-text-primary) 5%, var(--color-surface));
+    box-shadow: inset 0 0 0 1px var(--color-hairline);
+  }
+  .garage-card__empty {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    /* Topo livre para o selo de status e o "⋯". */
+    padding: 2.75rem 1rem 0.75rem;
+    text-align: center;
+  }
+  /* Uma coluna (celular): sem vizinho na linha para alinhar, a região vazia encolhe. */
+  @container garage-collection (max-width: 42.99rem) {
+    .garage-card__photo[data-empty] {
+      aspect-ratio: auto;
+      min-height: 10.5rem;
+    }
+  }
+
+  /* Status: pílula escura no canto superior esquerdo da foto (ou da região vazia).
+     Fica sob o link esticado — clicar nela abre o veículo, como o resto da foto. */
+  .garage-card__status {
+    grid-area: photo;
+    align-self: start;
+    justify-self: start;
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4375rem;
+    height: 1.75rem;
+    margin: 0.75rem 0 0 0.75rem;
+    padding-inline: 0.625rem 0.75rem;
+    border-radius: 9999px;
+    background: var(--garage-chip-bg);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--garage-chip-fg) 16%, transparent);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    white-space: nowrap;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--garage-chip-fg);
+  }
+  .garage-card__dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    flex-shrink: 0;
+    border-radius: 9999px;
+  }
+  .garage-card__dot[data-status="active"] {
+    background: var(--color-success);
+  }
+  .garage-card__dot[data-status="project"] {
+    background: var(--color-accent);
+  }
+  .garage-card__dot[data-status="stored"] {
+    background: color-mix(in srgb, var(--garage-chip-fg) 55%, transparent);
+  }
+  .garage-card__dot[data-status="sold"] {
+    box-shadow: inset 0 0 0 1.5px var(--garage-chip-fg);
+  }
+  /* "⋯" no canto superior direito da foto: alvo de 44px, chapa visível de 28px. */
+  .garage-card__menu {
+    grid-area: photo;
+    align-self: start;
+    justify-self: end;
+    position: relative;
+    z-index: 10;
+    margin: 0.25rem 0.25rem 0 0;
+  }
+
+  /* Identificação: marca discreta, modelo em destaque (quebra, nunca reticências), ano/versão. */
+  .garage-card__body {
+    grid-area: body;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: 0.625rem var(--card-pad) 0;
+  }
+  /* Marca em texto normal, discreta, logo acima do modelo — como na referência. */
+  .garage-card__make {
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.3;
+    overflow-wrap: break-word;
+    color: var(--color-text-secondary);
+  }
+  .garage-card__model {
+    margin-top: 0.0625rem;
+    font-family: var(--font-display);
+    font-size: 1.375rem;
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+    overflow-wrap: break-word;
+    color: var(--color-text-primary);
+  }
+  .garage-card__sub {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.625rem;
+    margin-top: 0.375rem;
+    font-size: 0.875rem;
+    color: var(--color-text-secondary);
+  }
+
+  /* Indicadores + seta. Se os dois valores não cabem lado a lado, o segundo desce — a seta
+     nunca espreme os números. Valor só quebra no espaço ("R$ | 1.234.567,89"). */
+  .garage-card__figures {
+    grid-area: figures;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.875rem var(--card-pad) 0;
+    padding-block: 0.75rem 0.875rem;
+    border-top: 1px solid var(--color-hairline);
+  }
+  /* Filete vertical entre os dois indicadores, como na referência. Cada indicador tem filete à
+     esquerda; o de quem começa a linha fica fora da caixa (margem negativa + clip-path) — quando
+     o segundo desce para outra linha, não sobra filete solto ao lado dele. */
+  .garage-card__metrics {
+    --metric-gap: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+    flex: 1;
+    min-width: 0;
+    margin-left: calc(-1 * var(--metric-gap) - 1px);
+    /* Devolve a margem direita do último indicador, que não separa nada. */
+    margin-right: calc(-1 * var(--metric-gap));
+    clip-path: inset(0 0 0 calc(var(--metric-gap) + 1px));
+  }
+  .garage-card__metric {
+    margin-right: var(--metric-gap);
+    padding-left: var(--metric-gap);
+    border-left: 1px solid var(--color-hairline);
+  }
+  /* Ícone à esquerda (máscara em cor de token), valor em cima, rótulo embaixo — como na referência.
+     O ícone é pseudo-elemento: dentro de <dl> só cabem <dt>/<dd>. */
+  .garage-card__metric {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    grid-template-areas:
+      "icon value"
+      "icon label";
+    align-items: center;
+    column-gap: 0.5rem;
+    min-width: 0;
+  }
+  .garage-card__metric::before {
+    content: "";
+    grid-area: icon;
+    width: 1.25rem;
+    height: 1.25rem;
+    background: var(--color-text-secondary);
+    -webkit-mask: var(--metric-icon) center / contain no-repeat;
+    mask: var(--metric-icon) center / contain no-repeat;
+  }
+  .garage-card__metric[data-icon="odometer"] {
+    --metric-icon: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27black%27 stroke-width=%271.75%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Cpath d=%27m12 14 4-4%27/%3E%3Cpath d=%27M3.34 19a10 10 0 1 1 17.32 0%27/%3E%3C/svg%3E");
+  }
+  .garage-card__metric[data-icon="money"] {
+    --metric-icon: url("data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 24 24%27 fill=%27none%27 stroke=%27black%27 stroke-width=%271.75%27 stroke-linecap=%27round%27 stroke-linejoin=%27round%27%3E%3Ccircle cx=%2712%27 cy=%2712%27 r=%2710%27/%3E%3Cpath d=%27M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8%27/%3E%3Cpath d=%27M12 18V6%27/%3E%3C/svg%3E");
+  }
+  .garage-card__metric dd {
+    grid-area: value;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    line-height: 1.25;
+    font-variant-numeric: tabular-nums;
+    color: var(--color-text-primary);
+  }
+  .garage-card__metric dd[data-missing] {
+    font-weight: 500;
+    color: var(--color-text-secondary);
+  }
+  .garage-card__metric dt {
+    grid-area: label;
+    margin-top: 0.0625rem;
+    font-size: 0.6875rem;
+    color: var(--color-text-secondary);
+  }
+  .garage-card__go {
+    position: relative;
+    z-index: 10;
+    display: grid;
+    place-items: center;
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  /* Faixa secundária: ficha técnica à esquerda, os quatro registros à direita. */
+  .garage-card__foot {
+    grid-area: foot;
+    position: relative;
+    z-index: 10;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 0.25rem 0 0.5rem;
+    border-top: 1px solid var(--color-hairline);
+  }
+  .garage-card__ficha-toggle {
+    display: inline-flex;
+    align-items: center;
+  }
+  .garage-card__actions {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+  }
+  .garage-card__specs {
+    grid-area: specs;
+    position: relative;
+    z-index: 10;
+    padding: 0.75rem var(--card-pad) 1rem;
+    border-top: 1px solid var(--color-hairline);
+  }
+  .garage-card__specs[data-open="false"] {
+    display: none;
+  }
+  .garage-card__specs dl {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.75rem 1rem;
+  }
+  .garage-card__specs dt {
+    font-size: 0.75rem;
+    color: var(--color-text-secondary);
+  }
+  .garage-card__specs dd {
+    font-size: 0.875rem;
+    font-weight: 500;
+    overflow-wrap: anywhere;
+    color: var(--color-text-primary);
+  }
+
+  /* Card até 368px (celulares, 1024, 4 por linha): ícone e respiro menores para os dois valores
+     caberem lado a lado. Com seis dígitos de km num card de 328px, o segundo ainda desce. */
+  @container garage-card (max-width: 23rem) {
+    .garage-card__metric {
+      column-gap: 0.375rem;
+    }
+    .garage-card__metric::before {
+      width: 1rem;
+      height: 1rem;
+    }
+    .garage-card__metrics {
+      --metric-gap: 0.625rem;
+    }
+    .garage-card__metric dd {
+      font-size: 0.9375rem;
+    }
+  }
+
+  /* Card estreito (celular de 320px): menos respiro lateral e faixa colada às bordas,
+     para a ficha e os quatro registros caberem numa linha só. */
+  @container garage-card (max-width: 19.99rem) {
+    .garage-card {
+      --card-pad: 0.875rem;
+    }
+    .garage-card__model {
+      font-size: 1.25rem;
+    }
+    .garage-card__metrics {
+      --metric-gap: 0.5rem;
+    }
+    .garage-card__foot {
+      padding-inline: 0.125rem 0;
+    }
+    .garage-card__ficha-toggle {
+      padding-inline: 0.5rem;
+    }
+    /* Fora da vista, não do nome acessível (mesma técnica do `sr-only`). */
+    .garage-card__ficha-more {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+}
+
+/*
+ * ADR-096 — cabeçalho sobre a capa (desktop, só na Minha garagem). Fora de
+ * camada: precisa vencer os utilitários do cabeçalho do shell (`sticky`,
+ * `bg-bg`, `border-b`). O cabeçalho sai do fluxo e fica por cima do topo do
+ * <main>, parando antes da barra de rolagem dele; transparente enquanto a
+ * página está no topo, sólido assim que rola (`data-overlay` some).
+ */
+@media (min-width: 64rem) {
+  /* Sem borda em nenhum estado: no topo flutua sobre a capa; rolado, a barra sólida basta. */
+  .shell-header--garage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: var(--shell-scrollbar, 0px);
+    border-bottom-width: 0;
+  }
+  /* Escuro: véu curto do fundo para transparente — os ícones continuam legíveis sobre os recortes
+     claros da colagem (roda, motor) sem escurecer a capa abaixo do cabeçalho. */
+  .shell-header--garage[data-overlay] {
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, var(--color-bg) 72%, transparent),
+      color-mix(in srgb, var(--color-bg) 0%, transparent)
+    );
+    border-bottom-color: transparent;
+  }
+  /* Claro: a parte direita do cabeçalho fica sobre a foto escura — véu claro para os ícones. */
+  .light .shell-header--garage[data-overlay] {
+    background: color-mix(in srgb, var(--color-bg) 72%, transparent);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+  }
+  /* A capa começa no topo do <main>, por trás do cabeçalho; o texto desce a altura dele. */
+  .garage-cover {
+    min-height: calc(var(--garage-cover-h) + var(--shell-header-h));
+    padding-top: var(--shell-header-h);
+  }
+  /* Até 1439 a foto mantém a geometria de antes, logo abaixo do cabeçalho (subir 64px com a
+     proporção 3:1 aumentaria o carro até passar por baixo do título em 1280–1439). */
+  .garage-cover__photo {
+    top: var(--shell-header-h);
+  }
+  /* Escuro, foto abaixo do cabeçalho: a borda de cima entra em degradê (24px) em vez de corte
+     seco — o corte, logo embaixo do cabeçalho, parecia uma linha. Soma-se ao degradê da esquerda. */
+  :root:not(.light) .garage-cover__photo {
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, black 22%), linear-gradient(180deg, transparent 0, black 1.5rem);
+    -webkit-mask-composite: source-in;
+    mask-image: linear-gradient(90deg, transparent 0, black 22%), linear-gradient(180deg, transparent 0, black 1.5rem);
+    mask-composite: intersect;
+  }
+}
+@media (min-width: 90rem) {
+  /* A partir de 1440 há folga: a foto sobe até o topo, atrás do cabeçalho, como na referência.
+     No claro a foto é chapa de borda seca começando antes do carro — subir deixaria 32px entre
+     o texto e a borda; ela fica abaixo do cabeçalho, como até 1439. */
+  :root:not(.light) .garage-cover__photo {
+    top: 0;
+  }
+}
+@media (prefers-reduced-motion: no-preference) and (min-width: 64rem) {
+  .shell-header--garage {
+    transition:
+      background-color var(--duration-base) var(--ease-standard),
+      border-color var(--duration-base) var(--ease-standard);
+  }
+}
+
+/* Busca da garagem ("Buscar na garagem…"), no cabeçalho (desktop) e na barra da coleção. */
+/* Sem `display` aqui: quem liga e desliga é o utilitário de quem usa (`hidden lg:flex` / `flex lg:hidden`). */
+.garage-search {
+  position: relative;
+  align-items: center;
+  height: var(--control-h);
+  min-width: 0;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  transition: border-color var(--duration-fast) var(--ease-standard);
+}
+.garage-search:hover {
+  border-color: var(--color-border-strong);
+}
+.garage-search:focus-within {
+  border-color: var(--color-accent);
+  box-shadow: var(--focus-ring-field);
+}
+.garage-search__icon {
+  position: absolute;
+  left: 0.875rem;
+  color: var(--color-text-secondary);
+  pointer-events: none;
+}
+.garage-search__input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  padding: 0 0.5rem 0 2.5rem;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 1rem;
+  color: var(--color-text-primary);
+}
+@media (min-width: 48rem) {
+  .garage-search__input {
+    font-size: 0.875rem;
+  }
+}
+.garage-search__input::placeholder {
+  color: var(--color-text-muted);
+}
+.garage-search__kbd {
+  flex-shrink: 0;
+  margin-right: 0.5rem;
+  padding: 0.1875rem 0.4375rem;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-raised);
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+.garage-search__clear {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: var(--control-h);
+  height: 100%;
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+}
+.garage-search__clear:hover {
+  color: var(--color-text-primary);
+}
+
+/*
+ * Fora de camada de propósito: precisa vencer os utilitários do `Button`
+ * (`hover:bg-state-hover`, cor do texto) no "⋯" sobre a foto, e posicionar
+ * as dicas dos botões só com ícone.
+ */
+.garage-card__menu > button {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+  color: var(--garage-chip-fg);
+}
+.garage-card__menu > button::before {
+  content: "";
+  position: absolute;
+  inset: 0.5rem;
+  z-index: -1;
+  border-radius: 9999px;
+  background: var(--garage-chip-bg);
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  transition: background-color var(--duration-fast) var(--ease-standard);
+}
+.garage-card__menu > button:hover::before,
+.garage-card__menu > button[data-state="open"]::before {
+  background: var(--garage-chip-bg-hover);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--garage-chip-fg) 35%, transparent);
+}
+
+/*
+ * Dica dos botões só com ícone (registros, seta, "⋯"): aparece no hover e no
+ * foco de teclado. O nome acessível continua sendo o `aria-label` — a dica é
+ * só visual (pseudo-elemento) e repete o mesmo texto. Ancorada pela borda
+ * direita do botão, para nunca passar da borda do card (nem criar rolagem
+ * horizontal no celular).
+ */
+.garage-page [data-tip] {
+  position: relative;
+}
+.garage-page [data-tip]::after {
+  content: attr(data-tip);
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.375rem);
+  z-index: 30;
+  padding: 0.3125rem 0.5rem;
+  border-radius: var(--radius-sm);
+  background: var(--color-text-primary);
+  color: var(--color-bg);
+  font-size: 0.75rem;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+}
+.garage-page [data-tip][data-tip-side="bottom"]::after {
+  top: calc(100% - 0.125rem);
+  bottom: auto;
+  right: 0.375rem;
+}
+.garage-page [data-tip]:hover::after,
+.garage-page [data-tip]:focus-visible::after {
+  opacity: 1;
+  visibility: visible;
+}
+/* Com o menu aberto, a dica do "⋯" sairia por cima do próprio menu. */
+.garage-page [data-tip][data-state="open"]::after {
+  opacity: 0;
+  visibility: hidden;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .garage-page [data-tip]::after {
+    transition:
+      opacity var(--duration-fast) var(--ease-standard),
+      visibility var(--duration-fast);
+  }
+}
+
+/*
+ * ADR-096 — barra da coleção, como na referência: abas por status com a
+ * contagem e um filete embaixo, ordenação e grade/lista à direita. Fora de
+ * camada: o `<select>` do `Select` traz `w-full` em utilitário.
+ */
+.garage-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem 1rem;
+  margin-bottom: 1rem;
+}
+.garage-toolbar__search {
+  flex: 1 1 100%;
+}
+.garage-tabs {
+  display: flex;
+  gap: 1.5rem;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--color-hairline);
+}
+.garage-tabs::-webkit-scrollbar {
+  display: none;
+}
+.garage-tab {
+  position: relative;
+  flex-shrink: 0;
+  min-height: var(--control-h);
+  padding-inline: 0.125rem;
+  white-space: nowrap;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+.garage-tab:hover {
+  color: var(--color-text-primary);
+}
+/* A faixa rola na horizontal e cortaria o contorno de foco por fora. */
+.garage-tab:focus-visible {
+  outline-offset: -2px;
+}
+.garage-tab[aria-pressed="true"] {
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+.garage-tab[aria-pressed="true"]::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0;
+  height: 2px;
+  background: var(--color-accent);
+}
+.garage-tab__count {
+  font-weight: 400;
+  color: var(--color-text-secondary);
+}
+.garage-toolbar__controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+.garage-sort {
+  width: 12.5rem;
+}
+.garage-view {
+  display: flex;
+  gap: 0.375rem;
+}
+.garage-view__button {
+  display: grid;
+  place-items: center;
+  width: var(--control-h);
+  height: var(--control-h);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  color: var(--color-text-secondary);
+  transition:
+    color var(--duration-fast) var(--ease-standard),
+    border-color var(--duration-fast) var(--ease-standard),
+    background-color var(--duration-fast) var(--ease-standard);
+}
+.garage-view__button:hover {
+  border-color: var(--color-border-strong);
+  color: var(--color-text-primary);
+}
+.garage-view__button[aria-pressed="true"] {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  color: var(--color-accent);
+}
+/* Uma coluna só (celular): lista e grade seriam iguais — o controle some e vale a grade. A ordenação
+   divide a linha com a busca e as abas descem, para o primeiro carro aparecer cedo. */
+@container garage-collection (max-width: 42.99rem) {
+  .garage-view {
+    display: none;
+  }
+  .garage-toolbar {
+    gap: 0.625rem 0.5rem;
+  }
+  .garage-toolbar__search {
+    flex: 1 1 0;
+  }
+  .garage-toolbar__controls {
+    order: 1;
+  }
+  .garage-tabs {
+    order: 2;
+    flex-basis: 100%;
+  }
+  .garage-sort {
+    width: 9.5rem;
+  }
+}
+.garage-filter-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1.5rem 0 2rem;
+}
+
+/*
+ * Lista (ADR-096): o mesmo card, deitado — miniatura 16:10 à esquerda,
+ * identificação, indicadores + seta; a faixa de ficha e registros embaixo
+ * do texto. Só com coleção de 2+ colunas possíveis; no celular vale a grade.
+ */
+@container garage-collection (min-width: 43rem) {
+  .garage-grid[data-view="list"] {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 75rem;
+    gap: 0.875rem;
+  }
+  .garage-grid[data-view="list"] .garage-card__grid {
+    grid-template-columns: 14rem minmax(0, 1fr) auto;
+    grid-template-rows: 1fr auto auto;
+    grid-template-areas:
+      "photo body figures"
+      "photo foot foot"
+      "photo specs specs";
+  }
+  .garage-grid[data-view="list"] .garage-card__photo {
+    align-self: stretch;
+    border-radius: calc(var(--card-radius) - 1px) 0 0 calc(var(--card-radius) - 1px);
+  }
+  .garage-grid[data-view="list"] .garage-card__photo[data-empty] {
+    aspect-ratio: 16 / 9;
+    min-height: 0;
+  }
+  .garage-grid[data-view="list"] .garage-card__photo::after,
+  .garage-grid[data-view="list"] .garage-card__empty-icon {
+    display: none;
+  }
+  .garage-grid[data-view="list"] .garage-card__body {
+    align-self: center;
+    padding: 1rem 1.25rem;
+  }
+  .garage-grid[data-view="list"] .garage-card__figures {
+    align-self: center;
+    margin: 0;
+    padding: 0 1.25rem;
+    border-top: 0;
+  }
+}
+@container garage-collection (min-width: 60rem) {
+  .garage-grid[data-view="list"] .garage-card__grid {
+    grid-template-columns: 16rem minmax(0, 1fr) auto;
+  }
+  .garage-grid[data-view="list"] .garage-card__metrics {
+    --metric-gap: 1.5rem;
+    flex-wrap: nowrap;
+  }
+}
+
+/*
+ * ADR-097 — placa no padrão Mercosul: chapa branca, faixa azul em cima e
+ * caracteres pretos, nos dois temas (é o objeto, não interface). Pequena,
+ * ao lado de ano · versão, para não competir com o nome.
+ */
+.garage-plate {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-end;
+  height: 1.5rem;
+  padding: 0 0.4375rem 0.1875rem;
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--plate-ink) 55%, transparent);
+  border-radius: 0.1875rem;
+  background: var(--plate-paper);
+  font-family: var(--font-display);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.1em;
+  white-space: nowrap;
+  color: var(--plate-ink);
+}
+.garage-plate::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 0.375rem;
+  background: var(--plate-band);
+}
+
+/*
+ * ADR-097 — "vaga livre": o último lugar da grade é o gatilho do cadastro
+ * (o `Button` do `CreateVehicleDialog`). Fora de camada para vencer os
+ * utilitários do botão primário (fundo laranja, altura fixa). Tracejado e
+ * neutro em repouso; laranja só no hover/foco.
+ */
+.garage-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: auto;
+  min-height: 12rem;
+  padding: 1.5rem;
+  border: 1.5px dashed var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  white-space: normal;
+  text-align: center;
+  color: var(--color-text-secondary);
+}
+.garage-slot:hover {
+  border-color: var(--color-accent);
+  background: color-mix(in srgb, var(--color-accent) 6%, transparent);
+  color: var(--color-text-primary);
+}
+.garage-slot__plus {
+  display: grid;
+  place-items: center;
+  width: var(--control-h);
+  height: var(--control-h);
+  margin-bottom: 0.25rem;
+  border-radius: 9999px;
+  background: color-mix(in srgb, var(--color-accent) 14%, transparent);
+  color: var(--color-accent);
+}
+.garage-slot__eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+.garage-slot__title {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--color-text-primary);
+}
+@container garage-collection (max-width: 42.99rem) {
+  .garage-slot {
+    min-height: 8.5rem;
+  }
+}
+/*
+ * Ficha técnica aberta: a grade vai a `align-items: start` e a vaga perderia a
+ * altura da linha. Ela fica com a altura que tinha com as fichas fechadas
+ * (`--garage-slot-rest-h`, medida no `VehicleListPage`); sem medida, o mínimo de
+ * sempre. Só na grade — na lista cada vaga é uma faixa baixa.
+ */
+.garage-grid:not([data-view="list"]):has(.garage-card__specs[data-open="true"]) > .garage-slot {
+  min-height: var(--garage-slot-rest-h, 12rem);
+}
+@container garage-collection (min-width: 43rem) {
+  .garage-grid[data-view="list"] .garage-slot {
+    flex-direction: row;
+    gap: 0.875rem;
+    min-height: 5.5rem;
+  }
+  .garage-grid[data-view="list"] .garage-slot__plus {
+    margin-bottom: 0;
+  }
+}

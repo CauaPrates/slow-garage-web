@@ -8,10 +8,66 @@ import { Button } from "@/components/ui/button";
 import { TimelineItem } from "@/features/timeline/TimelineItem";
 import { useGarageTimeline } from "@/features/vehicle/useGarageTimeline";
 import type { VehicleWithSummary } from "@/features/vehicle/useVehicles";
+import { HEADER_ICON_BUTTON_CLASSNAME, NAV_EYEBROW_CLASSNAME } from "./navStyles";
+import { Skeleton } from "@/components/ui/skeleton";
 
 type HeaderActivityMenuProps = {
   vehicles: VehicleWithSummary[];
 };
+
+/**
+ * Conteúdo da atividade recente, sem o popover em volta — reaproveitado pelo
+ * `HeaderInboxMenu` (cabeçalho estreito, redesign etapa 02). Mesma fonte e
+ * mesmo limite de antes (`useGarageTimeline`); o React Query serve as duas
+ * montagens do mesmo cache.
+ */
+export function ActivityFeedPanel({ vehicles }: HeaderActivityMenuProps) {
+  const feedQuery = useGarageTimeline(vehicles.map((v) => v.id));
+  const vehicleLabelById = new Map(
+    vehicles.map((v) => [v.id, `${v.make} ${v.model}`]),
+  );
+  const showVehicleLabel = vehicles.length > 1;
+
+  return (
+    <>
+      {feedQuery.isLoading && (
+        <div className="flex flex-col gap-2">
+          {[1, 2, 3].map((i) => (
+            <Skeleton key={i} className="h-16 rounded-lg bg-state-hover" />
+          ))}
+        </div>
+      )}
+
+      {feedQuery.isError && (
+        <p className="text-sm text-text-secondary">
+          Não foi possível carregar a atividade recente.
+        </p>
+      )}
+
+      {feedQuery.data && feedQuery.data.length === 0 && (
+        <p className="text-sm text-text-secondary">
+          Nenhuma atividade registrada ainda. Registre um gasto, abastecimento
+          ou manutenção pra começar.
+        </p>
+      )}
+
+      {feedQuery.data && feedQuery.data.length > 0 && (
+        <div className="flex max-h-96 flex-col gap-2 overflow-y-auto">
+          {feedQuery.data.map((event) => (
+            <div key={`${event.source_table}-${event.source_id}`}>
+              {showVehicleLabel && (
+                <p className={`${NAV_EYEBROW_CLASSNAME} truncate pb-1`}>
+                  {vehicleLabelById.get(event.vehicle_id) ?? ""}
+                </p>
+              )}
+              <TimelineItem vehicleId={event.vehicle_id} event={event} />
+            </div>
+          ))}
+        </div>
+      )}
+    </>
+  );
+}
 
 /**
  * Fase 15: mesma posição de "olhar rápido" do `HeaderAlertsMenu` (ícone +
@@ -23,12 +79,6 @@ type HeaderActivityMenuProps = {
  * query.
  */
 export function HeaderActivityMenu({ vehicles }: HeaderActivityMenuProps) {
-  const feedQuery = useGarageTimeline(vehicles.map((v) => v.id));
-  const vehicleLabelById = new Map(
-    vehicles.map((v) => [v.id, `${v.make} ${v.model}`]),
-  );
-  const showVehicleLabel = vehicles.length > 1;
-
   if (vehicles.length === 0) return null;
 
   return (
@@ -38,51 +88,16 @@ export function HeaderActivityMenu({ vehicles }: HeaderActivityMenuProps) {
           variant="ghost"
           size="icon"
           aria-label="Atividade recente"
-          className="group relative h-10 w-10 rounded-full text-text-secondary transition-all duration-200 hover:bg-surface/80 hover:text-text-primary"
+          className={HEADER_ICON_BUTTON_CLASSNAME}
         >
-          <History className="h-5 w-5 transition-transform duration-200 group-hover:scale-110 group-hover:text-accent" aria-hidden="true" />
+          <History className="h-5 w-5" aria-hidden="true" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-96">
-        <h2 className="mb-3 text-sm font-medium text-text-primary">
+        <h2 className="mb-3 text-sm font-semibold text-text-primary">
           Atividade recente
         </h2>
-
-        {feedQuery.isLoading && (
-          <div className="flex flex-col gap-2">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="h-16 animate-pulse rounded-lg bg-bg" />
-            ))}
-          </div>
-        )}
-
-        {feedQuery.isError && (
-          <p className="text-sm text-text-secondary">
-            Não foi possível carregar a atividade recente.
-          </p>
-        )}
-
-        {feedQuery.data && feedQuery.data.length === 0 && (
-          <p className="text-sm text-text-secondary">
-            Nenhuma atividade registrada ainda. Registre um gasto, abastecimento
-            ou manutenção pra começar.
-          </p>
-        )}
-
-        {feedQuery.data && feedQuery.data.length > 0 && (
-          <div className="flex max-h-96 flex-col gap-2 overflow-y-auto">
-            {feedQuery.data.map((event) => (
-              <div key={`${event.source_table}-${event.source_id}`}>
-                {showVehicleLabel && (
-                  <p className="pb-1 text-xs font-medium tracking-wide text-text-secondary uppercase">
-                    {vehicleLabelById.get(event.vehicle_id) ?? ""}
-                  </p>
-                )}
-                <TimelineItem vehicleId={event.vehicle_id} event={event} />
-              </div>
-            ))}
-          </div>
-        )}
+        <ActivityFeedPanel vehicles={vehicles} />
       </PopoverContent>
     </Popover>
   );

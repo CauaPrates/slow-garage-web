@@ -41,8 +41,9 @@ export const issueSchema = z.object({
   diagnosis: optionalText,
   resolution: optionalText,
   resolvedOn: optionalText,
-  odometerKm: optionalNonNegativeInt("a quilometragem"),
-  cost: optionalNonNegativeNumber("o custo"),
+  // Etapa 08: só o texto do valor inválido ("a quilometragem inválido." não concordava); regras iguais.
+  odometerKm: optionalNonNegativeInt("a quilometragem", "Quilometragem inválida."),
+  cost: optionalNonNegativeNumber("o custo", "Custo inválido."),
 });
 
 export type IssueFormInput = z.input<typeof issueSchema>;

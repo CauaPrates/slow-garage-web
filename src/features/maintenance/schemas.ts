@@ -9,21 +9,27 @@ export const PRIORITY_LEVEL_LABELS: Record<(typeof PRIORITY_LEVELS)[number], str
   high: "Alta",
 };
 
-/** RN-3: o banco recusa os dois vazios — o cliente valida antes de qualquer chamada de rede. */
+/** Erro da periodicidade (nenhum dos dois intervalos) — o formulário o mostra uma vez, para os dois campos. */
+export const INTERVAL_REQUIRED_MESSAGE = "Informe o intervalo em km, em meses ou os dois.";
+
+/**
+ * RN-3: o banco recusa os dois vazios — o cliente valida antes de qualquer chamada de rede.
+ * Etapa 07: só os textos mudaram ("o intervalo em km inválido." não concordava); regras iguais.
+ */
 export const maintenanceItemSchema = z
   .object({
     name: z.string().trim().min(1, "Informe o nome."),
     category: optionalText,
-    intervalKm: optionalNonNegativeInt("o intervalo em km"),
-    intervalMonths: optionalNonNegativeInt("o intervalo em meses"),
+    intervalKm: optionalNonNegativeInt("o intervalo em km", "Intervalo em km inválido."),
+    intervalMonths: optionalNonNegativeInt("o intervalo em meses", "Intervalo em meses inválido."),
     priority: z.enum(PRIORITY_LEVELS),
     description: optionalText,
-    estimatedCost: optionalNonNegativeNumber("o custo estimado"),
+    estimatedCost: optionalNonNegativeNumber("o custo estimado", "Custo estimado inválido."),
     notes: optionalText,
     isActive: z.boolean(),
   })
   .refine((data) => data.intervalKm !== undefined || data.intervalMonths !== undefined, {
-    message: "Informe o intervalo por quilometragem ou por mês (pelo menos um dos dois).",
+    message: INTERVAL_REQUIRED_MESSAGE,
     path: ["intervalKm"],
   });
 
@@ -34,9 +40,9 @@ export type MaintenanceItemFormOutput = z.output<typeof maintenanceItemSchema>;
 export const maintenanceRecordSchema = z.object({
   maintenanceItemId: optionalText,
   name: z.string().trim().min(1, "Informe o nome."),
-  odometerKm: optionalNonNegativeInt("a quilometragem"),
+  odometerKm: optionalNonNegativeInt("a quilometragem", "Quilometragem inválida."),
   performedOn: optionalText,
-  cost: optionalNonNegativeNumber("o custo"),
+  cost: optionalNonNegativeNumber("o custo", "Custo inválido."),
   vendor: optionalText,
   notes: optionalText,
 });

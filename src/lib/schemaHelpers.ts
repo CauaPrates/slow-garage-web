@@ -4,40 +4,45 @@ import { z } from "zod";
  * Helpers de validação zod compartilhados por qualquer formulário que
  * espelhe constraint numérica do banco (not null / check >= 0) sobre um
  * `<input>` nativo, cujo valor sempre chega como string.
+ *
+ * `invalidMessage` (opcional) troca só o texto do valor inválido — o padrão
+ * `${label} inválido.` sai sem concordância ("a quilometragem inválido.").
+ * Etapa 06: os formulários que passam o texto próprio corrigem a frase sem
+ * mexer na regra; os demais continuam com o padrão.
  */
 
-export const requiredNonNegativeInt = (label: string) =>
+export const requiredNonNegativeInt = (label: string, invalidMessage = `${label} inválido.`) =>
   z
     .string()
     .min(1, `Informe ${label}.`)
     .transform((val) => Number(val))
-    .refine((val) => Number.isInteger(val) && val >= 0, `${label} inválido.`);
+    .refine((val) => Number.isInteger(val) && val >= 0, invalidMessage);
 
-export const requiredNonNegativeNumber = (label: string) =>
+export const requiredNonNegativeNumber = (label: string, invalidMessage = `${label} inválido.`) =>
   z
     .string()
     .min(1, `Informe ${label}.`)
     .transform((val) => Number(val))
-    .refine((val) => !Number.isNaN(val) && val >= 0, `${label} inválido.`);
+    .refine((val) => !Number.isNaN(val) && val >= 0, invalidMessage);
 
-export const optionalNonNegativeNumber = (label: string) =>
+export const optionalNonNegativeNumber = (label: string, invalidMessage = `${label} inválido.`) =>
   z
     .string()
     .optional()
     .transform((val) => (val === undefined || val.trim() === "" ? undefined : Number(val)))
     .refine(
       (val) => val === undefined || (!Number.isNaN(val) && val >= 0),
-      `${label} inválido.`,
+      invalidMessage,
     );
 
-export const optionalNonNegativeInt = (label: string) =>
+export const optionalNonNegativeInt = (label: string, invalidMessage = `${label} inválido.`) =>
   z
     .string()
     .optional()
     .transform((val) => (val === undefined || val.trim() === "" ? undefined : Number(val)))
     .refine(
       (val) => val === undefined || (Number.isInteger(val) && val >= 0),
-      `${label} inválido.`,
+      invalidMessage,
     );
 
 export const optionalText = z

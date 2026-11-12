@@ -64,7 +64,8 @@ export const expenseSchema = z.object({
   description: optionalText,
   occurredOn: optionalText,
 
-  odometerKm: optionalNonNegativeInt("a quilometragem"),
+  // Etapa 10: só o texto ("a quilometragem inválido." antes); a regra é a mesma. Vale também em Gastos (mesmo schema).
+  odometerKm: optionalNonNegativeInt("a quilometragem", "Informe uma quilometragem válida."),
   vendor: optionalText,
   paymentMethod: optionalEnum(PAYMENT_METHODS),
   notes: optionalText,

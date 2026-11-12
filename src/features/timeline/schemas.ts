@@ -76,7 +76,8 @@ export const noteSchema = z.object({
   title: optionalText,
   body: optionalText,
   occurredOn: optionalText,
-  odometerKm: optionalNonNegativeInt("a quilometragem"),
+  // Etapa 13: a frase da etapa 10 ("a quilometragem inválido." → esta); a regra é a mesma (inteiro ≥ 0, opcional, 0 aceito).
+  odometerKm: optionalNonNegativeInt("a quilometragem", "Informe uma quilometragem válida."),
 });
 
 export type NoteFormInput = z.input<typeof noteSchema>;

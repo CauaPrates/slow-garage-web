@@ -2,11 +2,17 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FieldError } from "@/components/ui/field-error";
+import {
+  FORM_DIALOG_HEADER_CLASSNAME,
+  focusDialogOnOpen,
+} from "@/components/ui/form";
+import { useReturnFocus } from "@/hooks/useReturnFocus";
 import { translatePostgresError } from "@/lib/postgresErrors";
+import { MAINTENANCE_FORM_DIALOG_CLASSNAME } from "./CreateMaintenanceRecordDialog";
 import { MaintenanceItemForm } from "./MaintenanceItemForm";
 import { useUpdateMaintenanceItem } from "./useMaintenanceItems";
 import type { MaintenanceItemFormInput, MaintenanceItemFormOutput } from "./schemas";
@@ -33,6 +39,12 @@ function toFormDefaults(item: MaintenanceItemWithStatus): Partial<MaintenanceIte
   };
 }
 
+/**
+ * Etapa 07: a página guarda o item aberto (a linha pode trocar de grupo —
+ * vencidas, plano, inativos — e desmontar quando a lista recarrega). Os
+ * valores iniciais só entram na montagem do formulário. A última execução e
+ * a situação não aparecem como campo: vêm do banco (trigger e view).
+ */
 export function EditMaintenanceItemDialog({
   vehicleId,
   item,
@@ -41,6 +53,12 @@ export function EditMaintenanceItemDialog({
 }: EditMaintenanceItemDialogProps) {
   const updateItem = useUpdateMaintenanceItem(vehicleId);
   const [error, setError] = useState<string | null>(null);
+  const returnFocus = useReturnFocus();
+
+  function handleOpenChange(next: boolean) {
+    if (!next) setError(null);
+    onOpenChange(next);
+  }
 
   async function handleSubmit(values: MaintenanceItemFormOutput) {
     setError(null);
@@ -57,25 +75,33 @@ export function EditMaintenanceItemDialog({
         notes: values.notes ?? null,
         is_active: values.isActive,
       });
-      onOpenChange(false);
+      handleOpenChange(false);
     } catch (mutationError) {
       setError(translatePostgresError(mutationError));
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className={MAINTENANCE_FORM_DIALOG_CLASSNAME}
+        onOpenAutoFocus={(event) => {
+          returnFocus.capture();
+          focusDialogOnOpen(event);
+        }}
+        onCloseAutoFocus={returnFocus.onCloseAutoFocus}
+      >
+        <DialogHeader className={FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>Editar item do plano</DialogTitle>
+          <DialogDescription className="break-words">{item.name}</DialogDescription>
         </DialogHeader>
         <MaintenanceItemForm
           mode="edit"
           defaultValues={toFormDefaults(item)}
           onSubmit={handleSubmit}
           submitLabel="Salvar alterações"
+          submitError={error}
         />
-        <FieldError>{error}</FieldError>
       </DialogContent>
     </Dialog>
   );

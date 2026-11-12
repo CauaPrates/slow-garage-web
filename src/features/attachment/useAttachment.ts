@@ -76,33 +76,48 @@ export function useUploadAttachment(options: {
       existing: AttachmentRow | null;
     }) => {
       if (!user) throw new Error("Sem usuário autenticado.");
-      if (existing) {
-        await removeAttachment(existing);
-      }
 
+      /*
+        Etapa 05: o arquivo novo sobe **antes** de o antigo ser apagado. Na
+        ordem anterior (apaga, depois sobe), um envio que falhava deixava o
+        registro sem anexo nenhum — e a tela ainda mostrava o antigo. Agora,
+        se o envio falha, o anexo salvo continua intacto. O path e as
+        tabelas são os mesmos; só a ordem mudou.
+      */
       const path = `${user.id}/${vehicleId}/${crypto.randomUUID()}.${fileExtension(file)}`;
       const { error: uploadError } = await supabase.storage
         .from("vehicle-documents")
         .upload(path, file, { contentType: file.type });
       if (uploadError) throw uploadError;
 
-      const { data, error } = await supabase
-        .from("attachments")
-        .insert({
-          vehicle_id: vehicleId,
-          entity_type: entityType,
-          entity_id: entityId,
-          storage_path: path,
-          mime_type: file.type,
-          file_size_bytes: file.size,
-          original_filename: file.name,
-        })
-        .select()
-        .single();
-      if (error) throw error;
-      return data;
+      try {
+        if (existing) {
+          await removeAttachment(existing);
+        }
+
+        const { data, error } = await supabase
+          .from("attachments")
+          .insert({
+            vehicle_id: vehicleId,
+            entity_type: entityType,
+            entity_id: entityId,
+            storage_path: path,
+            mime_type: file.type,
+            file_size_bytes: file.size,
+            original_filename: file.name,
+          })
+          .select()
+          .single();
+        if (error) throw error;
+        return data;
+      } catch (error) {
+        // Sem linha apontando pro arquivo novo, ele seria órfão no Storage.
+        await supabase.storage.from("vehicle-documents").remove([path]);
+        throw error;
+      }
     },
-    onSuccess: () => {
+    // Também no erro: se o antigo chegou a sair antes da falha, a tela precisa saber.
+    onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ["vehicles"] });
       for (const key of extraInvalidateKeys ?? []) {
         void queryClient.invalidateQueries({ queryKey: key });

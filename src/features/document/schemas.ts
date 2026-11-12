@@ -45,7 +45,7 @@ export type DocumentFormOutput = z.output<typeof documentSchema>;
 
 export const obligationSchema = z.object({
   kind: optionalEnum(OBLIGATION_KINDS),
-  label: z.string().trim().min(1, "Informe o rótulo."),
+  label: z.string().trim().min(1, "Informe o nome da obrigação."),
   dueOn: optionalText,
   amount: optionalNonNegativeNumber("o valor"),
   provider: optionalText,

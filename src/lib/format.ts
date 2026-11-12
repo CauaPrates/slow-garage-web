@@ -23,6 +23,28 @@ export function formatMoney(value: number): string {
   return currencyFormatter.format(value);
 }
 
+const compactFormatter = new Intl.NumberFormat("pt-BR", {
+  notation: "compact",
+  maximumFractionDigits: 1,
+});
+
+/**
+ * `1240.5` -> `"1,2 mil"`, `850` -> `"850"` — rótulo curto de coluna de
+ * gráfico, sem "R$" (a unidade fica escrita no subtítulo). O valor exato
+ * continua acessível pelo `formatMoney` ao lado.
+ */
+export function formatMoneyCompact(value: number): string {
+  // Abaixo de mil, sem centavos ("582", não "582,3") — o rótulo é de leitura rápida.
+  if (Math.abs(value) < 1000) return integerFormatter.format(Math.round(value));
+  return compactFormatter.format(value);
+}
+
+/** `245760` -> `"240 KB"`, `3145728` -> `"3,0 MB"` — tamanho de anexo. */
+export function formatFileSize(bytes: number): string {
+  if (bytes < 1024 * 1024) return `${integerFormatter.format(Math.max(1, Math.round(bytes / 1024)))} KB`;
+  return `${oneDecimalFormatter.format(bytes / (1024 * 1024))} MB`;
+}
+
 /** `new Date(2026, 0, 5)` -> `"05/01/2026"` */
 export function formatDate(date: Date): string {
   return formatDateFns(date, "dd/MM/yyyy", { locale: ptBR });
@@ -91,9 +113,53 @@ export function formatCount(value: number): string {
   return integerFormatter.format(value);
 }
 
+const rateFormatter = new Intl.NumberFormat("pt-BR", {
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 2,
+});
+
+/**
+ * `1.99` -> `"1,99% ao mês"`, `0` -> `"0% ao mês"` — taxa de juros mensal em
+ * pontos percentuais, como a coluna do banco (`numeric(5, 2)`).
+ */
+export function formatMonthlyRate(value: number): string {
+  return `${rateFormatter.format(value)}% ao mês`;
+}
+
 /** `12.4` -> `"12,4 km/L"` */
 export function formatConsumption(value: number): string {
   return `${oneDecimalFormatter.format(value)} km/L`;
+}
+
+/** `1234.56` -> `"1.234,6 L"` — litros abastecidos, uma casa como na bomba. */
+export function formatLiters(value: number): string {
+  return `${oneDecimalFormatter.format(value)} L`;
+}
+
+const litersExactFormatter = new Intl.NumberFormat("pt-BR", {
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 3,
+});
+
+/**
+ * `45.237` -> `"45,237 L"`, `40` -> `"40,0 L"` — litros de **um**
+ * abastecimento, com as casas que foram gravadas (até 3, como a coluna do
+ * banco). `formatLiters` arredonda pra uma casa e serve pra soma.
+ */
+export function formatLitersExact(value: number): string {
+  return `${litersExactFormatter.format(value)} L`;
+}
+
+const pricePerLiterFormatter = new Intl.NumberFormat("pt-BR", {
+  style: "currency",
+  currency: "BRL",
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 3,
+});
+
+/** `5.899` -> `"R$ 5,899/L"`, `6.1` -> `"R$ 6,10/L"` — preço por litro com até 3 casas, como na bomba e na coluna gerada do banco. */
+export function formatPricePerLiter(value: number): string {
+  return `${pricePerLiterFormatter.format(value)}/L`;
 }
 
 /**

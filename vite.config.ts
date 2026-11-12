@@ -14,6 +14,8 @@ export default defineConfig({
       manifest: false,
       workbox: {
         globPatterns: ["**/*.{js,css,html,woff2}"],
+        // Revista do login desktop (ADR-104): código e fontes só descem quando a coluna aparece, nunca no pré-cache do celular.
+        globIgnores: ["**/LoginMagazine-*.js", "**/magazine-*.woff2"],
       },
     }),
   ],

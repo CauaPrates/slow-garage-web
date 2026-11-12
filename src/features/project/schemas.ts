@@ -42,7 +42,8 @@ export const PROJECT_ITEM_STATUS_LABELS: Record<(typeof PROJECT_ITEM_STATUSES)[n
 export const projectSchema = z.object({
   name: z.string().trim().min(1, "Informe o nome."),
   status: z.enum(PROJECT_STATUSES),
-  budget: optionalNonNegativeNumber("o orçamento"),
+  // Etapa 09: só o texto do valor inválido ("o orçamento inválido." começava em minúscula); regras iguais.
+  budget: optionalNonNegativeNumber("o orçamento", "Orçamento inválido."),
   description: optionalText,
   notes: optionalText,
   startedOn: optionalText,
@@ -61,8 +62,8 @@ export const projectItemSchema = z.object({
   priority: z.enum(PRIORITY_LEVELS),
   vendor: optionalText,
   externalUrl: optionalText,
-  estimatedCost: optionalNonNegativeNumber("o custo estimado"),
-  actualCost: optionalNonNegativeNumber("o custo real"),
+  estimatedCost: optionalNonNegativeNumber("o custo estimado", "Custo estimado inválido."),
+  actualCost: optionalNonNegativeNumber("o custo real", "Custo real inválido."),
   occurredOn: optionalText,
   description: optionalText,
   notes: optionalText,
