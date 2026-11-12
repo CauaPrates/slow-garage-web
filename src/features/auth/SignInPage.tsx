@@ -1,20 +1,12 @@
 import { AuthLayout } from "@/components/layout/AuthLayout";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { LoginMagazine } from "./components/LoginMagazine";
 import { SignInForm } from "./components/SignInForm";
+import { useAuthMagazine } from "./components/useAuthMagazine";
 
-/** `lg` (64rem) — o mesmo corte em que o `AuthLayout` mostra a coluna editorial. */
-const EDITORIAL_QUERY = "(min-width: 64rem)";
-
+/** Login com a revista da Edição 01 (ADR-104): coluna editorial no desktop, fundo escurecido no celular. */
 export function SignInPage() {
-  // Só monta a revista onde a coluna aparece: no celular e no tablet nenhuma imagem dela é baixada.
-  const showEditorial = useMediaQuery(EDITORIAL_QUERY);
+  const magazine = useAuthMagazine();
   return (
-    <AuthLayout
-      title="Entrar"
-      description="Use o e-mail e a senha da sua conta."
-      editorial={showEditorial ? <LoginMagazine /> : undefined}
-    >
+    <AuthLayout title="Entrar" description="Use o e-mail e a senha da sua conta." {...magazine}>
       <SignInForm />
     </AuthLayout>
   );

@@ -302,8 +302,8 @@ card), vale esta seção.
   `#EF792D` no escuro, `#D9661C` no claro (decorativo, não texto). Usada pelo
   shell autenticado (`BrandLogo version={2}`: sidebar `h-12`, cabeçalho do
   celular `h-8` ≈ 81px). Desde a etapa 14 (ADR-103) também nas telas de
-  entrada (`AuthLayout`: `h-12` na coluna editorial do desktop, `h-9`/`h-10`
-  no celular) — antes elas seguiam na v1. v1, símbolo,
+  entrada (`AuthLayout`: `h-12` na coluna editorial do desktop — hoje nenhuma
+  tela de entrada, onde a coluna é da revista —, `h-9`/`h-10` no celular) — antes elas seguiam na v1. v1, símbolo,
   favicon, manifest e ícones PWA não mudaram.
 - **Fonte display**: Archivo (variável, eixo de peso; OFL;
   `@fontsource-variable/archivo`, local, ~35 KB no subset latin), token
@@ -1042,7 +1042,11 @@ portanto já é CSS variable):
   desktop (`lg`+) página dupla — coluna editorial (marca v2, chamada da
   Garagem, capa A3.1 como foto enquadrada) à esquerda e o formulário sobre
   `surface` à direita; no celular marca, título e formulário de cima pra
-  baixo, sem foto
+  baixo, sem foto. **Desde a ADR-104 (revisão 1), todas as telas de entrada usam a revista** — no
+  desktop a coluna esquerda é toda da revista Slow Garage, Edição 01 (sem a
+  marca separada; 1 : 1,1 com o formulário), e abaixo de `lg` a revista é o
+  fundo escurecido da tela, com marca, título e formulário num cartão de
+  vidro fosco (`--auth-glass`, `backdrop-blur-2xl`)
 - Card de item de lista (Fase 2 em diante): foto/placeholder `h-40`,
   corpo `p-4`, grid de dados `gap-2`, ações (editar/excluir) alinhadas à
   direita no rodapé do card

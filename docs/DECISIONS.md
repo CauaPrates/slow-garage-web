@@ -4477,3 +4477,121 @@ preview`): 390, 768 e 1023 não pedem nenhuma imagem da revista; 1024 e 1440
 pedem a capa, depois a página 2, e a 3 só depois de avançar. Regressão do
 login (146–148 e 150) sem diferença. `npm run lint`, `npx tsc -b` e `npm run
 build` limpos. Nenhum aparelho físico nem leitor de tela real.
+
+### ADR-104, revisão 1 — a revista como superfície do painel (12/11/2026)
+
+**Status.** Substitui a moldura 3:4 e a virada pela borda acima. Mesma branch,
+**sem commit**. **Revisão visual pendente.** O pedido: a revista ocupa a
+coluna de borda a borda, páginas rediagramadas para a proporção do painel,
+virada que começa no canto direito com verso marfim. Depois, nesta mesma
+rodada, o usuário pediu: virada mais lenta, avanço automático tipo carrossel
+mantendo botão e arrasto, coluna um pouco menor, controles só ao passar o
+mouse, e no celular a revista como fundo escurecido com o formulário num
+cartão translúcido.
+
+**Decisão.**
+
+- **Superfície.** `AuthLayout` com `editorial`: a coluna inteira é da
+  revista (sem margem nem marca separada; o letreiro da capa é a marca), na
+  proporção 1 : 1,1 com o formulário (650 px em 1366, 914 px em 1920); as
+  outras telas de entrada continuam 1,15 : 1 com a capa A3.1.
+- **Páginas rediagramadas** (`magazine/pages.tsx`, `magazine.css`). As artes
+  não são mais imagens inteiras: as fotos foram recortadas das próprias artes
+  (só a área de foto, 2 px para dentro; 9 WebP, 370 KB no total) e títulos,
+  legendas e texto viraram texto, em subconjuntos de Noto Serif JP e Noto
+  Serif itálico (OFL; 69 KB e 43 KB, só os caracteres da edição). Cada página
+  é um container de tamanho e tudo se mede em `cqw`/`cqh`, de ~0,63
+  (1024×768) a ~1,1 (1366×657). Capa: o cupê com os dois cortes diagonais da
+  arte (os cortes ficam dentro da área de foto original), "クルマのある暮らし"
+  no papel acima do corte, 特集 no papel abaixo, as duas chamadas em fotos que
+  se encaixam pela diagonal; em painel baixo o cupê encolhe pela altura e
+  encosta à direita. Aberturas (02, 04): fio laranja, título, subtítulo, foto
+  que cresce, duas colunas com as quebras da arte. 03: foto do cupê verde e a
+  linha com a foto coletiva (cupê branco preservado, `object-position` à
+  esquerda) e o painel. 05: fotos sem recorte, porque as linhas dos rótulos
+  estão desenhadas nelas; o conjunto escala inteiro e os rótulos em texto
+  terminam onde cada linha entra na foto (ダンパー continua o da arte).
+  Toda página reserva uma faixa de rodapé (fio e fólio) para os controles.
+- **StPageFlip testado e não adotado.** No painel real (1366×768) o modo de
+  página única funciona (página de 731 px, `portrait`), mas: (1) o verso da
+  folha é uma cópia da própria página, não papel; (2) o laço de
+  `requestAnimationFrame` nunca para — 61 quadros/s e 305 regravações de
+  estilo/s com a revista parada, e continua depois de `destroy()`; (3) move
+  os nós que o React controla para dentro dos próprios elementos. Fica a mesma
+  geometria, própria (`magazine/curl.ts`, ~140 linhas): o canto inferior
+  direito percorre um arco até o outro lado da lombada; a dobra é a
+  mediatriz; a parte que ainda está no lugar é recortada por `clip-path`, a
+  erguida é refletida pela dobra (verso marfim `--magazine-verso`, com
+  gradiente de curvatura) e deixa sombra na página de baixo. Voltar é a mesma
+  virada de trás para frente. Só roda durante a virada (`requestAnimationFrame`
+  enquanto há folha), escrevendo direto nos estilos, sem re-render por quadro.
+- **Tempo.** 1,4 s por virada (primeiro foi 850 ms; o usuário achou rápido).
+- **Carrossel.** Vira sozinho a cada 7 s; da última volta para a capa. Para
+  enquanto o ponteiro está sobre a revista, o foco está nos controles ou a aba
+  está escondida, e tem botão "Pausar a revista" (WCAG 2.2.2). Com movimento
+  reduzido começa pausado e a troca é imediata. Enquanto vira sozinho, o
+  aviso "Página N de 5" fica `aria-live=off` (não interrompe o formulário). O
+  "ponteiro sobre" vem do `pointermove` da janela, não de enter/leave: a
+  virada troca o nó sob o ponteiro e o navegador não avisa a saída de um nó
+  removido (a pausa ficava presa — achado no teste).
+- **Arrasto.** Arrastar a folha para a esquerda avança, para a direita volta;
+  a folha segue o ponteiro (uma largura arrastada = virada inteira); soltando
+  antes de 30%, volta para o lugar. Clique sem arrastar não faz nada. Os
+  botões são a alternativa ao arrasto (WCAG 2.5.7).
+- **Controles** num pílula escura sobre a faixa de rodapé (anterior, "N de 5",
+  próxima, pausar), 44×44, invisíveis até o ponteiro passar pela revista ou um
+  deles receber foco do teclado (nunca foco invisível); em tela sem hover,
+  sempre visíveis. Setas ← → viram com o foco nos botões.
+- **Celular e tablet (abaixo de `lg`).** Revoga "nenhuma imagem no celular":
+  a revista é o fundo fixo da tela, escurecida (`rgb(12 10 8 / .62)`),
+  passando sozinha, decorativa (`aria-hidden`), sem arrasto; um botão
+  "Pausar a revista do fundo" (44×44, canto superior direito, por portal,
+  acima do cartão). Marca, título e formulário vão para um cartão de vidro
+  fosco (`--auth-glass`: superfície a 52% no escuro, 88% no claro;
+  `backdrop-blur-2xl`). Contraste medido nos pixels com a revista passando
+  atrás: pior caso 6,3:1 no escuro e 4,8:1 no claro (a 80% no claro dava
+  4,0:1). O código (14 KB) e as fontes continuam fora do pré-cache do PWA
+  (`globIgnores`) e chegam por `lazy`, depois do formulário.
+
+**Verificação.** Cenário 151 reescrito (`etapa-14/revista/v2/`): 1024, 1280,
+1366×768, 1366×657, 1440, 1920 e 2560 — as cinco páginas de borda a borda,
+nada cortado, controles fora de foto e texto, menor texto 13 px; virada em
+1366×768 e 1920×1080 com o formulário parado; carrossel (avança, pausa com
+ponteiro, foco e botão, volta da última para a capa); arrasto (avança, curto
+volta, para a direita retorna, na capa não faz nada); cinco cliques → uma
+página; teclado; movimento reduzido; redimensionar; celular 390 e 360 e
+tablet 768 e 1023 com fundo, pausa e checagens da etapa 14; axe sem
+violações (capa 1366 escuro, página 3 1920 claro, celular 390 escuro e 360
+claro). Produção: capa e as duas fotos dela primeiro, a página 3 só depois da
+primeira virada, no desktop e no celular. Regressão 145–150 sem violações.
+Lint, `tsc -b` e build limpos. Nenhum aparelho físico nem leitor de tela
+real.
+
+**Todas as telas de entrada.** `/cadastro`, `/recuperar-senha`,
+`/confirme-seu-email` e `/redefinir-senha` (nos três estados: verificando,
+link vencido, formulário) usam a mesma revista do `/entrar` — painel no
+desktop, fundo no celular — pelo `useAuthMagazine`, que devolve `editorial`
+ou `backdrop` para o `AuthLayout`. A coluna com a chamada e a capa A3.1 da
+ADR-103 continua no `AuthLayout` só como padrão para uma tela que não passe
+nenhum dos dois; hoje nenhuma usa. Contraste no cartão
+do cadastro, com a revista atrás: pior caso 6,1:1 no escuro e 4,8:1 no claro
+(o "Pelo menos 6 caracteres").
+
+**Painel do formulário (desktop, telas de entrada).** Com a revista à
+esquerda, a marca v2 volta para o desktop, acima do título e alinhada com ele
+e com os campos (`h-10`, 102×40 — o tamanho do cartão do celular). O painel
+segue na superfície do tema, com uma luz âmbar difusa que nasce na divisória
+(`.auth-panel-lit`: elipse e faixa na borda esquerda, `--auth-panel-glow`
+12%/7% no escuro e 8%/5% no claro) — a lâmpada da oficina da capa, só como
+diferença de tom. "Esqueci minha senha" sobe para junto do "Entrar" no
+desktop (`lg:-mt-3`; o alvo continua com 44px), e o fio continua antes de
+"Ainda não tem conta?". Celular sem mudança. Medido em 1366×768 e 1920×1080,
+claro e escuro, com erro de campo e erro de envio: logo, campos e ações
+dentro da janela, sem rolagem lateral, pior contraste 6,6:1 (escuro) e 6,0:1
+(claro) nos pixels, axe sem violações, foco visível em toda parada do Tab.
+
+**Pendências.** As fotos vêm das artes (768 px nas internas): em 1920 ficam
+~1,3× ampliadas, um pouco moles — os originais em alta resolução resolveriam.
+A capa a 390 px corta "Edição 01" atrás do botão de pausa (é fundo). O
+avanço automático no celular gasta bateria e dados (~400 KB) — decisão do
+produto, pausável.

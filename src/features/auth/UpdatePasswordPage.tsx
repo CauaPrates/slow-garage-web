@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { useAuth } from "./AuthProvider";
 import { AuthStatusPanel } from "./components/AuthStatusPanel";
 import { UpdatePasswordForm } from "./components/UpdatePasswordForm";
+import { useAuthMagazine } from "./components/useAuthMagazine";
 
 /**
  * Destino do link de recuperação (`redirectTo` de `requestPasswordReset`).
@@ -15,10 +16,12 @@ import { UpdatePasswordForm } from "./components/UpdatePasswordForm";
  */
 export function UpdatePasswordPage() {
   const { status, isPasswordRecovery } = useAuth();
+  // Mesma posição nos três estados: a revista continua de onde estava quando o link termina de ser verificado.
+  const magazine = useAuthMagazine();
 
   if (status === "loading") {
     return (
-      <AuthLayout title="Redefinir senha">
+      <AuthLayout title="Redefinir senha" {...magazine}>
         <AuthStatusPanel tone="loading" title="Verificando o link…" />
       </AuthLayout>
     );
@@ -26,7 +29,7 @@ export function UpdatePasswordPage() {
 
   if (!isPasswordRecovery) {
     return (
-      <AuthLayout title="Redefinir senha">
+      <AuthLayout title="Redefinir senha" {...magazine}>
         <AuthStatusPanel
           tone="error"
           title="Este link expirou ou já foi usado."
@@ -44,7 +47,11 @@ export function UpdatePasswordPage() {
   }
 
   return (
-    <AuthLayout title="Redefinir senha" description="Escolha a senha nova da sua conta. Depois de salvar, você entra direto na garagem.">
+    <AuthLayout
+      title="Redefinir senha"
+      description="Escolha a senha nova da sua conta. Depois de salvar, você entra direto na garagem."
+      {...magazine}
+    >
       <UpdatePasswordForm />
     </AuthLayout>
   );

@@ -4,6 +4,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import { AuthStatusPanel } from "./components/AuthStatusPanel";
+import { useAuthMagazine } from "./components/useAuthMagazine";
 
 /**
  * Depois de "Criar conta" — também para e-mail já cadastrado (RN-6 da spec
@@ -12,8 +13,9 @@ import { AuthStatusPanel } from "./components/AuthStatusPanel";
  * garagem. Não existe reenvio no produto: a saída é entrar.
  */
 export function ConfirmEmailPendingPage() {
+  const magazine = useAuthMagazine();
   return (
-    <AuthLayout title="Confirme seu e-mail">
+    <AuthLayout title="Confirme seu e-mail" {...magazine}>
       <AuthStatusPanel
         tone="sent"
         title="Falta confirmar o e-mail"

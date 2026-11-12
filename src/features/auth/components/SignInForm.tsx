@@ -49,7 +49,8 @@ export function SignInForm() {
         </FormField>
         <SubmitError>{submitError}</SubmitError>
         <SubmitButton pending={pending} label="Entrar" pendingLabel="Entrando…" className="mt-1 w-full" />
-        <Link to={ROUTES.recuperarSenha} className={cn(textLinkClassName(), "self-center")}>
+        {/* No desktop, colado no "Entrar" (o alvo continua com 44px; só a folga do `gap` diminui). */}
+        <Link to={ROUTES.recuperarSenha} className={cn(textLinkClassName(), "self-center lg:-mt-3")}>
           Esqueci minha senha
         </Link>
       </form>
