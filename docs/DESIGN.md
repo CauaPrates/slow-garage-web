@@ -1363,7 +1363,8 @@ portanto já é CSS variable):
   controle de tema nenhum, e `ThemePreferenceSelect` (Configurações) é o
   único lugar de escolher tema no app (ver ADR-072)
 - Campo de senha é `PasswordInput`, nunca `Input type="password"` solto:
-  traz o olho de mostrar/ocultar (44px, fora da ordem de tabulação) e é
+  traz o olho de mostrar/ocultar (44px, na ordem de tabulação logo depois
+  do campo; Enter e Espaço alternam sem enviar o formulário) e é
   dono do próprio `type` (ver ADR-073)
 - Cabeçalho ganha sino de alertas, troca de veículo e menu de usuário
   (Fase 14t): `HeaderAlertsMenu` (badge só com `count > 0`, cor de

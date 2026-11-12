@@ -1645,7 +1645,8 @@ de senha do app sem o olho.
 
 Três decisões dentro dele:
 
-* **`tabIndex={-1}` no botão, de propósito.** Quem digita senha e aperta
+* **`tabIndex={-1}` no botão, de propósito** (revertido no ajuste final da
+  etapa 14, ADR-103: o olho entrou no Tab). Quem digita senha e aperta
   Tab quer o próximo campo ou o botão de entrar, não o olho no meio do
   caminho. Verificado: a partir do e-mail, Tab vai pra senha e o Tab
   seguinte vai pro "Entrar". O botão continua clicável e continua
@@ -4291,7 +4292,7 @@ persistência não mudaram (exceto os dois defeitos em "Correções").
   o link…".
 - Revelar senha: nome "Mostrar senha"/"Ocultar senha" como único sinal de
   estado (saiu o `aria-pressed`, que fazia ler "Ocultar senha,
-  pressionado"). Continua fora do Tab (decisão da Fase 17, mantida).
+  pressionado"). Entrou no Tab no ajuste final (abaixo).
 
 **Decisão — Configurações.**
 
@@ -4353,8 +4354,7 @@ capa é escura nos dois temas; texto e campos sobre ela pediriam cor fixa
 fora dos tokens no claro). Foto no celular (o primeiro campo desceria; a
 imagem só é servida a partir de `lg`). Manter a v1 no login (seria a única
 tela com outra marca). "Sair" no cabeçalho da página (ficaria colado ao
-título, acima dos controles de edição). Tornar o olho focável (muda a ordem
-de Tab dos três formulários; fica registrado). Reenvio de confirmação e
+título, acima dos controles de edição). Reenvio de confirmação e
 "usar outro e-mail" (o produto não tem — não inventado).
 
 **Pendências registradas (anteriores, não alteradas).**
@@ -4372,7 +4372,6 @@ de Tab dos três formulários; fica registrado). Reenvio de confirmação e
 - `signOut()` encerra **todas** as sessões da conta (escopo `global`); se a
   intenção do produto for "só neste aparelho", é `scope: 'local'` — decisão
   de produto.
-- Olho de revelar senha fora do Tab (sem acesso por teclado).
 - Os links do cadastro/login não carregam o `?redirect=` adiante.
 
 **Verificação.** Dados simulados (ferramenta externa
@@ -4403,6 +4402,32 @@ violações. Regressão: menu do perfil ("Sair", foco de volta ao avatar) e
 capa da Garagem (`a3c`/`a3d`: mesmas medidas da ADR-094, imagem só a partir
 de `lg`). `npm run lint`, `npx tsc -b` e `npm run build` limpos. Nenhum
 aparelho físico nem leitor de tela real.
+
+**Ajuste final — olho da senha no teclado.** A pendência "olho fora do Tab"
+fechada na origem (`components/ui/password-input.tsx`), então vale para os
+seis campos de senha (login, cadastro, redefinição × 2, Configurações × 2):
+
+- Saiu o `tabIndex={-1}`. O `<button type="button">` nativo fica no Tab logo
+  depois do campo (campo → olho → próximo controle; Shift+Tab volta ao
+  olho). Quem usa só teclado agora consegue conferir a senha digitada.
+- Enter e Espaço alternam pelo comportamento nativo do botão, sem enviar o
+  formulário (`type="button"`); o foco continua no botão e o valor
+  digitado fica. Enter segurado troca uma vez só: o `keydown` repetido
+  (`event.repeat`) é ignorado.
+- Foco: o contorno global de `:focus-visible` (2px, `--color-focus-ring`),
+  puxado para dentro (`-outline-offset-4`) para não vazar da borda do
+  campo. O anel próprio (`ring-accent/40`) saiu.
+- Nome e ícone seguem o estado: oculta → "Mostrar senha" e olho; visível →
+  "Ocultar senha" e olho riscado. `aria-controls` aponta o campo.
+- Enter no próprio campo não mudou: continua enviando o formulário.
+
+Verificado no cenário 152 de `inspect.mjs` (rede simulada, os seis campos,
+1366, 390 e 1920, claro e escuro): sequência do Tab, alternância nos dois
+sentidos por Enter e Espaço, valor preservado, nenhum envio nem chamada de
+autenticação ao acionar o olho, Enter segurado com 3 repetições = uma troca,
+Enter no campo do login = um POST e "E-mail ou senha incorretos.", axe sem
+violações. Regressão do 146: a ordem do Tab do login ganhou o "Mostrar
+senha" entre a senha e o "Entrar", e nada mais mudou.
 
 ## ADR-104 — Login desktop: revista Slow Garage, Edição 01
 
