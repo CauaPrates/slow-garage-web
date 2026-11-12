@@ -1,5 +1,5 @@
 import { useCurrentVehicleId } from "@/hooks/useCurrentVehicleId";
-import { MORE_SHEET_ITEMS } from "@/lib/navigation";
+import { MORE_SHEET_GROUPS } from "@/lib/navigation";
 import { NavSheet } from "./NavSheet";
 
 type MoreSheetProps = {
@@ -7,14 +7,15 @@ type MoreSheetProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-/** Folha da aba "Mais" (bottom nav mobile, Fase 14g) — as seções de veículo (Gastos, Abastecimentos, Manutenção, Problemas, Projetos, Documentos) que não cabem nas 4 abas fixas. */
+/** Folha da aba "Mais" (bottom nav mobile, Fase 14g) — as 9 seções de veículo que não cabem nas abas fixas, nos mesmos grupos da sidebar (etapa 01). */
 export function MoreSheet({ open, onOpenChange }: MoreSheetProps) {
   const vehicleId = useCurrentVehicleId();
 
   return (
     <NavSheet
-      title="Mais"
-      items={MORE_SHEET_ITEMS}
+      title="Seções do veículo"
+      description="Todas as áreas do veículo aberto."
+      groups={MORE_SHEET_GROUPS}
       vehicleId={vehicleId}
       open={open}
       onOpenChange={onOpenChange}

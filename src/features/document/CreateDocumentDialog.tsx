@@ -1,17 +1,15 @@
-import { useState, type ChangeEvent } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { FieldError } from "@/components/ui/field-error";
-import { fileAttachmentSchema } from "@/lib/attachmentSchema";
+import { useState } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { FORM_DIALOG_CLASSNAME, FORM_DIALOG_HEADER_CLASSNAME, focusDialogOnOpen } from "@/components/ui/form";
+import { useReturnFocus } from "@/hooks/useReturnFocus";
 import { translatePostgresError } from "@/lib/postgresErrors";
+import { cn } from "@/lib/utils";
 import { DocumentForm } from "./DocumentForm";
 import { useCreateDocument } from "./useDocuments";
 import type { DocumentFormOutput } from "./schemas";
+
+/** Etapa 11: a casca comum dos formulários (como Gastos), mais estreita — poucos campos. */
+export const DOCUMENT_FORM_DIALOG_CLASSNAME = cn(FORM_DIALOG_CLASSNAME, "max-w-xl");
 
 type CreateDocumentDialogProps = {
   vehicleId: string;
@@ -19,37 +17,24 @@ type CreateDocumentDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
+/**
+ * RN-6 (no hook): o arquivo sobe antes da linha — se o envio falha, nenhum
+ * registro fica no banco, e o erro aparece no rodapé com o formulário ainda
+ * preenchido e o arquivo ainda escolhido.
+ */
 export function CreateDocumentDialog({ vehicleId, open, onOpenChange }: CreateDocumentDialogProps) {
-  const [file, setFile] = useState<File | null>(null);
-  const [fileError, setFileError] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const createDocument = useCreateDocument(vehicleId);
+  const [error, setError] = useState<string | null>(null);
+  const returnFocus = useReturnFocus();
 
-  function handleFileChange(event: ChangeEvent<HTMLInputElement>) {
-    const picked = event.target.files?.[0];
-    if (!picked) return;
-    const result = fileAttachmentSchema.safeParse(picked);
-    if (!result.success) {
-      setFileError(result.error.issues[0]?.message ?? "Arquivo inválido.");
-      setFile(null);
-      return;
-    }
-    setFileError(null);
-    setFile(picked);
+  function handleOpenChange(next: boolean) {
+    if (!next) setError(null);
+    onOpenChange(next);
   }
 
-  function reset() {
-    setFile(null);
-    setFileError(null);
+  async function handleSubmit(values: DocumentFormOutput, file: File | null) {
+    if (!file) return;
     setError(null);
-  }
-
-  async function handleSubmit(values: DocumentFormOutput) {
-    setError(null);
-    if (!file) {
-      setFileError("Escolha um arquivo.");
-      return;
-    }
     try {
       await createDocument.mutateAsync({
         docType: values.docType,
@@ -60,40 +45,33 @@ export function CreateDocumentDialog({ vehicleId, open, onOpenChange }: CreateDo
         notes: values.notes ?? null,
         file,
       });
-      reset();
-      onOpenChange(false);
+      handleOpenChange(false);
     } catch (mutationError) {
-      setError(translatePostgresError(mutationError));
+      setError(`O documento não foi salvo. ${translatePostgresError(mutationError)}`);
     }
   }
 
   return (
-    <Dialog
-      open={open}
-      onOpenChange={(next) => {
-        if (!next) reset();
-        onOpenChange(next);
-      }}
-    >
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Novo documento</DialogTitle>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className={DOCUMENT_FORM_DIALOG_CLASSNAME}
+        onOpenAutoFocus={(event) => {
+          returnFocus.capture();
+          focusDialogOnOpen(event);
+        }}
+        onCloseAutoFocus={returnFocus.onCloseAutoFocus}
+      >
+        <DialogHeader className={FORM_DIALOG_HEADER_CLASSNAME}>
+          <DialogTitle>Enviar documento</DialogTitle>
+          <DialogDescription>CRLV, apólice, nota fiscal, laudo: o arquivo fica guardado neste veículo.</DialogDescription>
         </DialogHeader>
-        <DocumentForm mode="create" onSubmit={handleSubmit} submitLabel="Salvar documento">
-          <div className="flex flex-col gap-1.5">
-            <Label htmlFor="document-file">Arquivo</Label>
-            <input
-              id="document-file"
-              type="file"
-              accept="image/*,application/pdf"
-              onChange={handleFileChange}
-              className="text-sm text-text-secondary file:mr-3 file:rounded-md file:border-0 file:bg-accent file:px-3 file:py-1.5 file:text-sm file:text-accent-foreground"
-            />
-            {file && <span className="text-xs text-text-secondary">{file.name}</span>}
-            <FieldError>{fileError}</FieldError>
-          </div>
-        </DocumentForm>
-        <FieldError>{error}</FieldError>
+        <DocumentForm
+          mode="create"
+          onSubmit={handleSubmit}
+          submitLabel="Enviar documento"
+          submittingLabel="Enviando…"
+          submitError={error}
+        />
       </DialogContent>
     </Dialog>
   );

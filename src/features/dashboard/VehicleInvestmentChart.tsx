@@ -63,7 +63,7 @@ export function VehicleInvestmentChart({ data }: VehicleInvestmentChartProps) {
                 <span className="min-w-0 truncate text-text-primary">
                   {row.label}
                 </span>
-                <span className="shrink-0 font-mono text-text-secondary">
+                <span className="shrink-0 text-text-secondary tabular-nums">
                   {formatMoney(row.totalInvested)}
                 </span>
               </div>

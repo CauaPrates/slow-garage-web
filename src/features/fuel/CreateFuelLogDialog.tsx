@@ -2,11 +2,18 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FieldError } from "@/components/ui/field-error";
+import {
+  FORM_DIALOG_CLASSNAME,
+  FORM_DIALOG_HEADER_CLASSNAME,
+  focusDialogOnOpen,
+} from "@/components/ui/form";
+import { useReturnFocus } from "@/hooks/useReturnFocus";
 import { translatePostgresError } from "@/lib/postgresErrors";
+import { cn } from "@/lib/utils";
 import { FuelLogForm } from "./FuelLogForm";
 import { useCreateFuelLog } from "./useFuelLogs";
 import type { FuelLogFormOutput } from "./schemas";
@@ -21,7 +28,15 @@ type CreateFuelLogDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
-/** Sem `DialogTrigger` próprio — controlado externamente, mesmo motivo do `CreateExpenseDialog` (Fase 4): mais de um ponto de entrada abre a mesma instância. */
+/** Etapa 06: a casca do formulário do veículo (cabeçalho e rodapé fixos, só o corpo rola), na largura do gasto. */
+export const FUEL_FORM_DIALOG_CLASSNAME = cn(FORM_DIALOG_CLASSNAME, "max-w-xl");
+
+/**
+ * Sem `DialogTrigger` próprio — controlado externamente, mesmo motivo do
+ * `CreateExpenseDialog` (Fase 4): mais de um ponto de entrada abre a mesma
+ * instância (cabeçalho, estado vazio, `?novo=1`, ações rápidas do dashboard e
+ * do card da garagem).
+ */
 export function CreateFuelLogDialog({
   vehicleId,
   defaultFuelType,
@@ -30,6 +45,13 @@ export function CreateFuelLogDialog({
 }: CreateFuelLogDialogProps) {
   const createFuelLog = useCreateFuelLog(vehicleId);
   const [error, setError] = useState<string | null>(null);
+  const returnFocus = useReturnFocus();
+
+  function handleOpenChange(next: boolean) {
+    // O formulário desmonta ao fechar; o erro do envio anterior vai junto.
+    if (!next) setError(null);
+    onOpenChange(next);
+  }
 
   async function handleSubmit(values: FuelLogFormOutput) {
     setError(null);
@@ -45,25 +67,33 @@ export function CreateFuelLogDialog({
         missed_previous_fill: values.missedPreviousFill,
         notes: values.notes ?? null,
       });
-      onOpenChange(false);
+      handleOpenChange(false);
     } catch (mutationError) {
       setError(translatePostgresError(mutationError));
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className={FUEL_FORM_DIALOG_CLASSNAME}
+        onOpenAutoFocus={(event) => {
+          returnFocus.capture();
+          focusDialogOnOpen(event);
+        }}
+        onCloseAutoFocus={returnFocus.onCloseAutoFocus}
+      >
+        <DialogHeader className={FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>Registrar abastecimento</DialogTitle>
+          <DialogDescription>Entra no histórico de combustível e nos gastos do veículo.</DialogDescription>
         </DialogHeader>
         <FuelLogForm
           mode="create"
           defaultValues={{ fuelType: defaultFuelType }}
           onSubmit={handleSubmit}
           submitLabel="Registrar abastecimento"
+          submitError={error}
         />
-        <FieldError>{error}</FieldError>
       </DialogContent>
     </Dialog>
   );

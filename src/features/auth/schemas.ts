@@ -1,9 +1,12 @@
 import { z } from "zod";
 
+/** Mesmo mínimo do Supabase Auth do projeto (`weak_password` em errors.ts); a tela mostra o requisito com este número. */
+export const PASSWORD_MIN_LENGTH = 6;
+
 const email = z.string().min(1, "Informe seu e-mail.").email("E-mail inválido.");
 const password = z
   .string()
-  .min(6, "A senha precisa ter pelo menos 6 caracteres.");
+  .min(PASSWORD_MIN_LENGTH, `A senha precisa ter pelo menos ${PASSWORD_MIN_LENGTH} caracteres.`);
 
 export const signUpSchema = z.object({
   email,

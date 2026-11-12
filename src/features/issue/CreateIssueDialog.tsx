@@ -2,11 +2,18 @@ import { useState } from "react";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { FieldError } from "@/components/ui/field-error";
+import {
+  FORM_DIALOG_CLASSNAME,
+  FORM_DIALOG_HEADER_CLASSNAME,
+  focusDialogOnOpen,
+} from "@/components/ui/form";
+import { useReturnFocus } from "@/hooks/useReturnFocus";
 import { translatePostgresError } from "@/lib/postgresErrors";
+import { cn } from "@/lib/utils";
 import { IssueForm } from "./IssueForm";
 import { useCreateIssue } from "./useIssues";
 import type { IssueFormOutput } from "./schemas";
@@ -17,9 +24,20 @@ type CreateIssueDialogProps = {
   onOpenChange: (open: boolean) => void;
 };
 
+/** Etapa 08: a casca do formulário do veículo (cabeçalho e rodapé fixos, só o corpo rola), na largura do gasto. */
+export const ISSUE_FORM_DIALOG_CLASSNAME = cn(FORM_DIALOG_CLASSNAME, "max-w-xl");
+
+/** Etapa 08: casca nova, foco no diálogo ao abrir e de volta ao "Relatar problema" ao fechar; payload igual. */
 export function CreateIssueDialog({ vehicleId, open, onOpenChange }: CreateIssueDialogProps) {
   const createIssue = useCreateIssue(vehicleId);
   const [error, setError] = useState<string | null>(null);
+  const returnFocus = useReturnFocus();
+
+  function handleOpenChange(next: boolean) {
+    // O formulário desmonta ao fechar; o erro do envio anterior vai junto.
+    if (!next) setError(null);
+    onOpenChange(next);
+  }
 
   async function handleSubmit(values: IssueFormOutput) {
     setError(null);
@@ -36,20 +54,27 @@ export function CreateIssueDialog({ vehicleId, open, onOpenChange }: CreateIssue
         odometer_km: values.odometerKm ?? null,
         cost: values.cost ?? null,
       });
-      onOpenChange(false);
+      handleOpenChange(false);
     } catch (mutationError) {
       setError(translatePostgresError(mutationError));
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogContent
+        className={ISSUE_FORM_DIALOG_CLASSNAME}
+        onOpenAutoFocus={(event) => {
+          returnFocus.capture();
+          focusDialogOnOpen(event);
+        }}
+        onCloseAutoFocus={returnFocus.onCloseAutoFocus}
+      >
+        <DialogHeader className={FORM_DIALOG_HEADER_CLASSNAME}>
           <DialogTitle>Relatar problema</DialogTitle>
+          <DialogDescription>Um defeito, ruído ou falha deste veículo. Só o título é obrigatório.</DialogDescription>
         </DialogHeader>
-        <IssueForm mode="create" onSubmit={handleSubmit} submitLabel="Relatar problema" />
-        <FieldError>{error}</FieldError>
+        <IssueForm mode="create" onSubmit={handleSubmit} submitLabel="Relatar problema" submitError={error} />
       </DialogContent>
     </Dialog>
   );

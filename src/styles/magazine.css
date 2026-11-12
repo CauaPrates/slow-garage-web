@@ -1,0 +1,599 @@
+/*
+ * Revista Slow Garage — Edição 01 (painel editorial do login desktop, ADR-104).
+ *
+ * A revista é a superfície da coluna: `.magazine` ocupa a coluna inteira e
+ * cada página (`.magazine__sheet`) é um container de tamanho, então toda a
+ * diagramação se mede pela página (`cqw`/`cqh`) e se adapta à proporção dela
+ * — de ~0,7 (1024×768) a ~1,1 (1366×768 com a barra do navegador).
+ *
+ * Fontes: subconjuntos só com os caracteres da edição (Noto Serif JP e Noto
+ * Serif itálico, OFL). Só são baixadas quando o texto aparece, e ficam fora
+ * do pré-cache do PWA (vite.config.ts).
+ *
+ * A virada não usa keyframes: `LoginMagazine` desenha cada quadro (recorte da
+ * página de cima, verso refletido, sombra na de baixo) a partir de `curl.ts`.
+ */
+@font-face {
+  font-family: "SG Revista JP";
+  src: url("../assets/magazine/fonts/magazine-serif-jp.woff2") format("woff2");
+  font-weight: 200 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "SG Revista Serif";
+  src: url("../assets/magazine/fonts/magazine-serif-italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@layer components {
+  .magazine {
+    position: relative;
+    flex: 1;
+    width: 100%;
+    height: 100%;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--magazine-paper);
+    color: var(--magazine-ink);
+  }
+
+  /* A folha pode ser arrastada (mouse e toque); a rolagem vertical continua com o navegador. */
+  .magazine__book {
+    position: absolute;
+    inset: 0;
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
+  }
+  .magazine__book:active {
+    cursor: grabbing;
+  }
+  .magazine__book img {
+    pointer-events: none;
+    -webkit-user-drag: none;
+  }
+
+  .magazine__sheet {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    container-type: size;
+    background: radial-gradient(
+      130% 95% at 58% 38%,
+      var(--magazine-paper-light) 0%,
+      var(--magazine-paper) 58%,
+      var(--magazine-paper-edge) 100%
+    );
+  }
+  /* Lombada: a borda esquerda da coluna é o lado da costura. */
+  .magazine__sheet::after {
+    content: "";
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 3.5cqw;
+    pointer-events: none;
+    background: linear-gradient(to right, rgb(0 0 0 / 0.14), rgb(0 0 0 / 0.04) 45%, transparent);
+  }
+  .magazine__sheet--top {
+    z-index: 3;
+  }
+
+  /* Sombra da folha erguida sobre a página seguinte (recorte e gradiente por quadro). */
+  .magazine__cast {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+
+  .magazine__flap-shadow {
+    position: absolute;
+    inset: 0;
+    z-index: 4;
+    pointer-events: none;
+    filter: drop-shadow(0 0 12px rgb(0 0 0 / 0.26)) drop-shadow(0 2px 3px rgb(0 0 0 / 0.12));
+  }
+  /* Verso da folha: papel marfim liso — nunca a arte espelhada. */
+  .magazine__flap {
+    position: absolute;
+    inset: 0;
+    transform-origin: 0 0;
+    background-color: var(--magazine-verso);
+  }
+
+  /* Controles sobre a faixa de rodapé reservada em toda página; tinta escura, contraste alto sobre o papel. */
+  .magazine__controls {
+    position: absolute;
+    z-index: 10;
+    left: 50%;
+    bottom: calc((var(--magazine-band) - var(--control-h) - 0.5rem) / 2);
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding: 0.25rem;
+    border-radius: 999px;
+    background: rgb(28 24 20 / 0.94);
+    color: var(--magazine-verso);
+    box-shadow: 0 8px 20px -10px rgb(0 0 0 / 0.55);
+    /* Só aparecem com o ponteiro sobre a revista ou com o foco do teclado num dos botões (nunca um foco invisível). */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms ease;
+  }
+  .magazine:hover .magazine__controls,
+  .magazine__controls:focus-within {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  /* Sem ponteiro que paire (tela de toque): sempre visíveis. */
+  @media (hover: none) {
+    .magazine__controls {
+      opacity: 1;
+      pointer-events: auto;
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .magazine__controls {
+      transition: none;
+    }
+  }
+  .magazine__control {
+    display: grid;
+    place-items: center;
+    inline-size: var(--control-h);
+    block-size: var(--control-h);
+    border-radius: 999px;
+    color: inherit;
+    cursor: pointer;
+    transition: background-color 150ms ease;
+  }
+  .magazine__control:hover:not([aria-disabled]) {
+    background: rgb(255 255 255 / 0.14);
+  }
+  .magazine__control:focus-visible {
+    outline: 2px solid var(--magazine-accent);
+    outline-offset: 2px;
+  }
+  .magazine__control[aria-disabled] {
+    opacity: 0.38;
+    cursor: default;
+  }
+  .magazine__divider {
+    inline-size: 1px;
+    block-size: 1.5rem;
+    margin-inline: 0.125rem;
+    background: rgb(255 255 255 / 0.22);
+  }
+  .magazine__position {
+    min-inline-size: 4.5rem;
+    text-align: center;
+    font-family: var(--font-sans);
+    font-size: 0.875rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /*
+   * Fundo do login abaixo de `lg`: a revista na tela inteira, atrás do cartão
+   * do formulário, escurecida (o papel claro nunca disputa com o formulário).
+   * Sem arrasto nem controles; só o botão de pausa, num portal.
+   */
+  .magazine--background {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    flex: none;
+  }
+  .magazine--background .magazine__book {
+    cursor: default;
+  }
+  .magazine--background::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 5;
+    pointer-events: none;
+    background: rgb(12 10 8 / 0.62);
+  }
+  .magazine__backdrop-toggle {
+    position: fixed;
+    z-index: 20;
+    top: max(1rem, env(safe-area-inset-top));
+    right: max(1rem, env(safe-area-inset-right));
+    background: rgb(28 24 20 / 0.86);
+    color: var(--magazine-verso);
+    box-shadow: 0 0 0 1px rgb(255 255 255 / 0.18);
+  }
+  .magazine__backdrop-toggle:hover {
+    background: rgb(28 24 20 / 1);
+  }
+
+  /* ---------- Página (comum) ---------- */
+
+  .mag-page {
+    --mag-pad: 4.6cqw;
+    --mag-photo-pad: 2.8cqw;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    font-family: var(--magazine-font-jp);
+  }
+
+  .mag-photo {
+    position: relative;
+    min-height: 0;
+    overflow: hidden;
+    background: var(--magazine-ink);
+  }
+  .mag-photo img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .mag-accent {
+    color: var(--magazine-accent-strong);
+  }
+
+  .mag-tag {
+    padding: 0.08em 0.45em 0.12em;
+    background: var(--magazine-accent-strong);
+    color: var(--magazine-verso);
+    font-weight: 800;
+  }
+
+  .mag-title {
+    font-weight: 800;
+    font-size: min(9.4cqw, 10cqh);
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    white-space: nowrap;
+  }
+  .mag-title--section {
+    font-size: min(6.6cqw, 7.4cqh);
+  }
+
+  .mag-subtitle {
+    margin-top: 0.5cqw;
+    font-family: var(--magazine-font-italic);
+    font-style: italic;
+    font-weight: 500;
+    font-size: max(0.875rem, min(2.8cqw, 3.1cqh));
+    color: var(--magazine-ink-soft);
+  }
+
+  .mag-running-head {
+    flex: none;
+    margin: 3.2cqw var(--mag-pad) 0;
+    padding-bottom: 0.9cqw;
+    border-bottom: max(2px, 0.25cqw) solid var(--magazine-accent);
+    font-family: var(--magazine-font-italic);
+    font-style: italic;
+    font-size: max(0.8125rem, 2.2cqw);
+  }
+  .mag-running-head__name {
+    font-weight: 700;
+  }
+  .mag-running-head__issue {
+    margin-left: 1.4em;
+    font-weight: 500;
+  }
+
+  /* Rodapé: fio, fólio e o espaço dos controles (que ficam por cima, no centro). */
+  .mag-band {
+    flex: none;
+    display: flex;
+    align-items: center;
+    block-size: var(--magazine-band);
+    margin: auto var(--mag-pad) 0;
+    border-top: 1px solid color-mix(in srgb, var(--magazine-ink) 55%, transparent);
+  }
+  .mag-folio {
+    font-weight: 500;
+    font-size: max(0.875rem, 2cqw);
+  }
+  .mag-folio--right {
+    margin-left: auto;
+  }
+
+  figcaption {
+    flex: none;
+    font-weight: 600;
+    font-size: max(0.875rem, min(2.3cqw, 2.6cqh));
+    line-height: 1.3;
+  }
+
+  /* ---------- Capa ---------- */
+
+  .mag-cover {
+    /*
+     * Largura do cupê: a página toda sempre que a altura deixa (sobram ~19%
+     * da altura para as duas chamadas); em painel baixo, encolhe pela altura e
+     * encosta na borda direita. 0,6409 = 696/1086, a proporção do recorte.
+     */
+    --mag-hero-w: min(100cqw, calc((100cqh - var(--magazine-band) - 19cqw - 19cqh) / 0.6409));
+  }
+  .mag-cover__masthead {
+    flex: none;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 3cqw;
+    margin: 3.2cqw var(--mag-pad) 0;
+    padding-bottom: 1.2cqw;
+    border-bottom: max(2px, 0.3cqw) solid var(--magazine-accent);
+  }
+  /* Letreiro vazado e inclinado da capa; o preenchimento da cor do papel esconde os contornos sobrepostos da fonte variável. */
+  .mag-cover__nameplate {
+    font-family: var(--font-display);
+    font-weight: 900;
+    font-size: 8.2cqw;
+    line-height: 0.92;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+    color: var(--magazine-paper-light);
+    -webkit-text-stroke: max(3px, 0.55cqw) var(--magazine-ink);
+    paint-order: stroke fill;
+    transform: skewX(-12deg);
+    transform-origin: left bottom;
+  }
+  .mag-cover__edition {
+    flex: none;
+    font-family: var(--magazine-font-italic);
+    font-style: italic;
+    font-weight: 600;
+    font-size: max(0.9375rem, 3.1cqw);
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+  .mag-cover__edition::before {
+    content: "/";
+    margin-right: 0.45em;
+    font-style: normal;
+    color: var(--magazine-accent);
+  }
+  .mag-cover__tagline {
+    flex: none;
+    margin: 1cqw var(--mag-pad) 0;
+    font-family: var(--magazine-font-italic);
+    font-style: italic;
+    font-weight: 500;
+    font-size: max(0.875rem, 2.3cqw);
+    white-space: nowrap;
+  }
+
+  /*
+   * Palco do cupê (largura da página): o carro à direita, a chamada ancorada
+   * na margem esquerda. Os cortes ficam dentro da área de foto da arte
+   * original (39%→0% em cima, 99%→80% embaixo), então nunca aparece papel da
+   * arte dentro da foto; e a chamada, medida pelo carro, cabe sempre no papel
+   * acima do corte (quando o carro encolhe, sobra ainda mais papel à esquerda).
+   */
+  .mag-cover__stage {
+    position: relative;
+    flex: none;
+    height: calc(var(--mag-hero-w) * 0.6409);
+    margin-top: 0.4cqw;
+  }
+  .mag-cover__hero {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: var(--mag-hero-w);
+    height: 100%;
+    container-type: inline-size;
+  }
+  .mag-cover__coupe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    clip-path: polygon(0 40%, 100% 1.2%, 100% 80%, 0 99%);
+  }
+  .mag-cover__headline {
+    position: absolute;
+    z-index: 1;
+    left: var(--mag-pad);
+    top: calc(var(--mag-hero-w) * 0.006);
+    font-weight: 900;
+    font-size: calc(var(--mag-hero-w) * 0.076);
+    line-height: 1.04;
+    letter-spacing: -0.03em;
+    white-space: nowrap;
+  }
+  /* 特集 no triângulo de papel abaixo do carro, à direita. */
+  .mag-cover__feature {
+    position: absolute;
+    right: 4.6cqw;
+    bottom: 1.2cqw;
+    display: flex;
+    align-items: center;
+    gap: 1.1cqw;
+    font-weight: 700;
+    font-size: max(0.8125rem, 2.25cqw);
+    white-space: nowrap;
+  }
+
+  .mag-cover__previews {
+    --mag-skew: 3.2cqw;
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    margin: 1.6cqw var(--mag-photo-pad) 0;
+  }
+  .mag-cover__preview {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8cqw;
+  }
+  .mag-cover__preview .mag-photo {
+    flex: 1;
+  }
+  .mag-cover__preview--left .mag-photo {
+    clip-path: polygon(0 0, 100% 0, calc(100% - var(--mag-skew)) 100%, 0 100%);
+  }
+  .mag-cover__preview--right {
+    margin-left: calc(1cqw - var(--mag-skew));
+  }
+  .mag-cover__preview--right .mag-photo {
+    clip-path: polygon(var(--mag-skew) 0, 100% 0, 100% 100%, 0 100%);
+  }
+  .mag-cover__preview figcaption {
+    display: flex;
+    align-items: center;
+    gap: 1.2cqw;
+  }
+  .mag-cover__preview figcaption::after {
+    content: "";
+    flex: 1;
+    border-top: 1px solid var(--magazine-ink);
+  }
+  .mag-cover__preview--right figcaption {
+    padding-left: calc(var(--mag-skew) - 1cqw);
+  }
+  .mag-cover__preview--right figcaption::before {
+    content: "/";
+    margin-right: 0.4em;
+    font-weight: 400;
+  }
+
+  /* ---------- Aberturas (02 e 04) ---------- */
+
+  .mag-opening__title {
+    flex: none;
+    margin: 2.6cqw var(--mag-pad) 0;
+  }
+  .mag-opening__photo {
+    flex: 1;
+    margin: 2.2cqw var(--mag-photo-pad) 0;
+  }
+  .mag-columns {
+    flex: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin: 2.2cqw var(--mag-pad) 1.4cqw;
+    font-weight: 500;
+    font-size: max(0.875rem, min(2.25cqw, 2.6cqh));
+    line-height: 1.75;
+  }
+  .mag-columns span {
+    display: block;
+    white-space: nowrap;
+  }
+  .mag-columns p:first-child {
+    padding-right: 3cqw;
+  }
+  .mag-columns p + p {
+    padding-left: 3cqw;
+    border-left: 1px solid color-mix(in srgb, var(--magazine-ink) 45%, transparent);
+  }
+
+  /* ---------- Galeria (03) ---------- */
+
+  .mag-gallery__head {
+    flex: none;
+    margin: 3.2cqw var(--mag-pad) 0;
+    padding: 1.8cqw 0 1.2cqw;
+    border-top: max(2px, 0.25cqw) solid var(--magazine-accent);
+    border-bottom: 1px solid var(--magazine-ink);
+  }
+  .mag-gallery__lead,
+  .mag-gallery__wide,
+  .mag-gallery__narrow {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9cqw;
+    min-height: 0;
+  }
+  .mag-gallery__lead {
+    flex: 1.35;
+    margin: 2.4cqw var(--mag-photo-pad) 0;
+  }
+  .mag-gallery__lead .mag-photo,
+  .mag-gallery__row .mag-photo {
+    flex: 1;
+  }
+  .mag-gallery__row {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: 1.47fr 1fr;
+    gap: 2.4cqw;
+    margin: 1.8cqw var(--mag-photo-pad) 1.2cqw;
+    padding-top: 1.8cqw;
+    border-top: 1px solid color-mix(in srgb, var(--magazine-ink) 45%, transparent);
+  }
+
+  /* ---------- Peças (05) ---------- */
+
+  .mag-parts::before {
+    content: "";
+    flex: none;
+    margin: 3.2cqw var(--mag-pad) 0;
+    border-top: max(2px, 0.25cqw) solid var(--magazine-accent);
+  }
+  /*
+   * Fotos sem recorte (as linhas dos rótulos estão desenhadas nelas): o
+   * conjunto escala inteiro, pela largura ou pela altura que sobra, e fica
+   * centrado no papel. 0,941 = 1/1,966 (mola) + 1/2,314 (linha de baixo).
+   */
+  .mag-parts__body {
+    --mag-callout-h: max(1.6rem, 4.4cqw);
+    flex: 1;
+    min-height: 0;
+    align-self: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 3cqw;
+    width: min(100cqw - 2 * var(--mag-photo-pad), (100cqh - var(--magazine-band) - 17cqw) / 0.941);
+  }
+  .mag-parts__row {
+    display: grid;
+    grid-template-columns: 1.254fr 1.06fr;
+    gap: 2.4cqw;
+  }
+  .mag-parts figure {
+    position: relative;
+    padding-top: var(--mag-callout-h);
+  }
+  .mag-parts .mag-photo img {
+    height: auto;
+  }
+  .mag-callout {
+    position: absolute;
+    top: 0;
+    display: flex;
+    align-items: flex-end;
+    block-size: var(--mag-callout-h);
+    padding: 0 0.3em 0.15em 0.6em;
+    border-bottom: 1px solid var(--magazine-ink);
+    font-weight: 600;
+    font-size: max(0.875rem, 2.3cqw);
+    white-space: nowrap;
+  }
+}
+
+/*
+ * Painel do formulário ao lado da revista (desktop, telas de entrada): a
+ * superfície do tema com uma luz âmbar difusa que nasce na divisória — a
+ * mesma lâmpada da oficina da capa, bem baixa (só uma diferença de tom; o
+ * texto, os campos e os erros continuam sobre ~a superfície). Fora de
+ * `@layer` de propósito: precisa vencer o `bg-bg` utilitário do celular.
+ */
+@media (min-width: 64rem) {
+  .auth-panel-lit {
+    background-color: var(--color-surface);
+    background-image:
+      radial-gradient(ellipse 70% 55% at 0% 40%, var(--auth-panel-glow), transparent 72%),
+      linear-gradient(to right, var(--auth-panel-glow-edge), transparent 22%);
+  }
+}

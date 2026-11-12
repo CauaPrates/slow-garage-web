@@ -1,72 +1,60 @@
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Label } from "@/components/ui/label";
-import { FieldError } from "@/components/ui/field-error";
+import { FormField } from "@/components/ui/form";
+import { AuthAlternate } from "@/components/layout/AuthLayout";
 import { ROUTES } from "@/lib/routes";
 import { useAuth } from "../AuthProvider";
 import { signUpSchema, type SignUpInput } from "../schemas";
+import { EMAIL_FIELD_PROPS, PasswordRule, SubmitButton, SubmitError, useGuardedSubmit } from "./AuthFormParts";
 
 export function SignUpForm() {
   const { signUp } = useAuth();
   const navigate = useNavigate();
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const { pending, run } = useGuardedSubmit();
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    control,
+    formState: { errors },
   } = useForm<SignUpInput>({ resolver: zodResolver(signUpSchema) });
+  const password = useWatch({ control, name: "password" });
 
-  async function onSubmit(values: SignUpInput) {
-    setSubmitError(null);
-    const { error } = await signUp(values.email, values.password);
-    if (error) {
-      setSubmitError(error);
-      return;
-    }
-    navigate(ROUTES.confirmeEmail);
-  }
+  const onSubmit = handleSubmit((values) =>
+    run(async () => {
+      setSubmitError(null);
+      const { error } = await signUp(values.email, values.password);
+      if (error) {
+        setSubmitError(error);
+        return;
+      }
+      // Mesma tela para e-mail novo e já cadastrado (RN-6 da spec 001: o cadastro nunca revela se o e-mail existe).
+      navigate(ROUTES.confirmeEmail);
+    }),
+  );
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="signup-email">E-mail</Label>
-        <Input
-          id="signup-email"
-          type="email"
-          autoComplete="email"
-          aria-invalid={!!errors.email}
-          {...register("email")}
-        />
-        <FieldError>{errors.email?.message}</FieldError>
-      </div>
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="signup-password">Senha</Label>
-        <PasswordInput
+    <>
+      <form onSubmit={onSubmit} className="flex flex-col gap-4" noValidate>
+        <FormField id="signup-email" label="E-mail" hint="Enviamos o link de confirmação para ele." error={errors.email?.message}>
+          {(a11y) => <Input id="signup-email" autoComplete="email" {...EMAIL_FIELD_PROPS} {...a11y} {...register("email")} />}
+        </FormField>
+        <FormField
           id="signup-password"
-          autoComplete="new-password"
-          aria-invalid={!!errors.password}
-          {...register("password")}
-        />
-        <FieldError>{errors.password?.message}</FieldError>
-      </div>
-      <FieldError>{submitError}</FieldError>
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Criando conta…" : "Criar conta"}
-      </Button>
-      <p className="text-center text-sm text-text-secondary">
-        Já tem conta?{" "}
-        <Link
-          to={ROUTES.entrar}
-          className="text-accent underline underline-offset-2"
+          label="Senha"
+          hint={<PasswordRule value={password} />}
+          error={errors.password?.message}
         >
-          Entrar
-        </Link>
-      </p>
-    </form>
+          {(a11y) => <PasswordInput id="signup-password" autoComplete="new-password" {...a11y} {...register("password")} />}
+        </FormField>
+        <SubmitError>{submitError}</SubmitError>
+        <SubmitButton pending={pending} label="Criar conta" pendingLabel="Criando conta…" className="mt-1 w-full" />
+      </form>
+      <AuthAlternate question="Já tem conta?" to={ROUTES.entrar} label="Entrar" />
+    </>
   );
 }

@@ -1,27 +1,41 @@
-import { useForm } from "react-hook-form";
+import { useRef } from "react";
+import { useForm, type FieldErrors } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { FieldError } from "@/components/ui/field-error";
+import { FormBody, FormField, FormFooter, FormSection, NUMBER_INPUT_CLASSNAME, UnitAffix } from "@/components/ui/form";
 import { todayDateOnly } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import { noteSchema, type NoteFormInput, type NoteFormOutput } from "./schemas";
 
 type NoteFormProps = {
+  mode: "create" | "edit";
   defaultValues?: Partial<NoteFormInput>;
   onSubmit: (values: NoteFormOutput) => Promise<void>;
   submitLabel: string;
+  submitError?: string | null;
 };
 
-/** Sem seção "mais detalhes" — nota tem só 4 campos, todos sempre visíveis (diferente das demais fases, que colapsam o secundário). */
-export function NoteForm({ defaultValues, onSubmit, submitLabel }: NoteFormProps) {
+const FIELD_ORDER = ["title", "body", "occurredOn", "odometerKm"] as const;
+
+/**
+ * Etapa 13: a nota no padrão comum de formulário. Campos, schema e payload de
+ * antes — tudo opcional (título e corpo podem ficar vazios; o banco grava a
+ * data de hoje quando ela não vem). Só a quilometragem valida: inteiro ≥ 0,
+ * vazio ou 0 aceitos. Sem seção recolhível: são quatro campos.
+ *
+ * Data em branco: no cadastro o banco grava hoje (`default current_date`); na
+ * edição o campo não vai no PATCH e a data já registrada fica — a ajuda diz
+ * qual dos dois acontece.
+ */
+export function NoteForm({ mode, defaultValues, onSubmit, submitLabel, submitError }: NoteFormProps) {
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useForm<NoteFormInput, unknown, NoteFormOutput>({
     resolver: zodResolver(noteSchema),
+    shouldFocusError: false,
     defaultValues: {
       title: "",
       occurredOn: todayDateOnly(),
@@ -29,46 +43,82 @@ export function NoteForm({ defaultValues, onSubmit, submitLabel }: NoteFormProps
     },
   });
 
+  // Dois Enter (ou dois cliques) seguidos: um envio só.
+  const submittingRef = useRef(false);
+  async function submitValid(output: NoteFormOutput) {
+    if (submittingRef.current) return;
+    submittingRef.current = true;
+    try {
+      await onSubmit(output);
+    } finally {
+      submittingRef.current = false;
+    }
+  }
+
+  function revealErrors(fieldErrors: FieldErrors<NoteFormInput>) {
+    const first = FIELD_ORDER.find((field) => fieldErrors[field]);
+    if (!first) return;
+    requestAnimationFrame(() => {
+      const element = document.getElementById(first);
+      element?.focus();
+      element?.scrollIntoView({ block: "center" });
+    });
+  }
+
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4" noValidate>
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="title">Título (opcional)</Label>
-        <Input id="title" aria-invalid={!!errors.title} {...register("title")} />
-        <FieldError>{errors.title?.message}</FieldError>
-      </div>
+    <form
+      onSubmit={(event) => void handleSubmit(submitValid, revealErrors)(event)}
+      className="flex min-h-0 flex-1 flex-col"
+      noValidate
+    >
+      <FormBody>
+        <FormSection title="Nota" description="Tudo é opcional.">
+          <FormField id="title" label="Título" optional error={errors.title?.message}>
+            {(a11y) => <Input id="title" placeholder="Ex.: Ruído na suspensão" {...a11y} {...register("title")} />}
+          </FormField>
+          <FormField id="body" label="Anotação" optional error={errors.body?.message}>
+            {(a11y) => <Textarea id="body" rows={5} {...a11y} {...register("body")} />}
+          </FormField>
+        </FormSection>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="occurredOn">Data (opcional)</Label>
-          <Input
-            id="occurredOn"
-            type="date"
-            aria-invalid={!!errors.occurredOn}
-            {...register("occurredOn")}
-          />
-          <FieldError>{errors.occurredOn?.message}</FieldError>
-        </div>
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="odometerKm">Quilometragem (opcional)</Label>
-          <Input
-            id="odometerKm"
-            type="number"
-            inputMode="numeric"
-            aria-invalid={!!errors.odometerKm}
-            {...register("odometerKm")}
-          />
-          <FieldError>{errors.odometerKm?.message}</FieldError>
-        </div>
-      </div>
+        <FormSection title="Quando" className="border-t border-border">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <FormField
+              id="occurredOn"
+              label="Data"
+              optional
+              error={errors.occurredOn?.message}
+              hint={mode === "create" ? "Em branco, fica a data de hoje." : "Em branco, a data já registrada continua."}
+            >
+              {(a11y) => <Input id="occurredOn" type="date" {...a11y} {...register("occurredOn")} />}
+            </FormField>
+            <FormField
+              id="odometerKm"
+              label="Quilometragem"
+              optional
+              unitLabel="em quilômetros"
+              error={errors.odometerKm?.message}
+            >
+              {(a11y) => (
+                <UnitAffix suffix="km">
+                  <Input
+                    id="odometerKm"
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    step={1}
+                    className={cn("pr-11", NUMBER_INPUT_CLASSNAME)}
+                    {...a11y}
+                    {...register("odometerKm")}
+                  />
+                </UnitAffix>
+              )}
+            </FormField>
+          </div>
+        </FormSection>
+      </FormBody>
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="body">Anotação</Label>
-        <Textarea id="body" {...register("body")} />
-      </div>
-
-      <Button type="submit" disabled={isSubmitting}>
-        {isSubmitting ? "Salvando…" : submitLabel}
-      </Button>
+      <FormFooter error={submitError} submitting={isSubmitting} submitLabel={submitLabel} />
     </form>
   );
 }

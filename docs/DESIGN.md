@@ -1,5 +1,945 @@
 # DESIGN.md — Identidade visual do Slow Garage
 
+## Sistema visual consolidado — harmonização 01 (revisão visual pendente)
+
+Ponto de partida para qualquer tela nova (etapas 11–16 inclusive). As seções
+das etapas abaixo continuam como histórico do **porquê** de cada tela; onde
+contradizem esta seção em tipografia, componente ou padrão de página, vale
+esta. Decisão completa em `docs/DECISIONS.md` (ADR-099).
+
+Direção: **revista japonesa de preparação automotiva + interface precisa e
+simples**. A personalidade (fotografia, capa, título editorial) mora na Minha
+garagem; as páginas de gestão herdam a linguagem — título de tela em display
+caixa-alta, filetes, faixas de resumo, linhas organizadas, ações discretas —
+sem capa, sem colagem e sem card de veículo.
+
+### Onde cada fundamento mora (mude uma vez, todas as telas acompanham)
+
+| Fundamento | Fonte única | Quem consome |
+|---|---|---|
+| Cores, superfícies, bordas, estados, foco | `src/styles/tokens.css` (`--color-*`, claro e escuro com os mesmos papéis) | utilitários `bg-*`/`text-*`/`border-*`, `garage.css` |
+| Raios e sombra de menu/diálogo | `--radius-sm/md/lg`, `--shadow-overlay` | `Popover`, `Dialog`, `AlertDialog`, painéis |
+| Margem, respiro e vão da página | `--page-gutter`, `--page-pad-y`, `--page-gap` | `Page`, `SummaryStrip`, `RouteNotice` |
+| Respiro de painel e linha | `--panel-pad-x`, `--panel-pad-y` | `PanelHeader`, `ListColumns`, estados, linhas de registro |
+| Altura de controle | `--control-h` (44px), `--control-h-touch` (56px) → `h-control`, `size-control`, `min-h-control(-touch)` | `Button`, campos, menus, "Detalhes", busca da Garagem |
+| Anel de foco de campo | `--focus-ring-field` | `fieldClassName`, busca da Garagem |
+| Escala tipográfica | `--type-*` (tokens) + utilitários `type-*` (globals.css) | componentes abaixo |
+| Movimento | `--duration-fast/base/flash`, `--ease-standard` | botões, acordeões, `value-flash` |
+
+Exemplo: trocar `--control-h` muda a altura de todo botão, campo, seletor,
+item de menu e do "⋯" de todas as listas e da busca da Garagem; trocar
+`--panel-pad-x` muda o recuo de cabeçalhos, colunas, estados e linhas das seis
+páginas de registro. Nenhuma tela repete o número.
+
+### Tokens semânticos (novos nesta rodada)
+
+| Token | Escuro | Claro | Papel |
+|---|---|---|---|
+| `--color-text-muted` | `#8E949A` | `#666B71` | Texto discreto: placeholder, ícone de estado vazio. 4,76:1+ sobre bg/surface/raised; nunca sobre selo tintado |
+| `--color-info` | `#79A8E0` | `#2C5D99` | Informação (selo `info`, aviso `info`). 5,1:1+ inclusive sob tinta a 10% |
+| `--page-gutter` / `--page-pad-y` / `--page-gap` | 16→24 / 20→24 / 20px | iguais | Margem e respiro de página (troca em `sm`) |
+| `--panel-pad-x` / `--panel-pad-y` | 16 / 12px | iguais | Respiro interno de painel |
+| `--control-h` / `--control-h-touch` | 44 / 56px | iguais | Alvo de controle |
+| `--focus-ring-field` | 3px acento a 30% | idem | Anel de foco de campo |
+| `--duration-flash` | 400ms | idem | Realce de valor alterado |
+
+Os demais (`--color-bg`, `surface`, `surface-raised`, `field`, `border`,
+`border-strong`, `hairline(-strong)`, `text-primary/secondary`, `accent`,
+`success`, `warning`, `error`, `state-hover/active`, `overlay`) são os da
+etapa 01 e da Garagem A3, sem mudança de valor.
+
+### Papéis tipográficos
+
+Família: **Archivo** (display) para título de tela, nome de registro e
+valores; **Space Grotesk** para todo o resto. **Mono só em placa e código**
+(`PlateTag`, placa Mercosul do card, código de erro). Os papéis são
+utilitários (`@utility` em `globals.css`), aplicados pelos componentes —
+nenhum seletor genérico (`h1`, `button`, `input`) é estilizado.
+
+| Papel | Utilitário | Medida | Onde |
+|---|---|---|---|
+| Título de tela | `type-page-title` | Archivo 800, caixa-alta, 20→24px no celular (`clamp`, 6vw), 30px a partir de `sm` | `PageHeader` ("GASTOS", "MANUTENÇÃO"…) |
+| Nome de registro | `type-entity-title` | Archivo 700, caixa normal, 20 → 24px | Dashboard (modelo do veículo), detalhe do projeto |
+| Título de seção | `type-section-title` | 14px 600 | `PanelHeader`, `FormSection` |
+| Título de diálogo | `type-dialog-title` | 18px 600 | `DialogTitle`, `AlertDialogTitle` |
+| Título de item | `type-item-title` | 14px 500, quebra | linhas de registro |
+| Corpo / rótulo | `type-body` / `type-label` | 14px / 14px 500 | `Label`, textos |
+| Legenda | `type-caption` | 12px | metadados, contagem do painel, ajuda de campo |
+| Sobrelinha | `type-overline` | 11px 600, 0,08em, caixa-alta | faixa de resumo, grupos da navegação, marca no dashboard |
+| Valor | `type-value` | Archivo 600 16px tabular | valor da linha (dinheiro, consumo) |
+| Número em texto | `type-figure` | Archivo 600 tabular, tamanho do texto em volta | "Estimado R$ 120,00", gráficos, FIPE |
+| Indicador | `type-stat` | Archivo 700 18→20px tabular | `SummaryStat` |
+
+Caixa-alta é do **título de tela** (nome fixo, curto) e da sobrelinha — nunca
+de título de seção, de item ou de nome digitado pelo usuário. Valores
+financeiros sempre com algarismos tabulares, alinhados à direita nas colunas.
+
+### Componentes básicos (`src/components/ui/`)
+
+| Componente | O que padroniza |
+|---|---|
+| `Button` (`primary`, `outline`, `ghost`, `destructive`; `size="icon"`) | altura `--control-h`, "cede" ao toque, foco global |
+| `Input`, `Select`, `Textarea`, `Combobox`, `ComboboxInput` | casca única `fieldClassName`: borda 3:1, placeholder discreto, foco, erro |
+| `Label`, `FieldError`, `FormField`, `FilterField` | rótulo visível, ajuda e erro ligados ao campo |
+| `Badge` (`neutral`, `strong`, `accent`, `success`, `warning`, `error`, `info`, `dashed`) | o selo de situação; cada tela decide o tom de cada status |
+| `RowActionsMenu`, `menuItemClassName`, `MenuSeparator` | o "⋯" de linha (editar; divisor; excluir em carmim) e os itens dos menus do usuário e do card |
+| `InfoTip` | o botão "i" de 44px com popover (clique, toque, teclado) |
+| `Popover` | superfície flutuante |
+| `Dialog` / `AlertDialog` + `AlertDialogRecord` | diálogos; cartão neutro do registro na exclusão |
+| `DisclosureButton`, `DetailItem`, `INSET_CLASSNAME`; `PanelDisclosure`; `FormSection` recolhível | acordeões ("Detalhes" de linha, rodapé de painel, seção opcional) |
+| `Skeleton`, `SkeletonList` | carregando (pulso só com `motion-safe`) |
+| `InlineError`, `PageError`, `NoResults`, `EmptyState` (`panel`/`inline`), `Alert` | estados de erro, sem resultado, vazio e avisos com fio lateral |
+| `PlateTag` | placa como etiqueta mono |
+| `textLinkClassName` | link em texto: neutro sublinhado, seta no acento |
+
+### Padrões de página
+
+- **`Page`** (`components/layout/Page.tsx`): margem, respiro e vão por token.
+  Largura toda — em monitor largo quem se ajusta são as colunas.
+- **`PageHeader`**: título de tela, uma frase de contexto (pode trazer o
+  `InfoTip`), a ação principal à direita com `ActionLabel` ("Registrar" no
+  celular, nome completo para o leitor de tela). Com duas ações
+  (`stackActionsOnMobile`, Manutenção) elas descem em largura cheia no
+  celular. A ação some no vazio total — o `EmptyState` leva a ação.
+- **Resumo** (`SummaryStrip` + `SummaryStat`): faixa com filetes, rótulo em
+  sobrelinha e valor `type-stat`; carregando = traço, falha = "Indisponível",
+  a explicação e o "Tentar de novo" ficam na legenda. Usado em Modificações.
+  Abastecimentos mantém o painel de indicadores (`GarageTile`) porque cada
+  número tem ajuda e erro próprios e "Detalhes" — exceção justificada.
+- **Painel de lista** (`PANEL_CLASSNAME` + `PanelHeader` + `PanelCount` +
+  `ListColumns`): título de seção, contagem anunciada à direita, cabeçalho de
+  colunas no mesmo molde de grade da linha. Cada tela mantém sua linha
+  (`ExpenseRow`, `FuelLogRow`, `MaintenancePlanRow`, `MaintenanceRecordRow`,
+  `IssueListRow`, `ProjectListRow`, `ProjectItemRow`, `ModificationRow`) e
+  seus agrupamentos — compartilham respiro, tipografia, selo, "Detalhes",
+  "⋯" e valor.
+- **Linha no celular** (padrão resolvido em Modificações, agora também em
+  Gastos e no histórico de Manutenção): nome com quase toda a largura e o "⋯"
+  no canto; embaixo, o valor e os metadados; anexo e nota na largura inteira.
+  Nenhuma coluna de valor reservada à direita espremendo o texto. Exceção:
+  Abastecimentos mantém o consumo na borda direita (comparação entre paradas,
+  ADR-089) — a 1ª linha só tem números curtos.
+- **Nada é cortado sem caminho de volta**: nome, descrição e nome de posto
+  quebram linha (Gastos deixou o `line-clamp-2` da etapa 05; Abastecimentos o
+  do posto). Corte só com caminho visível para o texto inteiro: "Ver nota
+  inteira" em Modificações, o detalhe do projeto para a descrição em Projetos.
+  Texto só no `sr-only` ou na edição não conta como caminho.
+- **Carregando**: sempre `Skeleton`/`SkeletonList` — pulso só com movimento
+  permitido. Nenhuma tela 01–10 tem `animate-pulse` próprio.
+- **Filtros**: dentro do painel da lista, sob o título (Gastos e
+  Modificações); `FilterField` em grade, mesma altura de controle; abaixo de
+  400px empilham onde o rótulo da opção cortaria (Modificações). Sem
+  resultado, "Limpar filtros" aparece uma vez só, na mensagem.
+- **Indicadores** (`GarageTile`, dashboard, resumo de Abastecimentos,
+  detalhes da Garagem): rótulo em sobrelinha, como na faixa de resumo; valor
+  em `type-value`.
+- **Formulário em diálogo**: `FORM_DIALOG_CLASSNAME` (folha na base no
+  celular), `FORM_DIALOG_HEADER_CLASSNAME`, `FormBody` (só ele rola),
+  `FormSection` (fixa ou recolhível com resumo), `FormField`, `UnitAffix`,
+  `FormFooter` (erro de envio acima das ações, "Salvando…", botão travado
+  enquanto envia). Foco no diálogo ao abrir (`focusDialogOnOpen`), Escape
+  fecha (exceto com lista de combobox aberta), foco volta ao gatilho.
+- **Exclusão**: `AlertDialog` (fio carmim, ação `destructive`) +
+  `AlertDialogRecord`. O título e as consequências continuam escritos por
+  entidade; "Custo não informado" ≠ "R$ 0,00".
+- **Estados**: `SkeletonList` (lista), `InlineError` (bloco falhou, resto de
+  pé), `PageError` (página inteira), `NoResults` (filtro sem resultado, com
+  "Limpar filtros"), `EmptyState` (nada registrado + ação), `VehicleNotFound`.
+
+### Exemplos reais
+
+| Padrão | Telas |
+|---|---|
+| `PageHeader` + `ActionLabel` | Gastos, Abastecimentos, Problemas, Projetos, Modificações; Manutenção com duas ações |
+| `type-entity-title` | Dashboard (veículo), detalhe do projeto |
+| `SummaryStrip` | Modificações |
+| `PanelHeader`/`PanelCount`/`ListColumns` | as seis listas + "Progresso e custos" e "Notas do projeto" |
+| `Panel` (ex-`DashboardPanel`) | blocos do dashboard, "Detalhes da garagem", resumo de Abastecimentos, FIPE |
+| `RowActionsMenu` | Gastos, Abastecimentos, Manutenção (plano e serviço), Problemas, Projetos (lista e itens), Modificações |
+| `Badge` | situação em Manutenção, Problemas, Projetos e itens; condições de abastecimento; status no dashboard |
+| `AlertDialogRecord` | exclusão de gasto/upgrade, abastecimento, problema, serviço, projeto |
+| `Alert` | vencidas no dashboard, "crie um projeto primeiro", aviso de rota do shell |
+
+### Quando uma exceção local é aceitável
+
+Só quando a diferença é de **conteúdo ou função**, nunca de acabamento:
+
+- **Minha garagem** (`src/styles/garage.css`): capa, colagem, card de
+  veículo, grade por container query, abas da coleção, placa Mercosul. Usa os
+  tokens comuns (cores, raios, `--control-h`, `--focus-ring-field`) e a
+  escala própria `--garage-*`; nada dela escapa para outras telas.
+- **Dashboard**: o layout interno (ordem dos blocos, indicadores
+  `GarageTile size="lg"`, ações rápidas em contorno neutro — são ações, não
+  abas, nenhuma fica "acesa").
+- **Gráficos**: tipo, escala, período e significado são de cada gráfico;
+  compartilham só tipografia (`type-figure`), cores semânticas, legenda e
+  estados.
+- **Linhas de registro**: colunas e agrupamentos próprios (Manutenção por
+  vencimento, Problemas por aberto/resolvido, Projetos por ativo/encerrado).
+- **Formulários**: regras e seções de cada entidade.
+
+Regra prática: se a exceção precisaria de CSS global para existir, ela não é
+exceção — é um componente que falta ou uma tela que está errada.
+
+
+Estudo estático aprovado (propostas A3 e A3.1, `redesign-capturas/
+estudos-garagem-v2/`) levado ao app. **Vale só para a Minha garagem**; marca,
+shell e as outras telas não mudaram. Decisão completa em `docs/DECISIONS.md`
+(ADR-094). Onde contradiz a recalibração 01 abaixo (capa, resumo, card,
+grade), vale esta seção.
+
+A linguagem de revista japonesa de preparação aparece na **composição e na
+edição da informação**, não em adereço: fotografia protagonista, título forte,
+numeração editorial, fichas técnicas compactas, filetes finos, alinhamento
+rígido e contraste entre área expressiva (capa) e informação precisa (ficha).
+Nada de katakana, sol nascente, neon, carbono, selo "JDM" ou tipografia
+inclinada — e funciona com carro brasileiro de qualquer marca.
+
+- **Margens**: capa, resumo e coleção começam na mesma margem depois da
+  sidebar — `--garage-gutter` 40px (1440) → 56px (2560), travado; 24px no
+  tablet, 16px no celular. Sem largura máxima nem centralização.
+- **Escala**: medidas fluidas entre 1440 e 2560 e travadas nos extremos
+  (`tokens.css`, `--garage-*`): capa 264 → 380px, título 46 → 64px (36px em
+  1024), resumo 72 → 84px, vão da grade 24 → 32px. Nada cresce sem limite.
+- **Capa (desktop, `lg`+)**: página dupla. Esquerda no grafite: "Minha
+  garagem" é o `h1`, em sobrelinha com traço laranja e filete até a borda da
+  coluna; "Seus carros. Suas histórias." em Archivo 800 caixa-alta; "Cadastrar
+  veículo" e uma linha de apoio. A partir de 1280 a coluna do texto termina
+  onde começa o 2º card da coleção. Direita: **a capa da A3.1, uma imagem só**
+  já composta — cupê branco numa oficina com luz quente e, em recortes com
+  moldura clara e leve inclinação, a roda bronze com pinça vermelha e o
+  motor. Proporção 3:1, esquerda quase preta. A partir de 1280 aparece
+  inteira, alinhada à direita, na altura da capa (o título fica sobre a área
+  escura dela; o carro começa depois do texto); entre 1024 e 1279 mostra só o
+  trecho do carro e dos recortes. Nenhum crédito sobre a imagem.
+  **Tema claro**: sem degradê do claro para a foto escura — chapa de borda
+  seca que começa um pouco antes do carro.
+- **Capa (celular/tablet)**: sem foto — sobrelinha com o slogan, "Minha
+  garagem" 800 caixa-alta numa linha só ao lado de "Cadastrar" (5,8vw: ~23px
+  em 390, ~21px em 360, 27px no tablet; só em 320 quebra) — nome acessível
+  "Cadastrar veículo". As imagens da capa não são baixadas abaixo de `lg`
+  (`<picture>` com `media`).
+- **Resumo**: faixa colada à capa, rótulo 10–11px caixa-alta espaçada sobre o
+  valor (Archivo 700, 22 → 26px), filete vertical entre células. 2+ veículos:
+  Veículos ("02"), Gasto no mês, Pendências, Manutenção prevista (Veículos só
+  no desktop; Manutenção prevista a partir de 1280 — abaixo disso abre nos
+  detalhes); 1 veículo: Pendências e Manutenção
+  prevista. Zero vira "✓ Nenhuma". No fim, **Detalhes e comparativo**
+  ("Detalhes" no celular), que abre o painel logo abaixo da faixa — o mesmo
+  conteúdo de antes (resumo financeiro, gráficos, comparativo; próxima
+  manutenção no celular).
+- **Coleção** (revisão dos cards, ADR-095 — implementada, revisão visual
+  pendente): "Seus veículos" + contagem "02" em mono + filete, na margem da
+  página. Grade de cards verticais: colunas pela largura útil (cabem quantas
+  tiverem `--garage-card-min`, 336px no notebook → 384px no largo), cada card
+  até `--garage-card-max` (440 → 488px). Teto da grade = min(nº de veículos,
+  colunas da faixa) × largura máxima: com poucos veículos **só a grade**
+  encolhe e fica na margem, embaixo do título — alinhada à capa e ao
+  resumo (centralizar foi rejeitado: os cards ficavam soltos no meio). Faixas (container
+  query na coleção): 1 coluna < 688px, 2 até 1055, 3 até 1503, 4 até 2047,
+  5 acima. Medido: 390 → 1 × 358; 768 → 2 × 351; 1024 → 2 × 340; 1280 → 2 ×
+  440; 1440 → 2 × 440 (2 veículos) ou 3 × 357 (4); 1920 → 2 ×
+  461 (2) ou 4 × 376 (4); 2560 → 2 × 488 (2) ou 4 × 488 (4); 1 veículo → 1
+  card de 440–488px na margem. Último lugar da grade: **vaga livre** tracejada, "Estacionar veículo", que abre o cadastro (ADR-097; só sem busca/filtro). Placa no padrão **Mercosul** (chapa branca, faixa azul, caracteres pretos).
+- **Barra da coleção e cabeçalho** (ADR-096 — implementada, revisão visual
+  pendente): abas Todos/Ativos/Projetos/Guardados/Vendidos com contagem
+  (14px, ativa em 600 com traço laranja de 2px, filete embaixo), "Mais
+  recente" e grade/lista (botões 44px, ativo com borda e ícone laranja) à
+  direita; no celular busca + ordenação numa linha e as abas rolando
+  embaixo. "Buscar na garagem…" no cabeçalho a partir de `lg` (⌘K / Ctrl K),
+  que na garagem flutua sobre a capa: transparente no topo, sólido ao rolar.
+  A capa começa no topo; a foto sobe atrás do cabeçalho só a partir de 1440
+  no escuro. Lista: o card deitado, miniatura 16:10 à esquerda, até 1200px.
+- **Card vertical** (ADR-095), a mesma composição em toda largura, perto da
+  referência original:
+  1. foto 16:9 na largura toda (fotos 4:3 do app perdem ~12% em cima e
+     embaixo); pílula escura de status no canto superior esquerdo (Ativo,
+     Projeto, Guardado, Vendido) e "⋯" no direito (alvo 44px, chapa de
+     28px) — também sem foto e na falha; no escuro, o terço de baixo da foto
+     se funde na cor do card, sem texto sobre o carro; no claro, borda seca;
+  2. marca em texto normal, 14px cinza, modelo Archivo 700 22px (20px em card
+     < 320px) que quebra e fica completo, ano · versão + placa;
+  3. filete, Odômetro e Total investido com ícone à esquerda (rótulo
+     pequeno embaixo) e a seta
+     laranja 44px "Abrir veículo" à direita; se os valores não cabem lado a
+     lado, o segundo desce;
+  4. faixa secundária: "Ficha técnica" (recolhida por padrão; abre embaixo,
+     2 colunas) e os 4 registros só com ícone, com dica no hover e no foco.
+  Superfície do card com borda `--color-border` e raio `--radius-lg`; borda
+  laranja só no hover. Sem numeração "01". Cards da mesma linha têm a mesma
+  altura e a faixa alinhada no fundo; com uma ficha aberta, o vizinho não
+  estica. Sem foto: superfície um degrau acima do card com filete; 16:10 em
+  grade de várias colunas, 168px de altura em uma coluna. Tokens novos:
+  `--garage-card-min`, `--garage-card-max`, `--garage-chip-*`.
+- **Imagem da capa** (`src/assets/garage/cover.webp`, 2172×724, 88 KB):
+  imagem editorial **gerada** para o estudo A3.1 e fornecida pelo usuário
+  (original em `redesign-capturas/estudos-garagem-v2/fonte/assets/
+  capa-a3-1-gerada-original.png`); ilustrativa, não representa veículo
+  cadastrado. Decorativa (`alt=""`), servida por `<picture>` só a partir de
+  `lg`. As fotos CC0 da primeira montagem (oficina, garagem, motor, gaiola)
+  saíram do app e seguem registradas no `CREDITOS.txt` do estudo.
+- **Tokens aditivos**: `--color-hairline`, `--color-hairline-strong` e a
+  escala `--garage-*`.
+  Composição em `src/styles/garage.css` (áreas de grade e container queries).
+
+## Recalibração visual 01 — identidade + Minha garagem (aguardando aprovação)
+
+Corrige a direção do redesign, que ficou administrativa demais e distante da
+referência aprovada ("Dashboard Garage Automotiva em Tema Escuro"). Conceito:
+revista automotiva + garagem pessoal + performance minimalism. **Vale só para a
+Minha garagem e para a marca no shell**; as outras telas continuam como nas
+etapas 01–09 até a aprovação visual. Decisão completa em `docs/DECISIONS.md`
+(ADR-093). Onde contradiz as etapas abaixo na Garagem (cabeçalho, resumo,
+card), vale esta seção.
+
+- **Marca v2** (`public/brand/slow-garage-logo-v2-{dark,light}.svg`,
+  594×234): SLOW / GARAGE em duas linhas, letras de polígono desenhadas numa
+  grade (haste 30, barra 22, caixa-alta 100), chanfro no canto superior
+  esquerdo e inferior direito (direção do movimento), inclinação de 11°. Único
+  detalhe de cor: grade 3×3 laranja em ✕ no fim de SLOW (eco da bandeira
+  quadriculada do adesivo original). Sem fonte, sem traço automático de
+  bitmap, sem marca de terceiro; katakana fora nesta rodada. Laranja
+  `#EF792D` no escuro, `#D9661C` no claro (decorativo, não texto). Usada pelo
+  shell autenticado (`BrandLogo version={2}`: sidebar `h-12`, cabeçalho do
+  celular `h-8` ≈ 81px). Desde a etapa 14 (ADR-103) também nas telas de
+  entrada (`AuthLayout`: `h-12` na coluna editorial do desktop — hoje nenhuma
+  tela de entrada, onde a coluna é da revista —, `h-9`/`h-10` no celular) — antes elas seguiam na v1. v1, símbolo,
+  favicon, manifest e ícones PWA não mudaram.
+- **Fonte display**: Archivo (variável, eixo de peso; OFL;
+  `@fontsource-variable/archivo`, local, ~35 KB no subset latin), token
+  aditivo `--font-display`. Grotesca pesada que dá a presença da referência
+  sem o desenho excêntrico do Space Grotesk em tamanho grande. Usada **só** em:
+  chamada da capa, título da página no celular, nome do veículo, títulos de
+  seção e números do resumo da Garagem. Nunca em campo, rótulo ou texto longo.
+- **Escala da Garagem**: chamada da capa 44px (`lg`) / 60px (`xl`) 800
+  caixa-alta; título no celular 30px 800; modelo 22px 800 (era 18px 600);
+  marca do veículo 13px 500 em caixa normal; números do resumo 20px → 28px 700
+  com algarismos tabulares; valores do card 15px 600 na fonte de interface.
+  **Monoespaçada só na placa** — saiu dos valores do card e do resumo.
+- **Capa (desktop, `lg`+)**: sobrelinha "Minha garagem" (é o `h1`), chamada
+  "Seus carros. Suas histórias.", uma linha de apoio (`xl`+) e "Cadastrar
+  veículo" com "+". A partir de `xl` os números da garagem ficam ao lado, num
+  painel único. Sem foto: não há imagem editorial licenciada, e a foto do
+  carro do usuário já é protagonista no card. **Celular**: título curto,
+  "Cadastrar veículo" em largura cheia, faixa de três números e o primeiro
+  carro (nome visível na primeira tela em 360×780 e 390×844).
+- **Resumo**: com 2+ veículos, Veículos, Gasto no mês e Pendências (+
+  Próxima manutenção a partir de `lg`), sem caixa nem fio por número. Saíram
+  as contagens que não ajudam a escolher o carro ("1 ativo", "em N veículos")
+  e o "mês atual" repetido. Estados de carregando/erro/"Tentar de novo"
+  mantidos.
+- **Detalhes da garagem** desceram para depois da grade: título da seção é o
+  gatilho (`h2 > button`, `aria-expanded`), recolhido por padrão; conteúdo
+  igual (próxima manutenção abaixo de `lg`, resumo financeiro, gráficos,
+  comparativo).
+- **Card**: foto 4:3 sem filtro com degradê de 40px só na base, até a cor do
+  card (não existe sem foto); selo de status em pílula sólida com ponto
+  (Ativo verde, Projeto laranja, Guardado cinza, Vendido contorno) + texto;
+  "⋯" sólido no canto da foto (último na ordem de Tab). Identificação: marca,
+  modelo, ano · versão + placa. Dois indicadores fixos: **Odômetro** e
+  **Total investido**, com ícone discreto, e a seta "Abrir veículo" num botão
+  laranja de 44px (o laranja do card é a ação de abrir). Rodapé: "Ficha
+  técnica" (custo/km, gasto no mês atual, combustível, câmbio, motor,
+  potência) e os 4 registros. A "baia 01" saiu (decoração, não dado). Borda
+  do card neutra; muda só no hover.
+- **Grade**: card de no mínimo 19rem, conteúdo com no máximo 76rem
+  centralizado — 3 colunas de 1280 a 2560, 2 em 1024/820, 1 no celular.
+
+## Redesign — etapa 01: Automotive Editorial (sistema visual + navegação)
+
+Direção aprovada: **Automotive Editorial + Performance Minimalism** —
+personalidade de publicação automotiva bem editada com a clareza de um
+instrumento técnico. Substitui as escolhas *estéticas* das revisões
+anteriores (âmbar "luz de sódio", vidro/brilho/shimmer do header da Fase
+16, wordmark em Rajdhani); as decisões *funcionais e de acessibilidade*
+abaixo continuam valendo. Decisão completa em `docs/DECISIONS.md`
+(ADR-084).
+
+- **Superfícies sólidas** em grafite/carvão, branco levemente quente,
+  cinzas secundários legíveis. Sem glassmorphism, neon, brilho, gradiente
+  decorativo, textura ou fotografia de fundo.
+- **Laranja pontual** (`#EF792D` no escuro, `#A1460A` no claro): ação
+  primária, foco, estado ativo e a própria marca. Nunca pra destacar valor
+  em lista nem pra enfeitar ícone.
+- **Texto sobre o laranja é calculado, não presumido**: grafite no escuro
+  (6.6:1 — branco daria 2.8:1), branco no claro (6.2:1).
+- **Erro puxado pro carmim** (`#F26B7A`/`#B42335`) pra não se confundir
+  com o laranja de marca; ação destrutiva e ação comum diferem em matiz.
+- **Estados de interação** por sobreposição translúcida
+  (`--color-state-hover`/`--color-state-active`), que funciona igual sobre
+  `bg` e `surface` — antes `hover:bg-bg` dentro de popover (`surface`)
+  ficava invisível em alguns lugares e visível em outros.
+- **Campo de formulário** com fundo próprio (`--color-field`) e borda
+  `--color-border-strong`, 3:1 contra todo fundo onde aparece (WCAG
+  1.4.11). Casca única em `fieldClassName` (`components/ui/input.tsx`),
+  reaproveitada por `Textarea`, `Select`, `Combobox` e `ComboboxInput`.
+- **Camadas**: `bg` → `surface` (card, sidebar) → `surface-raised`
+  (popover, diálogo, folha), com `--shadow-overlay` só nas camadas que
+  flutuam.
+- **Movimento**: `--duration-fast` (120ms) / `--duration-base` (180ms),
+  `--ease-standard`. Nada roda sozinho; a folha da base entra com 12px de
+  deslize só com `motion-safe`. Shimmer, mola e brilho do header saíram
+  (os tokens antigos continuam definidos por compatibilidade).
+- **Tipografia**: nenhuma fonte nova. Space Grotesk continua a família de
+  interface; JetBrains Mono continua restrita a número de medição/placa;
+  algarismos tabulares em `dd`/`td`/`input`/`time`. Rajdhani deixou de ser
+  usada (o wordmark virou a marca vetorial), mas segue instalada.
+- **Marca** (`public/brand/slow-garage-*.svg`, `BrandLogo`): lettering
+  claro no escuro e escuro no claro (segue o tema **aplicado**, inclusive
+  "seguir o sistema"); símbolo compacto (dois quadrados laranja) onde falta
+  espaço. Aparece num lugar só por vez: topo da sidebar a partir de `lg`,
+  cabeçalho abaixo disso, e como `h1` das telas de auth. (Etapa 02: o
+  cabeçalho do celular passou a usar o logo completo em vez do símbolo —
+  ver abaixo.) O PNG antigo continua em `public/brand/`; favicon/ícones PWA não
+  mudaram.
+- **Navegação** — sidebar em altura total com três blocos: (A) destinos
+  gerais, (B) veículo aberto identificado por nome + placa e as seções
+  agrupadas sob títulos que **não são páginas** (Custos, Cuidados,
+  Preparação, Arquivo), (C) conta e administração no rodapé. Item ativo:
+  fundo + peso + fio de 2px no acento, nunca só cor. Bottom nav: Dashboard,
+  Garagem, **Registrar** (rótulo visível, abre a folha de 6 ações), Mais
+  (marcado quando a página atual mora nele) e **Ajustes** (= Configurações;
+  rótulo curto porque "Configurações" a 11px não cabe em 5 abas de 360px).
+  A folha "Mais" usa os mesmos grupos da sidebar.
+
+### Tokens (etapa 01)
+
+| Token | Escuro | Claro | Papel |
+|---|---|---|---|
+| `--color-bg` | `#111315` | `#F2F1ED` | Fundo |
+| `--color-surface` | `#1B1E21` | `#FBFAF8` | Card, sidebar, barra inferior |
+| `--color-surface-raised` | `#212529` | `#FFFFFF` | Popover, diálogo, folha |
+| `--color-field` | `#15181A` | `#FFFFFF` | Fundo de campo |
+| `--color-border` | `#2C3136` | `#DCDAD4` | Divisor, borda de card |
+| `--color-border-strong` | `#6B7279` | `#82878D` | Borda de campo/controle (3:1) |
+| `--color-text-primary` | `#F2F0E9` | `#17191B` | Texto principal |
+| `--color-text-secondary` | `#A8ADB2` | `#5A5F65` | Texto de apoio |
+| `--color-accent` | `#EF792D` | `#A1460A` | Ação primária, foco, ativo |
+| `--color-accent-hover` | `#F48B47` | `#873A07` | Hover da ação primária |
+| `--color-accent-foreground` | `#111315` | `#FFFFFF` | Texto sobre acento |
+| `--color-success` | `#62B06E` | `#386B41` | Sucesso |
+| `--color-warning` | `#E0B238` | `#7C5B10` | Aviso |
+| `--color-error` | `#F26B7A` | `#B42335` | Erro / destrutivo |
+| `--color-error-foreground`, `--color-warning-foreground` | `#111315` | `#FFFFFF` | Texto sobre selo/botão semântico |
+
+Todos os pares de texto passam 4.5:1 sobre `bg`, `surface`,
+`surface-raised` e `field`, inclusive sobre o fundo tintado a 10% de
+badge; borda forte e anel de foco passam 3:1. Calculado (fórmula WCAG,
+`color-mix` em sRGB como o navegador faz), não estimado. Raios: `sm` 4px,
+`md` 6px, `lg` 10px.
+
+## Redesign — etapa 02: Minha garagem
+
+Mesma direção e mesmos tokens da etapa 01; nenhuma cor nova. Decisão
+completa em `docs/DECISIONS.md` (ADR-085).
+
+- **Ordem da página**: cabeçalho curto ("Minha garagem" + "Seus carros.
+  Suas histórias." + uma única chamada "Cadastrar veículo", ao lado do
+  título também no celular — lá o rótulo visível é "Cadastrar" com ícone
+  "+", e "veículo" fica em `sr-only`; no estado vazio a chamada fica só no
+  painel), resumo operacional compacto e a grade de veículos. Nada de
+  banner nem foto de fundo. Critério medido: no celular (360 e 390) o nome
+  do primeiro carro termina acima da barra inferior na primeira tela.
+- **Resumo operacional** (`GarageOverview`): grade de instrumentos
+  (ADR-070). Com 2+ veículos: veículos, gasto no mês (dica "mês atual") e
+  pendências — no celular os três numa linha só (`1fr 1.5fr 1fr`, módulo
+  `px-3 py-2.5`), e o veículo das pendências só aparece a partir de `sm`.
+  A próxima manutenção entra na faixa a partir de `lg`; abaixo disso é o
+  primeiro bloco de "Detalhes da garagem", com veículo e data por extenso.
+  Com 1 veículo, só pendências e próxima manutenção (o resto já está no
+  card). Cada módulo tem estado próprio — carregando,
+  erro com "Tentar de novo" (nunca "nada pendente"), pronto. Valor em
+  `font-mono` só quando é medida; nome de manutenção fica na fonte de
+  interface. Dica longa quebra em até 2 linhas.
+- **Detalhes da garagem**: gatilho no rodapé do resumo (`aria-expanded` +
+  `aria-controls`), recolhido por padrão em **qualquer** largura. Abre o
+  resumo financeiro (5 totais + gráficos de mês e categoria) e o
+  comparativo (custo/km médio com "N de M com dado" + investimento por
+  veículo), como superfícies irmãs — não card dentro de card.
+- **Grade de veículos**: `repeat(auto-fill, minmax(min(100%, 20rem), 1fr))`,
+  `items-start`, `gap-5`. Três colunas só quando cabem três cards de 20rem
+  (1440 com sidebar); duas em tablet/notebook; uma no celular. Cards
+  alinhados ao topo: abrir a ficha de um não estica os vizinhos.
+- **Card de veículo** (`VehicleCard`): vertical, foto em cima em 4:3 (a
+  proporção do recorte, ADR-081), sem filtro; por cima, só dois selos
+  sólidos (`bg-bg`): baia à esquerda e status à direita (texto, só "Ativo"
+  no acento). Identificação: marca em sobrelinha pequena, modelo como
+  título `text-lg` (`h3`, quebra linha, nunca corta), ano · versão e placa
+  em tag mono numa linha só. Km e gasto no mês atual sempre visíveis; "Ficha técnica"
+  expande custo/km, total investido, combustível, câmbio, motor e
+  potência (os dois últimos só quando informados). Ausente = "—"; zero =
+  "R$ 0,00".
+- **Abrir o veículo**: link explícito "Abrir veículo →" na mesma linha da
+  "Ficha técnica" (texto neutro, só a seta no acento — laranja em todo
+  card viraria decoração), descrito pelo nome do veículo. É o caminho de
+  teclado. O título também é link, esticado (`after:absolute
+  after:inset-0`) sobre foto + identificação pra ponteiro e toque, mas com
+  `tabIndex={-1}`: um destino, uma parada de tabulação. Ficha, registros e
+  menu ficam fora da área — nenhum toque neles navega.
+- **Ações**: faixa de rodapé com os 4 registros (gasto, abastecimento,
+  manutenção, foto — ícone, `title` e `aria-label`, descritos pelo nome do
+  veículo via `aria-describedby`) e, à direita, "Mais ações" (⋯) com
+  "Editar veículo" e, separado por divisor e em carmim, "Excluir veículo".
+  Fechar o diálogo devolve o foco ao ⋯.
+- **Sem foto**: no celular a região encolhe (`h-32`, texto + "Adicionar
+  foto"); a partir de `sm` mantém 4:3 com ícone de carro, pra alinhar com
+  o card vizinho. Falha ao carregar a foto mostra "Foto indisponível no
+  momento." (sem oferecer adicionar — a foto existe).
+- **Cabeçalho do celular**: logo completo (`BrandLogo`, 32px de altura ≈
+  69px de largura) no lugar do símbolo. Abaixo de `sm`, notificações e
+  atividade recente dividem um botão (`HeaderInboxMenu`, abas
+  "Notificações"/"Atividade", setas trocam de aba, aba ativa com fio +
+  peso); alertas e menu do usuário seguem com botão próprio. Medido em
+  360px com troca de veículo: logo 8–85, troca 93–203, caixa 220–264,
+  alertas 264–308, usuário 308–352, altura igual à da etapa 01.
+
+## Redesign — etapa 03: formulários do veículo
+
+Cadastro, edição e exclusão do veículo, com a FIPE e a foto de capa que já
+moravam nesses fluxos. Mesmos tokens e componentes; nenhuma cor nova.
+Decisão completa em `docs/DECISIONS.md` (ADR-086).
+
+- **Diálogo de formulário** (`VEHICLE_FORM_DIALOG_CLASSNAME`): no desktop,
+  centrado com `max-w-2xl` (duas colunas sem apertar); no celular, folha
+  presa à base em largura cheia, com `safe-area` no rodapé. Cabeçalho
+  (título + uma linha de apoio) e rodapé ("Cancelar" + ação principal)
+  ficam fixos; **só o corpo rola** — uma região rolável, ação sempre à
+  vista. Ao abrir, o foco vai pro próprio diálogo, não pro primeiro campo:
+  focar a Marca abria as sugestões e o teclado virtual antes de a pessoa
+  ler como começar. Tab leva à Marca.
+- **Seções** (`FormSection`): separadas só por um fio, sem caixa dentro de
+  caixa. "Identificação" fica sempre aberta (marca e modelo — os únicos
+  obrigatórios —, ano, placa, versão, cor); "Uso e características",
+  "Compra e valores", "Detalhes técnicos" e "Notas" são recolhíveis, com
+  "· opcional" no título e, fechadas, uma linha com o que já foi preenchido
+  ("87.400 km · Gasolina · Manual") ou com o que guardam. No cadastro todas
+  começam fechadas; na edição abre a que tem algum dado. Recolher só
+  esconde (`hidden`), nunca desmonta nem limpa campo. Sem etapas, sem
+  barra de progresso.
+- **Campos** (`FormField`): rótulo sempre visível; "(opcional)" em cinza
+  dentro do rótulo na Identificação; obrigatório sem marca extra (convenção
+  da Fase 11) e com `aria-required`. Unidade **dentro** do campo (`R$` à
+  esquerda; `km`, `cc`, `cv`, `Nm` à direita, `UnitAffix`), lida pelo
+  leitor de tela no rótulo; o valor salvo continua o número puro. Setinhas
+  do `type="number"` escondidas pra não cobrir a unidade. Ano e placa,
+  versão e cor ficam lado a lado até no celular (são curtos); `<select>`
+  continua empilhando abaixo de `sm`. Placeholder só como exemplo ("Ex.:
+  1996").
+- **Erros**: cada campo tem `id` estável, `aria-invalid` e
+  `aria-describedby` apontando pra ajuda e erro (`{id}-hint`,
+  `{id}-error`). No envio inválido, toda seção com erro abre e o foco vai
+  pro primeiro campo inválido na ordem da tela. Nesses campos o
+  `FieldError` não usa `role="alert"` (`announce={false}`): o erro é lido
+  com o campo focado, sem anunciar tudo de uma vez. Erro do envio (banco)
+  aparece no rodapé, junto da ação, com `role="alert"`.
+- **FIPE**: três coisas visualmente distintas — (1) identificação: os
+  campos Marca/Modelo com sugestões e uma linha de status logo abaixo
+  ("identificados na tabela FIPE", "só a marca", "sugestões não
+  carregaram — digite à mão"); (2) consulta de referência: botão "Consultar
+  valor de referência FIPE" que abre um painel rebaixado (`bg-bg`) com o
+  ano, o valor em mono, o mês da tabela, o código e o aviso de que é
+  referência de mercado, não avaliação; (3) valor salvo: "Valor estimado
+  atual", em "Compra e valores", com a ajuda "informado por você". "Usar
+  como valor estimado" copia o número e abre essa seção.
+- **Foto de capa** (só na edição, como antes): miniatura 4:3 ao lado do
+  texto "salva assim que você confirma o recorte, sem esperar 'Salvar
+  alterações'. Também entra em Fotos." e do botão "Trocar/Adicionar foto".
+  Enviando, um selo sólido sobre a miniatura; deu certo, "Foto de capa
+  atualizada."; falhou, a miniatura volta pra foto salva e o erro diz que
+  a capa não mudou.
+- **Exclusão**: título "Excluir veículo?", cartão neutro com marca, modelo
+  (quebra linha, nunca corta), ano e placa, e só as consequências que o
+  contrato confirma. "Cancelar" recebe o foco e, no celular, fica embaixo.
+  Depois de excluir, o foco vai pro título "Seus veículos (N)" (ou pro
+  título da página, sem veículo nenhum) quando o card some.
+
+## Redesign — etapa 04: dashboard do veículo
+
+Mesma direção e tokens; nenhuma cor nova. Decisão completa em
+`docs/DECISIONS.md` (ADR-087).
+
+- **Ordem**: trilha curta ("Garagem › Dashboard", sem repetir o nome) →
+  identificação → 4 ações → 3 indicadores → Pendências | Atividade recente
+  → Financeiro | Combustível → gráficos → Referência FIPE. No celular, a
+  mesma ordem em uma coluna; pendências começam na primeira tela (390: 599px,
+  barra em 787).
+- **Identificação** (`VehicleDashboardHeader`): miniatura 4:3 (96px no
+  celular, 160–192px acima), marca em sobrelinha + modelo no `h1` (quebra,
+  nunca corta), ano · versão + placa em tag mono, status em selo (só "Ativo"
+  no acento), odômetro em texto ("Odômetro 87.400 km" / "— não informado").
+  "Editar veículo" abre o diálogo da etapa 03; abaixo de `sm` vira só o
+  lápis (44×44, nome acessível) pra não ganhar linha própria com nome longo.
+  Sem foto: placeholder "Sem foto"; foto que falha: "Foto indisponível".
+- **Ações** (`QuickActionsRow`): Abastecimento primeiro e cheio (`primary`),
+  as outras em contorno. Celular: ícone sobre rótulo, 11px, alvo de 56px,
+  "Abastecer" como rótulo curto; acima de `sm`, faixa de 44px. Fechar o
+  diálogo devolve o foco ao botão.
+- **Indicadores** (`VehicleMetricsRow`): grade de instrumentos (ADR-070) com
+  `GarageTile size="lg"`. Cada um diz o período real na dica — gasto no mês
+  (mês corrente, 4 fontes), consumo médio (histórico, tanque cheio a tanque
+  cheio), custo por km (total investido ÷ odômetro, **não** mensal). Ausente
+  = "—" + motivo. O arco do odômetro e a sparkline saíram. O realce de
+  valor alterado (`value-flash`, 400ms, só `motion-safe`) continua nos
+  indicadores, no total investido e no odômetro do cabeçalho — nunca na
+  primeira carga nem na troca de veículo.
+- **Painéis** (`DashboardPanel`): cabeçalho `text-sm` + linha de contexto +
+  fio, conteúdo colado nas bordas com divisores de 1px (sem card dentro de
+  card). Link de cabeçalho em texto neutro com seta no acento.
+  Expansões (`PanelDisclosure`): rodapé do painel, `aria-expanded` +
+  `aria-controls`, fechadas por padrão, fechar só esconde.
+- **Pendências**: vencidos primeiro, depois por prazo; cada linha leva
+  ícone + "Vencida/Próxima" em texto + origem (Manutenção, Obrigação,
+  Documento) + prazo ("Venceu em"/"Vence em") e km previsto com "faltam/passou
+  N km" quando há odômetro. A linha inteira é link pra tela que já trata
+  aquilo. Vencidos nunca ficam escondidos; avisos além de 3 vão pra "Mostrar
+  mais N próximas". Problemas abertos e projetos ativos ficam no rodapé, com
+  rótulo próprio, fora da contagem.
+- **Atividade recente**: `TimelineItem variant="row"` — mesma informação e
+  ações do Histórico, sem caixa própria, "Ver" com 44px e nome completo pro
+  leitor de tela.
+- **Gráficos**: gasto por mês virou linhas (mês · trilho · valor), mais
+  recente primeiro, 6 meses + "Ver todos"; colunas da lista em subgrid pra
+  todo trilho ter o mesmo comprimento. Valor zero = trilho vazio (antes,
+  mínimo de 3–4% parecia gasto). Subtítulos dizem a fonte: mês = 4 fontes,
+  só meses com registro; categoria = acumulado, só a tela Gastos. Vale
+  também na garagem (componentes compartilhados). (Etapa 05: o mês voltou
+  a ser coluna — ver abaixo.)
+
+## Redesign — etapa 05: Gastos + refinamentos do dashboard
+
+Mesma direção e tokens; nenhuma cor nova. Decisão completa em
+`docs/DECISIONS.md` (ADR-088).
+
+- **Gastos — página**: cabeçalho com `h1` e uma linha de contexto ("Lançamentos
+  avulsos do {veículo}. Abastecimento, manutenção e itens de projeto ficam nas
+  próprias telas.") + "Registrar gasto" (no celular "Registrar" + "+", nome
+  completo pro leitor de tela). Largura toda, como as outras telas (um
+  `max-w-6xl` deixava uma faixa vazia à direita em monitor largo); a partir de
+  `2xl` as colunas da lista dividem a largura em proporção. Filtros (categoria e período, os mesmos)
+  lado a lado também no celular, com largura fixa a partir de `sm`; "Limpar
+  filtros" só com filtro ativo.
+- **Lista**: painel "Lançamentos" com fio sob o título e, à direita, "N
+  lançamentos · Total da seleção R$ X" (soma do que a lista carregou; some se
+  a resposta pode ter sido cortada pelo `max_rows`). A partir de `md`, colunas
+  alinhadas (descrição e detalhes · categoria · data · valor · ⋯) com cabeçalho
+  em `xs`; no celular, descrição + valor em cima, categoria · data, e
+  fornecedor · pagamento · km · "Anexo" embaixo. Descrição quebra em até 2linhas (harmonização 01: agora quebra sem limite — ver o topo); vazia = "Sem descrição" em cinza; sem categoria = "Sem categoria" em
+  cinza, ícone neutro. Valor sempre em mono, alinhado à direita.
+- **Ações da linha**: menu "⋯" (mesma forma do card de veículo) com "Editar
+  gasto" e, separado por divisor e em carmim, "Excluir gasto". O botão é
+  descrito pelo lançamento (descrição, categoria, data, valor). A linha não é
+  clicável.
+- **Estados**: vazio de verdade (sem filtro) = painel próprio com "Registrar
+  primeiro gasto" e sem filtros; sem resultado = mensagem dentro da lista com a
+  seleção atual e "Limpar filtros", filtros intactos; erro = alerta com
+  "Tentar de novo", filtros intactos; carregando = esqueleto na lista.
+- **Formulário de gasto**: casca da etapa 03 (`max-w-xl`), foco no diálogo ao
+  abrir. "Valor e identificação" (valor com R$ dentro do campo, descrição),
+  "Categoria e data" (data com ajuda: "Em branco, vale a data de hoje" /
+  "mantém a data salva"; upgrade do sistema mostra "Também aparece em
+  Modificações") e "Detalhes · opcional" recolhível com resumo. No cadastro, uma
+  linha diz que o comprovante entra depois de salvar; na edição, a seção
+  "Anexo" fecha o corpo. Modo upgrade (Modificações): sem categoria,
+  "Modificação" no lugar de "Descrição", títulos "Registrar/Editar upgrade".
+- **Anexo** (`AttachmentField`, compartilhado): bloco do arquivo salvo (nome,
+  tipo, tamanho, "salvo neste registro") com "Abrir", "Substituir" e
+  "Remover" (carmim); envio em andamento num bloco tracejado separado; erro
+  abaixo, com o salvo ainda aberto. Formatos e limite escritos sob o título.
+- **Exclusão do gasto**: "Excluir gasto?", consequências verificadas e cartão
+  neutro com descrição, categoria, data, valor e anexo.
+- **Ações rápidas do dashboard**: as quatro em contorno neutro, ícone em
+  cinza, nenhuma "acesa". Rótulo visível por largura: "Abastecer / Gasto /
+  Manutenção / Foto" no celular, "Abastecimento / Gasto / Manutenção / Foto"
+  de `sm` a `xl`, "Registrar abastecimento / Registrar gasto / Registrar
+  manutenção / Adicionar foto" a partir de `xl`; nome acessível sempre
+  completo e contendo o texto visível.
+- **Ordem do dashboard**: identificação → ações → indicadores → aviso de
+  vencidas (só com `critical`) → "Análise de gastos" → pendências | atividade
+  → financeiro | combustível → FIPE. O aviso tem fio carmim à esquerda, nomes
+  das vencidas e "Ver pendências", que rola e foca o título do painel.
+- **Gasto por mês**: colunas verticais, cronológicas, a partir de zero,
+  laranja sem efeito, coluna de no máximo 40px, valor curto em cima ("1,2
+  mil"; abaixo de mil, inteiro) e mês curto embaixo. Até 12 colunas a partir
+  de `sm`, as 6 mais recentes no celular — recorte escrito no subtítulo. "Ver
+  valores exatos" abre a tabela de todos os meses. Sem rolagem horizontal.
+- **Gasto por categoria**: barras horizontais de 8px, maior primeiro, cinza
+  (`text-secondary`) e só a maior em laranja; quantidade de lançamentos ao
+  lado do rótulo; 6 à vista + "Ver todas as N categorias". Paleta categórica
+  deixou de ser usada aqui.
+- **Indicadores** (etapa 06: o gasto no mês passou a dizer só "Mês atual"): sob o número só o contexto curto ("Mês atual · 4 fontes",
+  "Histórico · tanques cheios", "Investimento ÷ odômetro"); a regra inteira
+  num botão "i" de 44px ao lado do rótulo (popover por clique/teclado). Ausente
+  continua "—" com o motivo escrito.
+
+## Redesign — etapa 06: Abastecimentos + dois ajustes de texto
+
+Mesma direção e tokens; nenhuma cor nova. Decisão completa em
+`docs/DECISIONS.md` (ADR-089).
+
+- **Página**: trilha → cabeçalho (`h1` "Abastecimentos" + "Litros, valores e
+  consumo deste veículo." + "Registrar abastecimento"; no celular "Registrar"
+  + "+", nome completo pro leitor de tela) → painel "Resumo" → painel
+  "Histórico". Largura toda, como Gastos. Sem registro nenhum: só o painel
+  vazio ("Registrar primeiro abastecimento"), sem resumo de traços.
+- **Resumo** (`FuelSummaryPanel`, casca `DashboardPanel` + `GarageTile size="lg"`):
+  consumo médio (km/L), preço médio (R$/L), litros e total em combustível
+  (R$), todos "histórico" — nada é mensal. 2×2 até `xl`, 4 numa linha a partir
+  dele (em 640–1279px o valor grande quebrava). "Detalhes" (fechado): melhor e
+  pior trecho e o **custo por km do veículo** (total investido ÷ odômetro — o
+  rótulo diz que não é só combustível). Ajuda "i" no consumo, no preço e no
+  total. Sem base: "—" + "Precisa de dois tanques cheios seguidos, com km.";
+  erro: cada módulo diz que não carregou e oferece "Tentar de novo", e a
+  linha de contexto avisa que o histórico é independente.
+- **Histórico** (`FuelLogRow`): a partir de `md`, colunas alinhadas
+  (abastecimento · odômetro · litros · valor · preço/L · consumo · ⋯), números
+  em mono alinhados à direita; o odômetro leva o trecho embaixo ("+640 km"), o
+  consumo leva o custo por km do trecho. No celular: valor · litros | consumo
+  | ⋯ na primeira linha e, em largura inteira embaixo, data · odômetro, posto
+  · combustível, preço/L · trecho · custo/km e as condições. O consumo fica
+  sempre no mesmo lugar (borda direita medida igual em todas as linhas). Só o
+  nome do posto corta (2 linhas); número nunca.
+- **Consumo ausente**: "—" e o motivo curto só naquela linha ("sem
+  quilometragem", "primeiro com km", "anterior parcial", "tanque parcial",
+  "anterior não registrado"), na ordem do `case` da view. No celular, quando a
+  etiqueta já diz o motivo, ele não se repete. **Condições** em etiqueta de
+  texto com borda neutra: "Tanque parcial", "Anterior não registrado"; tanque
+  cheio é o normal, sem etiqueta (o leitor de tela ouve "tanque cheio" na
+  identificação do registro).
+- **Ações da linha**: menu "⋯" (forma do gasto) com "Editar abastecimento" e,
+  em carmim depois do divisor, "Excluir abastecimento". Linha não clicável.
+- **Formulário**: casca da etapa 03 em `max-w-xl`. "Abastecimento" (litros com
+  "L" e valor com "R$" lado a lado também no celular; quilometragem opcional
+  com "km" e a ajuda "Sem ela, este registro fica sem consumo calculado."),
+  "Cálculo do consumo" (os dois interruptores, cada um com a regra escrita) e
+  "Detalhes · opcional" recolhível (data, combustível, posto, notas), com
+  resumo "02/11/2026 · Gasolina · Posto…". Na edição, "Detalhes" abre se há
+  posto ou notas.
+- **Interruptores** (`FuelToggleField`): o `role="switch"` é um botão de 56×44
+  com o trilho de 44×24 desenhado dentro; o rótulo ao lado é `label htmlFor`
+  de 44px de altura e a ajuda fica embaixo, sem sobrepor. Toque no rótulo ou
+  em qualquer ponto do botão aciona o controle uma vez. `Switch` compartilhado
+  não mudou.
+- **Exclusão**: "Excluir abastecimento?", consequências verificadas (sai do
+  histórico, do resumo e dos totais; o trecho do abastecimento seguinte passa
+  a contar do registro anterior) e cartão com data, odômetro, posto,
+  combustível, valor e litros.
+- **Números**: litros de um registro com até 3 casas (`formatLitersExact`,
+  "41,237 L"); soma com uma (`formatLiters`). Preço por litro com até 3 casas,
+  como a coluna do banco (`formatPricePerLiter`, "R$ 6,358/L"); o painel do
+  dashboard continua com 2.
+- **Ajustes de texto**: Gastos abre com "Gastos avulsos deste veículo." e um
+  "i" (44px, popover por clique/teclado) com "Abastecimento, manutenção e itens
+  de projeto ficam nas próprias telas."; "veículo." e o "i" não se separam na
+  quebra. O indicador "Gasto no mês" diz só "Mês atual" — a composição (4
+  fontes, sem a compra) segue na ajuda.
+
+## Redesign — etapa 07: Manutenção + texto de vencimento do AlertBanner
+
+Mesma direção e tokens; nenhuma cor nova. Decisão completa em
+`docs/DECISIONS.md` (ADR-090).
+
+- **Página**: trilha → cabeçalho (`h1` "Manutenção" + "Plano preventivo e
+  serviços feitos neste veículo · odômetro 87.400 km") → as duas ações,
+  distintas: "Registrar serviço" (laranja, execução) e "Adicionar ao plano"
+  (contorno, planejamento). No celular empilham em largura cheia, serviço
+  primeiro. Depois: **Vencidas** (só com item vencido; fio carmim à esquerda e
+  contagem) → **Documentos e obrigações** (só com alerta dessas fontes) →
+  **Plano** → **Histórico de serviços**. Largura toda, uma coluna. O bloco de
+  documentos e obrigações é o `AlertBanner` só com o que as listas não cobrem,
+  com "Ver em Documentos" (link de painel, 44px); os alertas de manutenção não
+  se repetem. "nada vencido" aparece no resumo do plano.
+- **Item do plano** (`MaintenancePlanRow`): nome + situação em selo (Vencida
+  carmim, Próxima âmbar, Em dia verde, Sem execução e Inativo neutros, este
+  tracejado) e, embaixo, "A cada 10.000 km ou 6 meses · Prioridade média ·
+  Motor" — prioridade em texto neutro, nunca na cor do prazo. Próxima
+  referência só dos intervalos acompanhados: "Venceu em / Vence hoje / Vence
+  em" e "Aos 93.900 km · faltam 6.500 km" (com odômetro). Vencida só pela km:
+  "Vencida por quilometragem", "Aos 87.300 km · passou 100 km" e "Data
+  prevista …" em `xs` secundário. Sem execução:
+  "Começa a contar quando um serviço vinculado for registrado com
+  quilometragem". Inativo: "Data prevista …", sem "venceu"/"passou". Ações:
+  "Detalhes" (`aria-expanded`: última execução, custo estimado, categoria,
+  acompanhamento, descrição, notas), "Registrar serviço" (já vinculado) e "⋯"
+  (editar/excluir). Colunas item · referência · ações a partir de `xl`;
+  abaixo, empilhado.
+- **Plano**: próximas, em dia e sem execução, nessa ordem (dentro de cada uma,
+  por nome). Inativos recolhidos no fim ("Mostrar N inativos — fora das
+  vencidas, das próximas e dos alertas"). Antes eram filtrados sem aviso.
+- **Histórico** (`MaintenanceRecordRow`): a partir de `md`, colunas serviço
+  (vínculo "Plano: …"/"Avulso" e "Anexo" embaixo) · fornecedor · data ·
+  quilometragem · custo · ⋯, números em mono à direita. No celular: nome |
+  custo | ⋯ e, embaixo, data · km, fornecedor, vínculo e anexo. Custo ausente
+  "—" ("sem custo informado" pro leitor de tela); zero salvo é R$ 0,00.
+- **Formulário do plano**: casca da etapa 03 em `max-w-xl`. "Item e
+  periodicidade" (nome; a regra "km, meses ou os dois — vence pelo que chegar
+  primeiro"; intervalo em km e em meses lado a lado, com a unidade no campo e
+  um erro só para os dois), "Prioridade e acompanhamento" (prioridade com
+  "Não muda quando o item vence"; "Item ativo" no interruptor de 56×44 da
+  etapa 06) e "Detalhes · opcional" (categoria livre, custo estimado,
+  descrição, notas).
+- **Formulário de serviço**: "Serviço" (item do plano opcional — "Nenhum —
+  serviço avulso", inativos marcados — com a ajuda do que o vínculo faz;
+  nome), "Data e quilometragem" e "Detalhes · opcional" (custo, fornecedor,
+  notas). Edição: anexo no fim (`AttachmentField`); cadastro: "dá pra anexar
+  depois de salvar".
+- **Exclusões**: "Excluir item do plano?" (serviços vinculados ficam, sem
+  vínculo; sugere desativar) e "Excluir serviço?" (sai do histórico e dos
+  totais; anexo apagado; a última execução do item e o odômetro não voltam),
+  cada uma com o cartão do registro.
+- **AlertBanner**: "Venceu em" só para data passada; "Vence hoje"; "Vence em"
+  para futura; km "previsto aos X"; crítico sem data alcançada "Venceu aos X km
+  · data prevista …". Estrutura e cores iguais (Documentos, sino, bloco de
+  Manutenção). No sino, a lista rolável é uma região focável ("Lista de
+  alertas", contorno de foco global) que rola com setas/Page Down sem arrastar
+  a página.
+
+## Redesign — etapa 08: Problemas
+
+Mesma direção e tokens; nenhuma cor nova. Decisão completa em
+`docs/DECISIONS.md` (ADR-091).
+
+- **Página**: trilha → cabeçalho (`h1` "Problemas" + "Defeitos relatados neste
+  veículo, do relato à resolução." + "Relatar problema"; no celular "Relatar"
+  + "+", nome completo pro leitor de tela) → painel **Abertos** → painel
+  **Resolvidos**, cada um com a contagem por status no cabeçalho ("4 problemas ·
+  1 aberto · 1 investigando · 1 aguardando peça · 1 em reparo"). Grupo sem
+  registro diz isso dentro do painel; sem problema nenhum, só o painel vazio
+  com "Relatar primeiro problema".
+- **Situação** (selo, texto + cor): "Aberto" âmbar (o único que pede atenção),
+  "Investigando", "Aguardando peça" e "Em reparo" neutros com borda forte,
+  "Resolvido" verde, "Descartado" tracejado e neutro — fica em Resolvidos sem
+  parecer reparo concluído. Nenhum vermelho para problema aberto.
+- **Linha** (`IssueListRow`): título (quebra, nunca corta) e a linha de relato
+  — "Relatado em … · km · Prioridade alta · resolvido em …" (prioridade em
+  texto neutro) e "Anexo". A partir de `lg`, colunas problema · situação ·
+  custo informado · ações, com cabeçalho alinhado; no celular, o selo sob o
+  título e o custo na linha de relato. "Detalhes" (`aria-expanded`) abre
+  descrição, diagnóstico, resolução, data de resolução, km, custo e anexo, por
+  inteiro. Editar/excluir no "⋯".
+- **Custo informado**: "—" ausente ("sem custo informado"), R$ 0,00 quando zero;
+  sempre com a ressalva de que não entra nos totais do veículo (ajuda do campo,
+  detalhes).
+- **Formulário**: casca da etapa 03 em `max-w-xl`. "Problema" (título,
+  descrição), "Situação" (status — "Qualquer mudança vale. Resolvido não
+  preenche a data de resolução." — e prioridade — "não é a situação"),
+  "Relato" (data opcional — "Em branco, vale a data de hoje" / "mantém a data
+  salva" — e km) e "Diagnóstico e resolução · opcional" (diagnóstico,
+  resolução, data de resolução, custo). Edição: anexo no fim; cadastro: "dá pra
+  anexar depois de salvar".
+- **Exclusão**: "Excluir problema?", consequências verificadas (sai da lista e
+  do histórico; aberto, sai da contagem do painel; anexo apagado) e cartão com
+  título, situação, relato, km, anexo e custo ("Custo não informado" quando
+  ausente; R$ 0,00 só quando zero).
+
+## Redesign — etapa 09: Projetos e itens de projeto
+
+Mesma direção e tokens; nenhuma cor nova, nenhuma imagem. Decisão completa em
+`docs/DECISIONS.md` (ADR-092).
+
+- **Lista**: trilha → cabeçalho (`h1` "Projetos" + "Planos de evolução deste
+  veículo, do item desejado ao instalado." + "Novo projeto"; no celular "Novo"
+  + "+") → painel **Ativos** (ideia, planejado, em andamento, pausado — o corte
+  de "Projetos ativos" do dashboard) → painel **Encerrados** (concluídos e
+  cancelados), cada um com a contagem por status. Os dois aparecem sempre que
+  há projeto; sem filtro, busca nem ordenação nova. Sem projeto nenhum, só o
+  painel vazio com "Criar meu primeiro projeto".
+- **Linha do projeto** (`ProjectListRow`): nome (quebra, nunca corta) + selo;
+  descrição em até 2 linhas; datas preenchidas ("Início · Data alvo ·
+  Conclusão", ou "Sem datas definidas"). A partir de `lg`, à direita: barra de
+  progresso + "N de M itens instalados · %" e orçamento, custo real e estimado
+  em linhas rótulo/valor (números à direita), ocupando a altura da linha;
+  "Abrir projeto →" e "⋯" ficam logo abaixo da identificação, à esquerda (no
+  celular, embaixo de tudo, "⋯" na borda direita). Soma 0 de custo real ou
+  estimado sai como "R$ 0,00" + "valores podem não estar informados" (a view
+  soma ausente como 0 e a lista não tem os itens; o leitor de tela ouve o
+  porquê); orçamento zero é zero de verdade, sem aviso. "Abrir projeto →" é o
+  caminho de teclado; o nome também abre o detalhe, fora do Tab, com alvo de
+  44px. Editar e excluir no "⋯".
+- **Situação do projeto** (selo, texto + cor): Ideia e Planejado neutros,
+  **Em andamento** no acento (o papel de "Ativo" do veículo), **Pausado**
+  âmbar, **Concluído** verde, **Cancelado** tracejado e neutro — nunca parece
+  concluído.
+- **Situação do item**: Lista de desejos e Planejado neutros, **Comprado** no
+  acento, **Instalado** verde (o único que conta no progresso), **Cancelado**
+  tracejado. Prioridade sempre em texto neutro ("Prioridade alta").
+- **Detalhe**: trilha → nome, selo, descrição inteira e datas, com "Adicionar
+  item" (laranja; no celular "Adicionar") e "Editar projeto" (contorno; no
+  celular só o lápis, 44px) → painel **Progresso e custos** → **Itens** →
+  **Notas do projeto** (só com notas). A exclusão do projeto continua só na
+  lista.
+- **Progresso e custos** (`ProjectProgress`): "Itens instalados" com "4 de 8",
+  o % da view e uma barra simples verde, sem mínimo artificial; embaixo, uma
+  frase só com a regra e a contagem deste projeto ("Conta só o que está
+  Instalado; comprado ainda não conta e cancelado sai da conta — aqui, 1
+  comprado e 1 cancelado."; a contagem só aparece quando há progresso a
+  medir). Sem item: "Nenhum item ainda…"; só cancelados:
+  "Todos os itens estão cancelados…" — nunca 0% nem 100%. À direita,
+  orçamento ("Não definido" quando ausente), custo real (com "N de M itens com
+  valor" e o % do orçamento da view) e estimado. Sem nenhum valor informado,
+  "Nenhum informado" em vez de R$ 0,00. Rodapé: no total do veículo entra só o
+  real dos instalados.
+- **Itens** (`ProjectItemRow`): a partir de `xl`, colunas item · situação ·
+  estimado · real · ações, com cabeçalho alinhado (abaixo disso empilha). Sob o
+  nome: prioridade · fornecedor · data, "Anexo" e "Link externo ↗" (`<a>`
+  próprio, 44px, "abre em nova aba", só para endereço http/https). No celular,
+  "Estimado R$ X · Real não informado" escritos. Ausente "—"/"não informado",
+  zero R$ 0,00. "Detalhes" abre descrição, notas, fornecedor, data, os dois
+  custos com o que cada um significa, link e anexo. No celular, "Adicionar
+  item" também no fim da lista.
+- **Formulários**: casca da etapa 03 em `max-w-xl`. Projeto: "Projeto" (nome,
+  status — "Concluído não preenche a data de conclusão") + "Orçamento e datas"
+  e "Descrição e notas" recolhíveis. Item: "Item" (projeto — travado e com o
+  nome real no detalhe e na edição; seletor no `?novo=1` — e nome), "Situação"
+  (status — "Só Instalado conta no progresso" — e prioridade), "Custos e
+  compra" (estimado "não entra em total do veículo", real "entra nos totais só
+  com o item Instalado", fornecedor, data "aparece no histórico", link) e
+  "Descrição e notas". Edição: anexo no fim; cadastro: "dá pra anexar depois de
+  salvar".
+- **Exclusões**: "Excluir projeto?" (itens vão junto, histórico e totais,
+  contagem de ativos) e "Excluir item?" (progresso, histórico, totais, anexo),
+  cada uma com o cartão do registro; no item, "Estimado"/"Real" com "Custo não
+  informado" quando ausente e R$ 0,00 quando zero.
+- **Manutenção**: na confirmação de "Excluir serviço?", custo ausente passou de
+  "Sem custo" para "Custo não informado"; zero continua R$ 0,00.
+
+## Redesign — etapa 10: Modificações (revisão visual pendente)
+
+Identidade da Garagem numa página de registros: sem capa, sem foto, sem cor
+nova. Decisão completa em `docs/DECISIONS.md` (ADR-098).
+
+- **Página**: trilha → cabeçalho (`h1` "MODIFICAÇÕES" em `font-display` 800,
+  caixa-alta; "Upgrades deste veículo, lançados como gasto." + ajuda "i";
+  "Registrar upgrade", no celular "Registrar" + "+") → faixa de resumo →
+  painel **Registros** → **Upgrades por mês** (ao lado da lista a partir de
+  `xl`, 20rem; abaixo dela antes disso).
+- **Resumo**: `dl` sem caixa, filetes `--color-hairline` em cima, embaixo e
+  entre células; rótulo `text-xs` 600 caixa-alta, valor em `font-display` 700
+  tabular. Total em upgrades · Upgrades registrados · Último registro; no
+  celular a contagem desce para baixo do total. Legenda de escopo: "Todo o
+  período. Já está dentro dos gastos e do total investido do veículo, não é
+  um valor à parte." Carregando = traço pulsante; falha = "Indisponível" +
+  "Tentar de novo".
+- **Linha** (`ModificationRow`): nome (quebra, nunca corta; "Sem descrição" em
+  cinza), metadados "fornecedor · pagamento · km" (no celular a data abre a
+  linha), anexo com o nome do arquivo e a nota (até duas linhas com "Ver nota
+  inteira" quando passa de 140 caracteres ou tem quebra). Valor em
+  `font-display` 600 tabular; "⋯" com Editar/Excluir upgrade. No celular:
+  nome + "⋯" no canto, valor e "data · metadados" embaixo, anexo e nota na
+  largura inteira. Colunas a partir de `md` (valor à direita), proporcionais a
+  partir de `2xl`.
+- **Filtros**: abaixo de 400px busca, período e ordem empilham (lado a lado o
+  seletor nativo cortava "Mais recentes" e "Mês passado").
+- **Por mês**: barras neutras (`text-secondary`), valor escrito em cada linha.
+  Laranja só no botão principal, no foco e na navegação.
+- **Formulário e exclusão**: os de Gastos no modo upgrade (etapa 05). Na
+  exclusão a partir daqui: "Sai desta lista, de Gastos e dos totais e gráficos
+  do veículo."
+
+As seções abaixo são o histórico das revisões anteriores. Onde contradizem
+esta etapa em cor, fonte de marca, separador do breadcrumb ou acabamento do
+cabeçalho, vale esta etapa; regras de densidade, hierarquia, motion
+("confirma, nunca celebra") e acessibilidade continuam valendo.
+
 ## Revisão de identidade (pós-Fase 10)
 
 A identidade original da Fase 0 ("Slow Car Club": dourado clássico sobre
@@ -97,8 +1037,16 @@ portanto já é CSS variable):
 - Formulário (Fase 1 em diante): campos empilhados com `gap-4`, label e
   campo com `gap-1.5`, mensagem de erro logo abaixo do campo que ela
   descreve — nunca um bloco de erro genérico separado do campo
-- Card de formulário de auth (`AuthLayout`): `max-w-sm`, `p-6`, `rounded-lg`,
-  centralizado vertical e horizontalmente
+- Telas de entrada (`AuthLayout`, etapa 14 / ADR-103 — substitui o card
+  centralizado de antes): formulário em coluna de `max-w-sm` sem card; no
+  desktop (`lg`+) página dupla — coluna editorial (marca v2, chamada da
+  Garagem, capa A3.1 como foto enquadrada) à esquerda e o formulário sobre
+  `surface` à direita; no celular marca, título e formulário de cima pra
+  baixo, sem foto. **Desde a ADR-104 (revisão 1), todas as telas de entrada usam a revista** — no
+  desktop a coluna esquerda é toda da revista Slow Garage, Edição 01 (sem a
+  marca separada; 1 : 1,1 com o formulário), e abaixo de `lg` a revista é o
+  fundo escurecido da tela, com marca, título e formulário num cartão de
+  vidro fosco (`--auth-glass`, `backdrop-blur-2xl`)
 - Card de item de lista (Fase 2 em diante): foto/placeholder `h-40`,
   corpo `p-4`, grid de dados `gap-2`, ações (editar/excluir) alinhadas à
   direita no rodapé do card
@@ -415,7 +1363,8 @@ portanto já é CSS variable):
   controle de tema nenhum, e `ThemePreferenceSelect` (Configurações) é o
   único lugar de escolher tema no app (ver ADR-072)
 - Campo de senha é `PasswordInput`, nunca `Input type="password"` solto:
-  traz o olho de mostrar/ocultar (44px, fora da ordem de tabulação) e é
+  traz o olho de mostrar/ocultar (44px, na ordem de tabulação logo depois
+  do campo; Enter e Espaço alternam sem enviar o formulário) e é
   dono do próprio `type` (ver ADR-073)
 - Cabeçalho ganha sino de alertas, troca de veículo e menu de usuário
   (Fase 14t): `HeaderAlertsMenu` (badge só com `count > 0`, cor de

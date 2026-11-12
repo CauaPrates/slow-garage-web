@@ -2,13 +2,13 @@ import {
   Car,
   FileText,
   Fuel,
+  Gauge,
   History,
   LayoutDashboard,
   ClipboardList,
   AlertTriangle,
   Receipt,
   Settings,
-  TrendingUp,
   Camera,
   StickyNote,
   Wrench,
@@ -32,8 +32,22 @@ export type NavItem = {
   label: string;
   icon: LucideIcon;
   to: string | ((vehicleId: string) => string);
-  /** Fase 14b: fica fixo no rodapé da sidebar, fora do agrupamento por nível (só "Configurações" usa isso hoje). */
-  pinBottom?: boolean;
+  /**
+   * Etapa 01: só fica ativo na rota exata. Sem isso o "Dashboard"
+   * (`/v/:id`) casava com toda subpágina do veículo e aparecia selecionado
+   * junto com "Gastos", "Projetos" etc.
+   */
+  end?: boolean;
+};
+
+/**
+ * Etapa 01: título visual que organiza links que já existem — não é
+ * página, não é rota, não esconde link atrás de clique. `label: null` é o
+ * bloco sem título (o "Dashboard", porta de entrada do veículo).
+ */
+export type NavGroup = {
+  label: string | null;
+  items: NavItem[];
 };
 
 export function isVehicleScoped(item: NavItem): boolean {
@@ -45,58 +59,88 @@ export function resolveNavItem(item: NavItem, vehicleId: string | null): string 
   return vehicleId ? item.to(vehicleId) : null;
 }
 
-export const SIDEBAR_NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", icon: LayoutDashboard, to: (vehicleId) => ROUTES.vehicle(vehicleId) },
-  { label: "Minha garagem", icon: Car, to: ROUTES.home },
-  { label: "Modificações", icon: TrendingUp, to: (vehicleId) => ROUTES.vehicleModifications(vehicleId) },
-  { label: "Gastos", icon: Receipt, to: (vehicleId) => ROUTES.vehicleExpenses(vehicleId) },
-  { label: "Abastecimentos", icon: Fuel, to: (vehicleId) => ROUTES.vehicleFuelLogs(vehicleId) },
-  { label: "Manutenção", icon: Wrench, to: (vehicleId) => ROUTES.vehicleMaintenance(vehicleId) },
-  { label: "Problemas", icon: AlertTriangle, to: (vehicleId) => ROUTES.vehicleIssues(vehicleId) },
-  { label: "Projetos", icon: ClipboardList, to: (vehicleId) => ROUTES.vehicleProjects(vehicleId) },
-  { label: "Fotos", icon: Camera, to: (vehicleId) => ROUTES.vehiclePhotos(vehicleId) },
-  { label: "Histórico", icon: History, to: (vehicleId) => ROUTES.vehicleTimeline(vehicleId) },
-  { label: "Documentos", icon: FileText, to: (vehicleId) => ROUTES.vehicleDocuments(vehicleId) },
-  { label: "Configurações", icon: Settings, to: ROUTES.configuracoes, pinBottom: true },
-];
+const GARAGE: NavItem = { label: "Minha garagem", icon: Car, to: ROUTES.home, end: true };
+const SETTINGS: NavItem = { label: "Configurações", icon: Settings, to: ROUTES.configuracoes };
+const DASHBOARD: NavItem = {
+  label: "Dashboard",
+  icon: LayoutDashboard,
+  to: (vehicleId) => ROUTES.vehicle(vehicleId),
+  end: true,
+};
+const EXPENSES: NavItem = { label: "Gastos", icon: Receipt, to: (vehicleId) => ROUTES.vehicleExpenses(vehicleId) };
+const FUEL: NavItem = { label: "Abastecimentos", icon: Fuel, to: (vehicleId) => ROUTES.vehicleFuelLogs(vehicleId) };
+const MAINTENANCE: NavItem = {
+  label: "Manutenção",
+  icon: Wrench,
+  to: (vehicleId) => ROUTES.vehicleMaintenance(vehicleId),
+};
+const ISSUES: NavItem = { label: "Problemas", icon: AlertTriangle, to: (vehicleId) => ROUTES.vehicleIssues(vehicleId) };
+const MODIFICATIONS: NavItem = {
+  label: "Modificações",
+  icon: Gauge,
+  to: (vehicleId) => ROUTES.vehicleModifications(vehicleId),
+};
+// Sem `end`: "Projetos" continua ativo dentro do detalhe (`/projetos/:projectId`).
+const PROJECTS: NavItem = {
+  label: "Projetos",
+  icon: ClipboardList,
+  to: (vehicleId) => ROUTES.vehicleProjects(vehicleId),
+};
+const TIMELINE: NavItem = { label: "Histórico", icon: History, to: (vehicleId) => ROUTES.vehicleTimeline(vehicleId) };
+const PHOTOS: NavItem = { label: "Fotos", icon: Camera, to: (vehicleId) => ROUTES.vehiclePhotos(vehicleId) };
+// Obrigações e financiamento continuam como abas de Documentos (`?aba=`), não como item próprio.
+const DOCUMENTS: NavItem = {
+  label: "Documentos",
+  icon: FileText,
+  to: (vehicleId) => ROUTES.vehicleDocuments(vehicleId),
+};
+
+/** A. Destinos gerais — sempre visíveis, com ou sem veículo. */
+export const GENERAL_NAV_ITEMS: NavItem[] = [GARAGE];
 
 /**
- * "Carros" espelha "Minha garagem" da sidebar — rótulo mais curto pro
- * espaço apertado da bottom nav, mesmo destino (Fase 9). "Dashboard"
- * usa o mesmo rótulo/ícone da sidebar (Fase 14h) — a versão anterior
- * chamava esta aba de "Home", mas "home" do app é a garagem (`Carros`),
- * não o painel de 1 veículo; nomear os dois de jeito confuso foi
- * apontado pelo usuário (ver ADR-054 update). "Histórico" saiu daqui e
- * foi pra dentro da folha "Mais" (ver `MORE_SHEET_ITEMS`) — eram 4 abas
- * + FAB + "Mais" (6 elementos), apertado demais num telefone estreito.
+ * Seções do veículo atual, agrupadas por assunto. As mesmas 9 seções da
+ * folha "Mais" do mobile — `MORE_SHEET_GROUPS` é esta lista sem o bloco do
+ * Dashboard, que lá já é aba fixa.
+ */
+const VEHICLE_SECTION_GROUPS: NavGroup[] = [
+  { label: "Custos", items: [EXPENSES, FUEL] },
+  { label: "Cuidados", items: [MAINTENANCE, ISSUES] },
+  { label: "Preparação", items: [MODIFICATIONS, PROJECTS] },
+  { label: "Arquivo", items: [TIMELINE, PHOTOS, DOCUMENTS] },
+];
+
+/** B. Seções do veículo atual — só renderizadas quando há veículo (ADR-049). */
+export const VEHICLE_NAV_GROUPS: NavGroup[] = [{ label: null, items: [DASHBOARD] }, ...VEHICLE_SECTION_GROUPS];
+
+/** C. Conta — fixo no rodapé da sidebar. "Painel admin" entra junto, mas depende de `is_admin`, então é montado no `Sidebar`. */
+export const ACCOUNT_NAV_ITEMS: NavItem[] = [SETTINGS];
+
+/**
+ * "Garagem" espelha "Minha garagem" da sidebar — rótulo mais curto pro
+ * espaço apertado da bottom nav, mesmo destino (Fase 9; era "Carros" até a
+ * etapa 01). "Dashboard" usa o mesmo rótulo/ícone da sidebar (Fase 14h).
+ * "Histórico" fica dentro da folha "Mais" (ver `MORE_SHEET_GROUPS`) —
+ * eram 4 abas + FAB + "Mais" (6 elementos), apertado demais num telefone
+ * estreito. "Configurações" é sempre o último item — rotulado "Ajustes"
+ * aqui: com 5 abas em 360px cada uma tem ~66px úteis e "Configurações" a
+ * 11px mede ~77px (medido), então truncava. Mesmo destino e mesmo ícone.
  */
 export const BOTTOM_NAV_ITEMS: NavItem[] = [
-  { label: "Dashboard", icon: LayoutDashboard, to: (vehicleId) => ROUTES.vehicle(vehicleId) },
-  { label: "Carros", icon: Car, to: ROUTES.home },
-  { label: "Configurações", icon: Settings, to: ROUTES.configuracoes },
+  DASHBOARD,
+  { ...GARAGE, label: "Garagem" },
+  { ...SETTINGS, label: "Ajustes" },
 ];
 
 /**
- * Itens da folha "Mais" (aba da bottom nav, Fase 14g/h): as seções de
- * veículo que a sidebar mostra mas as 3 abas fixas (Dashboard/Carros/
- * Configurações) não cobrem — inclui "Histórico", que antes era aba
- * fixa própria (ver comentário de `BOTTOM_NAV_ITEMS`). Mesma ressalva do
- * ADD_SHEET_ITEMS — a aba "Mais" só aparece com veículo selecionado (ver
+ * Folha "Mais" (aba da bottom nav, Fase 14g/h): as seções de veículo que
+ * as abas fixas (Dashboard/Garagem/Configurações) não cobrem, nos mesmos
+ * grupos da sidebar. A aba "Mais" só aparece com veículo selecionado (ver
  * BottomNav.tsx), então todo item aqui sempre resolve uma rota.
  */
-export const MORE_SHEET_ITEMS: NavItem[] = [
-  { label: "Histórico", icon: History, to: (vehicleId) => ROUTES.vehicleTimeline(vehicleId) },
-  { label: "Modificações", icon: TrendingUp, to: (vehicleId) => ROUTES.vehicleModifications(vehicleId) },
-  { label: "Gastos", icon: Receipt, to: (vehicleId) => ROUTES.vehicleExpenses(vehicleId) },
-  { label: "Abastecimentos", icon: Fuel, to: (vehicleId) => ROUTES.vehicleFuelLogs(vehicleId) },
-  { label: "Manutenção", icon: Wrench, to: (vehicleId) => ROUTES.vehicleMaintenance(vehicleId) },
-  { label: "Problemas", icon: AlertTriangle, to: (vehicleId) => ROUTES.vehicleIssues(vehicleId) },
-  { label: "Projetos", icon: ClipboardList, to: (vehicleId) => ROUTES.vehicleProjects(vehicleId) },
-  { label: "Fotos", icon: Camera, to: (vehicleId) => ROUTES.vehiclePhotos(vehicleId) },
-  { label: "Documentos", icon: FileText, to: (vehicleId) => ROUTES.vehicleDocuments(vehicleId) },
-];
+export const MORE_SHEET_GROUPS: NavGroup[] = VEHICLE_SECTION_GROUPS;
 
-/** Itens da folha "Adicionar" — a folha só abre quando o FAB está habilitado (há veículo), então todo item aqui é sempre resolvível. */
+/** Itens da folha "Registrar" — a folha só abre quando o botão está habilitado (há veículo), então todo item aqui é sempre resolvível. */
 export const ADD_SHEET_ITEMS: NavItem[] = [
   { label: "Gasto", icon: Receipt, to: (vehicleId) => `${ROUTES.vehicleExpenses(vehicleId)}?novo=1` },
   {
@@ -111,7 +155,7 @@ export const ADD_SHEET_ITEMS: NavItem[] = [
   },
   {
     label: "Upgrade",
-    icon: TrendingUp,
+    icon: Gauge,
     to: (vehicleId) => `${ROUTES.vehicleModifications(vehicleId)}?novo=1`,
   },
   {

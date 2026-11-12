@@ -1645,7 +1645,8 @@ de senha do app sem o olho.
 
 Três decisões dentro dele:
 
-* **`tabIndex={-1}` no botão, de propósito.** Quem digita senha e aperta
+* **`tabIndex={-1}` no botão, de propósito** (revertido no ajuste final da
+  etapa 14, ADR-103: o olho entrou no Tab). Quem digita senha e aperta
   Tab quer o próximo campo ou o botão de entrar, não o olho no meio do
   caminho. Verificado: a partir do e-mail, Tab vai pra senha e o Tab
   seguinte vai pro "Entrar". O botão continua clicável e continua
@@ -2123,3 +2124,2499 @@ dicionário de nomes: quebra acima de 200 usuários.
 **Pendência no backend.** Se a lista de convites crescer, o certo é uma RPC
 de listagem de convites que já traga nome e e-mail de convidado e de quem
 convidou, no lugar das N chamadas a `admin_get_user`.
+
+## ADR-084 — Redesign etapa 01: sistema visual "Automotive Editorial", marca vetorial e navegação agrupada
+
+**Contexto.** A direção visual aprovada para o redesign (Automotive
+Editorial + Performance Minimalism) troca a estética "Rolê Noturno" e o
+acabamento do header da Fase 16 (vidro, brilho, shimmer, mola). Esta etapa
+cobre só a base compartilhada (tokens, `components/ui`, shell e
+navegação); as páginas recebem apenas o efeito natural dos tokens. O kit
+de marca v1 (SVGs `slow-garage-logo-dark/light` e `slow-garage-symbol`)
+veio junto.
+
+**Decisão.**
+
+- `tokens.css` continua a única fonte de cor. Os nomes antigos mantêm o
+  papel e mudam só o valor; os novos são aditivos (`surface-raised`,
+  `field`, `border-strong`, `accent-hover`, `error-foreground`,
+  `warning-foreground`, `state-hover`, `state-active`, `focus-ring`,
+  `overlay`, `shadow-overlay`, `duration-*`, `ease-standard`). Nenhuma
+  página precisou mudar de classe.
+- Texto sobre o acento é escolhido por contraste calculado: grafite no
+  escuro, branco no claro. O vermelho de erro foi para o carmim para não
+  ficar a poucos graus de matiz do laranja de marca.
+- `AlertDialogContent` ganhou um fio carmim no topo e a ação em
+  `destructive`; o "Cancelar" virou `outline`. Todas as 16 confirmações do
+  app são de ação sem volta fácil (conferido), então o padrão vale pra
+  todas.
+- `buttonVariants` e os botões de fechar de `Dialog`/`NavSheet` tinham
+  `focus-visible:outline-none` sem substituto: o botão ficava sem foco
+  visível no teclado. Agora usam o contorno global (`--color-focus-ring`).
+  Os botões de fechar viraram alvo de 44px; o título do diálogo ganha
+  `pr-10` para não correr por baixo deles.
+- Marca vetorial em `public/brand/` (PNG antigo preservado), via
+  `BrandLogo`, que escolhe o lettering pelo `resolvedTheme`. A marca
+  aparece num lugar só por vez. Favicon, ícones de instalação e manifest
+  não mudaram.
+- Shell: a sidebar ocupa a altura toda (marca no topo, alinhada à altura
+  do cabeçalho); o cabeçalho cobre só a coluna de conteúdo. O modelo de
+  rolagem da Fase 15e é o mesmo (shell `lg:h-dvh`, `<main>` rola,
+  atividade cede altura, "Configurações" sempre visível — verificado com
+  640px de altura).
+- Navegação agrupada (`NavGroup` em `lib/navigation.ts`): os títulos
+  Custos/Cuidados/Preparação/Arquivo são `role="group"` com rótulo, não
+  rotas. Os 11 destinos, o Painel admin condicionado a `is_admin`, o
+  fallback de veículo em Configurações (ADR-062/063) e a regra "sem
+  veículo, sem item" (ADR-049) ficaram iguais.
+- Bug corrigido: o "Dashboard" (`/v/:id`) não tinha `end`, então ficava
+  ativo junto com qualquer subpágina do veículo. `NavItem.end` resolve; o
+  "Projetos" continua ativo no detalhe do projeto (verificado).
+- Bottom nav: "Carros" → "Garagem"; o FAB "+" elevado virou "Registrar"
+  com rótulo visível, ainda só abrindo a folha (6 ações com `?novo=1`,
+  bloqueado sem veículo); "Mais" fica marcado quando a página atual mora
+  nele; "Configurações" aparece como "Ajustes" porque a 11px mede ~77px e
+  cada aba tem ~66px em 360px (medido). A folha "Mais" usa os mesmos
+  grupos da sidebar e marca a seção atual.
+- Folga inferior do `<main>` passou a somar a safe area
+  (`calc(5rem + env(safe-area-inset-bottom))`).
+
+**Alternativas descartadas.** Renomear tokens para uma nomenclatura nova:
+obrigaria a tocar todas as páginas. Busca global e central de notificações
+do protótipo: fora do escopo aprovado. Encolher o rótulo da aba para 10px
+para caber "Configurações": sobrariam ~2px, e a própria ADR-055 já tinha
+visto esse rótulo truncar. Repetir a marca no cabeçalho e na sidebar ao
+mesmo tempo no desktop.
+
+**Pendências.** `FieldError` continua associado ao campo só por
+`role="alert"` (anunciado ao aparecer), não por `aria-describedby`. Ligar
+isso exige mexer em cada formulário, fora desta etapa.
+
+## ADR-085 — Redesign etapa 02: Minha garagem com veículos em primeiro plano
+
+**Contexto.** A etapa 01 trocou tokens, marca e navegação, e as páginas
+receberam só o efeito natural disso. Na Garagem, o painel de
+indicadores (`GarageComparisonDashboard`, só no desktop) e o resumo
+(`GarageSummary`, aberto a partir de `lg`) vinham antes dos veículos e
+empurravam os carros para fora da primeira tela. O card era a "baia"
+horizontal da Fase 14c, com a foto numa faixa estreita, e editar/excluir
+dividiam a mesma faixa dos registros do dia a dia. Na revisão das
+capturas da etapa 01, o símbolo laranja sozinho no cabeçalho do celular
+não dizia "Slow Garage".
+
+**Decisão.**
+
+- Ordem: cabeçalho curto → resumo operacional compacto
+  (`GarageOverview`) → grade de veículos. Totais, gráficos e comparativo
+  ficam em "Detalhes da garagem", recolhido por padrão em qualquer
+  largura, na mesma rota.
+- Resumo operacional: com 2+ veículos, mostra veículos (com quantos
+  ativos), gasto no mês atual (soma de `current_month_spend`), pendências
+  (mesma `useGarageAlerts` do sino) e próxima manutenção (mesma
+  `useGarageMaintenance`). Com 1 veículo, mostra só pendências e próxima
+  manutenção, porque o resto já está no card (mesma regra do ADR-051).
+  O comparativo, que antes aparecia com 1 veículo só no desktop, agora
+  existe só com 2+: com um veículo, cada número dele estava repetido no
+  próprio card.
+- Erro de consulta não vira zero. Pendências e próxima manutenção têm
+  estado próprio, com "—", "Não foi possível carregar." e "Tentar de
+  novo". Isso corrige dois defeitos do painel antigo: com erro em
+  alertas, a dica dizia "nada vencendo"; com erro em manutenção, dizia
+  "nenhuma prevista". Os gráficos ganharam "Tentar de novo".
+- Veículo sem linha em `vehicle_financial_summary` continua entrando
+  como 0 nas somas, que não mudaram. A diferença é que o painel agora diz
+  quantos veículos ficaram sem dado. Média de custo/km, investimento por
+  veículo e somas: mesmas fórmulas de antes.
+- Card vertical com foto 4:3 em cima (a proporção do recorte, ADR-081).
+  - Sempre visíveis: marca, modelo, ano · versão, placa, status, km e
+    gasto no mês atual.
+  - A "Ficha técnica" expansível, em qualquer largura, guarda custo/km,
+    total investido, combustível, câmbio, motor e potência. Antes, a
+    ficha só recolhia no mobile.
+  - O link do veículo é o título, esticado só sobre foto +
+    identificação. Ficha, registros e menu ficam fora dessa área.
+- Editar/excluir saem da faixa e vão para o menu "Mais ações" do card
+  (`VehicleCardMenu`, mesma forma do `HeaderUserMenu`). Excluir fica
+  separado por divisor e em carmim, a confirmação é a de sempre, e o foco
+  volta ao gatilho ao fechar. Os 4 registros ficam na faixa, descritos
+  pelo nome do veículo (`aria-describedby`). O diálogo de foto passou para
+  o card, porque o placeholder sem foto também o abre.
+- Foto que falha ao carregar (URL assinada expirada, rede) mostra
+  "Foto indisponível no momento." em vez de imagem quebrada.
+- Cabeçalho do celular: logo completo. Para caber em 360px junto com a
+  troca de veículo, abaixo de `sm` notificações e atividade recente
+  dividem um botão com duas abas (`HeaderInboxMenu`). Os painéis foram
+  extraídos dos menus existentes (`NotificationsPanel`,
+  `ActivityFeedPanel`), então as fontes continuam separadas.
+  `HeaderNotificationsMenu` fica montado (oculto) abaixo de `sm`, para
+  manter uma única assinatura de tempo real.
+
+**Alternativas descartadas.**
+
+- Manter o painel de indicadores aberto no desktop: ocupava a primeira
+  dobra antes dos carros.
+- Esconder a placa na troca de veículo em telas estreitas, para caber o
+  logo: tiraria a identificação do veículo aberto.
+- Juntar alertas ao menu de notificações: misturaria pendência do carro
+  com caixa de entrada.
+- Proporção 16:10 no card, para encurtar: cortaria o enquadramento que a
+  pessoa escolheu no recorte. A compactação veio do resto do card.
+- Busca, filtros, ordenação e seletor de mês do protótipo: não existem no
+  app, e controle decorativo não entra.
+
+**Refinamento após a primeira revisão visual.** A revisão das capturas
+apontou três problemas: no celular o resumo virava protagonista (a primeira
+tela terminava na foto, sem o nome do primeiro carro), os cards
+continuavam altos e não havia um acesso visível ao painel do veículo.
+
+- Resumo no celular: veículos, gasto e pendências numa linha. A próxima
+  manutenção vai para o topo de "Detalhes da garagem" abaixo de `lg` (no
+  desktop continua na faixa), e o veículo das pendências aparece só a
+  partir de `sm`. "Cadastrar" fica ao lado do título.
+- Card: o status foi para o canto da foto e o modelo cresceu para
+  `text-lg`. Os espaçamentos diminuíram. A foto continua 4:3.
+- Acesso explícito "Abrir veículo" (texto neutro, seta no acento) na linha
+  da "Ficha técnica", sem linha nova. O título esticado sai da ordem de
+  tabulação (`tabIndex={-1}`): o "Abrir veículo" é o caminho de teclado, e
+  cada card fica com uma parada por destino.
+- Medido nas capturas: o nome do primeiro carro termina em 649px (390) e
+  627px (360), acima da barra inferior (787/723). Antes ficava abaixo da
+  primeira tela.
+
+**Verificação.** Feita com dados simulados (ferramenta externa ao
+repositório, `redesign-capturas/`, cenários 23–42), sem tocar no
+Supabase real.
+
+## ADR-086 — Redesign etapa 03: formulários de cadastro, edição e exclusão do veículo
+
+**Contexto.** O formulário do veículo era uma lista de pares de campos num
+diálogo `max-w-md` que rolava inteiro, com o resto escondido em "Mais
+detalhes" (aberto sempre na edição). A FIPE aparecia como link de texto no
+meio dos campos, e a foto de capa ficava acima do formulário sem dizer que
+é salva fora do "Salvar alterações". Faltava ligar o erro ao campo
+(pendência do ADR-084). Esta etapa cobre só cadastro, edição, exclusão,
+FIPE e foto de capa; schema, hooks, rotas e banco não mudaram.
+
+**Decisão.**
+
+- Diálogo com cabeçalho e rodapé fixos e um único corpo rolável:
+  `max-w-2xl` centrado no desktop; folha presa à base no celular, com
+  `safe-area` no rodapé. "Cancelar" (`DialogClose`) entra ao lado da ação
+  principal e fecha como o X.
+- Seções: Identificação (sempre aberta) e quatro recolhíveis opcionais
+  (Uso e características, Compra e valores, Detalhes técnicos, Notas), com
+  resumo do que está preenchido. No cadastro, fechadas; na edição, abre a
+  que tem dado. Status continua só na edição (no cadastro vale o default do
+  banco, como antes). Campos FIPE seguem fora da tela.
+- Acessibilidade dos campos (`FormField`): `id` estável (os mesmos de
+  antes), rótulo associado, `aria-invalid`, `aria-describedby` pra ajuda e
+  erro, `aria-required` em marca e modelo. Envio inválido abre as seções
+  com erro e foca o primeiro campo inválido (`shouldFocusError: false` +
+  foco próprio, porque o do `react-hook-form` não alcança campo em seção
+  recolhida). `FieldError` ganhou `id` e `announce` (padrão `true`, então
+  os outros formulários não mudam); aqui o erro do campo não é
+  `role="alert"`, pra não ser anunciado duas vezes.
+- `ComboboxInput` aceita `aria-describedby` e `aria-required` (aditivo).
+  `DialogContent` só segura o Escape quando o foco está num **combobox**
+  aberto: antes qualquer `aria-expanded="true"` servia, e o botão de uma
+  seção aberta impediria o Escape de fechar o diálogo.
+- Ao abrir, o foco vai pro diálogo, não pra Marca (abria a lista de
+  sugestões e o teclado virtual por cima do formulário).
+- FIPE: status da identificação logo abaixo de marca/modelo (inclui o caso
+  "catálogo não carregou — digite à mão", que antes não aparecia); a
+  consulta virou painel próprio com ano, valor, mês, código e o aviso de
+  que é referência, não avaliação; "Usar como valor estimado" só copia o
+  número e abre "Compra e valores". O painel ganhou `key` por marca+modelo:
+  trocar de modelo pela lista sem digitar reaproveitava o ano escolhido pro
+  modelo anterior.
+- Exclusão: o texto lista só o que as FKs `on delete cascade` do backend
+  apagam (conferido nas migrations): gastos, abastecimentos, manutenções,
+  problemas, projetos, notas, documentos, obrigações, financiamento, fotos
+  e anexos. Depois do sucesso, quando o card sai da lista, o foco vai pro
+  título "Seus veículos (N)" ou, sem veículo, pro `h1`.
+
+**Diferenças funcionais (registradas, todas de apresentação/estado de
+tela).**
+
+- Falha no insert/update antes escapava sem mensagem; agora aparece no
+  rodapé (`translatePostgresError`, como nos outros diálogos) e o diálogo
+  continua aberto com os dados.
+- Envio duplicado: além do `disabled`, um ref barra o segundo envio (Enter
+  repetido num campo chegava a chamar o `handleSubmit` de novo).
+- Foto: se o envio falha, a miniatura volta pra foto salva (antes a prévia
+  local ficava como se a troca tivesse acontecido).
+- Exclusão com duplo clique no mesmo quadro também barrada por ref.
+
+**Pendências (não alteradas, fora do escopo).**
+
+- `horsepower` e `torque_nm` são `integer` no banco, mas o schema aceita
+  decimal e o torque usa `step="0.1"`: um torque decimal falharia no
+  update. Regra de schema, preservada.
+- Mensagens dos helpers numéricos saem como "o valor estimado atual
+  inválido." (minúscula, sem verbo). Texto vem de `schemaHelpers`,
+  compartilhado com outros formulários.
+- Arquivos no storage (foto, anexo, documento) não são apagados com o
+  veículo; só as linhas. O texto da exclusão diz "sai do app", que é o que
+  a pessoa vê.
+- `FieldError` dos outros formulários continua só com `role="alert"`.
+
+**Verificação.** Dados simulados (ferramenta externa ao repositório,
+`redesign-capturas/`, cenários 22–30), incluindo escritas e FIPE
+interceptadas; nenhuma chamada ao Supabase real nem à API FIPE real.
+Teclado virtual só emulado (viewport 390×380); leitor de tela real e
+upload real não foram testados.
+
+## ADR-087 — Redesign etapa 04: dashboard do veículo
+
+**Contexto.** O dashboard (`VehiclePage`) abria com a foto 4:3 em largura
+inteira no celular, um `<select>` "Trocar de veículo" que repetia o seletor
+do cabeçalho (desabilitado com 1 veículo), a FIPE antes de tudo, um arco de
+odômetro que mostrava "% até o próximo múltiplo de 10.000 km" (ADR-050) e as
+ações rápidas só depois que o RPC carregava. As pendências não levavam a
+lugar nenhum e diziam "Venceu em" também para o que ainda ia vencer. O
+gráfico por mês rolava na horizontal, e barras de valor zero ganhavam
+largura mínima.
+
+**Fontes conferidas antes de redesenhar** (migrations do backend, não nomes
+de campo):
+
+| Indicador | Fonte | Período / regra |
+|---|---|---|
+| Gasto no mês / ano | `vehicle_financial_summary` | mês/ano de `current_date`; gastos + combustível + manutenção + itens de projeto instalados; sem a compra |
+| Total investido | idem | compra (nula conta 0) + as 4 fontes, todo o histórico |
+| Custo/km | idem | total investido ÷ `current_odometer_km`; nulo sem odômetro. Vitalício, não mensal |
+| Consumo médio/melhor/pior | `vehicle_fuel_summary` ← `fuel_log_metrics` | trechos de tanque cheio a tanque cheio sem abastecimento esquecido; histórico inteiro; `fuel_summary` nulo sem abastecimento |
+| Preço médio/L, litros | idem | média por abastecimento / soma |
+| Gasto por mês | `vehicle_expenses_by_month` | 4 fontes, só meses com registro |
+| Gasto por categoria | `vehicle_expenses_by_category` | só a tabela `expenses`, acumulado |
+| Pendências | `vehicle_alerts` | manutenção, obrigação, documento; `critical` = vencido, `warning` = até 30 dias |
+
+**Decisão.**
+
+- Ordem: identificação → ações → indicadores → pendências | atividade →
+  financeiro | combustível → gráficos → FIPE. As ações deixam de esperar o
+  RPC. Cada bloco tem carregando/erro/vazio próprio; o RPC continua uma
+  chamada só (RN-1).
+- Troca de veículo: só o seletor global. O `<select>` do corpo saiu. O
+  conteúdo é montado com `key={vehicle.id}`, então expansões e diálogos
+  não atravessam a troca; os dados já eram por `vehicleId`.
+- Trilha "Garagem › Dashboard" (`Breadcrumb showVehicle={false}`): o nome
+  está no `h1` logo abaixo e no seletor do cabeçalho. O link da trilha ganhou
+  alvo de 44px com margem negativa (altura da linha igual, vale pra todas as
+  telas).
+- Indicadores principais: gasto no mês, consumo médio e custo/km, cada um
+  com o período na dica. O odômetro vira texto no cabeçalho. **Supera o
+  ADR-050**: o arco media uma meta inventada.
+- Pendências com destino existente: manutenção → Manutenção; obrigação →
+  Documentos `?aba=obrigacoes`; documento → Documentos. Vencido/próximo em
+  texto + ícone + cor. Distância em km só quando o alerta traz o km previsto
+  e o veículo tem odômetro ("previsto aos 92.400 km (faltam 5.000 km)").
+  Sem botão de concluir/dispensar. Problemas e projetos ficam no rodapé do
+  painel, com contagem e destino próprios, sem somar com pendência.
+- Financeiro: gasto no ano e total investido abertos; "Detalhes
+  financeiros" com compra, gastos, combustível, manutenção e itens de
+  projeto (os 5 que formam o total), com a regra escrita. A compra entra
+  porque `purchase_price` já vem no RPC e é o que explica o total; nula
+  aparece "—" com "conta R$ 0,00 no total".
+- Combustível: melhor/pior abertos; preço médio, litros e a regra do
+  consumo em "Detalhes de combustível". Litros com `formatLiters` (antes saía
+  `30.5 L`, com ponto).
+- Gráficos (compartilhados com a garagem): mês em linhas com subgrid, mais
+  recente primeiro, 6 + "Ver todos"; zero sem largura mínima; subtítulos
+  com a fonte. Categoria: zero sem mínimo, rótulo quebra em vez de cortar.
+- FIPE: mesma lógica, casca do dashboard, por último, com "Referência, não
+  preço de venda garantido".
+- `TimelineItem` ganhou `variant="row"` (só apresentação) e `GarageTile`
+  ganhou `size="lg"` e `flashOnChange`; os usos antigos não mudam.
+- Realce de valor alterado (sistema de resposta, Fase 14) mantido: gasto no
+  mês, consumo, custo/km, total investido e odômetro piscam 400ms quando o
+  número muda depois de carregado. O valor só monta com o dado pronto, então
+  a primeira carga e a troca de veículo não piscam; com movimento reduzido,
+  nada pisca (`motion-safe`).
+
+**Alternativas descartadas.** Seletor de mês e "Gastos do mês" por
+categoria do protótipo: as fontes não têm período selecionável e a
+categoria é acumulada. "Últimos 3 tanques", "km no mês", "Atualizado hoje":
+sem fonte. Juntar problemas abertos às pendências num número só: são
+entidades diferentes. Manter colunas no gráfico por mês: precisava de rolagem
+horizontal e espremia rótulos no celular.
+
+**Pendências registradas (fora do escopo, não alteradas).**
+
+- No diálogo de abastecimento, os dois checkboxes ("Tanque cheio", "Perdi o
+  abastecimento anterior") têm 44×24 e a medição não acha rótulo associado
+  ao `input` (o axe não reclama; o rótulo envolve o campo). Formulário de
+  outro domínio.
+- `AlertBanner` (Manutenção, Documentos, sino) ainda escreve "Venceu em"
+  para aviso que ainda não venceu. O dashboard não usa mais esse componente.
+- No desktop o `<main>` é quem rola (Fase 15e) e o shell não volta ao topo
+  ao trocar de rota: trocar de veículo com a página rolada abre o outro
+  veículo na mesma altura (sem dado do anterior, mas fora do topo). É
+  comportamento do `AppShell` em todas as rotas.
+
+**Verificação.** Dados simulados (ferramenta externa ao repositório,
+`redesign-capturas/`, cenários 31–48, arquivos 79–117). Rede trancada: o que
+não tem mock no cenário é bloqueado e listado, incluindo o WebSocket do tempo
+real e a API FIPE. Nenhum leitor de tela real, aparelho físico ou dado real.
+
+## ADR-088 — Redesign etapa 05: Gastos + refinamentos do dashboard
+
+**Contexto.** A tela Gastos era uma pilha de cards com dois ícones soltos
+(editar, excluir), o formulário era o diálogo `max-w-md` com "Mais detalhes"
+em `<details>`, e o anexo era uma linha de texto com três botões. Na revisão da
+etapa 04 apareceram dois problemas no dashboard: "Abastecimento" cheio de
+laranja parecia aba selecionada, e o gasto por mês em linhas perdeu a leitura
+de evolução no tempo — além de os gráficos ficarem no fim da página. Esta
+etapa cobre só Gastos e esses ajustes; banco, hooks, queries, fórmulas e
+rotas não mudaram.
+
+**Fontes e regras conferidas (migrations do backend).**
+
+| Ponto | Regra |
+|---|---|
+| `expenses.occurred_on` | NOT NULL com default `current_date`: data em branco no cadastro grava hoje; na edição, `undefined` sai do PATCH e a data salva fica. Não existe gasto sem data. |
+| Gasto sem categoria | `vehicle_expenses_by_category` agrupa em `uncategorized` / "Sem categoria" (left join). |
+| Filtros | Os mesmos: categoria e período de `period.ts`, aplicados no servidor (`gte`/`lte` em `occurred_on`). |
+| Paginação | Nenhuma; o PostgREST corta em `max_rows = 1000` (`supabase/config.toml`). |
+| Modificações | Lista os gastos da categoria de sistema `upgrade`; o mesmo diálogo grava `upgradeCategoryId`. |
+
+**Decisão.**
+
+- Gastos em lista estruturada (não `<table>`): colunas alinhadas a partir de
+  `md`, linha em três níveis no celular. O conteúdo varia (descrição longa,
+  detalhes opcionais, anexo) e uma tabela no celular perderia a semântica ao
+  ser reempilhada. Editar/excluir num menu "⋯" por linha.
+- "Total da seleção" (com a contagem): soma do que a lista já carregou com o
+  filtro — mesma consulta, nenhuma nova. Não é o gasto do veículo e não
+  aparece com 1000 linhas (resposta possivelmente cortada). É a única soma
+  no cliente; a regra "não recalcular o que o banco calcula" não se aplica
+  porque não há view de soma por filtro arbitrário.
+- Formulário no padrão da etapa 03 (`FormSection`/`FormField`/`UnitAffix`
+  reaproveitados de `VehicleFormParts`): mesmos campos, schema, limites,
+  enums e defaults; categoria e data seguem opcionais. Envio inválido abre
+  "Detalhes" se o erro estiver lá e foca o primeiro campo inválido; erro de
+  banco no rodapé; ref contra envio duplicado.
+- `AttachmentField` (compartilhado com Problema, Item de projeto e
+  Manutenção): arquivo salvo e envio pendente em blocos separados, formatos e
+  limite escritos. O fluxo (só na edição, substituir, remover com
+  confirmação) é o mesmo.
+- Ações rápidas: as quatro em `outline`, sem estado selecionado; nada de
+  `aria-pressed`/`aria-selected`. O rótulo visível encurta com a largura e o
+  nome acessível é sempre a ação completa.
+- Dashboard: gráficos logo depois dos indicadores, sob o título "Análise de
+  gastos", com o aviso de vencidas antes deles (o painel de pendências desceu).
+  O aviso usa os mesmos `alerts` do RPC e não conta nada novo.
+- Gasto por mês em colunas (supera a parte "linhas" do ADR-087): HTML/CSS, sem
+  biblioteca; valor exato por coluna em `sr-only`, tabela "Ver valores
+  exatos" com todos os meses (o acesso aos meses fora do recorte do
+  celular). Meses sem registro continuam fora, nunca zero inventado.
+- Gasto por categoria: cor neutra e só a maior em laranja; o balde "Outras"
+  (soma no cliente) saiu — as categorias além de 6 ficam em "Ver todas".
+- Indicadores: dica curta + ajuda completa num popover (`GarageTile` ganhou
+  `help`, aditivo).
+
+**Correções funcionais localizadas (registradas).**
+
+- Substituir anexo: o arquivo novo sobe **antes** de o antigo ser apagado
+  (`useUploadAttachment`). Antes, um envio que falhava deixava o registro sem
+  anexo e a tela mostrando o antigo. Se algo falha depois do envio, o arquivo
+  novo é removido (não fica órfão) e a lista recarrega também no erro
+  (`onSettled`). Path, bucket e tabela iguais.
+- Exclusão sem descrição dizia `Excluir ""?`; agora "Excluir gasto?" com o
+  cartão do registro. Erro de remoção do anexo aparece dentro da confirmação,
+  que não fecha.
+- Diálogos de gasto e a confirmação de remover anexo abrem por estado, sem
+  `DialogTrigger`: o Radix devolvia o foco ao `<body>`. `useReturnFocus`
+  devolve ao que estava focado ao abrir, se ainda existir. Depois de excluir
+  um gasto, o foco vai pro título "Lançamentos" (o gatilho é guardado ao pedir
+  a exclusão, porque a mutação só termina depois do refetch, quando a linha já
+  saiu).
+
+**Alternativas descartadas.** Tabela semântica com reempilhamento no celular
+(perde a semântica). Linha inteira clicável pra editar (interativo dentro de
+interativo com o menu). Biblioteca de gráficos (o HTML/CSS cobre colunas com
+alternativa textual). Rolagem horizontal no gráfico mensal (o motivo do ADR-087
+pra abandonar coluna). Novo número de "saúde do veículo" e tendência
+percentual (sem fonte).
+
+**Pendências registradas (fora do escopo, não alteradas).**
+
+- Mensagens dos helpers numéricos ("a quilometragem inválido.") vêm de
+  `schemaHelpers`, compartilhado.
+- Modificações (`ExpenseListItem`, `ModificationsPage`) não foi redesenhada:
+  ganha só o formulário, a confirmação e a devolução de foco novos. A página
+  ainda soma "nesta seleção" e o "investimento por mês" no cliente.
+- `AlertBanner` ainda escreve "Venceu em" pra aviso que não venceu (ADR-087).
+- Se a remoção do anexo antigo falhar no meio (arquivo apagado, linha não),
+  o comportamento é o de antes; a nova ordem só cobre falha no envio e no
+  insert.
+- O botão "i" dos indicadores só ganha `aria-controls` com o popover aberto
+  (comportamento do Radix).
+
+**Verificação.** Dados simulados (ferramenta externa ao repositório,
+`redesign-capturas/`, cenários 49–72, arquivos 118–178), com escritas de
+gastos, anexos e Storage interceptadas e o LEDGER do mock acompanhando as
+escritas. Rede trancada. Nenhum leitor de tela real, aparelho físico, dado
+real ou exclusão real.
+
+## ADR-089 — Redesign etapa 06: Abastecimentos + dois ajustes de texto
+
+**Contexto.** A tela Abastecimentos era uma pilha de cards com lápis e
+lixeira soltos, um resumo de quatro números (médio, melhor, pior e um
+"Custo/km" que na verdade é o do veículo inteiro) e um formulário
+`max-w-md` com "Mais detalhes" em `<details>`. O resumo com erro de consulta
+aparecia como "—", igual a "sem base". Os dois interruptores do formulário
+tinham 44×24 (pendência do ADR-087) e as mensagens dos campos numéricos saíam
+"a quilometragem inválido." (pendência do ADR-086/088). Esta etapa cobre só
+Abastecimentos e dois textos da revisão anterior; banco, hooks, queries,
+chaves, invalidações, fórmulas e rotas não mudaram.
+
+**Fontes e regras conferidas (migrations do backend).**
+
+| Ponto | Regra |
+|---|---|
+| Lista | `fuel_log_metrics`, `order=occurred_on.desc,odometer_km.desc` (sem mudança). Preço/L é coluna gerada (`round(total/litros, 3)`). |
+| Trecho | `lag` por veículo em ordem de `odometer_km` (nulos no fim), depois `occurred_on`, `created_at`. `km_since_previous` nulo sem anterior com km. |
+| km/L do trecho | Só com anterior com km, **este e o anterior** de tanque cheio e sem "perdi o anterior". `round(dist/litros, 2)`. |
+| Custo/km do trecho | Anterior com km, sem "perdi o anterior" e distância > 0 — não exige tanque cheio (ADR-030). |
+| Resumo | `vehicle_fuel_summary`: avg/max/min dos km/L não nulos, média simples do preço/L, soma de litros; histórico inteiro, sem linha quando não há registro. |
+| Total em combustível | `vehicle_financial_summary.total_fuel` (já vinha com o veículo); custo/km do veículo = total investido ÷ odômetro. |
+| Campos | Litros e valor obrigatórios (≥ 0 no schema; o banco exige litros > 0). Km opcional, inteiro ≥ 0, único por veículo (`23505`, já traduzido). Data: hoje por padrão; em branco, o banco grava hoje / a edição mantém. Combustível: o do veículo. Tanque cheio `true`, "perdi o anterior" `false`. |
+
+**Decisão.**
+
+- Lista estruturada (não `<table>`), pelo mesmo motivo do ADR-088: colunas
+  alinhadas a partir de `md` (números em mono à direita), linha em dois blocos
+  no celular (valor · litros | consumo | ⋯ e, embaixo, o resto em largura
+  inteira). Cada número leva a unidade no próprio texto, então a linha se
+  entende sem o cabeçalho (que é `aria-hidden`).
+- Consumo ausente: "—" e o motivo da linha, derivado dos campos da própria
+  linha na ordem do `case` da view (`missingConsumptionReason`). Nada é
+  recalculado: o número continua sendo só `km_per_liter`. "Anterior parcial"
+  sai por exclusão (este cheio, anterior com km, nada perdido e mesmo assim
+  nulo ⇒ o anterior era parcial), sem olhar a linha vizinha.
+- Resumo: os 4 números da view + o total em combustível, todos rotulados
+  "histórico"; melhor/pior e o custo/km **do veículo** (renomeado) em
+  "Detalhes". Erro de consulta é estado próprio, separado de "sem base".
+  Resumo e lista falham cada um por si.
+- Formulário no padrão das etapas 03/05 (`FormSection`/`FormField`/
+  `UnitAffix`), sem wizard: "Abastecimento", "Cálculo do consumo" (os dois
+  interruptores com a regra escrita) e "Detalhes" recolhível. Mesmos campos,
+  ids, defaults, payload e `?novo=1`. Foco no 1º inválido (abre "Detalhes"
+  se preciso), erro do banco no rodapé com os dados mantidos, ref contra envio
+  duplicado, diálogos por estado com `useReturnFocus`.
+- Interruptores (`FuelToggleField`, local): o próprio `role="switch"` virou um
+  botão de 56×44 com o trilho de 44×24 dentro; o rótulo é `label htmlFor`
+  irmão (não envolve o botão, então não há clique duplicado) com 44px de
+  altura. O `Switch` compartilhado (usado também em Manutenção) não mudou.
+- Exclusão no padrão do gasto, com as consequências que a view garante,
+  inclusive a mudança no trecho do abastecimento seguinte.
+- Mensagens: `schemaHelpers` ganhou um segundo parâmetro opcional com o texto
+  do valor inválido (padrão igual ao de antes). Só o combustível passa texto
+  próprio ("Quilometragem inválida.", "Litros inválidos.", "Valor total
+  inválido."); regra e demais formulários iguais.
+- Formatação: `formatLitersExact` (até 3 casas, um registro) e
+  `formatPricePerLiter` (até 3 casas, como a coluna). Aditivos em
+  `lib/format.ts`; o dashboard continua com os de antes.
+- Ajustes de texto: Gastos abre com "Gastos avulsos deste veículo." e a
+  explicação de onde ficam abastecimento, manutenção e itens de projeto num
+  "i" ao lado; o indicador do dashboard diz "Mês atual" (a composição segue na
+  ajuda do próprio indicador).
+
+**Alternativas descartadas.** Recalcular consumo no cliente para mostrar algo
+nos trechos parciais (fórmula diferente da view). Etiqueta "Tanque cheio" em
+toda linha (o normal; poluiria). Classificar consumo como bom/ruim (sem
+referência). Mexer no `Switch` compartilhado (afetaria Manutenção). Mostrar o
+resumo com traços quando não há registro (o vazio explica melhor).
+
+**Pendências registradas (fora do escopo, não alteradas).**
+
+- O schema aceita litros = 0, o banco recusa (`23514` → "Valor inválido para
+  este campo."). Regra preservada.
+- No celular, uma linha de abastecimento tem 103–131px (390/360); o nome de
+  posto muito longo corta em 2 linhas.
+- `FuelSummarySection` do dashboard continua mostrando preço médio com 2 casas.
+- Mensagens "x inválido." dos outros formulários continuam como estavam.
+
+**Verificação.** Dados simulados (ferramenta externa, `redesign-capturas/`,
+cenários 73–83, arquivos 179–189), com `fuel_log_metrics`, `vehicle_fuel_summary`
+e as escritas em `fuel_logs` interceptadas (incluindo a constraint única de
+odômetro) e o LEDGER do dashboard acompanhando. Rede trancada; nenhuma
+chamada ao Supabase real, nenhuma exclusão real. Teclado virtual só emulado
+(390×380); nenhum aparelho físico nem leitor de tela real.
+
+## ADR-090 — Redesign etapa 07: Manutenção + texto de vencimento do AlertBanner
+
+**Contexto.** Manutenção era uma pilha de cards com lápis e lixeira soltos,
+dois botões de rótulo parecido ("Novo item do plano" / "Registrar execução"),
+nenhuma próxima data ou quilometragem na tela, itens inativos filtrados sem
+aviso e o `AlertBanner` no topo repetindo as vencidas. O `AlertBanner`
+escrevia "Venceu em" pra qualquer data, inclusive futuras (pendência dos
+ADR-087/088), em Manutenção, Documentos e no sino. Esta etapa cobre só
+Manutenção e esse texto; banco, hooks, queries, chaves, invalidações e rotas
+não mudaram.
+
+**Fontes e regras conferidas (migrations do backend).**
+
+| Ponto | Regra |
+|---|---|
+| Situação | `maintenance_status`: `planned` sem execução; `overdue` se odômetro ≥ última km + intervalo **ou** hoje ≥ última data + N meses; `due_soon` a 500 km ou 30 dias; senão `ok`. Calculada a cada consulta. |
+| Alertas | `vehicle_alerts` = vencidas (`critical`) e próximas (`warning`) **ativas** da mesma view, + obrigações e documentos. |
+| Plano | Nome obrigatório; `interval_km` e/ou `interval_months` (o banco recusa os dois nulos e exige > 0); prioridade `medium`; ativo `true`; categoria texto livre. |
+| Serviço | Nome obrigatório; item opcional (avulso); km opcional; `performed_on` NOT NULL com default hoje (em branco no cadastro grava hoje; na edição o PATCH omite e mantém); custo opcional. |
+| Trigger | `sync_maintenance_record` roda **só no insert** e **só com km**: avança `last_service_*` do item vinculado (se a km for maior) e o odômetro do veículo. Editar ou excluir serviço não mexe em nada disso. |
+| Excluir item | Exclusão real (ADR-031); FK `on delete set null` — os serviços ficam no histórico, sem vínculo. |
+| Excluir serviço | O hook apaga o anexo antes; o custo sai de `total_maintenance` e dos gastos por mês. |
+
+**Decisão.**
+
+- Ordem da página: vencidas → plano → histórico, com "Registrar serviço"
+  (execução, primária) e "Adicionar ao plano" (planejamento, contorno) no
+  topo. Os diálogos usam os mesmos nomes ("Registrar serviço", "Editar
+  serviço", "Excluir serviço?"; "Adicionar ao plano", "Editar item do plano",
+  "Excluir item do plano?").
+- Vencidas/próximas saem do `status` de `maintenance_status`, como antes. O
+  `AlertBanner` daqui mostra só os alertas que as listas não cobrem
+  (`source_table` diferente de `maintenance_items` — hoje documentos e
+  obrigações), num bloco compacto "Documentos e obrigações" depois das
+  vencidas, com "Ver em Documentos". Os de manutenção não se repetem. Falha de
+  `vehicle_alerts` vira uma linha com "Tentar de novo", nunca "nada pendente".
+  (Ajuste da revisão: a primeira versão tirava o banner inteiro e, com ele,
+  documentos e obrigações que a página mostrava antes.)
+- Próxima referência = `next_service_date`/`next_service_odometer_km` como a
+  view entrega, só dos intervalos acompanhados. "faltam/passou X km" usa o
+  `current_odometer_km` do veículo — a mesma comparação da view e a mesma
+  conta do painel de pendências (ADR-087). Sem execução: nenhum prazo; o texto
+  diz quando começa a contar. Nenhuma previsão por média de rodagem, nenhuma
+  porcentagem de vida útil. Item vencido com a data ainda por vir (ou sem
+  data) só pode ter vencido pela km: a linha diz "Vencida por quilometragem",
+  depois "Aos X km · passou Y km" e a data em tom secundário ("Data prevista …"),
+  em vez de "Vence em …" ao lado do selo "Vencida" (ajuste da revisão).
+- Prioridade como texto neutro na linha da periodicidade; situação em selo de
+  cor + texto; inativo em selo neutro e referência sem "venceu/passou".
+- Inativos recolhidos no fim do plano, com editar/excluir — resolve o "se isso
+  mudar" do ADR-031 sem segundo fluxo de arquivar.
+- Diálogos de editar/excluir **item** ficam na página, não na linha: a linha
+  troca de grupo (vencidas → plano → inativos) e desmonta quando a lista
+  recarrega. Foco volta ao "⋯" se ele ainda existe; senão ao título do plano.
+  Registro de serviço aberto por uma linha que muda de grupo devolve o foco ao
+  título do histórico.
+- Formulários no padrão das etapas 03/05/06: foco no 1º inválido (abre
+  "Detalhes" se preciso), erro do banco no rodapé com os dados mantidos, ref
+  contra envio duplicado, valores iniciais só na montagem. A falta dos dois
+  intervalos é um erro único lido pelos dois campos (`aria-describedby`), sem
+  `role="alert"`. "Item ativo" reusa o `FuelToggleField` (56×44); o `Switch`
+  compartilhado não mudou.
+- Exclusões com as consequências da tabela acima, sem prometer recálculo.
+- Mensagens: só o texto mudou ("Intervalo em km inválido.", "Custo estimado
+  inválido.", "Quilometragem inválida.", "Custo inválido.", "Informe o
+  intervalo em km, em meses ou os dois."), pelo 2º parâmetro dos helpers.
+- `AlertBanner`: data passada "Venceu em", hoje "Vence hoje", futura "Vence
+  em"; km "previsto aos X". Alerta `critical` cuja data ainda não chegou só
+  pode ter vencido pela quilometragem (a view tem só esses dois critérios;
+  obrigação e documento não têm km) → "Venceu aos X km · data prevista …".
+  Fonte, severidade, cor, ordem e contagens iguais. Consumidores conferidos:
+  Documentos, sino e o bloco de Manutenção.
+- Sino (`HeaderAlertsMenu`, ajuste da revisão): a lista rolável virou
+  `role="region"` "Lista de alertas" com `tabIndex={0}` (o axe acusava
+  `scrollable-region-focusable`, `serious`, com muitos alertas — nada dentro
+  dela recebe foco) e `overscroll-contain` (chegar ao fim pelo teclado não
+  rola a página por trás). A regra `jsx-a11y/no-noninteractive-tabindex` fica
+  desligada só nessa linha, com o motivo: é a exceção que o próprio WCAG prevê.
+
+**Alternativas descartadas.** Manter o banner inteiro em Manutenção (duas
+respostas para "o que venceu"). Tirar o banner sem repor documentos e
+obrigações (a página perdia informação que mostrava — primeira versão, revista).
+Desligar a regra de lint no projeto todo (o caso é um só). Calcular "próxima revisão" quando a view não
+tem referência (inventaria prazo). Coluna de situação separada do nome (no
+desktop sobrava pouco para o nome). Grade do plano a partir de `md` (a coluna
+do item ficava com ~150px em 820–1279px). Mexer no `Switch` compartilhado.
+
+**Pendências registradas (fora do escopo, não alteradas).**
+
+- O schema aceita intervalo 0; o banco exige > 0 (`23514` → "Valor inválido
+  para este campo."). Regra preservada.
+- Excluir serviço apaga o anexo antes da linha (ordem do hook, igual ao gasto):
+  se a exclusão da linha falha, o anexo já foi.
+- Excluir ou editar um serviço não recalcula a última execução do item nem o
+  odômetro do veículo (o trigger só roda no insert): o item pode continuar
+  contando a partir de um serviço que não existe mais. A confirmação diz isso;
+  a correção é do backend.
+- `PendingAlertsPanel` do dashboard tem a própria frase: "Venceu em" para todo
+  `critical`, inclusive vencido por km com data futura. Não usa o
+  `AlertBanner` e não foi alterado.
+- A ação rápida de manutenção do dashboard abre o registro sem a quilometragem
+  do veículo (o card da garagem passa); comportamento de antes.
+
+**Verificação.** Dados simulados (ferramenta externa, `redesign-capturas/`,
+cenários 84–92, arquivos 190–199; ajustes da revisão no cenário 93, arquivos
+200–201, relatório próprio): `maintenance_items`, `maintenance_status`
+(regra da view), `maintenance_records` (trigger de insert), `vehicle_alerts`
+derivados, anexos e Storage interceptados, LEDGER do dashboard acompanhando os
+custos. Rede trancada; nenhuma chamada ao Supabase real, nenhuma exclusão real.
+Teclado virtual só emulado (390×380); nenhum aparelho físico nem leitor de tela
+real.
+
+## ADR-091 — Redesign etapa 08: Problemas
+
+**Contexto.** Problemas era uma pilha de cards com lápis e lixeira soltos, os
+quatro status em andamento todos em âmbar, "Descartado" com cara de concluído
+discreto, o formulário `max-w-md` com "Mais detalhes" em `<details>` e a
+exclusão com o título `Excluir "{título}"?`. Esta etapa cobre só Problemas;
+banco, hooks, queries, chaves, invalidações e rotas não mudaram.
+
+**Fontes e regras conferidas (migrations e DATABASE.md do backend).**
+
+| Ponto | Regra |
+|---|---|
+| Status | Enum `issue_status` de seis valores; transição livre (RN-2, sem máquina de estado). |
+| Grupos | Abertos = `open`, `investigating`, `waiting_part`, `in_repair` (`OPEN_ISSUE_STATUSES`); Resolvidos = `resolved`, `dismissed`. Mesmo corte do `open_issues_count` (`status not in ('resolved','dismissed')`). |
+| Campos | Título obrigatório; prioridade `medium` e status `open` por padrão; `reported_on` NOT NULL com default `current_date` (em branco no cadastro grava hoje; na edição o PATCH omite e mantém); descrição, diagnóstico, resolução, data de resolução, km (inteiro ≥ 0) e custo (≥ 0) opcionais. |
+| Status × data | Independentes: nada força `resolved_on` ao mudar para resolvido (ADR-005). |
+| Custo | `issues.cost` não entra em `total_invested`, gastos do mês/ano nem gráficos (RN-1 da Fase 8). |
+| Fora da página | `open_issues_count` do dashboard, `vehicle_timeline` (`occurred_on = reported_on`), busca. |
+| Excluir | O hook apaga o anexo antes da linha. |
+
+**Decisão.**
+
+- Página: cabeçalho com "Relatar problema", painéis Abertos e Resolvidos com
+  contagem por status, ordem da consulta (relato mais recente primeiro). Sem
+  busca, filtro, kanban nem `?novo=1` — a página não tinha.
+- Situação em selo: só "Aberto" em âmbar; os três em andamento neutros com
+  borda forte; "Resolvido" verde; "Descartado" tracejado e neutro, em
+  Resolvidos. Prioridade em texto neutro na linha de relato.
+- Linha estruturada (não `<table>`, pelo motivo do ADR-088), colunas a partir
+  de `lg` com a coluna de ações em largura fixa (cabeçalho alinhado, lição da
+  etapa 07); "Detalhes" com o conteúdo inteiro; editar/excluir no "⋯".
+- Diálogos de editar/excluir ficam na página: mudar o status troca a linha de
+  grupo e a desmonta. Foco volta ao "⋯" se ele existe; senão ao título do
+  grupo onde o problema ficou (o diálogo de edição informa o status salvo).
+- Formulário no padrão das etapas 03–07, mesmos campos, defaults e payload.
+  Nada é exigido para mudar de status; mudar para Resolvido não preenche a
+  data; nenhum campo é limpo; recolher só esconde; valores iniciais só na
+  montagem. Foco no 1º inválido (abre "Diagnóstico e resolução" se preciso),
+  erro do banco no rodapé com os dados mantidos, ref contra envio duplicado.
+- Custo: rótulo "Custo informado", com a ressalva de que fica só no problema;
+  zero é R$ 0,00 e ausente é "—". Nada é criado em Gastos ou Manutenção.
+- Exclusão com as consequências da tabela, sem prometer recuperação. No
+  cartão, custo ausente é "Custo não informado" e zero é R$ 0,00 (ajuste da
+  revisão: antes "Sem custo", que se confundia com zero).
+- Mensagens: só o texto mudou ("Quilometragem inválida.", "Custo inválido."),
+  pelo 2º parâmetro dos helpers.
+
+**Alternativas descartadas.** Cores por status de trabalho (quatro tons
+competindo; âmbar para todos repetia o problema antigo). Pôr "Descartado" num
+grupo próprio (mudaria o corte usado pelo dashboard). Preencher a data de
+resolução ao escolher Resolvido (regra que o banco deliberadamente não tem).
+Linha inteira clicável (interativo dentro de interativo com o menu).
+
+**Pendências registradas (fora do escopo, não alteradas).**
+
+- Excluir problema apaga o anexo antes da linha (ordem do hook, igual a gasto e
+  manutenção): se a exclusão da linha falha, o anexo já foi. Conferido no mock
+  (falha do DELETE depois de Storage e `attachments`).
+- Abaixo de `lg` a linha empilha; com título longo e as quatro informações de
+  relato, uma linha no celular fica alta (perto de 190px na captura 203).
+
+**Verificação.** Dados simulados (ferramenta externa, `redesign-capturas/`,
+cenários 94–101, arquivos 202–208): `issues` com os seis status, escritas,
+anexos e Storage interceptados; `open_issues_count` do RPC e `vehicle_timeline`
+derivados do mesmo estado, conferidos depois de criar, resolver e excluir.
+Rede trancada; nenhuma chamada ao Supabase real, nenhuma exclusão real.
+Nenhum aparelho físico nem leitor de tela real.
+
+## ADR-092 — Redesign etapa 09: Projetos e itens de projeto
+
+**Contexto.** Projetos era uma grade de cards com "% dos itens concluídos" e
+lápis/lixeira soltos; o detalhe tinha um `dl` de duas linhas ("Itens
+concluídos", "Orçamento usado") e itens em cards com um único valor —
+`actual_cost ?? estimated_cost`, sem dizer qual dos dois era. Os formulários
+eram `max-w-md` com "Mais detalhes" em `<details>`; o item editado mostrava
+"Este projeto" no seletor; as exclusões tinham título `Excluir "{nome}"?`.
+Esta etapa cobre Projetos e um texto da exclusão de serviço em Manutenção;
+banco, hooks, queries, chaves, invalidações, rotas e payloads não mudaram.
+
+**Fontes e regras conferidas (migrations do backend).**
+
+| Ponto | Regra |
+|---|---|
+| Status | Enums `project_status` (6) e `project_item_status` (5); transição livre, nenhum trigger muda status nem conclui projeto. |
+| Campos | Projeto: nome obrigatório, status `idea` por padrão; orçamento, 3 datas, descrição e notas opcionais, sem regra entre datas. Item: projeto e nome obrigatórios, `wishlist` e `medium` por padrão, o resto opcional. Item ↔ veículo do projeto checado por trigger. |
+| Progresso | `project_progress`: denominador = itens **não cancelados**; concluído = só `installed`; `pct_items_completed` nulo sem denominador; `total_estimated`/`total_actual` = soma dos não cancelados com `coalesce(…, 0)`; `pct_budget_used` = real ÷ orçamento, nulo sem orçamento ou com orçamento 0. |
+| Financeiro | `vehicle_financial_summary`: só `installed`, pelo `actual_cost` (estimado nunca); total investido com ou sem data; mês/ano e `vehicle_expenses_by_month` só com `occurred_on`. Nenhum item vira gasto. |
+| Histórico | `vehicle_timeline` só traz item com `occurred_on`; o link leva ao detalhe pelo `metadata.project_id`. |
+| Painel | `active_projects_count` = ideia, planejado, em andamento, pausado. |
+| Excluir projeto | `project_items.project_id` `on delete cascade` (ADR-033). `attachments` é polimórfica, sem FK nem trigger: os anexos dos itens **ficam** (linha e arquivo). |
+| Excluir item | O hook apaga Storage → linha de `attachments` → item, nessa ordem. |
+
+**Decisão.**
+
+- Lista em dois painéis, Ativos e Encerrados, com o corte do
+  `active_projects_count`; nada some — os dois aparecem sempre que há projeto.
+  Ordem da consulta dentro de cada um. Sem busca, filtro, ordenação, kanban.
+- Linha estruturada (não card grande): nome, selo, descrição em 2 linhas,
+  datas; progresso e os três valores da view à direita. "Abrir projeto" é o
+  caminho de teclado; o nome é link de ponteiro fora do Tab (ADR-085).
+- Selos: projeto em andamento no acento, pausado âmbar, concluído verde,
+  cancelado tracejado; item comprado no acento, instalado verde, cancelado
+  tracejado; prioridade só em texto.
+- Progresso **lido** da view, nunca refeito: barra + "N de M itens instalados"
+  + %; sem denominador, o motivo em texto. O que vem dos itens carregados é só
+  contagem (comprados, cancelados, quantos têm valor); com ela o painel troca
+  o R$ 0,00 do `coalesce` por "Nenhum informado" quando nenhum item tem valor.
+  O % do orçamento é o `pct_budget_used`, sem saldo, sem "restante".
+- Item com estimado e real em colunas separadas e rotulados no celular; o
+  "Detalhes" diz que o estimado não entra em total do veículo e se o real
+  entra (instalado) ou fica só no projeto.
+- Link externo só vira `<a>` para http/https (antes qualquer texto ia para o
+  `href`); o texto salvo aparece inteiro em "Detalhes".
+- Detalhe ganha "Editar projeto" (o mesmo diálogo da lista). A exclusão do
+  projeto fica só na lista, como antes: excluir pelo detalhe exigiria um fluxo
+  novo de navegação depois da exclusão.
+- Formulários no padrão das etapas 03–08: foco no diálogo ao abrir, foco no 1º
+  inválido (abre a seção recolhida), erro do banco no rodapé com os dados
+  mantidos, ref contra envio duplicado, valores iniciais só na montagem,
+  recolher só esconde. Nada muda status, data ou custo sozinho.
+- Diálogos de editar/excluir ficam na página. Foco: volta ao "⋯"; se a linha
+  trocou de grupo ou sumiu, vai pro título do grupo (lista) ou de "Itens"
+  (detalhe). Excluir item manda o foco direto para "Itens": o hook não espera o
+  refetch, e voltar ao "⋯" deixava o foco no `<body>` quando a linha sumia.
+- Exclusões com as consequências da tabela, sem prometer recuperação nem
+  limpeza de anexo do projeto.
+- Mensagens: só o texto ("Orçamento inválido.", "Custo estimado inválido.",
+  "Custo real inválido."), pelo 2º parâmetro dos helpers.
+- Manutenção: "Excluir serviço?" mostra "Custo não informado" para custo
+  ausente (antes "Sem custo"); zero continua R$ 0,00.
+
+**Alternativas descartadas.** Kanban por status (pedido explícito contra).
+Grupo por status de projeto em seis painéis (fragmenta e esconde a ordem).
+Somar no detalhe a parte do projeto que entra nos totais do veículo (conta
+nova, sem fonte). Copiar o real do estimado ao marcar comprado/instalado.
+Concluir o projeto quando todos os itens estão instalados. Medidor circular.
+
+**Pendências registradas (fora do escopo, não alteradas).**
+
+- **Anexos órfãos ao excluir projeto**: a cascata apaga os itens, mas não as
+  linhas de `attachments` nem os arquivos no Storage. Conferido no mock
+  (os dois anexos do "Motor" ficam). A confirmação não promete limpeza.
+- **Excluir item apaga o anexo antes da linha** (mesma ordem de gasto,
+  manutenção e problema): se a exclusão do item falha, o anexo já foi.
+  Conferido no mock.
+- **`?novo=1` em Projetos**: continua tratado (com projeto, "Adicionar item"
+  com seletor; sem projeto, o aviso), mas nada no app aponta mais para ele — o
+  "Upgrade" da folha Registrar vai para Modificações. O aviso ainda diz "atalho
+  'Upgrade'". Comportamento e texto preservados até decisão funcional.
+- **Lista: custo real/estimado ausente × zero**: a view devolve 0 quando nenhum
+  item tem valor; sem os itens, a lista não distingue "nenhum informado" de
+  R$ 0,00 (o detalhe distingue). Depois da revisão, a lista avisa a dúvida
+  (abaixo); a distinção exata continua só no detalhe.
+- Falha de `project_progress` derruba a lista inteira (o `fetchProjects` lança),
+  como antes.
+- A ordem dos itens é `sort_order, created_at`; não há como reordenar na tela.
+
+**Verificação.** Dados simulados (ferramenta externa, `redesign-capturas/`,
+cenários 103–112, arquivos 209–216): seis projetos do Gol (um por status;
+orçamento ausente, zero e estourado; sem item; só cancelados) e nove itens no
+"Motor" com os cinco status, valores ausentes e zero, instalado sem data,
+links e dois anexos. `project_progress` com a regra da view, LEDGER e
+`active_projects_count` reescritos a cada escrita, `vehicle_timeline` com os
+itens datados, cascata no mock. Rede trancada; nenhuma chamada ao Supabase
+real, nenhuma exclusão real. Nenhum aparelho físico nem leitor de tela real.
+
+**Ajustes da revisão (04/11/2026).**
+
+- **Progresso**: o painel dizia a regra duas vezes seguidas ("1 comprado ainda
+  não conta · 1 cancelado fica fora da conta" e "Conta só o que está
+  Instalado…"). Agora é uma frase só, completa, com a contagem deste projeto
+  no fim ("— aqui, 1 comprado e 1 cancelado."); sem progresso a medir, só a
+  regra, porque a contagem repetiria o texto do estado vazio.
+- **Soma zero na lista**: custo real ou estimado igual a 0 sai como "R$ 0,00"
+  com "valores podem não estar informados" embaixo, e o leitor de tela ouve o
+  porquê (a lista soma como zero o item sem valor; o projeto mostra quais têm
+  valor). Sem consulta nova, sem mudar a fórmula; o orçamento, que é coluna do
+  projeto, continua sem aviso. Descartado: um botão de ajuda por linha (mais
+  uma parada de Tab em cada projeto para um texto que cabe visível).
+- **Linha da lista mais compacta** (acabamento, não bloqueio): a partir de
+  `lg`, "Abrir projeto" e "⋯" sobem para logo abaixo da identificação e o
+  bloco de progresso e valores ocupa a altura da linha à direita
+  (`grid-rows-[auto_1fr]`). O vão entre datas e ações caiu para 4px; abaixo de
+  `lg` a linha continua empilhada. Ordem de Tab inalterada.
+- Verificação: cenário 113 (arquivos 217–220, `relatorio-ajustes.txt`) em 1440,
+  1024, 820, 390 e 360, claro e escuro — axe sem violações, nenhum alvo menor
+  que 44px, sem rolagem horizontal; build e lint limpos. Os cenários 103–112
+  não rodaram de novo.
+
+## ADR-093 — Recalibração visual 01: identidade + Minha garagem
+
+**Status.** Implementada só na Garagem e na marca do shell; **aguardando
+aprovação visual** antes de chegar a outras telas. A etapa 10 do redesign
+está pausada.
+
+**Contexto.** Comparadas com a referência aprovada ("Dashboard Garage
+Automotiva em Tema Escuro"), as etapas 01–09 deixaram a Garagem com cara de
+sistema administrativo: título de 24px/600 e modelo de 18px/600 (pouca
+diferença de peso), valores em JetBrains Mono, faixa de quatro módulos com
+fio entre eles e dicas longas, "Detalhes da garagem" ocupando uma linha antes
+dos carros, card com "baia 01", divisores e "Abrir veículo" por extenso, e
+uma marca vetorial de traço fino de 9px, mais fina e angular que o lettering
+encorpado da referência.
+
+**Decisão.**
+
+- Marca v2 desenhada como polígonos numa grade (não fonte, não traço de
+  bitmap), salva ao lado da v1 (`slow-garage-logo-v2-*.svg`). `BrandLogo`
+  ganhou `version` (padrão 1); o shell autenticado (`Sidebar`, `AppShell`)
+  passa `2`. Consumidores e efeitos: sidebar (todas as telas `lg`+) e
+  cabeçalho do celular (todas as telas) — a marca é uma só no app autenticado,
+  então trocá-la só na Garagem criaria duas marcas. Login segue na v1.
+  Favicon, manifest e ícones PWA intactos.
+- Fonte display local (Archivo variável, OFL) num token aditivo
+  `--font-display`, usado só pelos componentes da Garagem. Nenhum token
+  existente mudou de valor.
+- Garagem recomposta: capa editorial compacta no desktop (sem foto),
+  cabeçalho curto e ação em largura cheia no celular, resumo curto sem caixa
+  por módulo (`GarageOverview`), detalhes depois da grade (`GarageDetails`),
+  card no idioma da referência (`VehicleCard`, `VehicleCardPhoto`). O
+  `GarageTile` compartilhado com dashboard, combustível e financeiro **não**
+  mudou — o número do resumo da Garagem é um componente local (`GarageStat`)
+  com o mesmo contrato de estados.
+- Indicadores do card: Odômetro e Total investido (os mesmos em todo card,
+  como na referência). Gasto do mês atual foi para a Ficha técnica; nada saiu
+  do card.
+
+**Diferenças deliberadas em relação à referência.** Sem foto no hero (não há
+asset licenciado, e foto genérica não seria do usuário); sem busca, abas de
+filtro, ordenação e grade/lista (não existem no produto); sem logos de
+fabricante; sem katakana; status são os quatro reais (Ativo, Projeto,
+Guardado, Vendido), não "Uso diário"; nenhuma borda laranja fixa de card
+"selecionado"; o "⋯" sobre a foto tem fundo sólido; os 4 registros rápidos
+continuam no card (ADR-053).
+
+**Não mudou.** Rotas, schemas, hooks, queries, chaves e invalidações,
+fórmulas (somas do resumo e do comparativo iguais), regras de status, banco,
+autenticação, permissões.
+
+**Verificação.** Capturas e relatórios em
+`redesign-capturas/recalibracao-visual-01/` (cenários `rv1`–`rv5` do
+`inspect.mjs`, antes e depois). Axe sem violações em 24 estados (1920, 2560,
+1440 claro, 1366, 1280, 1024, 820 claro/escuro, 390, 360 claro/escuro, 320;
+ficha, menu e detalhes abertos; um veículo; vazio); nenhum alvo menor que
+44px; sem rolagem horizontal; sem interativo aninhado; foco laranja visível
+na seta; build e lint limpos. Limitação: em 320×640 o nome do primeiro carro
+fica logo abaixo da dobra (621 × 583px), e o rodapé do card quebra em duas
+linhas.
+
+## ADR-094 — Garagem A3 + capa A3.1: revista automotiva japonesa
+
+**Status.** Implementada na Minha garagem, a partir do estudo estático
+aprovado (propostas A3 e A3.1). Outras telas, marca e shell não mudaram.
+
+**Contexto.** A recalibração 01 (ADR-093) aproximou a Garagem da referência,
+mas o usuário definiu a inspiração como revista automotiva japonesa de
+preparação — cultura de garagem e de projeto pessoal. Os estudos A → A2 →
+A3 → A3.1 (fora do repositório, `redesign-capturas/estudos-garagem-v2/`)
+fixaram a composição; a A3.1 trocou a capa por uma colagem fotográfica. O
+estudo foi aprovado visualmente antes desta implementação.
+
+**Decisão.**
+
+- Página sem largura máxima: capa, resumo e coleção na mesma margem depois
+  da sidebar, com escala fluida travada entre 1440 e 2560 (tokens
+  `--garage-*`). A recalibração 01 centralizava em 76rem e deixava faixa
+  vazia junto à sidebar no largo.
+- Capa desktop com a imagem da A3.1 (uma imagem já composta: carro +
+  recortes de roda e motor, 3:1) e coluna de texto alinhada à grade da
+  coleção; celular sem foto. Rejeitado: remontar a colagem em CSS com fotos
+  CC0 avulsas (primeira versão desta ADR) — o usuário apontou que não era a
+  capa aprovada.
+- Resumo em faixa colada à capa, com "Detalhes e comparativo" no fim; o
+  painel abre logo abaixo dela. Rejeitado: manter o gatilho no título da
+  seção depois da grade (ADR-093) com o botão novo só rolando até ela — dois
+  controles para a mesma região, e o botão da faixa abriria algo fora da
+  tela.
+- Card como ficha editorial em três composições por **container query** (a
+  largura do card decide, não a viewport): vertical, spread compacto e
+  spread largo com a ficha técnica aberta numa coluna. Rejeitado: ampliar
+  foto, nome e números no desktop largo (o que a A2 fazia) — no 2560 o card
+  ficava com texto grande demais e vazio interno.
+- Grade: 2 cards por linha com coleção ≥ 1100px, senão 1; 1 veículo vira um
+  spread de destaque. Rejeitado: "vaga livre" ou painel financeiro para
+  completar linha (enchimento sem função).
+- Status e "⋯" saíram de cima da foto para a linha do número; o degradê da
+  base da foto saiu. "Abrir veículo" existe em duas formas (seta no vertical,
+  rótulo no spread), só uma visível por vez — continua uma parada de Tab.
+- Composição em `src/styles/garage.css` (classes `garage-*`, só tokens) em
+  vez de utilitários: áreas de grade e container queries virariam dezenas de
+  classes arbitrárias por elemento. Exceção consciente à regra "tudo em
+  utilitário"; a regra de tokens continua valendo.
+
+**Ajustes da revisão visual.** Região sem foto com superfície própria (não o
+fundo da página); "Minha garagem" numa linha no celular de 360px pra cima;
+no tema claro a foto de fundo da capa é chapa de borda seca em vez de
+degradê do claro para o escuro.
+
+**Imagem.** Uma imagem editorial **gerada** para o estudo A3.1 e fornecida
+pelo usuário (`src/assets/garage/cover.webp`, 2172×724, 88 KB; original em
+`redesign-capturas/estudos-garagem-v2/fonte/assets/capa-a3-1-gerada-original.png`).
+Ilustrativa, não representa veículo cadastrado. Decorativa (`alt=""`,
+`aria-hidden`), sem crédito sobre a imagem. Servida por `<picture>` com
+`media` de `lg`: abaixo disso o navegador usa um pixel vazio e não baixa nada
+(`loading="lazy"` em bloco oculto não bastou — o Chrome baixava no celular).
+Fora do precache do PWA (o Workbox só pega js, css, html e woff2).
+
+*Histórico da imagem.* A primeira montagem desta ADR usou quatro fotos reais
+do Unsplash, CC0 (oficina, garagem, motor, gaiola; 167 KB em WebP), remontadas
+em CSS como colagem — e por isso registrava "nenhuma imagem gerada por IA".
+O usuário apontou que não era a capa aprovada; a colagem saiu do app e a capa
+passou a ser a imagem gerada da A3.1 acima. As fotos CC0 seguem creditadas no
+`CREDITOS.txt` do estudo. A frase "nenhuma imagem gerada por IA" vale só para
+aquela primeira versão.
+
+**Rolagem dupla.** No desktop quem rola é o `<main>`; textos só para leitor de
+tela (`sr-only`, posição absoluta) sem ancestral posicionado se posicionavam
+pelo documento e esticavam a janela — aparecia uma segunda barra. A página
+da Garagem (`.garage-page`) é `position: relative`.
+
+**Não mudou.** Rotas, schemas, hooks, queries, chaves e invalidações,
+fórmulas (somas do resumo e do comparativo iguais), regras de status, banco,
+autenticação, permissões. Nenhuma função nova: cadastrar, abrir, ficha
+técnica, registrar gasto/abastecimento/manutenção, adicionar foto,
+editar/excluir, detalhes e comparativo, perfil, notificações e alertas são os
+mesmos. `GarageTile` (compartilhado) intacto; `VehicleQuickActions` ganhou só
+o rótulo visível no spread largo. `CreateVehicleDialog.triggerLabel` aceita
+`ReactNode`.
+
+**Verificação.** Capturas e relatório em `redesign-capturas/garagem-a3/`
+(cenário `a3` do `inspect.mjs`, Supabase simulado; rodada final em `r8/`). Axe
+sem violações em 24 estados (2560, 1920, 1440 claro/escuro, 1280, 1024 claro,
+768, 390 claro/escuro, 360, 320; quatro carros; ficha, menu e detalhes abertos
+em 1440/390/2560; um veículo em 1440/2560/390; vazio em 1440/390). Sem rolagem
+horizontal, sem interativo aninhado, nenhum alvo menor que 44px, nenhum
+elemento fora do card, foto nunca sobre o texto, colagem nunca sobre o texto
+nem fora da capa (folga de 129px em 1024 a 633px em 2560). Celular: zero
+arquivos de imagem da capa baixados. Foto que falha mostra "Foto
+indisponível no momento.". `npm run lint` e `npm run build` limpos.
+Limitações: em 320×640 o nome do primeiro carro termina em 637px, logo
+abaixo da dobra (583px) — como na ADR-093; em 1280 a coleção tem 960px e
+fica com 1 card por linha.
+
+**Consolidação (harmonização 01, 06/11/2026).** Esta ADR aparecia duas vezes,
+com o mesmo número: a primeira cópia trazia a descrição certa da capa gerada,
+mas repetia o parágrafo de verificação da ADR-093 (cenários `rv1`–`rv5`); a
+segunda trazia a verificação certa (cenário `a3`) e o "Não mudou" completo,
+mas ainda descrevia as quatro fotos CC0 da primeira montagem. As duas viraram
+esta entrada única: nenhum fato foi apagado — a primeira montagem está no
+histórico da imagem, a verificação da ADR-093 continua na própria ADR-093.
+
+## ADR-095 — Revisão dos cards da Minha garagem: cards verticais da referência
+
+**Status.** Implementada na Minha garagem, antes da etapa 10. **Revisão
+visual do usuário pendente.** Capa, resumo, "Detalhes e comparativo", shell e
+outras telas não mudaram.
+
+**Contexto.** Na ADR-094 os cards viraram fichas horizontais (spread) com
+numeração "01" e, no desktop largo, uma coluna de ficha técnica sempre
+aberta. O usuário apontou que isso se afastou da referência original
+("Dashboard Garage Automotiva em Tema Escuro.png"), onde o card é vertical,
+fotográfico e compacto.
+
+**Decisão.**
+
+- Um só arranjo vertical em toda largura: foto 16:10 → marca, modelo,
+  ano · versão + placa → Odômetro e Total investido com a seta laranja
+  "Abrir veículo" à direita → faixa secundária com "Ficha técnica" e os
+  quatro registros. Saíram o spread, a coluna técnica aberta e a numeração.
+- Status volta para cima da foto (pílula escura, canto superior esquerdo) e
+  o "⋯" para o canto direito, desenhados na mesma área de grade da foto —
+  aparecem também sem foto e na falha. Chapa escura nos dois temas
+  (`--garage-chip-*`): fica sobre fotografia, que não muda com o tema.
+- Ficha técnica recolhida por padrão em toda largura; abre embaixo da faixa.
+- Grade por largura útil: auto-fit com `--garage-card-min` e teto
+  min(nº de veículos, colunas da faixa) × `--garage-card-max`; com poucos
+  veículos a grade encolhe e fica na margem da página, embaixo do título.
+  Rejeitado (na revisão visual): centralizar a grade — com 2 veículos no
+  desktop largo os cards ficavam soltos no meio, desalinhados do título, da
+  capa e do resumo.
+  Rejeitado: `auto-fit` com `minmax(min, max)` fixo — o navegador conta as
+  colunas pelo máximo (1440 ficaria com 2 colunas para 4 carros). Rejeitado:
+  esticar os cards (1fr) — 2 veículos em 2560 viravam painéis de 1100px.
+- Dicas visíveis dos botões só com ícone (registros, seta, "⋯") em CSS
+  (`data-tip`), no hover e no foco de teclado; o `title` nativo saiu (não
+  aparecia no foco). Ancoradas pela direita do botão, nunca passam da borda
+  do card. O nome acessível continua sendo o `aria-label`.
+- Sem `overflow: hidden` no card (a foto arredonda os próprios cantos) para
+  as dicas não serem cortadas.
+- Ordem de tabulação mantida: Abrir veículo, Ficha técnica, 4 registros,
+  Mais ações. A foto e o selo abrem o veículo pelo link esticado do título.
+
+**Diferenças deliberadas da referência.** Sem logo de fabricante; sem ícones
+ao lado dos indicadores (tirariam ~50px e empurrariam o segundo valor para
+baixo nos cards de 336–360px); sem "Uso diário" (os status são os reais);
+faixa de registros e ficha técnica a mais (funcionalidade existente); a
+transição escura na base da foto é bem mais leve que a da referência, para
+não escurecer fotos comuns de celular.
+
+**Não mudou.** Rotas, consultas, fórmulas, status, regras de negócio,
+formulários, upload, editar/excluir (diálogos, confirmação e retorno do foco
+ao "⋯"), capa (medidas iguais às da r8 em 1024–2560), resumo, painel de
+detalhes, rolagem do `<main>`. `VehicleCard`, `VehicleCardPhoto`,
+`VehicleCardMenu` e `VehicleQuickActions` só são usados na Garagem.
+
+**Verificação.** Cenário `a3c` do `inspect.mjs` (Supabase simulado, nada
+gravado), relatório e 6 capturas da região dos cards em
+`redesign-capturas/garagem-a3/cards-r2/` (a `cards-r1` é a versão centralizada,
+recusada). Larguras 320, 360, 390, 768, 1024,
+1280, 1440, 1920 e 2560 com 1, 2 e 4 veículos: sem rolagem horizontal, sem
+segunda rolagem da janela, nenhum elemento fora do card, nenhum valor sob a
+seta, faixa em uma linha (inclusive 320px), linhas da grade com a faixa
+alinhada, título na margem da página. Nome e versão longos quebram
+completos; ausente ("—") distinto de zero ("0 km", "R$ 0,00");
+"R$ 1.236.402,89" e "1.234.567 km" descem para a segunda linha em vez de
+comprimir. Foto com erro ("Foto indisponível no momento.", sem "Adicionar
+foto") e sem foto ("Adicionar foto"), com status e "⋯" nos dois. Teclado:
+dica visível no foco; menu abre pelo Enter, Escape fecha e devolve o foco ao
+"⋯"; editar e excluir abrem, Escape devolve o foco ao "⋯". Celular: última
+ação do último card acima da barra inferior (rolagem real da janela). Axe
+sem violações em 24 estados (claro e escuro; ficha e menu abertos; limites;
+erro de foto). `npm run lint` e `npm run build` limpos. Primeiro carro na
+primeira tela também em 320×640 (nome termina em 570px, barra em 583px).
+
+**Limitações.** Em 320px os dois indicadores empilham (o segundo desce) e a
+faixa mostra "Ficha" — " técnica" fica fora da vista, mas continua no nome
+acessível. Com um nome de 3 linhas na mesma linha da grade, os vizinhos
+ganham um vão entre a identificação e os números (a faixa fica alinhada). Com
+uma ficha aberta a grade inteira deixa de esticar os cards (`:has` na grade,
+não por linha). As faixas da container query são aproximadas: entre 688 e
+695px de coleção (viewport ~720–735px) cabe 1 coluna, mas o teto é o de 2 —
+o card ocupa a largura toda e o placeholder sem foto fica em 16:10.
+
+## ADR-096 — Minha garagem: busca, abas, ordenação, grade/lista e cabeçalho sobre a capa
+
+**Status.** Implementada. **Revisão visual do usuário pendente.** Só a Minha
+garagem e o cabeçalho do shell quando ela está aberta.
+
+**Contexto.** Na revisão da ADR-095 o usuário apontou o que a referência
+original tem e a tela não tinha: busca "Buscar na garagem…" no cabeçalho, abas
+por status com contagem, "Mais recente" e alternância grade/lista, e o
+cabeçalho flutuando sobre a capa (a capa vai até o topo).
+
+**Decisão.**
+
+- **Busca** (`GarageSearchField`): no cabeçalho a partir de `lg`, com ⌘K /
+  Ctrl K; abaixo de `lg`, na barra da coleção. Filtra veículos por marca,
+  modelo, versão, ano e placa, sem caixa nem acento, placa sem hífen; cada
+  palavra precisa aparecer. Só veículos (não registros). Estado em memória
+  compartilhado (`useGarageSearch`, `useSyncExternalStore`). Rejeitado:
+  texto na URL (`?busca=`) — o campo controlado relia a URL, que atualiza
+  com atraso, e perdia letras com digitação rápida (medido: "opala" virou
+  "a").
+- **Abas** Todos/Ativos/Projetos/Guardados/Vendidos com contagem já com a
+  busca aplicada: botões de alternância (`aria-pressed`) num grupo, não
+  `tablist` (filtram a mesma lista). Aba vazia continua clicável e mostra
+  "Nenhum veículo guardado." com "Ver todos". Resultado anunciado em região
+  `aria-live`. No celular as abas rolam dentro da própria faixa.
+- **Ordenação**: mais recente (padrão, a ordem de antes), mais antigo, nome,
+  maior investimento, maior quilometragem (ausente vai para o fim).
+- **Grade/lista**: a lista é o mesmo card deitado (miniatura 16:10 à
+  esquerda, indicadores e seta à direita, faixa embaixo do texto), até
+  1200px. Some quando a coleção só comporta uma coluna (celular). Ordem e
+  visualização ficam no `localStorage` do navegador.
+- **Título "Seus veículos"** passa a ser só para leitor de tela (a contagem
+  está em "Todos (N)"); continua o alvo do foco depois de excluir.
+- **Indicadores com ícone** (odômetro e cifrão), como na referência: máscara
+  em CSS (`data-icon`) porque dentro de `<dl>` só cabem `<dt>`/`<dd>`;
+  menores em cards até 368px. Revoga a diferença deliberada da ADR-095.
+- **Cabeçalho sobre a capa** (`lg`+, só na garagem): o cabeçalho sai do
+  fluxo, transparente com um véu curto do fundo enquanto o `<main>` está no
+  topo e sólido quando rola; para antes da barra de rolagem do `<main>`. A
+  capa começa no topo e o texto desce 64px. A foto sobe até o topo só a
+  partir de 1440 no escuro — subir com a proporção 3:1 aumenta o carro, e
+  entre 1280 e 1439 ele passaria por baixo do título; no claro (chapa de
+  borda seca) a folga cairia de 161 para 32px. Nesses casos a foto mantém a
+  geometria anterior, logo abaixo do cabeçalho.
+
+**Não mudou.** Rotas, consultas, regras, formulários, cards (além dos ícones),
+resumo, detalhes, sidebar, barra inferior, cabeçalho das outras telas.
+
+**Verificação.** Cenários `a3c` e `a3d` do `inspect.mjs`, relatório e capturas
+em `redesign-capturas/garagem-a3/barra-r1/`. Axe sem violações em 36 estados;
+sem rolagem horizontal; cabeçalho nunca cobre a barra de rolagem; título da
+capa sempre abaixo do cabeçalho; folga texto × carro 81px (1440), 85 (1280),
+454 (1920), 870 (2560), 161 (1440 claro). Busca: Ctrl+K foca; "opala",
+"frt-2e45", "edicao especial" acham o veículo certo; sem resultado mostra o
+vazio; Escape limpa. Abas e as cinco ordenações conferidas. Lista em 1440 e
+768 sem transbordo; no celular volta à grade. `npm run lint` e
+`npm run build` limpos.
+
+**Limitações.** Em 320×640 o primeiro carro fica abaixo da dobra (nome em
+648px, barra em 583px) — a barra da coleção ocupa 99px. Em 1440 escuro a
+folga entre texto e carro caiu de 200 para 81px. A busca zera ao recarregar.
+
+**ADR-096, ajuste do card (pedido "mais parecido com a referência").** Foto
+16:9 (fotos 4:3 perdem ~12% em cima e embaixo); no escuro o terço de baixo da
+foto escurece até a cor do card, sem borda entre os dois — nenhum texto sobre
+a foto; no claro continua chapa seca. Marca em texto normal (14px, cinza) em
+vez de caixa-alta espaçada. Filete vertical entre os indicadores; valor 15px,
+rótulo 11px. Pílula de status com contorno fino; chapa do "⋯" de 28px (alvo
+continua 44px). Faixa de ficha e registros mantida. Verificação em
+`redesign-capturas/garagem-a3/cards-r3/` (cenários `a3c` e `a3d`): axe sem
+violações em 36 estados, sem transbordo nem rolagem horizontal; os
+indicadores só empilham em 320px, com 6 dígitos de km em 360px e nos valores
+de R$ 1,2 milhão dos casos-limite.
+
+## ADR-097 — Minha garagem: "vaga livre" e placa no padrão Mercosul
+
+**Status.** Implementada a pedido do usuário. **Revisão visual pendente.**
+
+**Decisão.**
+
+- **Vaga livre**: o último lugar da grade é um espaço tracejado com "+",
+  "Vaga livre" e **"Estacionar veículo"** (texto pedido pelo usuário). É o
+  gatilho do mesmo `CreateVehicleDialog` da capa — não um card fictício. Só
+  aparece sem busca e sem filtro de status. Ocupa uma coluna como um card
+  (a regra de largura da grade conta a vaga). No celular, 136px de altura;
+  na lista, uma faixa baixa. Laranja só no hover. **Revoga** o "Rejeitado:
+  vaga livre" das ADR-094 e ADR-095.
+- **Placa Mercosul**: chapa branca, faixa azul em cima, caracteres pretos
+  (Archivo 700), nos dois temas — tokens `--plate-paper`, `--plate-ink`,
+  `--plate-band`. Continua ao lado de ano · versão, só quando o veículo tem
+  placa cadastrada.
+- **Filete entre os indicadores** (ADR-096): cada indicador tem filete à
+  esquerda e o de quem começa a linha fica fora da caixa (margem negativa +
+  `clip-path`, a técnica da faixa de resumo) — quando o segundo valor desce,
+  não sobra filete solto.
+
+**Verificação.** Cenários `a3c` e `a3d`, relatório e capturas em
+`redesign-capturas/garagem-a3/vaga-placa-r1/`: axe sem violações em 36
+estados (inclui contraste da placa e da vaga), sem transbordo, nenhum alvo
+menor que 44px, última ação acima da barra inferior. `npm run lint` e
+`npm run build` limpos.
+
+**ADR-097, sem linha no cabeçalho da garagem.** A pedido do usuário, na Minha
+garagem (desktop) o cabeçalho não tem borda em nenhum estado (no topo e
+rolado), o filete sob o logo da sidebar some (ficava solto na altura do fim
+do cabeçalho) e, entre 1024 e 1439 no escuro, a foto da capa entra em
+degradê de 24px no topo em vez de corte seco logo abaixo do cabeçalho. As
+outras telas mantêm a borda do cabeçalho e o filete do logo. Verificação em
+`redesign-capturas/garagem-a3/sem-borda-r1/` (cenário `a3d`, axe sem
+violações em 12 estados).
+
+**ADR-097, vaga livre com a ficha técnica aberta (06/11/2026).** A pedido do
+usuário: abrir a ficha de um card encolhia a vaga livre para o mínimo (12rem).
+A grade vai a `align-items: start` com uma ficha aberta (ADR-095, o vizinho não
+estica), e a vaga é item da grade. Agora o `VehicleListPage` mede a vaga com
+todas as fichas fechadas (`ResizeObserver`) em `--garage-slot-rest-h`, e o CSS
+usa essa medida como altura mínima enquanto uma ficha está aberta — a vaga fica
+do tamanho que tinha, sem crescer junto com o card aberto. Se a janela muda de
+largura com a ficha aberta, a medida vira a do maior card fechado. Só na
+grade; na lista nada muda. Rejeitado: deixar a vaga esticar (cresceria até a
+altura do card aberto, mais alta que o vizinho). Verificação: cenário 121 do
+`inspect.mjs` (`redesign-capturas/etapa-10/relatorio-ajustes.txt`) — 1600 com
+2 carros (444px fechada, aberta e fechada de novo; 427px depois de reduzir a
+janela a 1100 com a ficha aberta), 1440 com 4 e 390 com 1, axe sem violações.
+
+## ADR-098 — Redesign etapa 10: Modificações
+
+**Status.** Implementada. **Revisão visual pendente** — não aprovada.
+
+**Contexto.** Modificações era um cabeçalho em caixa com borda laranja e
+ícone de brilho, três caixas de indicadores, um gráfico "Investimento por mês"
+em barras laranja, filtros soltos e cards com lápis e lixeira (o
+`ExpenseListItem`, que a etapa 05 deixou de fora — ADR-088). Esta etapa leva
+a identidade da Garagem (títulos em Archivo, faixa de resumo com filetes,
+laranja só em ação e navegação) para uma página de registros, sem capa nem
+foto. Banco, hooks, consultas, chaves, invalidações, rotas, payloads e
+fórmulas não mudaram.
+
+**Comportamento conferido no código.**
+
+| Ponto | Regra |
+|---|---|
+| O que é | Gastos (`expenses`) da categoria de **sistema** `upgrade` (`user_id` nulo). Mesma consulta de Gastos (`useExpenses` com `categoryId`), mesmos diálogos. Itens de projeto são `project_items`, outra tabela: não entram aqui, e nada daqui entra em Projetos. |
+| Categoria | Cadastro e edição a partir de Modificações gravam `upgradeCategoryId` e não mostram o campo de categoria. Em Gastos o mesmo registro aparece com o seletor e pode mudar de categoria (aí sai de Modificações) — comportamento de antes, preservado. |
+| Campos | Valor obrigatório (≥ 0, NOT NULL — não existe "custo não informado"); descrição ("Modificação"), data (em branco grava hoje), km, fornecedor, pagamento e notas opcionais. |
+| Resumo | Total e contagem: linha `upgrade` de `vehicle_expenses_by_category` (via RPC do dashboard; sem linha = 0). Último registro e "por mês" (últimos 6 meses com registro): somados no cliente sobre a lista, como antes. O total já está dentro de Gastos e do total investido. |
+| Lista | Sem paginação; busca (descrição, fornecedor, notas), período e ordem (recentes, antigos, maior valor) no cliente; "N registros · R$ X nesta seleção" é a soma do que está visível, como antes. |
+| `?novo=1` | Abre o cadastro (folha Registrar → "Upgrade"); fechar tira o parâmetro. |
+| Anexo | Só na edição (`AttachmentField`, compartilhado). |
+| Excluir | O hook apaga Storage → linha de `attachments` → gasto, depois de confirmar. |
+
+**Decisão.**
+
+- Cabeçalho compacto: `h1` "MODIFICAÇÕES" em Archivo 800, uma frase ("Upgrades
+  deste veículo, lançados como gasto.") com ajuda "i" (o que entra; editar aqui
+  muda o mesmo registro de Gastos; itens de projeto ficam em Projetos) e
+  "Registrar upgrade" (no celular "Registrar" + "+"). O veículo aberto continua
+  na trilha e no seletor do cabeçalho do shell, sem ficha repetida.
+- Resumo em faixa com filetes (sem caixa por número): total, contagem e último
+  registro; no celular a contagem vira linha de apoio do total (uma linha de
+  duas células). Legenda: "Todo o período. Já está dentro dos gastos e do
+  total investido do veículo, não é um valor à parte."
+- Lista estruturada (não `<table>`, motivo do ADR-088) num painel com a busca e
+  os dois seletores no topo; colunas a partir de `md` (modificação · data ·
+  valor · "⋯"), proporcionais a partir de `2xl`; no celular nome e "⋯" na
+  primeira linha, valor e metadados embaixo (ver os ajustes da revisão). Nota com mais de 140 caracteres
+  ou com quebra de linha mostra duas linhas e "Ver nota inteira"
+  (`aria-expanded`). Editar/excluir no "⋯" (`RowActionsMenu` de Projetos).
+- "Upgrades por mês": a mesma conta, barras neutras com o valor escrito; ao
+  lado da lista a partir de `xl` (320px), depois dela abaixo disso.
+- Valores em Archivo com algarismos tabulares (o mono fica para dado técnico).
+- Estados: carregando sem zero (traço pulsante, `aria-busy`); falha do RPC só
+  no resumo ("Indisponível" + "Tentar de novo"), falha da lista só no painel
+  — um não derruba o outro; vazio com "Registrar primeiro upgrade"; filtro
+  sem resultado diz a seleção e quantos registros ficaram fora.
+- Diálogos de editar/excluir na página (um upgrade editado pode sair da busca
+  e desmontar a linha); o editado é lido da lista mais recente (o anexo
+  atualiza com o diálogo aberto). Foco volta ao "⋯"; se a linha sumiu, ao
+  título "Registros".
+- Exclusão: no modo upgrade o texto agora diz "Sai desta lista, de Gastos e
+  dos totais e gráficos do veículo" (é o mesmo registro). Em Gastos o texto
+  não mudou.
+- `ExpenseListItem` removido: só Modificações o usava.
+
+**Alternativas descartadas.** Reaproveitar o `ExpenseRow` de Gastos (coluna de
+categoria sempre "Upgrade", e a edição abriria o seletor de categoria). Somar
+itens de projeto instalados ao total (regra nova, conta dupla com Projetos).
+Status de projeto (Planejado/Comprado/Instalado) nos upgrades. Esconder a nota
+atrás de um "Detalhes" em toda linha (uma parada de Tab a mais para quem não
+tem nota). Remover o gráfico por mês (função existente).
+
+**Pendências registradas (fora do escopo, não alteradas).**
+
+- **Anexo apagado antes da linha** (mesma ordem de gasto, manutenção,
+  problema e item): se a exclusão do gasto falha, o anexo já foi. Conferido no
+  mock (Storage e `attachments` antes do DELETE que falhou). A confirmação não
+  promete operação atômica nem recuperação.
+- **Precisão dos indicadores calculados na tela (limite de 1000 linhas).** A
+  lista não pagina e o PostgREST corta a resposta em `max_rows = 1000` sem
+  avisar. A consulta já filtra a categoria no servidor e ordena da data mais
+  recente para a mais antiga, então, com mais de 1000 upgrades no veículo:
+  - a lista mostra só os 1000 mais recentes, e a busca e o período (que rodam
+    na tela) não encontram os mais antigos;
+  - "N registros · R$ X nesta seleção" soma só o que veio — fica **menor** que
+    o total do resumo, sem nenhum aviso (Gastos esconde o total nesse caso;
+    Modificações não);
+  - "Upgrades por mês": o mês mais antigo dos seis pode sair **incompleto** se
+    o corte cair dentro dele;
+  - "Último registro" continua certo (os mais recentes sempre vêm);
+  - total e contagem do resumo continuam completos (vêm da view).
+  Nenhuma correção nesta etapa (pede paginação ou agregação no servidor);
+  conferir antes de confiar nos números de um veículo com esse volume.
+
+**Verificação.** Dados simulados (ferramenta externa, `redesign-capturas/`,
+cenários 114–120, arquivos 221–226): sete upgrades do Civic (nota longa com
+quebras, anexo, sem descrição, R$ 0,00, R$ 128.750,45, 7 meses) e 36 a mais na
+lista extensa; escritas, anexos e Storage interceptados, LEDGER reescrito a
+cada escrita. Rede trancada; nenhuma chamada ao Supabase real, nenhuma
+exclusão real. Axe sem violações em 24 estados; `npm run lint` e
+`npm run build` limpos. Nenhum aparelho físico nem leitor de tela real.
+
+**Ajustes da revisão (06/11/2026).**
+
+- **Linha no celular**: antes o valor e o "⋯" reservavam uma coluna à
+  direita e prendiam nome, nota e anexo numa faixa estreita (o coilover em
+  360px ficava com o nome em ~5 linhas). Agora a primeira linha é nome (≈74%
+  da largura) + "⋯" no canto; embaixo, o valor e "data · metadados"; anexo e
+  nota ocupam a largura útil inteira. A partir de `md` cada bloco tem lugar
+  explícito nas mesmas colunas (conferido: data, valor e "⋯" alinhados ao
+  cabeçalho em 768, 1024, 1440 e 1920). A ordem no DOM passou a ser nome →
+  "⋯" → valor → detalhes, então no Tab o "⋯" vem antes do "Ver nota inteira".
+- **Mensagem de km**: "a quilometragem inválido." → "Informe uma
+  quilometragem válida." pelo 2º parâmetro do helper; a regra (inteiro ≥ 0,
+  opcional) não mudou — km 0 continua aceito. O `expenseSchema` é o mesmo de
+  Gastos, então a mensagem nova vale lá também. (A nota do Histórico usa o
+  mesmo helper sem o 2º parâmetro e ainda mostra o texto antigo; não alterada.)
+- **Filtros**: abaixo de 400px a busca, o período e a ordem empilham. Lado a
+  lado, "Mais recentes" cortava em 360 e "Mês passado" em 390, não só em 320.
+  Medido: todas as opções inteiras em 320, 360 e 390.
+- A pendência do limite de 1000 linhas foi detalhada acima como problema de
+  precisão dos indicadores.
+- Verificação: cenário 121 (arquivo 227, `relatorio-ajustes.txt`) em 320,
+  360, 390, 768, 1024, 1440 e 1920 — axe sem violações, nenhum alvo menor
+  que 44px, sem rolagem horizontal, último conteúdo acima da barra.
+
+## ADR-099 — Harmonização 01: sistema visual compartilhado e etapas 01–10 no mesmo idioma
+
+**Status.** Implementada antes da etapa 11. Branch
+`feature/043-harmonizacao-design-system`, a partir da
+`feature/042-redesign-etapa-10` (árvore limpa na partida). **Revisão visual
+pendente** — nada aqui foi aprovado visualmente ainda.
+
+**Contexto.** As etapas 01–10 redesenharam uma tela por vez. Cada uma copiou
+a casca da anterior em vez de importá-la: o menu "⋯" existia em cinco cópias
+locais e uma em `features/project/`; o selo de situação em três; a classe de
+página e de painel em sete páginas; o botão "i" em três; o rodapé dos
+formulários em oito (sete idênticos byte a byte); o cartão do registro na
+exclusão em onze arquivos; e as peças de formulário moravam em
+`features/vehicle/VehicleFormParts` sendo usadas por oito formulários. A
+tipografia também divergia: Modificações (etapa 10, a referência das páginas
+de gestão) usava título em Archivo caixa-alta e valores em display tabular;
+Gastos, Abastecimentos, Manutenção, Problemas e Projetos ainda tinham título
+em Space Grotesk 24px e valores em mono — contra a regra (ADR-093) de mono só
+na placa. Uma mudança de acabamento precisava ser repetida tela a tela.
+
+**Decisão.**
+
+- **Tokens como fonte única** (`tokens.css`): papéis novos `text-muted` e
+  `info` (contraste calculado, claro e escuro com os mesmos papéis); escala de
+  página (`--page-*`), de painel (`--panel-*`), de controle (`--control-h`,
+  `--control-h-touch`, expostos ao Tailwind como `h-control` etc.), anel de
+  foco de campo, `--duration-flash` e a escala tipográfica `--type-*`.
+  `tailwind-merge` aprendeu `control` como tamanho, para `h-control` e um
+  `h-9` de quem usa não ficarem juntos.
+- **Papéis tipográficos como utilitários** (`@utility type-*` em
+  `globals.css`), aplicados por componente. Rejeitado: estilizar `h1`/`h2`/
+  `button` por seletor global — consistência simulada que quebra toda tela
+  que não segue a hierarquia esperada. Caixa-alta só no **título de tela**
+  (nome fixo e curto) e na sobrelinha; nome de registro (projeto, veículo)
+  usa `type-entity-title` em caixa normal. Rejeitado: caixa-alta em todo
+  título — nome digitado pelo usuário em caixa-alta perde legibilidade e
+  muda o que a pessoa escreveu.
+- **Valores em display tabular, mono só em identificador.** Dinheiro, km,
+  litros e consumo passaram de `font-mono` para `type-value`/`type-figure`
+  (Archivo 600 tabular): continuam comparáveis e alinhados. Mono ficou na
+  placa (`PlateTag`, três lugares), no campo de placa e em código de erro.
+- **Componentes básicos evoluídos ou extraídos, não uma segunda biblioteca**:
+  `Badge`, `RowActionsMenu`/`menuItemClassName`/`MenuSeparator`, `InfoTip`,
+  `Skeleton`/`SkeletonList`, `InlineError`/`PageError`/`NoResults`/
+  `EmptyState`/`Alert`, `DisclosureButton`/`DetailItem`, `AlertDialogRecord`,
+  `PlateTag`, `textLinkClassName` — todos em `components/ui/`, ao lado dos
+  que já existiam. `DashboardPanel` virou `Panel` + `PanelHeader` em
+  `components/ui/panel.tsx` (mesma API; os nove consumidores trocaram o
+  import). `VehicleFormParts` virou `components/ui/form.tsx`, com `FormBody`
+  e `FormFooter` novos. Os arquivos antigos (`DashboardPanel.tsx`,
+  `RowActionsMenu.tsx`, `VehicleFormParts.tsx`) saíram depois que nenhum
+  consumidor os importava.
+- **Padrões de página pequenos, não um componente universal**: `Page`,
+  `PageHeader` (com `stackActionsOnMobile` para Manutenção), `ActionLabel`,
+  `SummaryStrip`, `PanelHeader`, `PanelCount`, `ListColumns`, `FilterField`.
+  Rejeitado: um `ListPage` com dezenas de props para acomodar as seis listas
+  — cada tela mantém sua linha, colunas e agrupamentos; compartilham
+  respiro, tipografia, selo, "Detalhes", "⋯" e valor.
+- **Estados com componente**: carregando, falha de bloco, falha da página,
+  sem resultado e vazio deixaram de ser marcação repetida. O texto continua de
+  cada tela.
+- **Exceções delimitadas**: a Minha garagem continua em `garage.css` (capa,
+  colagem, card, grade, abas da coleção) e só passou a consumir
+  `--control-h`, `--focus-ring-field` e `--color-text-muted` — valores
+  iguais aos que tinha, nenhuma mudança de composição. Layout do dashboard,
+  configuração dos gráficos, regras de formulário e textos de exclusão
+  continuam de cada tela. Abastecimentos mantém o painel de indicadores em
+  vez da faixa de resumo (cada número tem ajuda, erro e "Detalhes" próprios).
+
+**Efeitos nas telas ainda não redesenhadas (etapas 11–16).** Documentos,
+Histórico, Fotos, Configurações, Convites e Admin usam os componentes comuns
+e receberam: placeholder no tom discreto, título de diálogo pelo papel (mesmo
+tamanho, peso e cor; espaçamento de letra −0,015em em vez de −0,025em), `Label`
+pelo papel (mesma medida), `Popover`/menus com a altura por token (mesmos
+44px), aviso de rota (`RouteNotice`) no `Alert` com fio lateral em vez de
+fundo âmbar. Admin continua com o próprio selo (`AdminBadges`) e mono nos
+números — redesign dessas telas fica para as etapas delas.
+
+**Não mudou.** Rotas, schemas, hooks, queries, chaves e invalidações,
+fórmulas, regras de vencimento e de progresso, ordem das escritas, banco,
+autenticação, permissões, textos de exclusão e de ajuda (só a forma). O limite
+de 1000 linhas de Modificações e as outras pendências documentadas seguem como
+estavam.
+
+**Verificação.** Dados simulados (ferramenta externa `redesign-capturas/ferramenta/inspect.mjs`,
+rede trancada, nenhuma chamada ao Supabase real, nenhuma gravação real).
+`npm run lint`, `npx tsc -b` e `npm run build` limpos.
+
+- Cenário novo `h01` (pasta `redesign-capturas/harmonizacao-01/`): as seis
+  páginas de registro, o detalhe do projeto e o dashboard em 320, 360, 390,
+  768, 1024, 1440, 1920 e 2560, claro e escuro alternados — título de tela em
+  Archivo 800 caixa-alta que cabe inteiro, ação com 44px, sem rolagem
+  horizontal, sem segunda rolagem da janela a partir de 1024, nenhum texto
+  em mono fora da placa, nenhum alvo menor que 44px, último conteúdo acima da
+  barra inferior; esqueleto pulsa com movimento e para com movimento
+  reduzido. 23 estados com axe sem violação. Doze capturas.
+- Cenários anteriores das telas afetadas rodados de novo **fora** das pastas
+  das etapas (rascunho, só conferência): Gastos 49–59, Abastecimentos 73–79,
+  Manutenção 84–91, Problemas 94–101, Projetos 103–113, Modificações
+  114–121, dashboard 31, 33, 34, 40–48, 61–66, formulários do veículo 22–29,
+  shell 2 e 7, garagem 11, 16, `a3c` e `a3d` (cards, grade, barra da coleção, busca, 320–2560). Somados ao `h01`, 242 estados com axe sem
+  violação; nenhum com rolagem horizontal; alinhamento das colunas medido
+  igual; foco de volta ao "⋯" e ao título da lista depois de excluir; dois
+  Enter → um POST; realce de valor só depois de registro novo, nunca na
+  primeira carga, na troca de veículo nem com movimento reduzido.
+- Cenário novo `h02` (só relatório, `relatorio-telas-nao-redesenhadas.txt`):
+  Documentos, Histórico, Fotos e Configurações em 360 e 1440 continuam sem
+  rolagem horizontal e com o placeholder no tom discreto; o diálogo de nota
+  do Histórico recebe o título pelo papel comum. Os achados de lá são
+  anteriores a esta rodada (ver "Pendências").
+
+Achado e corrigido durante a verificação: em 320–360px "ABASTECIMENTOS" não
+cabia ao lado de "Registrar" e passava por baixo do botão; o `PageHeader`
+agora quebra a ação para a linha de baixo quando a palavra mais longa do
+título e a ação não cabem juntas.
+
+**Ferramenta.** Três ajustes, registrados no README das capturas: leitura do
+rótulo do gráfico por mês aceita `span.type-figure` (o antigo `font-mono`
+continua aceito, as etapas anteriores seguem comparáveis); cenários `h01` e
+`h02` novos. (Os cenários desatualizados foram corrigidos depois da revisão —
+ver abaixo.)
+
+**Limitações.** Nenhum aparelho físico nem leitor de tela real; teclado
+virtual só emulado (390×380).
+
+**Pendências encontradas (não corrigidas aqui, telas das etapas 11–16).**
+Documentos: abas com 38px de altura. Histórico: link "Ver" de 35×16px em cada
+evento. Fotos: botão "Excluir foto" com 16px de largura e `image-alt`
+(crítico no axe) nas miniaturas com os dados simulados. Configurações:
+"Voltar" com 62×20px. Admin: selo próprio (`AdminBadges`), números em mono e,
+na confirmação "Remover admin", o foco não volta ao botão ao cancelar (o
+`RevokeAdminDialog` não usa o `useReturnFocus` que os diálogos das etapas
+05–10 adotaram; nenhum arquivo do Admin foi alterado nesta rodada). As
+pendências já documentadas (limite de 1000 registros de Modificações, ordem de
+exclusão de anexo e registro, recálculos de manutenção) seguem como estavam.
+
+**Ajustes da revisão (08/11/2026).**
+
+- **Texto cortado sem caminho de volta.** A descrição de Gastos (`line-clamp-2`
+  desde a etapa 05) e o nome do posto em Abastecimentos (etapa 06) cortavam em
+  duas linhas; o texto inteiro só existia no `sr-only` do "⋯" e no diálogo de
+  edição — quem enxerga não tinha como ler. Agora quebram e nunca cortam, a
+  regra de Modificações e Problemas. Os outros cortes têm caminho: nota de
+  Modificações ("Ver nota inteira"), descrição de Projetos (o detalhe do
+  projeto). Medido em 320, 360 e 1440: 0 de 7 descrições e 0 de 6 nomes de
+  posto cortados. Captura localizada `h13`.
+- **Esqueletos.** Onze esqueletos locais (painéis do dashboard, garagem,
+  página do veículo, FIPE, menus do cabeçalho, atividade da sidebar) ainda
+  tinham `animate-pulse` próprio e pulsavam com movimento reduzido. Passaram
+  ao `Skeleton` comum; nenhum `animate-pulse` local restou nas telas 01–10.
+  Cenários 21 e 47 (carregando) rodados de novo.
+- **Cenários desatualizados da ferramenta.** 12, 17, 19, 20, 72 e `rv5`
+  procuravam "Detalhes da garagem"; agora aceitam também "Detalhes e
+  comparativo" (o nome antigo segue aceito para etapas anteriores). 12, 17,
+  19, 20 e 72 rodaram inteiros: detalhes abrem/fecham com `aria-expanded`,
+  com um veículo o gatilho não aparece (ADR-094), o erro parcial mostra a
+  falha do gráfico e "Foto indisponível", os gráficos dentro dos detalhes
+  passam no axe.
+- **Admin** (cenário novo `h03`, RPCs `admin_*` simuladas, nenhuma escrita):
+  visão geral, usuários, detalhe do usuário, convites e auditoria em 360 e
+  1440 — montam com `Button`, `Input`, `Select`, `Label` e `FieldError`
+  comuns, todos os controles com 44px, sem rolagem horizontal, axe sem
+  violação; a confirmação "Remover admin" usa o `AlertDialog` comum (título
+  pelo papel, foco em Cancelar, cabe em 360 com e-mail longo); quem não é
+  admin volta à garagem com o aviso no `Alert` comum (fio âmbar de 2px).
+  Achados preexistentes acima ("Pendências").
+- **Centralização conferida no código** (telas 01–10 e shell): nenhuma classe
+  local de item de menu, selo, página, painel, cartão de exclusão, popover
+  "i", rodapé de formulário ou esqueleto; mono só no campo de placa e no
+  `PlateTag`. Ficam locais por motivo: o "⋯" do card do veículo (chapa
+  escura sobre a foto, `garage.css`, já usa `menuItemClassName`) e o
+  "Ficha técnica" do card (parte da composição da Garagem).
+
+## ADR-100 — Redesign etapa 11: Documentos, obrigações e financiamento
+
+**Status.** Implementada. **Revisão visual pendente** — não aprovada. Branch
+`feature/044-redesign-etapa-11`, a partir da
+`feature/043-harmonizacao-design-system` (árvore limpa na partida, nada
+pendente a preservar). Sem commit, push nem merge.
+
+**Contexto.** Documentos era a primeira tela do veículo ainda sem redesign:
+título `text-lg`, abas de 38px (pendência da ADR-099), cartões com lápis e
+lixeira soltos, alertas em caixas coloridas ocupando a primeira tela,
+formulários com "Mais detalhes" em `<details>` e o botão de envio no fim do
+corpo, confirmações sem o registro. Banco, hooks, consultas, chaves,
+invalidações, rota, `?aba=`, payloads e regras não mudaram.
+
+**Comportamento conferido no código (inventário).**
+
+| Ponto | Regra |
+|---|---|
+| Rota | `/v/:vehicleId/documentos`, `?aba=documentos` (padrão, também para valor desconhecido) / `obrigacoes` / `financiamento`; trocar de aba faz `replace`. `?novo=1` é retirado da URL e não abre nada (como antes; nada no app aponta pra cá com ele). |
+| Origem | `documents`, `obligations` e `financings` (0 ou 1 por veículo, `vehicle_id` único), chaves `["vehicles", id, ...]`; toda escrita invalida `["vehicles"]`. As três consultas e `vehicle_alerts` começam junto com a página. |
+| Documento | Título obrigatório; tipo (padrão Outro), emitido em, vence em, valor e notas opcionais. Arquivo **obrigatório no cadastro** (JPEG/PNG/WebP/PDF, até 10 MB): sobe ao Storage antes da linha. Edição só de metadado — trocar o arquivo não existe. Abrir: link assinado de 5 min, em outra aba. Excluir: Storage → linha. Entra no Histórico (`vehicle_timeline`, data = emissão ou criação) e na busca. |
+| Obrigação | Nome obrigatório; tipo, vencimento, valor, fornecedor e notas opcionais; "Paga em" só na edição (limpar volta a pendente). Marcar como paga: data padrão hoje. Pagar é o único jeito de tirar o alerta (RN-3). Não entra em Histórico nem em total. |
+| Alertas | `vehicle_alerts`: obrigação pendente com `due_on < hoje` = vencida (`critical`), `hoje ≤ due_on ≤ hoje+30` = a vencer (`warning`); documento igual por `expires_on`; sem data, nunca. Lidos pelo sino, pelo painel de pendências do dashboard (obrigação → `?aba=obrigacoes`, documento → aba padrão), pela Manutenção ("Ver em Documentos", aba padrão) e por esta tela. |
+| Financiamento | Tudo opcional (início em branco: hoje no cadastro, mantém na edição). Restantes e saldo são colunas geradas (`qtd − pagas`; `restantes × parcela`; nulas se faltar parte). Pagas ≤ quantidade. "+1" soma em `installments_paid`. Não há tabela de parcelas, valor pago nem estado do contrato; nada entra em Gastos, Histórico ou total investido. |
+
+**Decisão.**
+
+- Página no padrão comum (`Page`, `PageHeader`, `Breadcrumb`): título
+  "DOCUMENTOS" e uma frase; o veículo segue na trilha e no seletor do shell.
+  Sem ação no cabeçalho: cada aba leva a sua.
+- **Pendências** num painel compacto com fio lateral (carmim se houver
+  vencido): a contagem por aba à vista ("Documentos: 1 vencido, 2 a vencer ·
+  Obrigações: …") e a lista de antes (o mesmo `AlertBanner`) atrás de "Ver a
+  lista" (`PanelDisclosure`). Aberta, ela empurrava abas e lista para fora da
+  primeira tela, e cada linha agora tem o próprio selo. A falha dos alertas
+  vira uma linha com "Tentar de novo".
+- **Abas** (`DocumentTabs`, local): 44px, as três sempre inteiras (dividem a
+  largura em proporção ao rótulo de 320px até `sm`), ativa por peso, cor,
+  fio laranja e `aria-selected`; teclado no padrão WAI-ARIA (só a ativa no
+  Tab; setas circulares, Home, End). Os três `tabpanel` existem (cada
+  `aria-controls` aponta pra um); só o ativo tem conteúdo. A aba vive na URL
+  e sobrevive a erro, cadastro e exclusão; trocar de veículo remonta a área
+  (diálogos e foco) e mantém a aba.
+- Cada aba abre com uma frase do que entra ali e a ação real: "Enviar
+  documento", "Registrar obrigação"; Financiamento só tem ação no estado
+  vazio ("Cadastrar financiamento"). Carregando (`SkeletonList`, sem zero),
+  falha (`InlineError` com "Tentar de novo", só naquela aba) e vazio
+  (`EmptyState` com a ação) são estados distintos.
+- **Situação** de documento e obrigação vem de `vehicle_alerts` — a mesma do
+  dashboard, da Manutenção e do sino —, com os rótulos do painel de
+  pendências: Vencido/Vencida, Vence em breve/Próxima e "Vence hoje" (aviso
+  cuja data é hoje; a view conta o próprio dia como a vencer). Paga =
+  "Paga". Sem a lista de alertas fica a regra antiga da tela (data < hoje =
+  vencido) e nenhum aviso é inventado. Rejeitado: refazer a janela de 30
+  dias no cliente.
+- **Documentos**: painel com colunas a partir de `md` (documento · validade ·
+  arquivo · "⋯"); nome, detalhes (tipo, emissão, valor — R$ 0,00 aparece,
+  ausente some) e notas quebram, nunca cortam. Arquivo: tipo e tamanho
+  ("PDF · 117 KB") e "Abrir" (alvo de 44px, outra aba); a falha ao abrir
+  aparece na própria linha. "Sem arquivo" só se `storage_path` vier vazio —
+  o banco não deixa.
+- **Obrigações**: Pendentes e Pagas (os grupos de antes) com colunas
+  (obrigação · situação · valor · "⋯"); "Valor não informado" escrito;
+  "Marcar como paga" à vista em cada pendente, como ação em texto junto da
+  situação (o botão cheio pesava a linha); paga mostra a data do pagamento e
+  o vencimento que tinha.
+- **Financiamento**: dois painéis — **Contrato** (valor financiado, parcela,
+  quantidade, início, juros por `formatMonthlyRate`, "Não informado" quando
+  nulo; editar/excluir no "⋯") e **Parcelas** (pagas "46 de 48", restantes,
+  valor das parcelas restantes — ver os ajustes da revisão; "Não calculado"
+  com o motivo quando a coluna gerada vem
+  nula; a conta escrita na legenda; selo "Quitado"/"Em aberto" só com
+  quantidade informada; "Registrar parcela paga" com o erro junto do botão —
+  antes a falha era silenciosa).
+- **Formulários** no padrão comum (`FORM_DIALOG_CLASSNAME`, cabeçalho e
+  rodapé fixos, só o corpo rola, `FormSection`/`FormField`/`FormFooter`,
+  `UnitAffix`, foco no diálogo ao abrir e no primeiro campo inválido ao
+  enviar, segundo envio bloqueado). Documento: Identificação · Arquivo
+  (escolher/trocar; erro de tipo e tamanho junto do campo; enviar sem
+  arquivo marca o campo) · Validade (o texto diz que entra nos alertas 30
+  dias antes) · Detalhes recolhível. Obrigação: Obrigação · Vencimento (e
+  pagamento, na edição) · Detalhes. Financiamento: Contrato · Parcelas
+  pagas. Marcar como paga: a mesma casca, estreita, com o registro no cartão
+  comum.
+- **Confirmações** com `AlertDialogRecord` e só as consequências
+  verificadas: documento ("O arquivo é apagado junto… sai desta lista e do
+  Histórico", mais "o alerta dele sai do dashboard, da Manutenção e do sino"
+  só se ele está em `vehicle_alerts`); obrigação (lista e, se houver,
+  alerta); financiamento (contrato e contagem apagados; gastos da categoria
+  Financiamento ficam). O foco volta ao gatilho ou, se a linha saiu, ao
+  título da seção.
+- Texto: "Informe o rótulo." → "Informe o nome da obrigação." (o campo
+  passou a se chamar "Nome"; a regra não mudou). Helper novo
+  `formatMonthlyRate` em `lib/format.ts`.
+
+**Componentes compartilhados usados.** `Page`, `PageHeader`, `Breadcrumb`,
+`Panel`/`PanelHeader`/`PanelCount`/`ListColumns`/`PanelDisclosure`/
+`PANEL_CLASSNAME`, `Badge`, `RowActionsMenu`, `DetailItem`, `EmptyState`,
+`InlineError`, `PageError`, `SkeletonList`/`Skeleton`, `FormBody`,
+`FormFooter`, `FormSection`, `FormField`, `UnitAffix`, `AlertDialogRecord`,
+`textLinkClassName`, `FieldError`, `useReturnFocus`, `VehicleNotFound`,
+`AlertBanner`. Locais por necessidade da área: `DocumentTabs` (único lugar
+com abas de página), `TabIntro`, `documentPresentation.ts`, `focus.ts`.
+
+**Alternativas descartadas.** Pendências sempre abertas (seis alertas
+tomavam a primeira tela). Ação de cadastro no cabeçalho da página, trocando
+com a aba (perde o contexto e o rótulo muda sob o título). Abas com rolagem
+lateral no celular (escondia "Financiamento"). "Marcar como paga" dentro do
+"⋯" (é a ação principal da pendente e a única que tira o alerta). Total pago
+ou saldo com juros no financiamento (o modelo não sustenta). Situação
+recalculada no cliente com a janela de 30 dias.
+
+**Pendências registradas (anteriores, não alteradas).**
+
+- Etapa 07/11 — **"Ver em Documentos" da Manutenção** abre a aba Documentos
+  mesmo quando as pendências são só obrigações (o dashboard já usa
+  `?aba=obrigacoes`).
+- Etapa 04 — o **painel de pendências do dashboard** escreve "Vence em
+  08/11/2026" para o que vence hoje, onde o `AlertBanner` (sino, Manutenção,
+  esta tela) escreve "Vence hoje". Mesmo dado, texto diferente.
+- Etapa 11 — a **exclusão de documento** apaga o arquivo antes da linha: se
+  a linha falha, o arquivo já foi (conferido no mock, cenário 127). Mesma
+  ordem de gasto, manutenção, problema e item.
+- Etapa 11 — **"Abrir"** chama `window.open` depois de esperar o link
+  assinado; bloqueador de pop-up (Safari/iOS) pode barrar. Não testado em
+  aparelho.
+- Etapa 11 — **Marcar como paga com a data apagada** manda `paid_on: ""` e
+  o banco recusa com o erro genérico (o campo não valida). Conferido no
+  código, não alterado.
+- Etapa 11 — **"Hoje"**: o selo vem da view (`current_date` do servidor) e
+  a linha de data, do cliente (data local); perto da meia-noite os dois
+  podem divergir. O mesmo vale para o dashboard e a Manutenção.
+- Etapa 11 — **financiamento sem quantidade de parcelas** aceita "+1" sem
+  limite (o banco só limita com quantidade). Sem tabela de parcelas, não há
+  valor previsto × pago por parcela.
+- Shell — os itens do **sino** não levam a Documentos (texto sem link).
+
+**Verificação.** Dados simulados (ferramenta externa
+`redesign-capturas/ferramenta/inspect.mjs`, `docHandler` novo, cenários
+122–128, arquivos 228–233, `etapa-11/relatorio.txt`): cinco documentos do
+Civic (vencido há 3 dias, vence hoje com título longo e notas com quebra,
++18, +31 com R$ 0,00, sem validade; PDF, PNG e JPEG), sete obrigações (−12,
+hoje, +30, +31 com R$ 0,00, sem data, duas pagas), financiamento 46/48 e as
+variantes "zero" e "parcial"; Gol com um documento sem alerta; Maverick
+vazio. `vehicle_alerts` recalculado do estado a cada escrita com a regra da
+view; escritas, Storage e link assinado interceptados; rede trancada,
+nenhuma chamada ao Supabase real. Conferido: selos iguais à regra; as mesmas
+seis pendências na tela, no sino, no dashboard e na Manutenção; pagar tira
+um alerta do sino (9 → 8) e limpar "Paga em" devolve; links do dashboard
+(`?aba=obrigacoes`), da Manutenção e do Histórico abrem a aba certa; `?aba`
+inválida cai em Documentos; troca de veículo mantém a aba; carregando sem
+zero; falha e nova tentativa em cada aba, sem perder a aba; vazio das três;
+envio sem arquivo, arquivo de texto, PDF de 11 MB, falha no envio (nada
+gravado, formulário preservado) e Storage antes da linha; pagas >
+quantidade; teclado nas abas (setas, Home, End, Tab), Escape e volta do
+foco; teclado virtual emulado (390×380) com a ação alcançável. 320, 360,
+390, 768, 1024, 1280, 1440, 1920 e 2560, claro e escuro alternados: sem
+rolagem horizontal, nenhum alvo menor que 44px, colunas alinhadas ao
+cabeçalho, último conteúdo acima da barra inferior, sem segunda rolagem.
+Axe sem violações em 33 estados. `npm run lint`, `npx tsc -b` e `npm run
+build` limpos. Nenhum aparelho físico nem leitor de tela real.
+
+**Ajustes da revisão (08/11/2026).**
+
+- **Pendências no celular** (`PendingSummary`): em 320px o bloco recolhido
+  ocupava ~180px (título, frase, contagem por aba e "Ver a lista") e a lista
+  de documentos quase não aparecia na primeira tela. Abaixo de `sm` o bloco
+  inteiro agora é **um botão** — "6 pendências · 2 vencidas" (singular com
+  1; "nenhuma vencida" sem vencido, aí com o fio âmbar) — e a frase
+  explicativa e a contagem por aba ficam dentro, antes da lista. A partir de
+  `sm`, o cabeçalho com a contagem e "Ver a lista" de antes. Os dois botões
+  abrem a mesma região; cada um só existe na sua largura. Medido: 46px
+  recolhido em 320, 360, 390 e 639 (era ~180 em 320); o nome do primeiro
+  registro aparece na primeira tela em 320×640, e o registro inteiro a
+  partir de 360. A partir de 640, 130px (640) e 108px (1440), como antes.
+- **"Saldo a pagar" → "Valor das parcelas restantes"**: o número é
+  `outstanding_balance` = parcelas restantes × valor da parcela, não o saldo
+  devedor do contrato. Legenda, motivo de "Não calculado", estado vazio, a
+  descrição do formulário e a da edição acompanham ("as parcelas restantes e
+  o valor delas"). Em 640px o rótulo quebra em duas linhas, sem corte.
+- Verificação: cenário 129 (`etapa-11/relatorio-ajustes.txt`, captura
+  `234-mobile320-topo-ate-primeiro-registro-light`, do topo da página ao fim
+  do primeiro registro, pendências recolhidas): 320, 360, 390, 639, 640 e
+  1440 — recolhido e aberto pelo teclado (`aria-expanded`, foco fica no
+  botão), axe sem violações nos 12 estados e nos 4 do financiamento, nenhum
+  alvo menor que 44px, sem rolagem horizontal. `npm run lint`, `npx tsc -b`
+  e `npm run build` limpos.
+
+## ADR-101 — Redesign etapa 12: Fotos
+
+**Status.** Implementada. **Revisão visual pendente** — não aprovada. Branch
+`feature/045-redesign-etapa-12`, a partir da
+`feature/044-redesign-etapa-11` (árvore limpa na partida, nada pendente a
+preservar). Sem commit, push nem merge.
+
+**Contexto.** Fotos era a próxima tela do veículo sem redesign: título
+`text-lg`, filtro de categoria em oito botões com rolagem lateral no
+celular, cartões com "Definir como capa" e a lixeira lado a lado — a lixeira
+encolhia a 16px de largura (pendência da ADR-099) —, selo "Capa" laranja
+sobre a foto, legenda cortada numa linha sem caminho de volta, miniatura
+`object-cover` (cortava o carro de foto fora de 4:3) e `alt` só com a
+categoria, que o axe acusou como `image-alt` crítico nas fotos sem
+legenda. O envio tinha o botão no fim do corpo, sem rodapé fixo nem volta de
+foco. Banco, hooks, consultas, chaves, invalidações de sucesso, rota,
+caminho no Storage e regras não mudaram.
+
+**Comportamento conferido no código (inventário).**
+
+| Ponto | Regra |
+|---|---|
+| Rota | `/v/:vehicleId/fotos` (item "Fotos" no grupo Arquivo da lateral e da folha Mais). `?novo=1` abre o envio — único parâmetro. |
+| Entradas de envio | Cabeçalho e estado vazio da tela; folha "Registrar" → "Foto" (`?novo=1`); ação rápida "Adicionar foto" do dashboard (abre o diálogo por cima e leva à galeria depois do envio); "Adicionar foto" do card da garagem (faixa de registros e quadro vazio; idem). Editar veículo tem um envio de capa à parte (`VehiclePhotoUpload`, sempre vira capa) — não faz parte desta tela. |
+| Consulta | `vehicle_photos` do veículo, `order(sort_order)` e depois `created_at` decrescente; links assinados de 1 h em lote (`createSignedUrls`). Chave `["vehicles", id, "gallery"]`; toda escrita invalida `["vehicles"]`. O app nunca grava `sort_order` nem `taken_at`: na prática a ordem é a mais recente primeiro, e não existe reordenação. |
+| Envio | Seletor com curinga `image/*` (galeria nativa no Android); recorte obrigatório em 4:3 (arrastar, aproximar, setas), maior lado até 1600 px, WebP (PNG se o navegador não codifica WebP); o arquivo final passa por `imageFileSchema` (JPEG, PNG ou WebP, até 10 MB). Categoria (7, padrão Exterior) e legenda opcional sem limite. Ordem: Storage → linha → capa, esta só se o veículo estiver sem (`primary_photo_id is null`). |
+| Capa | `vehicles.primary_photo_id`. É a foto do card da garagem (16:9, `object-cover`) e da miniatura do dashboard (4:3). "Definir como capa" troca na hora. A primeira foto de um veículo sem capa vira capa. |
+| Exclusão | Se for a capa, limpa `primary_photo_id` → apaga o arquivo → apaga a linha. Capa excluída **não** é substituída: card e dashboard ficam sem foto até outra ser escolhida ou o próximo envio. |
+| Abertura | **Não existe** visualização ampliada nem abertura da foto; a miniatura é o único lugar de vê-la. |
+| Histórico | `vehicle_timeline` não tem evento de foto; nenhum total soma fotos. |
+
+**Decisão.**
+
+- Página no padrão comum (`Page`, `Breadcrumb`, `PageHeader`): "FOTOS",
+  o veículo e a quantidade na linha de contexto (com o "i" que explica a
+  capa, junto da contagem para não ficar sozinho numa linha) e "Adicionar
+  foto" — a única ação laranja da tela. Com a galeria vazia a ação sai do
+  cabeçalho e fica no estado vazio. A grade começa logo abaixo.
+- **Grade pela largura útil**: `repeat(auto-fill, minmax(min(100%,
+  --gallery-tile-min), 1fr))`, tokens novos `--gallery-tile-min` (8,5 /
+  12 / 15 / 17rem em base, `sm`, 80rem e 120rem) e `--gallery-gap`. Medido:
+  2 colunas de 320 a 640, 3 em 768–1280, 4 em 1440, 5 em 1920, 7 em 2560.
+  `auto-fill` mantém as colunas vazias, então uma foto só ocupa uma coluna
+  (276px em 1440, 309px em 2560), sem esticar nem preencher com
+  falsos vazios.
+- **Foto inteira no quadro 4:3** (`object-contain` sobre o fundo neutro):
+  4:3 é a proporção do recorte, então as fotos enviadas pelo app ocupam o
+  quadro todo; foto de outra proporção (vertical, larga, anterior ao
+  recorte) aparece inteira com sobra neutra, e o carro encostado na borda
+  não é cortado. Rejeitado: `object-cover` (cortava justamente essas, e não
+  há visualização ampliada onde ver o resto). Nenhum texto, selo ou botão
+  sobre a foto — o tratamento da Garagem.
+- Embaixo da foto: legenda (quebra, nunca corta), categoria, "Tirada em"
+  quando `taken_at` existe, o selo **"Capa"** (`Badge` neutro — o estado
+  existe no produto; o laranja ficou para a ação) e o **"⋯"** de 44px com
+  "Definir como capa" (só nas outras fotos) e, depois do divisor, "Excluir
+  foto". Rejeitado: os dois botões à vista (pesavam cada foto e foram a
+  origem do alvo de 16px).
+- **Acessibilidade.** A foto não é controle (não existe "abrir"): `alt` é a
+  legenda; sem legenda, só o contexto conhecido — "Foto 2 de 12 do Honda
+  Civic Si" (posição na galeria inteira, não no filtro). A legenda à vista
+  fica `aria-hidden` para não ser lida duas vezes; a categoria não entra no
+  `alt` porque está escrita embaixo. O "⋯" é descrito por "Foto 2 de 12,
+  capa do veículo" / "Foto 3 de 12: legenda". Ordem de Tab: envio → filtro →
+  um "⋯" por foto (e "Tentar de novo" onde houver). Sem controle dentro de
+  controle.
+- **Foco.** Escape e "Cancelar" devolvem ao "⋯" ou ao botão que abriu;
+  depois de excluir, ao "⋯" da foto seguinte (ou da anterior), senão ao
+  envio do cabeçalho, senão ao do estado vazio (`focusAfterDialog`, local);
+  depois de "Tentar de novo" que dá certo (o botão some), ao filtro, ao
+  primeiro "⋯" ou à ação do vazio — na foto, ao "⋯" dela. Trocar a capa,
+  enviar e excluir são anunciados numa região `status`.
+- **Filtro de categoria** (existia): vira um `Select` comum com a contagem
+  ("Interior (2)"), só com as categorias que têm foto, e só aparece quando
+  há fotos de mais de uma categoria. Filtro que ficou sem foto mostra
+  `NoResults` com "Limpar filtros". O envio abre na categoria filtrada.
+- **Envio** na casca comum (`FORM_DIALOG_CLASSNAME` estreita, cabeçalho e
+  rodapé fixos, só o corpo rola, `FormSection`/`FormField`/`FormFooter`,
+  foco no diálogo ao abrir, segundo envio bloqueado): seção Foto com os
+  formatos e limites conferidos, prévia 4:3 com o peso ("Ajustada em 4:3 ·
+  217 KB · enviada ao salvar"), "Escolher/Trocar foto" e "Ajustar
+  enquadramento"; Detalhes com categoria e legenda (a ajuda diz que ela é o
+  texto lido no lugar da foto). A descrição avisa quando a foto vai virar a
+  capa (veículo sem capa). Erro de arquivo junto do botão, com o foco nele;
+  falha no rodapé ("O envio não foi concluído…") com foto, categoria e
+  legenda preservadas. O mesmo diálogo atende o dashboard e a garagem.
+- **Exclusão** no cartão de registro comum (miniatura, legenda ou "Sem
+  legenda", categoria, posição, selo) e só as consequências do código:
+  arquivo apagado, sai da galeria, sem volta; na capa, "o card da garagem e
+  o dashboard ficam sem foto. A próxima foto enviada vira a capa, ou
+  escolha outra em 'Definir como capa'".
+- **Estados distintos**: carregando (grade de esqueletos, sem "0 fotos"),
+  falha da consulta (`InlineError` com nova tentativa; cabeçalho e envio
+  continuam), vazio (`EmptyState` com o que entra aqui e que a primeira
+  vira capa), filtro sem resultado e **foto indisponível** — link vencido,
+  arquivo que não carrega ou ausente no Storage: quadro reservado com
+  ícone, "Foto indisponível" e "Tentar de novo" (pede links novos).
+- Três correções de comportamento, pequenas e verificadas:
+  1. `?novo=1` sai da URL depois de abrir o envio (como Gastos,
+     Abastecimentos, Manutenção e Histórico) — antes, recarregar reabria.
+  2. A categoria do filtro chega ao envio: o diálogo lia a categoria só na
+     montagem e ficava "Exterior" (o comentário dizia o contrário); agora
+     remonta (fechado) quando o filtro muda.
+  3. Depois de uma falha no envio ou na exclusão a tela relê `["vehicles"]`:
+     o hook pode ter andado em parte (capa já limpa, arquivo já apagado,
+     linha já gravada) e a tela mostrava o estado antigo — no mock, o selo
+     "Capa" continuava numa foto que já não era capa.
+- Textos: "Categoria (opcional)" → "Categoria" (o campo sempre tem valor);
+  "Adicionar foto" (envio) → "Enviar foto"; "É a capa"/"Definir como capa"
+  em botão → selo + item de menu.
+
+**Componentes compartilhados usados.** `Page`, `PageHeader`, `Breadcrumb`,
+`Button`, `Badge`, `InfoTip`, `FilterField`, `Select`, `Input`,
+`Skeleton`, `EmptyState`, `InlineError`, `NoResults`, `PageError`,
+`PANEL_CLASSNAME`, `menuItemClassName`/`MenuSeparator`/
+`ROW_ACTIONS_TRIGGER_CLASSNAME` + `Popover`, `FORM_DIALOG_CLASSNAME`/
+`FORM_DIALOG_HEADER_CLASSNAME`/`focusDialogOnOpen`, `FormBody`,
+`FormSection`, `FormField`, `FormFooter`, `FieldError`, `AlertDialog` +
+`RECORD_CARD_CLASSNAME`, `useReturnFocus`, `VehicleNotFound`,
+`ImageCropDialog` (sem mudança). Locais por necessidade da área:
+`PhotoTile`, `PhotoActionsMenu` (o `RowActionsMenu` é fixo em
+editar/excluir; este compõe as mesmas peças com "Definir como capa"),
+`DeletePhotoDialog`, `photoPresentation.ts`, `focus.ts`. `PhotoCard.tsx`
+saiu (nenhum consumidor).
+
+**Alternativas descartadas.** Visualização ampliada ou "abrir foto" (não
+existe no produto; seria requisito novo). Selo "Capa" sobre a foto
+(contraste depende da foto; texto sobre o carro). Filtro em botões com
+rolagem lateral. Grade centralizada ou com a foto única esticada.
+`object-cover` nas miniaturas. Reordenar a capa para o início (a ordem é a
+da consulta).
+
+**Pendências registradas (anteriores, não alteradas).**
+
+- **Exclusão em três passos sem transação** (capa → arquivo → linha).
+  Falha no arquivo: a capa já foi limpa e a foto continua na galeria
+  (conferido no mock, cenário 133: card e dashboard "Sem foto"). Falha na
+  linha: o arquivo já foi e a foto fica "Foto indisponível" para sempre
+  (133). Mesma família da ordem de exclusão de anexo e registro.
+- **Envio em três passos** (arquivo → linha → capa). Falha na linha deixa o
+  arquivo órfão no Storage, invisível na tela. Falha só na capa (rara): a
+  linha existe, o diálogo diz "O envio não foi concluído" e a galeria —
+  agora relida — mostra a foto; enviar de novo cria uma segunda. Não
+  simulado separadamente.
+- **Fechar o envio no meio**: a mutação continua; se terminar, a foto é
+  gravada e, pelo dashboard ou pela garagem, a tela ainda navega para a
+  galeria. Conferido no código, não alterado.
+- `sort_order` e `taken_at` nunca são gravados pelo app; legenda sem limite
+  de tamanho; HEIC e outros formatos só falham no recorte ("Não foi possível
+  abrir essa imagem…"), não no seletor — não testado em aparelho.
+- Links assinados valem 1 h: galeria aberta por mais tempo passa a mostrar
+  "Foto indisponível" até "Tentar de novo" (ou outra releitura).
+- `VehiclePhotoUpload` (editar veículo) tem a própria cópia de
+  `fileExtension` e sempre troca a capa — fora do escopo desta etapa.
+
+**Verificação.** Dados simulados (ferramenta externa
+`redesign-capturas/ferramenta/inspect.mjs`, `photoHandler` novo, cenários
+130–136, arquivos 235–240, `etapa-12/relatorio.txt`): Civic com 12 fotos
+em quatro proporções (4:3, 1,6:1, 3:4 e carro encostado na borda), legenda
+longa, sem legenda, `taken_at`, um arquivo 404 e um ausente no Storage;
+Opala com uma foto, Uno com três, Gol e Maverick sem nenhuma. Upload
+multipart guardado e servido de volta, links assinados, escritas com
+corpo; rede trancada, nenhuma chamada ao Supabase real. Conferido: ordem da
+tela = ordem da consulta; nenhum `img` sem nome; teclado (Tab, Enter no
+"⋯", Escape) e volta do foco em todos os diálogos; envio vazio, arquivo de
+texto, cancelar o recorte, prévia 4:3 (1600×1197), falha do Storage e queda
+de rede (nada gravado na tabela, formulário preservado), dois cliques → um
+envio, sucesso (anúncio, foco, foto em primeiro, `PATCH … is.null` sem
+trocar a capa existente), cancelar com foto escolhida (nada gravado,
+formulário limpo ao reabrir); exclusão comum (Storage + linha, foco no
+vizinho), da capa (três escritas, card e dashboard "Sem foto", próximo
+envio vira capa e aparece nos dois), da última (estado vazio, foco na ação),
+falhas no arquivo e na linha; troca de capa com falha (erro na foto, selo
+fica) e pelo teclado (um PATCH, selo e anúncio, card e dashboard com a foto
+nova, ordem mantida); carregando, falha da consulta e nova tentativa, vazio,
+foto indisponível e nova tentativa, filtro sem resultado; entradas pelo
+dashboard, pelo card da garagem (vira capa) e por `?novo=1` (sai da URL,
+recarregar não reabre). 320, 360, 390, 640, 768, 1024, 1280, 1440, 1920 e
+2560, claro e escuro alternados: sem rolagem horizontal, nenhum alvo menor
+que 44px, rolagem real (roda do mouse) até o fim com o último "⋯" acima da
+barra inferior e alcançável; teclado virtual emulado (390×380) com "Enviar
+foto" à vista. Axe sem violações em 22 estados. `npm run lint`, `npx tsc
+-b` e `npm run build` limpos. Nenhum aparelho físico nem leitor de tela
+real.
+
+## ADR-102 — Redesign etapa 13: Histórico
+
+**Status.** Implementada. **Revisão visual pendente** — não aprovada. Branch
+`feature/046-redesign-etapa-13`, a partir da
+`feature/045-redesign-etapa-12` (árvore limpa na partida, nada pendente a
+preservar). Sem commit, push nem merge.
+
+**Contexto.** O Histórico era a próxima tela do veículo sem redesign: título
+`text-lg`, busca solta com um "×" de 16px, filtros fora de painel, um cartão
+com borda por evento, texto cortado em duas linhas sem caminho de volta e o
+link "Ver" de **35×16px** (pendência da ADR-099) com o nome acessível só
+"Ver" — dezoito iguais na mesma lista. Os diálogos de nota eram os antigos
+(botão no fim do corpo, sem rodapé fixo, sem volta de foco, erro de envio
+solto) e a quilometragem dizia "a quilometragem inválido." (anotado na etapa
+10). Banco, hooks, consultas, chaves, invalidações, rota e regras não mudaram.
+
+**Comportamento conferido no código (inventário).**
+
+| Ponto | Regra |
+|---|---|
+| Rota | `/v/:vehicleId/historico` (lateral e folha Mais: "Histórico"; dashboard: "Ver histórico"). `?novo=1` abre a nota nova e sai da URL — único parâmetro. Atalho: folha "Registrar" → "Nota". |
+| Consulta | `vehicle_timeline` inteira do veículo, `order(occurred_on desc)`, chave `["vehicles", id, "timeline"]`. Sem paginação. A ordem na tela é a que a view devolve; **empate na mesma data não tem chave secundária** (a view não expõe `created_at`). |
+| Eventos (view) | Gasto (`expenses`; título = rótulo da categoria ou "Gasto"; data = `occurred_on`), Abastecimento (`fuel_logs`; título fixo "Abastecimento"), Manutenção (`maintenance_records`; data = `performed_on`), Problema (`issues`; data = `reported_on`), Item de projeto (`project_items` **só com data**), Documento (`documents`; data = emissão ou, sem ela, criação), Nota (`notes`). Obrigações e financiamento não entram. Tipo desconhecido não quebra a tela. |
+| Filtros | Tipo (os sete) e período (Tudo, Este mês, Mês passado, Este ano), no cliente, sobre a lista; evento sem data nunca aparece (não acontece com a view atual). Não ficam na URL. |
+| Busca | RPC `search_vehicle` 300 ms depois de digitar, ordenada por relevância. Cobre gastos (só pela descrição), manutenções, problemas, **projetos**, itens de projeto, documentos e notas — abastecimento não. Devolve título, trecho (200 primeiros caracteres) e data; sem valor, km nem `metadata`. Buscando, tipo e período não se aplicam (somem de vista e voltam como estavam). |
+| Ações por origem | Nota: editar e excluir aqui (`notes`, a única origem que o Histórico edita). As demais: "Ver" leva à tela de origem. Sem destino (nota, tipo desconhecido): nenhum link. |
+| Nota | Tudo opcional: título e corpo podem ser nulos; data em branco grava hoje (`default current_date`) no cadastro e fica como está na edição (o campo não vai no PATCH); km inteiro ≥ 0, vazio e 0 aceitos. Toda escrita invalida `["vehicles"]` (Histórico, atividade recente do dashboard e da lateral). |
+
+**Destino de cada "Ver" (conferido no código e no mock).**
+
+| Origem | Destino |
+|---|---|
+| Gasto | `/gastos` (a lista; um upgrade também aparece em Modificações, mas o link é o de Gastos, como antes) |
+| Abastecimento | `/abastecimentos` |
+| Manutenção | `/manutencao` |
+| Problema | `/problemas` |
+| Item de projeto | `/projetos/:projectId` pelo `metadata.project_id`; sem ele, `/projetos`. Projeto inexistente: a tela de destino mostra "Projeto não encontrado." com "Voltar para projetos" (não acontece pela view: excluir projeto leva os itens) |
+| Documento | `/documentos` (aba Documentos, a padrão) |
+| Projeto (só na busca) | `/projetos/:id` — novo, ver "Correções" |
+| Nota, tipo desconhecido | sem link |
+
+Na busca o item de projeto leva a `/projetos` (a função não devolve o
+projeto). O destino é sempre a lista da tela de origem, nunca o registro —
+limitação anterior, registrada abaixo.
+
+**Decisão.**
+
+- Página no padrão comum (`Page`, `Breadcrumb`, `PageHeader`): "HISTÓRICO",
+  o veículo e a quantidade de registros na linha de contexto, com o "i" do
+  que entra (e de onde se edita cada coisa), e "Nova nota" — a única ação
+  laranja da tela. Abaixo de `sm` a ação desce para baixo do título
+  (`stackActionsOnMobile`): o nome do veículo, que pode ser longo, fica com a
+  largura toda. Com o histórico vazio a ação sai do cabeçalho e fica no
+  estado vazio.
+- **Um painel** "Registros" com a busca, o tipo e o período no topo (abaixo
+  de 400px empilham — medido: opções inteiras em 320, 360 e 390) e a lista.
+  Buscando, o painel vira "Resultados da busca" e diz que a busca é por
+  relevância, no veículo inteiro, sem tipo e período.
+- **Diário**: separadores discretos por mês (sobrelinha + contagem do mês),
+  na ordem que a view devolve — agrupar não reordena nada. Desktop: data
+  (dia e dia da semana) · registro · valor · ação; a data aparece uma vez por
+  dia (as linhas seguintes do mesmo dia deixam a coluna vazia) e continua na
+  linha para o leitor de tela. Celular: "tipo · data" com a ação no canto e,
+  embaixo, título, valor/km e texto na largura toda — sem coluna de ações
+  apertando o texto.
+- Tipo por **ícone + rótulo escrito** (cor nenhuma); quando o título é o
+  próprio tipo ("Abastecimento", "Gasto" sem categoria), o rótulo não se
+  repete. Valores em display tabular. Laranja: só "Nova nota" e os estados
+  de interação (medido: nenhum texto ou fundo laranja na lista).
+- Texto do registro com mais de 140 caracteres ou com quebra de linha: duas
+  linhas e "Ver nota inteira"/"Ver texto inteiro" (`aria-expanded`), a regra
+  de Modificações. Título quebra, nunca corta.
+- Nota: "⋯" comum (`RowActionsMenu`, "Editar nota"/"Excluir nota"), descrito
+  pelo registro. Eventos de outras áreas: "Ver". A linha nunca é clicável.
+- Formulário de nota no padrão comum (`FORM_DIALOG_CLASSNAME` estreita,
+  `FormSection`/`FormField`/`FormFooter`, rótulos visíveis com "(opcional)",
+  erro junto do campo com foco nele, dois Enter → um envio, falha no rodapé
+  com o preenchimento preservado, foco devolvido). A ajuda da data diz o que
+  acontece em branco em cada modo. Exclusão no cartão de registro comum,
+  com o reflexo real ("Sai do Histórico, da atividade recente e da busca").
+  Os diálogos ficam na página: uma nota editada pode sair do filtro e
+  desmontar a linha (foco vai ao título da lista). Salvar, editar e excluir
+  são anunciados numa região `status`.
+- **Estados distintos**: carregando (esqueleto, sem "0 registros"), falha da
+  consulta (`InlineError` no painel; cabeçalho, busca e "Nova nota" seguem),
+  vazio (`EmptyState` com o que entra aqui e "Escrever primeira nota"),
+  filtro sem resultado (`NoResults` com a seleção e quantos ficaram fora),
+  busca carregando, falhando (com nova tentativa) e sem resultado ("Limpar
+  busca", e o que a busca cobre). Depois de "Tentar de novo" que dá certo, o
+  foco vai ao título da lista.
+
+**O link "Ver" (ajuste obrigatório).** Continua link (navega) e discreto
+(`textLinkClassName("xs")`, sem laranja), agora com **44×44px**
+(`min-h-control` + `min-w-11`) e nome com contexto: para onde leva e de
+qual registro parte (ver "Ajustes da revisão" abaixo — a primeira versão,
+"Ver manutenção: Troca de óleo e filtro, 10/11/2026", sugeria abrir o
+registro). O texto visível "Ver" é o começo do nome. Ajuste **só no Histórico**
+(`TimelineEntryRow`): `textLinkClassName` não mudou e nenhum outro link do
+app foi tocado. Medição (ferramenta, cenário 137, mesma sonda antes e
+depois: o `<a>` que recebe o clique, `elementFromPoint` numa grade de 7×7 no
+link e num quadrado de 44×44 centrado nele):
+
+| | Antes (etapa 12) | Depois |
+|---|---|---|
+| Alvo | 35×16 nos 18 links, em 320, 390 e 1440 | 44×44 nos 18 links, de 320 a 2560, claro e escuro |
+| Quadrado de 44×44 no link | 15 de 49 pontos | 49 de 49; nenhum ponto em outro controle |
+| Nome acessível | "Ver" | "Ver lista de Gastos, a partir de Pneus, 07/11/2026" etc. |
+
+Achado na primeira medição e corrigido: no celular o título (depois do link
+no DOM) cobria os 6px de baixo do alvo e ficava com o toque (43/49). A
+primeira linha agora tem a altura que a ação ocupa e nada fica por cima.
+Toque real (tela de toque emulada) no canto do alvo navega; no começo do
+título, não. Um toque 6px abaixo do alvo, já sobre o título, também navega:
+é o ajuste de toque do Chromium, que leva ao link mais próximo — o mesmo
+"Ver", nunca um vizinho. Foco visível (contorno de 2px) e Enter navegam.
+
+**Correções (pequenas, verificadas no mock).**
+
+1. **Nota editada pela busca perdia dados.** O diálogo era montado com o
+   trecho da busca (200 caracteres) e `odometer_km: null`: salvar gravava o
+   corpo cortado e apagava a quilometragem. Agora a nota da busca usa os
+   dados completos da lista do Histórico (mesma consulta); sem eles (lista
+   com falha), o resultado aparece sem "⋯". Medido: corpo de 323 caracteres
+   e km 87.400 no PATCH.
+2. "Informe uma quilometragem válida." (2º parâmetro do helper, como na
+   etapa 10); regra igual — 0 e vazio aceitos, −5 e 12,5 recusados.
+3. Projeto na busca mostrava o nome cru da tabela ("projects") e não tinha
+   link; agora "Projeto", com ícone próprio, e "Ver" abre o detalhe (o
+   `source_id` é o projeto). Tipo desconhecido diz "Registro", não o nome
+   da tabela.
+4. Trocar de veículo sem sair da tela (Voltar entre dois Históricos) levava
+   a busca e o filtro para o outro veículo; agora a tela remonta por
+   veículo, como as outras.
+5. "Excluir \"\"?" em nota sem título → "Excluir nota?" com o registro no
+   cartão. A falha da busca ganhou "Tentar de novo"; o "×" da busca tem 44px.
+
+**Componentes compartilhados usados.** `Page`, `PageHeader`, `Breadcrumb`,
+`Button`, `InfoTip`, `PANEL_CLASSNAME`, `PanelHeader`, `PanelCount`,
+`ListColumns`, `FilterField`, `Input`, `Select`, `Textarea`,
+`Skeleton`/`SkeletonList`, `EmptyState`, `InlineError`, `NoResults` (ganhou
+`clearLabel`, padrão "Limpar filtros" — os outros usos não mudam),
+`PageError`, `VehicleNotFound`, `RowActionsMenu`, `textLinkClassName`,
+`FORM_DIALOG_CLASSNAME`/`FORM_DIALOG_HEADER_CLASSNAME`/`focusDialogOnOpen`,
+`FormBody`, `FormSection`, `FormField`, `FormFooter`, `UnitAffix`,
+`AlertDialog` + `AlertDialogRecord`, `useReturnFocus`. Locais por
+necessidade da área: `TimelineEntryRow` (a composição do diário),
+`timelinePresentation.ts`. `SearchResultItem.tsx` e `TimelineFilters.tsx`
+saíram (nenhum consumidor). O `TimelineItem` (atividade recente do dashboard
+e do cabeçalho) só passou a montar a nota pelo mesmo `noteFromEvent`
+(título nulo continua nulo) e recebe os diálogos novos.
+
+**Alternativas descartadas.** Linha inteira clicável (controle dentro de
+controle com o "⋯" e o "Ver texto inteiro"). Coluna fixa de ações no celular
+(apertava o título). Agrupar por dia com cabeçalho próprio (dobrava a altura
+da lista com um evento por dia; a data uma vez por dia na coluna faz o mesmo
+papel). Mudar `textLinkClassName` para todos os links (o ajuste é desta
+lista). Filtros visíveis e desabilitados durante a busca (controle que não
+faz nada). Ordenar o mesmo dia no cliente (inventaria uma regra que a view
+não tem).
+
+**Pendências registradas (anteriores, não alteradas).**
+
+- **"Atividade" do cabeçalho** (popover do desktop e aba "Atividade" da
+  caixa de entrada no celular): o cartão do `TimelineItem` ainda tem "Ver"
+  de **35×16** com nome só "Ver" (medido no cenário 143). Fora desta tela;
+  fica para a etapa do shell.
+- **Mesmo dia sem ordem garantida**: a view não tem chave secundária; dois
+  registros da mesma data podem trocar de lugar entre leituras.
+- **Limite de 1000 linhas** (PostgREST `max_rows`): sem paginação, um
+  veículo com mais de 1000 eventos mostra só os 1000 mais recentes; filtros
+  e contagens valem só sobre eles, sem aviso.
+- "Ver" leva à **lista** da tela de origem, não ao registro (exceto item de
+  projeto e projeto).
+- Busca: abastecimento não entra; gasto é buscado só pela descrição; o
+  resultado não traz valor nem km; item de projeto leva à lista de Projetos.
+- Vazio sem busca: com zero eventos a busca não aparece — projeto sem item
+  datado (que não é evento da view) só se acha em Projetos.
+- Nota toda em branco é aceita ("Sem título", sem texto) — regra de
+  liberdade de preenchimento (Fase 10), preservada.
+- Filtros e busca não ficam na URL (recarregar volta ao padrão).
+- No dashboard os diálogos de nota continuam dentro da linha do
+  `TimelineItem` (fora do escopo).
+
+**Verificação.** Dados simulados (ferramenta externa
+`redesign-capturas/ferramenta/inspect.mjs`, `timelineHandler` novo, cenários
+137–143, arquivos 241–246, `etapa-13/relatorio.txt`; antes em
+`relatorio-antes.txt`): 22 eventos do Civic das sete origens + um tipo
+desconhecido, três no mesmo dia, título longo, nota em várias linhas, nota
+sem título com km 0, valor R$ 0,00 e ausente, km ausente, gasto sem
+categoria, item de projeto com projeto inexistente; Gol com item de projeto
+real; Maverick vazio. Busca como a função (sem acento, sem abastecimento,
+com projeto, trecho de 200), escritas em `notes` com corpo registrado; rede
+trancada, nenhuma chamada ao Supabase real, nenhuma escrita real.
+Conferido: ordem da tela = ordem da view (22/22); "Ver" de cada origem com o
+handler da tela de destino; teclado (Tab, Enter no "⋯", Escape) e volta do
+foco em todos os diálogos; nota: cancelar, Escape, km inválido (foco e
+`aria-invalid`), falha (preservado), dois Enter → um POST, nota em branco
+(data do banco), edição com data em branco (fora do PATCH), falha na edição,
+editada para fora do filtro, exclusão (Escape, falha com duplo clique → um
+DELETE, sucesso, foco); `?novo=1` (sai da URL, recarregar não reabre),
+folha Registrar, item ativo; filtros, sem resultado, busca (carregando,
+falha e nova tentativa, sem resultado, limpar); carregando, falha da lista
+e nova tentativa, vazio e primeira nota, veículo inexistente; troca de
+veículo; atividade recente do dashboard com os diálogos novos. 320, 360,
+390, 640, 768, 1024, 1280, 1440, 1920 e 2560, claro e escuro alternados: sem
+rolagem horizontal, sem segunda rolagem a partir de 1024, nenhum alvo menor
+que 44px, nenhum texto cortado, rolagem real (roda do mouse) até o fim com o
+último "Ver" acima da barra inferior e alcançável; teclado virtual emulado
+(390×380) com "Salvar nota" à vista. Axe sem violações em 21 estados.
+`npm run lint`, `npx tsc -b` e `npm run build` limpos. Nenhum aparelho
+físico nem leitor de tela real.
+
+**Ajustes da revisão (10/11/2026).**
+
+- **Nome de "Ver" pelo destino.** "Ver manutenção: Troca de óleo e filtro"
+  sugeria abrir o serviço, mas o link leva à lista de Manutenção. O nome
+  agora diz o destino e o registro de partida: "Ver lista de Manutenção, a
+  partir de Troca de óleo e filtro, 10/11/2026"; item de projeto que abre o
+  detalhe, "Ver projeto, a partir de Comando de válvulas 272°, 11/07/2026";
+  o projeto achado na busca, "Ver projeto: Suspensão coilover, 11/09/2026";
+  sem título, "Ver lista de Abastecimentos, a partir do abastecimento de
+  10/11/2026". O nome continua começando pela palavra visível "Ver" (WCAG
+  2.5.3, comando de voz) — por isso não "Ir para Manutenção…", que pediria
+  trocar também o texto visível. O destino vem do mesmo dado do link
+  (`TimelineEntry.destination`); rota, alvo e aparência não mudaram.
+- Verificação: cenário 144 (`etapa-13/relatorio-ajustes.txt`, sem capturas),
+  um caso de cada destino com o handler da tela de origem — gasto (com e sem
+  categoria), abastecimento, manutenção, problema e documento → a lista
+  certa; item de projeto → detalhe do projeto; na busca, projeto → detalhe e
+  item de projeto → lista de Projetos. Todos com o nome começando por "Ver" e
+  44×44; os 18 nomes da lista do Civic diferentes entre si; axe sem
+  violações em 320.
+
+## ADR-103 — Redesign etapa 14: Login, cadastro e Configurações
+
+**Status.** Implementada. **Revisão visual pendente** — não aprovada. Branch
+`feature/047-redesign-etapa-14`, a partir da `feature/046-redesign-etapa-13`
+(árvore limpa na partida, nada pendente a preservar). Sem commit, push nem
+merge. Convites e notificações ficam para a etapa 15.
+
+**Contexto.** As telas de entrada eram um card centralizado com a marca v1
+(a única tela que ainda usava a v1), título `text-lg`, links de 142×20 e
+74×18, erro de envio que levava o foco ao `<body>` e nenhum requisito de
+senha à vista. Configurações: "Voltar" de **62×20px** (pendência da
+ADR-099), coluna única em caixa só, tema num `<select>` sem retorno da
+gravação. Banco, rotas, parâmetros, regras de autenticação, validação e
+persistência não mudaram (exceto os dois defeitos em "Correções").
+
+**Fluxos confirmados no código (inventário).**
+
+| Rota | Guarda | Regra |
+|---|---|---|
+| `/entrar` | `GuestRoute` | `signInWithPassword`. Sucesso → `?redirect=` validado por `safeRedirectTarget` (só caminho interno; externo vira `/`). Erros por código: credencial inválida (sem dizer qual), e-mail não confirmado, limite, rede. Sessão ativa → vai direto ao `redirect` (ou `/`). |
+| `/cadastro` | `GuestRoute` | `signUp` com `emailRedirectTo = /entrar`. Aberto a qualquer e-mail — **não existe cadastro por convite** (os "convites" do app são para virar Administrador Gearhead). Senha ≥ 6. Sucesso → `/confirme-seu-email`, também com e-mail já cadastrado (RN-6, anti-enumeração). |
+| `/confirme-seu-email` | nenhuma | Texto fixo + "ir para Entrar". **Não existe reenvio.** O link do e-mail traz a sessão no hash (fluxo implícito) e cai em `/entrar`, que leva à garagem (conferido no mock). |
+| `/recuperar-senha` | `GuestRoute` | `resetPasswordForEmail` com `redirectTo = /redefinir-senha`. Mesma frase exista ou não a conta (RN-4). |
+| `/redefinir-senha` | nenhuma | Formulário só com o evento `PASSWORD_RECOVERY`; sem ele (vencido, usado, sem link): "Este link expirou ou já foi usado." + "Pedir um novo link". Sucesso → `/`. |
+| Rota protegida sem sessão | `ProtectedRoute` | → `/entrar?redirect=<rota+busca>`. |
+| `/configuracoes` | `ProtectedRoute` | Pelo menu do perfil ("Configurações"), pela lateral (rodapé) e, no celular, pela barra inferior ("Ajustes"). Mantém o veículo lembrado na lateral (Fase 14o). |
+
+**Configurações — o que é local, o que é persistido e quando vale.**
+
+| Opção | Onde fica | Quando vale |
+|---|---|---|
+| E-mail | sessão (só leitura) | — |
+| Nome de exibição | `profiles.display_name` | Ao "Salvar nome" |
+| Tema | `localStorage` + `profiles.theme` | Na hora, neste aparelho; gravado na conta em seguida |
+| Senha nova | Supabase Auth (`updateUser`) | Ao "Salvar nova senha"; a sessão atual continua |
+| Convites / Painel admin | links | — |
+| Sair | `signOut()` — escopo `global` | Depois da confirmação |
+
+**Decisão — entrada.**
+
+- `AuthLayout` refeito em página dupla no idioma da Minha garagem
+  (ADR-094): no desktop (`lg`+) a coluna editorial com a **marca v2**, a
+  chamada da Garagem ("Seus carros. Suas histórias.", Archivo 800
+  caixa-alta, `--auth-slogan-size`) e a **capa A3.1** (`cover.webp`, uso
+  documentado na ADR-094) enquadrada como foto 3:1 com filete — nunca atrás
+  de texto, legível nos dois temas — e a linha de apoio da capa; à direita o
+  formulário sobre `surface`, separado por fio. No celular: marca pequena,
+  título e formulário de cima pra baixo, sem foto (o `<picture>` não baixa a
+  imagem abaixo de `lg`); primeiro campo a 190–213px do topo de 320 a 390.
+  A imagem saiu de `GarageCover` para `components/shared/CoverImage` (agora
+  com dois usos; a capa da Garagem mediu igual).
+- Título de tela (`type-page-title`) é o `h1` ("ENTRAR", "CRIAR CONTA"…);
+  antes o `h1` era a marca.
+- Campos pelo `FormField` comum (rótulo persistente, ajuda e erro ligados por
+  `aria-describedby`, `aria-invalid`, foco no primeiro inválido). E-mail com
+  `type=email`, `inputmode=email`, sem maiúscula nem corretor;
+  `autocomplete` `username` no login, `email` no cadastro e na recuperação,
+  `current-password`/`new-password` nas senhas. Formulários de senha nova
+  (redefinir e Configurações) levam o e-mail num campo `username` oculto para
+  o gerenciador de senhas.
+- Requisito da senha nova à vista ("Pelo menos 6 caracteres", ícone e
+  "(atendido)" para leitor de tela), com o número do schema
+  (`PASSWORD_MIN_LENGTH`).
+- Falha de envio num `Alert` de erro logo acima da ação, com o que foi
+  digitado preservado. Envio: `useGuardedSubmit` (trava por `ref`) e botão
+  `aria-disabled` com "Entrando…" — o botão continua focado, então o erro não
+  manda o foco pro `<body>` (antes mandava).
+- Caminhos: "Esqueci minha senha" sob a ação; "Ainda não tem conta? / Criar
+  conta" e "Já tem conta? / Entrar" em contorno, separados por fio;
+  recuperação e link vencido ganharam "Voltar para Entrar".
+- Estados que não são formulário num painel próprio (`AuthStatusPanel`, fio
+  na cor do papel): "Falta confirmar o e-mail" (pedido feito; diz que o link
+  abre a garagem já com a sessão), "Pedido enviado" (mesma frase
+  anti-enumeração, com o e-mail digitado; o foco vai ao título), "Este link
+  expirou ou já foi usado" (`alert`, com "Pedir um novo link") e "Verificando
+  o link…".
+- Revelar senha: nome "Mostrar senha"/"Ocultar senha" como único sinal de
+  estado (saiu o `aria-pressed`, que fazia ler "Ocultar senha,
+  pressionado"). Entrou no Tab no ajuste final (abaixo).
+
+**Decisão — Configurações.**
+
+- `Page` + `PageHeader` + `Panel` comuns. Painéis: Perfil, Aparência,
+  Segurança, Convites (ou Administração, para admin) e Sessão. Cada cabeçalho
+  diz se vale na hora ou depende de salvar.
+- **"Voltar"**: botão de 44px de altura e ≥ 44 de largura (78×44), foco
+  visível pelo contorno global, a seta alinhada ao título. Destino o de
+  antes — a tela anterior (`navigate(-1)`) —; aberta direto (sem tela
+  anterior no app), vai para a Minha garagem em vez de sair do app.
+- Tema em rádios nativos (setas trocam, Tab entra e sai) com a escolha à
+  vista, alvo de 56px por opção e "Agora: claro/escuro" em "Seguir o
+  sistema". Retorno da gravação junto do grupo: "Salvando na sua conta…",
+  "Salvo na sua conta." ou o aviso "Aplicado neste aparelho, mas não foi
+  salvo na sua conta…" com "Tentar de novo".
+- Nome: esqueleto enquanto o perfil carrega e `InlineError` com nova
+  tentativa se não carregar (ver Correções); "Alteração não salva." / "Nome
+  salvo." junto de "Salvar nome"; falha com o texto preservado.
+- "Sair" num painel próprio, em contorno carmim ("Sair da conta"), longe dos
+  controles de edição; confirmação no `AlertDialog` comum com o efeito real
+  (abaixo) e o foco de volta ao botão ao cancelar (`useReturnFocus`; antes
+  caía no `<body>`).
+- **Layout (ajuste na revisão com o usuário, 11/11/2026).** A primeira versão
+  era uma coluna de 48rem: deixava ~900px vazios em 1920 e rolava em
+  1440×900. Agora uma coluna até 1280 e duas a partir de `xl` (Perfil e
+  Aparência | Segurança, Convites e Sessão), largura toda como as outras
+  páginas; os controles internos se ajustam pela largura do painel
+  (container query). Medido: não rola em 1440×900 nem 1920×1080; 28px em
+  1280×800.
+
+**Correções (pequenas, verificadas no mock).**
+
+1. **Tema voltava ao anterior.** `ThemeProfileSync` puxava `profiles.theme`
+   também quando a escolha **local** mudava: escolher "Claro" fazia claro →
+   escuro → claro durante a gravação (medido) e, se a gravação falhava, a
+   escolha era desfeita em silêncio. Agora puxa só quando o valor do perfil
+   chega ou muda — o que a ADR-069 descreve. Push, pull entre aparelhos e
+   `localStorage` iguais.
+2. **Nome apagado com o perfil carregando ou em falha.** O campo nascia vazio
+   com "Salvar" ativo; salvar gravava `null`. Agora o campo só existe com o
+   perfil carregado; recarga do perfil não apaga o que está sendo digitado.
+3. **Texto de "Sair".** Configurações dizia "Sair da conta neste
+   dispositivo", mas `signOut()` usa o escopo padrão `global`
+   (`POST /logout?scope=global`, conferido): encerra também as outras
+   sessões da conta. O texto do painel e o da confirmação (compartilhada com
+   o menu do perfil) dizem isso. Comportamento não mudou.
+
+**Componentes compartilhados usados.** `Page`, `PageHeader`, `Panel`,
+`FormField`, `Input`, `PasswordInput`, `Button`, `Alert`, `InlineError`,
+`Skeleton`, `AlertDialog`, `useReturnFocus`, `textLinkClassName`,
+`BrandLogo`. Novos e locais da área: `AuthAlternate` (em `AuthLayout`),
+`AuthFormParts` (`EMAIL_FIELD_PROPS`, `useGuardedSubmit`, `SubmitButton`,
+`SubmitError`, `PasswordRule`), `AuthStatusPanel`,
+`ThemePreferenceOptions` (era `ThemePreferenceSelect`). Tokens aditivos
+`--auth-gutter` e `--auth-slogan-size`.
+
+**Alternativas descartadas.** Foto de fundo com o formulário por cima (a
+capa é escura nos dois temas; texto e campos sobre ela pediriam cor fixa
+fora dos tokens no claro). Foto no celular (o primeiro campo desceria; a
+imagem só é servida a partir de `lg`). Manter a v1 no login (seria a única
+tela com outra marca). "Sair" no cabeçalho da página (ficaria colado ao
+título, acima dos controles de edição). Reenvio de confirmação e
+"usar outro e-mail" (o produto não tem — não inventado).
+
+**Pendências registradas (anteriores, não alteradas).**
+
+- **Corrida no link de recuperação.** O evento `PASSWORD_RECOVERY` é
+  emitido pelo cliente do Supabase num `setTimeout` depois de validar o
+  link; se a resposta de `/auth/v1/user` chega antes de o `AuthProvider`
+  assinar `onAuthStateChange`, o evento se perde e um link **válido**
+  aparece como "expirou" (reproduzido com resposta instantânea; com 300ms de
+  rede funciona). Regra de autenticação — não alterada; o mock usa 300ms.
+- **Link de confirmação vencido** (`#error_code=otp_expired` em `/entrar`)
+  mostra o login sem aviso nenhum. Tratamento atual preservado.
+- **Sair com a rede fora**: `signOut()` devolve erro sem limpar a sessão; o
+  app navega para `/entrar` e o `GuestRoute` devolve à garagem, sem aviso.
+- `signOut()` encerra **todas** as sessões da conta (escopo `global`); se a
+  intenção do produto for "só neste aparelho", é `scope: 'local'` — decisão
+  de produto.
+- Os links do cadastro/login não carregam o `?redirect=` adiante.
+
+**Verificação.** Dados simulados (ferramenta externa
+`redesign-capturas/ferramenta/inspect.mjs`, `authHandler` novo, cenários
+145–150, arquivos 247–252, `etapa-14/relatorio.txt`; antes em
+`relatorio-antes.txt`, a mesma sonda no código da etapa 13). GoTrue simulado
+por código de erro (credencial, e-mail não confirmado, limite, rede, mesma
+senha), cadastro com confirmação, recuperação, link de recuperação e de
+confirmação no hash (válido e vencido), logout; perfil com estado e falha
+por cenário; rede trancada, nenhuma chamada ao Supabase real, senha nunca no
+relatório. Conferido: login válido e inválido, e-mail pendente, rede fora,
+limite, dois Enter → um POST (login, cadastro, recuperação, redefinição),
+retorno pelo `?redirect=` (e externo recusado), sessão ativa em `/entrar`,
+`/cadastro` e `/recuperar-senha`, rota protegida sem sessão; cadastro com
+erros, requisito, limite e rede fora com dados preservados, sucesso →
+confirmação; recuperação enviada (foco no aviso), rede fora; redefinição
+com divergência, mesma senha, sucesso → `/`, link vencido e ausente;
+Configurações: "Voltar" por clique, toque (centro e canto), Enter e aberta
+direto; nome (carregando, salvando, salvo, falha preservada, 61
+caracteres, perfil que não carrega), tema (na hora, gravado, recarga,
+falha + "Tentar de novo", setas), senha (inválida, recusada, salva), sair
+(texto, Escape devolve o foco, confirmação → `/entrar`), e-mail e nome
+longos em 320, teclado virtual 390×380 e rolagem real até "Sair da conta".
+Seis rotas em 320, 360, 390, 768, 1024, 1280, 1440, 1920 e 2560, claro e
+escuro alternados: sem rolagem lateral, nenhum alvo menor que 44px (os
+rádios de 16px estão dentro de rótulos de 56px, que são o alvo), axe sem
+violações. Regressão: menu do perfil ("Sair", foco de volta ao avatar) e
+capa da Garagem (`a3c`/`a3d`: mesmas medidas da ADR-094, imagem só a partir
+de `lg`). `npm run lint`, `npx tsc -b` e `npm run build` limpos. Nenhum
+aparelho físico nem leitor de tela real.
+
+**Ajuste final — olho da senha no teclado.** A pendência "olho fora do Tab"
+fechada na origem (`components/ui/password-input.tsx`), então vale para os
+seis campos de senha (login, cadastro, redefinição × 2, Configurações × 2):
+
+- Saiu o `tabIndex={-1}`. O `<button type="button">` nativo fica no Tab logo
+  depois do campo (campo → olho → próximo controle; Shift+Tab volta ao
+  olho). Quem usa só teclado agora consegue conferir a senha digitada.
+- Enter e Espaço alternam pelo comportamento nativo do botão, sem enviar o
+  formulário (`type="button"`); o foco continua no botão e o valor
+  digitado fica. Enter segurado troca uma vez só: o `keydown` repetido
+  (`event.repeat`) é ignorado.
+- Foco: o contorno global de `:focus-visible` (2px, `--color-focus-ring`),
+  puxado para dentro (`-outline-offset-4`) para não vazar da borda do
+  campo. O anel próprio (`ring-accent/40`) saiu.
+- Nome e ícone seguem o estado: oculta → "Mostrar senha" e olho; visível →
+  "Ocultar senha" e olho riscado. `aria-controls` aponta o campo.
+- Enter no próprio campo não mudou: continua enviando o formulário.
+
+Verificado no cenário 152 de `inspect.mjs` (rede simulada, os seis campos,
+1366, 390 e 1920, claro e escuro): sequência do Tab, alternância nos dois
+sentidos por Enter e Espaço, valor preservado, nenhum envio nem chamada de
+autenticação ao acionar o olho, Enter segurado com 3 repetições = uma troca,
+Enter no campo do login = um POST e "E-mail ou senha incorretos.", axe sem
+violações. Regressão do 146: a ordem do Tab do login ganhou o "Mostrar
+senha" entre a senha e o "Entrar", e nada mais mudou.
+
+## ADR-104 — Login desktop: revista Slow Garage, Edição 01
+
+**Status.** Implementada sobre a etapa 14 (ADR-103), na mesma branch
+`feature/047-redesign-etapa-14`. **Revisão visual pendente.** Escopo: só o
+painel esquerdo do `/entrar` no desktop. Formulário, fluxos de autenticação,
+login no celular, cadastro, recuperação e Configurações não mudaram — as
+outras telas de entrada continuam com a chamada e a capa A3.1 da ADR-103.
+
+**Decisão.**
+
+- A coluna editorial do `/entrar` (a partir de `lg`, o mesmo corte em que ela
+  já aparecia) troca a chamada e a capa A3.1 por uma **revista folheável**
+  (`LoginMagazine`): uma página 3:4 por vez, sempre na mesma moldura, com as
+  cinco artes finais fornecidas pelo usuário, nesta ordem — capa, Encontro
+  noturno (abertura e detalhes), Um dia na oficina (abertura e detalhes). A
+  capa já traz a marca e a chamada; fora da arte só fica a marca v2 do topo
+  da coluna. `AuthLayout` ganhou `editorial` (opcional): com ele a coluna
+  tem a altura da janela e fica parada (`sticky`), e a revista se dimensiona
+  pelo espaço que sobra — sem ele, o layout da ADR-103.
+- **Tamanho**: a maior moldura 3:4 que cabe na largura da coluna e na altura
+  que sobra depois dos controles (container query de tamanho em
+  `magazine.css`). Medido: 435×580 em 1024×768 e 1366×768, 399×532 em
+  1280×720, 534×712 em 1440×900, 669×892 em 1920×1080, 939×1252 em
+  2560×1440 — página e controles inteiros na janela, centrada na coluna, sem
+  rolagem; o formulário não se mexe durante a virada nem entre larguras.
+- **Virada** em React + CSS 3D (`magazine.css`): avançar gira a página atual
+  pela borda esquerda (`rotateY` 0 → −90°, perspectiva de 4200px) e revela a
+  seguinte por baixo; voltar traz a anterior de volta (−90° → 0). A moldura
+  recorta só na horizontal — a folha some na lombada e não sai pela lateral.
+  Sombra discreta na folha e na página de baixo; verso da folha em papel liso
+  (`--magazine-paper`, nunca uma página espelhada). Ao fim de cada virada
+  sobra uma imagem só na moldura. 450ms (`--magazine-turn-duration`) — acima
+  dos 200ms de transição de interface de propósito: abaixo de ~400ms a folha
+  não é percebida virando.
+- **Controles**: "Página anterior" e "Próxima página" (44×44, contorno, foco
+  pelo contorno global) e "N de 5" entre eles. Nos extremos, `aria-disabled`
+  (não `disabled`: o botão focado não perde o foco ao chegar na última
+  página). Clique durante a virada é ignorado — cinco cliques seguidos
+  viram uma página só. Leitor de tela: a região "Revista Slow Garage,
+  Edição 01", o `alt` da página ativa (o que a arte mostra; o japonês faz
+  parte da arte) e "Página 3 de 5, Encontro noturno — detalhes" numa região
+  `polite`; a folha que vira é `aria-hidden`.
+- **Movimento reduzido**: troca imediata, sem folha (o componente nem monta;
+  `magazine.css` esconde a folha como segunda trava).
+- **Imagens**: as cinco artes em `src/assets/magazine/`, WebP na resolução
+  original (1086×1448 a capa, 768×1024 as internas), qualidade 90 — de 8,7 MB
+  em PNG para 795 KB; legendas e números de página conferidos 2× contra o
+  PNG, sem diferença visível. A capa carrega primeiro (`fetchpriority=high`);
+  a página vizinha é baixada e decodificada depois, e a virada espera a
+  página estar decodificada (nunca revela página em branco). Abaixo de `lg`
+  o `SignInPage` nem monta a revista (`useMediaQuery`, lido no primeiro
+  render): nenhuma imagem dela é pedida. Fora do precache do PWA (Workbox só
+  pega js, css, html e woff2).
+
+**Alternativas descartadas.** Duas páginas lado a lado (o pedido é uma por
+vez; as artes são páginas completas). Biblioteca de flipbook (dependência
+nova para cinco imagens; a virada cabe em CSS). Virada completa até −180°
+mostrando o verso fora da moldura (a folha passaria por cima da margem e da
+marca). Avanço automático (o pedido é manual). Setas do teclado na página
+(conflitariam com os campos; os botões já respondem a Enter e Espaço).
+
+**Verificação.** Cenário 151 de `inspect.mjs` (`etapa-14/revista/`): 1024,
+1280, 1366, 1440, 1536, 1920 e 2560 claro e escuro; ordem das cinco páginas
+com a folha e a página de baixo certas a cada virada (avanço e retorno);
+Enter e Espaço nos botões, foco que fica no botão, extremos sem efeito;
+cinco cliques rápidos → uma folha, uma página; anterior/próxima/anterior em
+sequência; movimento reduzido (troca em < 30ms, sem folha); redimensionar
+1920 → 1280×720 → 1024×640 → 900 (desmonta) → 1440 sem perder a página;
+axe sem violações na capa (escuro) e na página 3 (claro). Produção (`vite
+preview`): 390, 768 e 1023 não pedem nenhuma imagem da revista; 1024 e 1440
+pedem a capa, depois a página 2, e a 3 só depois de avançar. Regressão do
+login (146–148 e 150) sem diferença. `npm run lint`, `npx tsc -b` e `npm run
+build` limpos. Nenhum aparelho físico nem leitor de tela real.
+
+### ADR-104, revisão 1 — a revista como superfície do painel (12/11/2026)
+
+**Status.** Substitui a moldura 3:4 e a virada pela borda acima. Mesma branch,
+**sem commit**. **Revisão visual pendente.** O pedido: a revista ocupa a
+coluna de borda a borda, páginas rediagramadas para a proporção do painel,
+virada que começa no canto direito com verso marfim. Depois, nesta mesma
+rodada, o usuário pediu: virada mais lenta, avanço automático tipo carrossel
+mantendo botão e arrasto, coluna um pouco menor, controles só ao passar o
+mouse, e no celular a revista como fundo escurecido com o formulário num
+cartão translúcido.
+
+**Decisão.**
+
+- **Superfície.** `AuthLayout` com `editorial`: a coluna inteira é da
+  revista (sem margem nem marca separada; o letreiro da capa é a marca), na
+  proporção 1 : 1,1 com o formulário (650 px em 1366, 914 px em 1920); as
+  outras telas de entrada continuam 1,15 : 1 com a capa A3.1.
+- **Páginas rediagramadas** (`magazine/pages.tsx`, `magazine.css`). As artes
+  não são mais imagens inteiras: as fotos foram recortadas das próprias artes
+  (só a área de foto, 2 px para dentro; 9 WebP, 370 KB no total) e títulos,
+  legendas e texto viraram texto, em subconjuntos de Noto Serif JP e Noto
+  Serif itálico (OFL; 69 KB e 43 KB, só os caracteres da edição). Cada página
+  é um container de tamanho e tudo se mede em `cqw`/`cqh`, de ~0,63
+  (1024×768) a ~1,1 (1366×657). Capa: o cupê com os dois cortes diagonais da
+  arte (os cortes ficam dentro da área de foto original), "クルマのある暮らし"
+  no papel acima do corte, 特集 no papel abaixo, as duas chamadas em fotos que
+  se encaixam pela diagonal; em painel baixo o cupê encolhe pela altura e
+  encosta à direita. Aberturas (02, 04): fio laranja, título, subtítulo, foto
+  que cresce, duas colunas com as quebras da arte. 03: foto do cupê verde e a
+  linha com a foto coletiva (cupê branco preservado, `object-position` à
+  esquerda) e o painel. 05: fotos sem recorte, porque as linhas dos rótulos
+  estão desenhadas nelas; o conjunto escala inteiro e os rótulos em texto
+  terminam onde cada linha entra na foto (ダンパー continua o da arte).
+  Toda página reserva uma faixa de rodapé (fio e fólio) para os controles.
+- **StPageFlip testado e não adotado.** No painel real (1366×768) o modo de
+  página única funciona (página de 731 px, `portrait`), mas: (1) o verso da
+  folha é uma cópia da própria página, não papel; (2) o laço de
+  `requestAnimationFrame` nunca para — 61 quadros/s e 305 regravações de
+  estilo/s com a revista parada, e continua depois de `destroy()`; (3) move
+  os nós que o React controla para dentro dos próprios elementos. Fica a mesma
+  geometria, própria (`magazine/curl.ts`, ~140 linhas): o canto inferior
+  direito percorre um arco até o outro lado da lombada; a dobra é a
+  mediatriz; a parte que ainda está no lugar é recortada por `clip-path`, a
+  erguida é refletida pela dobra (verso marfim `--magazine-verso`, com
+  gradiente de curvatura) e deixa sombra na página de baixo. Voltar é a mesma
+  virada de trás para frente. Só roda durante a virada (`requestAnimationFrame`
+  enquanto há folha), escrevendo direto nos estilos, sem re-render por quadro.
+- **Tempo.** 1,4 s por virada (primeiro foi 850 ms; o usuário achou rápido).
+- **Carrossel.** Vira sozinho a cada 7 s; da última volta para a capa. Para
+  enquanto o ponteiro está sobre a revista, o foco está nos controles ou a aba
+  está escondida, e tem botão "Pausar a revista" (WCAG 2.2.2). Com movimento
+  reduzido começa pausado e a troca é imediata. Enquanto vira sozinho, o
+  aviso "Página N de 5" fica `aria-live=off` (não interrompe o formulário). O
+  "ponteiro sobre" vem do `pointermove` da janela, não de enter/leave: a
+  virada troca o nó sob o ponteiro e o navegador não avisa a saída de um nó
+  removido (a pausa ficava presa — achado no teste).
+- **Arrasto.** Arrastar a folha para a esquerda avança, para a direita volta;
+  a folha segue o ponteiro (uma largura arrastada = virada inteira); soltando
+  antes de 30%, volta para o lugar. Clique sem arrastar não faz nada. Os
+  botões são a alternativa ao arrasto (WCAG 2.5.7).
+- **Controles** num pílula escura sobre a faixa de rodapé (anterior, "N de 5",
+  próxima, pausar), 44×44, invisíveis até o ponteiro passar pela revista ou um
+  deles receber foco do teclado (nunca foco invisível); em tela sem hover,
+  sempre visíveis. Setas ← → viram com o foco nos botões.
+- **Celular e tablet (abaixo de `lg`).** Revoga "nenhuma imagem no celular":
+  a revista é o fundo fixo da tela, escurecida (`rgb(12 10 8 / .62)`),
+  passando sozinha, decorativa (`aria-hidden`), sem arrasto; um botão
+  "Pausar a revista do fundo" (44×44, canto superior direito, por portal,
+  acima do cartão). Marca, título e formulário vão para um cartão de vidro
+  fosco (`--auth-glass`: superfície a 52% no escuro, 88% no claro;
+  `backdrop-blur-2xl`). Contraste medido nos pixels com a revista passando
+  atrás: pior caso 6,3:1 no escuro e 4,8:1 no claro (a 80% no claro dava
+  4,0:1). O código (14 KB) e as fontes continuam fora do pré-cache do PWA
+  (`globIgnores`) e chegam por `lazy`, depois do formulário.
+
+**Verificação.** Cenário 151 reescrito (`etapa-14/revista/v2/`): 1024, 1280,
+1366×768, 1366×657, 1440, 1920 e 2560 — as cinco páginas de borda a borda,
+nada cortado, controles fora de foto e texto, menor texto 13 px; virada em
+1366×768 e 1920×1080 com o formulário parado; carrossel (avança, pausa com
+ponteiro, foco e botão, volta da última para a capa); arrasto (avança, curto
+volta, para a direita retorna, na capa não faz nada); cinco cliques → uma
+página; teclado; movimento reduzido; redimensionar; celular 390 e 360 e
+tablet 768 e 1023 com fundo, pausa e checagens da etapa 14; axe sem
+violações (capa 1366 escuro, página 3 1920 claro, celular 390 escuro e 360
+claro). Produção: capa e as duas fotos dela primeiro, a página 3 só depois da
+primeira virada, no desktop e no celular. Regressão 145–150 sem violações.
+Lint, `tsc -b` e build limpos. Nenhum aparelho físico nem leitor de tela
+real.
+
+**Todas as telas de entrada.** `/cadastro`, `/recuperar-senha`,
+`/confirme-seu-email` e `/redefinir-senha` (nos três estados: verificando,
+link vencido, formulário) usam a mesma revista do `/entrar` — painel no
+desktop, fundo no celular — pelo `useAuthMagazine`, que devolve `editorial`
+ou `backdrop` para o `AuthLayout`. A coluna com a chamada e a capa A3.1 da
+ADR-103 continua no `AuthLayout` só como padrão para uma tela que não passe
+nenhum dos dois; hoje nenhuma usa. Contraste no cartão
+do cadastro, com a revista atrás: pior caso 6,1:1 no escuro e 4,8:1 no claro
+(o "Pelo menos 6 caracteres").
+
+**Painel do formulário (desktop, telas de entrada).** Com a revista à
+esquerda, a marca v2 volta para o desktop, acima do título e alinhada com ele
+e com os campos (`h-10`, 102×40 — o tamanho do cartão do celular). O painel
+segue na superfície do tema, com uma luz âmbar difusa que nasce na divisória
+(`.auth-panel-lit`: elipse e faixa na borda esquerda, `--auth-panel-glow`
+12%/7% no escuro e 8%/5% no claro) — a lâmpada da oficina da capa, só como
+diferença de tom. "Esqueci minha senha" sobe para junto do "Entrar" no
+desktop (`lg:-mt-3`; o alvo continua com 44px), e o fio continua antes de
+"Ainda não tem conta?". Celular sem mudança. Medido em 1366×768 e 1920×1080,
+claro e escuro, com erro de campo e erro de envio: logo, campos e ações
+dentro da janela, sem rolagem lateral, pior contraste 6,6:1 (escuro) e 6,0:1
+(claro) nos pixels, axe sem violações, foco visível em toda parada do Tab.
+
+**Pendências.** As fotos vêm das artes (768 px nas internas): em 1920 ficam
+~1,3× ampliadas, um pouco moles — os originais em alta resolução resolveriam.
+A capa a 390 px corta "Edição 01" atrás do botão de pausa (é fundo). O
+avanço automático no celular gasta bateria e dados (~400 KB) — decisão do
+produto, pausável.

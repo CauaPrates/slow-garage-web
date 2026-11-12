@@ -1,16 +1,33 @@
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams, Link } from "react-router-dom";
-import { AlertCircle } from "lucide-react";
+import { useParams, useSearchParams } from "react-router-dom";
+import { Fuel, Plus } from "lucide-react";
 import { Breadcrumb } from "@/components/layout/Breadcrumb";
+import { ActionLabel, Page, PageHeader } from "@/components/layout/Page";
+import { VehicleNotFound } from "@/components/shared/VehicleNotFound";
 import { Button } from "@/components/ui/button";
-import { ROUTES } from "@/lib/routes";
+import { EmptyState, InlineError, PageError } from "@/components/ui/feedback";
+import { ListColumns, PANEL_CLASSNAME, PanelCount, PanelHeader } from "@/components/ui/panel";
+import { Skeleton, SkeletonList } from "@/components/ui/skeleton";
+import { formatCount } from "@/lib/format";
 import { useVehicle } from "@/features/vehicle/useVehicles";
 import { CreateFuelLogDialog } from "./CreateFuelLogDialog";
-import { FuelLogListItem } from "./FuelLogListItem";
-import { FuelSummaryCard } from "./FuelSummaryCard";
+import { FUEL_ROW_GRID, FuelLogRow } from "./FuelLogRow";
+import { FuelSummaryPanel } from "./FuelSummaryPanel";
 import { useFuelLogs } from "./useFuelLogs";
 import { useVehicleFuelSummary } from "./useVehicleFuelSummary";
 
+const LIST_TITLE_ID = "fuel-list-title";
+
+/**
+ * Etapa 06: cabeçalho curto com "Registrar abastecimento", resumo de
+ * combustível e o histórico. Lista e resumo carregam e falham cada um por
+ * conta própria (são consultas separadas, como antes): erro em um não vira
+ * "nenhum abastecimento" no outro. As mesmas consultas, chaves e
+ * invalidações de antes; `?novo=1` continua abrindo o cadastro.
+ *
+ * Harmonização 01: cabeçalho, painel, estados e colunas pelos componentes
+ * comuns (`Page`, `PageHeader`, `PanelHeader`, `EmptyState`, `InlineError`).
+ */
 export function FuelLogsPage() {
   const { vehicleId } = useParams<{ vehicleId: string }>();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,88 +53,107 @@ export function FuelLogsPage() {
 
   if (vehicleLoading) {
     return (
-      <div className="flex flex-col gap-4 p-6">
-        <div className="h-8 w-48 animate-pulse rounded-md bg-surface" />
-        <div className="h-20 animate-pulse rounded-lg border border-border bg-surface" />
-        <div className="h-20 animate-pulse rounded-lg border border-border bg-surface" />
-      </div>
+      <Page aria-busy="true">
+        <span className="sr-only">Carregando abastecimentos…</span>
+        <Skeleton className="h-14 w-56 bg-surface" />
+        <Skeleton className="h-40 rounded-lg border border-border bg-surface" />
+        <Skeleton className="h-64 rounded-lg border border-border bg-surface" />
+      </Page>
     );
   }
 
   if (vehicleError) {
-    return (
-      <div className="flex flex-col items-center gap-3 p-12 text-center">
-        <AlertCircle className="h-6 w-6 text-error" aria-hidden="true" />
-        <p className="text-sm text-text-secondary">Não foi possível carregar os abastecimentos.</p>
-        <Button variant="ghost" onClick={() => refetchVehicle()}>
-          Tentar de novo
-        </Button>
-      </div>
-    );
+    return <PageError message="Não foi possível carregar os abastecimentos." onRetry={() => void refetchVehicle()} />;
   }
 
   if (!vehicle) {
-    return (
-      <div className="flex flex-col items-center gap-4 p-12 text-center">
-        <p className="text-text-primary">Veículo não encontrado.</p>
-        <Link to={ROUTES.home} className="text-sm text-accent underline">
-          Voltar para a garagem
-        </Link>
-      </div>
-    );
+    return <VehicleNotFound />;
   }
 
   const logs = logsQuery.data ?? [];
-  const summary = summaryQuery.data;
+  const ready = logsQuery.isSuccess;
+  const noLogsAtAll = ready && logs.length === 0;
 
   return (
-    <div className="flex flex-col gap-6 p-6">
+    <Page>
       <Breadcrumb items={[{ label: "Abastecimentos" }]} />
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h1 className="text-lg font-medium text-text-primary">Abastecimentos</h1>
-        <Button onClick={() => setCreateOpen(true)}>Registrar abastecimento</Button>
-      </div>
 
-      {logs.length > 0 && (
-        <FuelSummaryCard
-          avgKmPerLiter={summary?.avg_km_per_liter ?? null}
-          bestKmPerLiter={summary?.best_km_per_liter ?? null}
-          worstKmPerLiter={summary?.worst_km_per_liter ?? null}
-          costPerKm={vehicle.financialSummary?.cost_per_km ?? null}
+      <PageHeader
+        title="Abastecimentos"
+        description="Litros, valores e consumo deste veículo."
+        actions={
+          !noLogsAtAll && (
+            <Button onClick={() => setCreateOpen(true)}>
+              <Plus className="h-4 w-4" aria-hidden="true" />
+              <ActionLabel short="Registrar" rest="abastecimento" />
+            </Button>
+          )
+        }
+      />
+
+      {/* Sem nenhum registro, o resumo seria só traços: o estado vazio explica e oferece o cadastro. */}
+      {!noLogsAtAll && (
+        <FuelSummaryPanel
+          summary={
+            summaryQuery.isError
+              ? { status: "error", onRetry: () => void summaryQuery.refetch() }
+              : summaryQuery.isSuccess
+                ? { status: "ready", data: summaryQuery.data }
+                : { status: "loading" }
+          }
+          financial={vehicle.financialSummary}
         />
       )}
 
-      {logsQuery.isLoading && (
-        <div className="flex flex-col gap-3">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-20 animate-pulse rounded-lg border border-border bg-surface" />
-          ))}
-        </div>
-      )}
+      {noLogsAtAll ? (
+        <EmptyState
+          icon={Fuel}
+          titleId={LIST_TITLE_ID}
+          title="Nenhum abastecimento registrado neste veículo."
+          action={<Button onClick={() => setCreateOpen(true)}>Registrar primeiro abastecimento</Button>}
+        >
+          Litros e valor bastam pra registrar. Com a quilometragem e dois tanques cheios seguidos, o consumo passa a
+          aparecer.
+        </EmptyState>
+      ) : (
+        <section aria-labelledby={LIST_TITLE_ID} className={PANEL_CLASSNAME}>
+          <PanelHeader
+            title="Histórico"
+            titleId={LIST_TITLE_ID}
+            action={
+              <PanelCount>
+                {ready && `${formatCount(logs.length)} ${logs.length === 1 ? "abastecimento" : "abastecimentos"}`}
+              </PanelCount>
+            }
+          />
 
-      {logsQuery.isError && (
-        <div className="flex flex-col items-center gap-3 rounded-lg border border-border bg-surface p-8 text-center">
-          <AlertCircle className="h-6 w-6 text-error" aria-hidden="true" />
-          <p className="text-sm text-text-secondary">Não foi possível carregar os abastecimentos.</p>
-          <Button variant="ghost" onClick={() => logsQuery.refetch()}>
-            Tentar de novo
-          </Button>
-        </div>
-      )}
+          {logsQuery.isLoading && <SkeletonList label="Carregando abastecimentos…" />}
 
-      {!logsQuery.isLoading && !logsQuery.isError && logs.length === 0 && (
-        <div className="flex flex-col items-center gap-4 rounded-lg border border-border bg-surface p-12 text-center">
-          <p className="text-text-primary">Nenhum abastecimento registrado ainda.</p>
-          <Button onClick={() => setCreateOpen(true)}>Registrar primeiro abastecimento</Button>
-        </div>
-      )}
+          {logsQuery.isError && (
+            <InlineError onRetry={() => void logsQuery.refetch()}>
+              Não foi possível carregar o histórico de abastecimentos.
+            </InlineError>
+          )}
 
-      {!logsQuery.isLoading && !logsQuery.isError && logs.length > 0 && (
-        <div className="flex flex-col gap-3">
-          {logs.map((log) => (
-            <FuelLogListItem key={log.id} vehicleId={vehicle.id} log={log} />
-          ))}
-        </div>
+          {ready && logs.length > 0 && (
+            <>
+              <ListColumns className={FUEL_ROW_GRID}>
+                <span>Abastecimento</span>
+                <span className="text-right">Odômetro</span>
+                <span className="text-right">Litros</span>
+                <span className="text-right">Valor</span>
+                <span className="text-right">Preço/L</span>
+                <span className="text-right">Consumo</span>
+                <span />
+              </ListColumns>
+              <ul className="divide-y divide-border">
+                {logs.map((log) => (
+                  <FuelLogRow key={log.id} vehicleId={vehicle.id} log={log} listTitleId={LIST_TITLE_ID} />
+                ))}
+              </ul>
+            </>
+          )}
+        </section>
       )}
 
       <CreateFuelLogDialog
@@ -126,6 +162,6 @@ export function FuelLogsPage() {
         open={createOpen}
         onOpenChange={setCreateOpen}
       />
-    </div>
+    </Page>
   );
 }
