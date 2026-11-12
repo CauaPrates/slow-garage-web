@@ -402,55 +402,19 @@
    * Grade de cards verticais (revisão dos cards A3). Três regras:
    * - colunas pela largura útil: cabem quantas tiverem `--garage-card-min`
    *   (auto-fit), e os cards repartem a linha;
-   * - teto da grade = min(nº de veículos, colunas da faixa) × `--garage-card-max`.
-   *   Com poucos veículos a grade encolhe — os cards não esticam até virar
-   *   painel — e fica na margem da página, embaixo do título, alinhada à capa
-   *   e ao resumo. Rejeitado: centralizar a grade (os cards ficavam soltos no
-   *   meio, desalinhados de todo o resto);
-   * - colunas da faixa por container query (largura da coleção, não viewport):
-   *   1 até 687px, 2 até 1055, 3 até 1503, 4 até 2047, 5 acima.
+   * - a grade ocupa a largura toda da coleção (12/11/2026, pedido do usuário):
+   *   o teto antigo — min(nº de veículos, colunas da faixa) × `--garage-card-max`
+   *   — deixava a lateral direita vazia em tela larga com poucos veículos.
+   *   Com poucos veículos os cards crescem e dividem a linha; com muitos,
+   *   quebram em linhas pelo `--garage-card-min`. Rejeitado: centralizar a
+   *   grade (os cards ficavam soltos no meio, desalinhados de todo o resto).
    */
   .garage-grid {
     --grid-gap: 1.125rem;
-    --cols: 5;
-    --n: 99;
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--garage-card-min)), 1fr));
     gap: var(--grid-gap);
     width: 100%;
-    max-width: calc(min(var(--n), var(--cols)) * (var(--garage-card-max) + var(--grid-gap)) - var(--grid-gap));
-  }
-  .garage-grid:has(> :last-child:nth-child(1)) {
-    --n: 1;
-  }
-  .garage-grid:has(> :last-child:nth-child(2)) {
-    --n: 2;
-  }
-  .garage-grid:has(> :last-child:nth-child(3)) {
-    --n: 3;
-  }
-  .garage-grid:has(> :last-child:nth-child(4)) {
-    --n: 4;
-  }
-  @container garage-collection (max-width: 42.99rem) {
-    .garage-grid {
-      --cols: 1;
-    }
-  }
-  @container garage-collection (min-width: 43rem) and (max-width: 65.99rem) {
-    .garage-grid {
-      --cols: 2;
-    }
-  }
-  @container garage-collection (min-width: 66rem) and (max-width: 93.99rem) {
-    .garage-grid {
-      --cols: 3;
-    }
-  }
-  @container garage-collection (min-width: 94rem) and (max-width: 127.99rem) {
-    .garage-grid {
-      --cols: 4;
-    }
   }
   @media (min-width: 64rem) {
     .garage-collection {
@@ -1176,7 +1140,7 @@
 @container garage-collection (min-width: 43rem) {
   .garage-grid[data-view="list"] {
     grid-template-columns: minmax(0, 1fr);
-    max-width: 75rem;
+    /* Largura toda da coleção, como a grade (antes, teto de 75rem: lateral vazia em tela larga). */
     gap: 0.875rem;
   }
   .garage-grid[data-view="list"] .garage-card__grid {

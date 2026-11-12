@@ -41,7 +41,8 @@ export function notificationData(notification: Pick<NotificationRow, "data">): N
   };
 }
 
-const RECENT_LIMIT = 20;
+/** A lista do popover traz só as mais recentes; o contador (`useUnreadNotificationsCount`) conta todas no banco. */
+export const RECENT_LIMIT = 20;
 
 export function useNotifications() {
   const { user } = useAuth();

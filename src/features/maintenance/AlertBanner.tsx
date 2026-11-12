@@ -18,7 +18,7 @@ type AlertBannerProps = {
  * critérios; obrigação e documento não têm km) — aí o texto diz isso e a data
  * aparece como prevista, em vez de "Venceu em" com uma data futura.
  */
-function alertDetail(alert: VehicleAlert, today: string): string | null {
+export function alertDetail(alert: VehicleAlert, today: string): string | null {
   const km = alert.due_odometer_km != null ? formatKm(alert.due_odometer_km) : null;
   const dateReached = alert.due_on != null && alert.due_on <= today;
   if (alert.severity === "critical" && km && !dateReached) {

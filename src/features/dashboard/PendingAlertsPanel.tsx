@@ -30,7 +30,7 @@ type AlertSource = { kind: string; overdue: string; soon: string; destination: s
  * mostram esses alertas (Manutenção e Documentos, aba Obrigações). Fonte
  * desconhecida (a view ganhou outra) continua aparecendo, só sem link.
  */
-function alertSource(vehicleId: string, alert: VehicleAlert): AlertSource | null {
+export function alertSource(vehicleId: string, alert: VehicleAlert): AlertSource | null {
   switch (alert.source_table) {
     case "maintenance_items":
       return { kind: "Manutenção", overdue: "Vencida", soon: "Próxima", destination: "Manutenção", href: ROUTES.vehicleMaintenance(vehicleId) };
@@ -44,7 +44,7 @@ function alertSource(vehicleId: string, alert: VehicleAlert): AlertSource | null
 }
 
 /** Vencidos primeiro; dentro de cada grupo, o prazo mais próximo primeiro (sem data vai pro fim). */
-function sortAlerts(alerts: VehicleAlert[]): VehicleAlert[] {
+export function sortAlerts<T extends VehicleAlert>(alerts: T[]): T[] {
   return [...alerts].sort((a, b) => {
     const severity = Number(b.severity === "critical") - Number(a.severity === "critical");
     if (severity !== 0) return severity;

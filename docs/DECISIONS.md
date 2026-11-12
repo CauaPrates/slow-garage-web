@@ -4620,3 +4620,148 @@ dentro da janela, sem rolagem lateral, pior contraste 6,6:1 (escuro) e 6,0:1
 A capa a 390 px corta "Edição 01" atrás do botão de pausa (é fundo). O
 avanço automático no celular gasta bateria e dados (~400 KB) — decisão do
 produto, pausável.
+
+## ADR-105 — Redesign etapa 15: notificações, alertas, convites e o "Ver" da Atividade
+
+**Status.** Implementada. **Revisão visual pendente** — não aprovada. Branch
+`feature/048-redesign-etapa-15`, a partir da `feature/047-redesign-etapa-14`
+(árvore limpa na partida). Sem commit, push nem merge. A gestão
+administrativa de convites (painel admin) fica para a etapa 16.
+
+**Fluxos confirmados no código (inventário).**
+
+| Superfície | Entrada | Dados e ordem | Ações e destinos | Estados |
+|---|---|---|---|---|
+| Notificações | `sm`+: botão `Inbox` (`HeaderNotificationsMenu`); abaixo de `sm`: aba "Notificações" do `HeaderInboxMenu` | `notifications`, 20 mais recentes por `created_at` desc; contador = `count exact, head` com `read_at is null` (todas, não só as 20); tempo real por INSERT, assinado só no `HeaderNotificationsMenu` (montado oculto no celular) | marcar uma como lida (PATCH `read_at` por id), marcar todas (PATCH `read_at is null`), apagar (DELETE, sem confirmação); seguir link marca como lida e fecha; links pro painel só com `is_admin` true; "Meus convites" no rodapé. Toda escrita invalida `["notifications"]` no `onSettled` (sucesso **ou** falha): lista e contador voltam do banco | carregando, falha da lista, vazio |
+| Alertas (sino) | botão `Bell` em todas as larguras | `vehicle_alerts` de todos os veículos (`in`), `severity` desc (enum `warning` < `critical`); contador = total, cor pelo pior | **nenhum link** (como antes) | carregando, falha, vazio |
+| Atividade | `sm`–`lg`: "Atividade recente" (`HeaderActivityMenu`); abaixo de `sm`: aba "Atividade"; `lg`+: lateral (`SidebarActivityFeed`, fora desta etapa) | `vehicle_timeline` de todos os veículos, `occurred_on` desc, 8 eventos (`useGarageTimeline`) | "Ver" → `resolveTimelineLink` (lista da tela de origem; item de projeto com `project_id` → detalhe do projeto); nota → editar/excluir (diálogos do Histórico); tipo desconhecido → nada | carregando, falha, vazio |
+| Convites (convidado) | notificação `admin_invite_received`; `/convites` (rodapé das notificações, menu do perfil, Configurações) | `admin_invites` por id (notificação) e pendentes válidos do próprio usuário (`/convites`); `pending` com `expires_at` vencido = expirado (`effectiveInviteStatus`) | `accept_admin_invite` / `decline_admin_invite`; aceitar promove (`is_admin` true, "Painel admin" no menu); os dois avisam quem convidou. O e-mail do convite leva só à home — o aceite é sempre logado. `/convites` é protegida: sem sessão, `/entrar?redirect=%2Fconvites` e volta (conferido) | pendente, aceito, recusado, cancelado, expirado, indisponível, falha |
+
+Quem convidou: o convidado não lê o perfil de outros (`admin_get_user` é só
+de admin); o único lugar com o nome é o `body` da notificação
+(`private.notify`: "Renata Duarte convidou você… vale até …").
+
+**Decisão.**
+
+- **"Ver" da Atividade** (`HeaderActivityMenu`, linha local `ActivityEntry`):
+  o mesmo link do Histórico — `textLinkClassName("xs")` + `min-w-11`, "Ver"
+  visível e o destino no `sr-only` por `entryFromEvent`/`viewLinkContext`
+  ("Ver lista de Manutenção, a partir de Troca de óleo e filtro, 12/11/2026";
+  "Ver projeto, a partir de Comando de válvulas 272°, …"). Rota igual. Linha
+  no padrão do Histórico no celular: tipo · data com a ação no canto, título
+  na largura toda (quebra), km · valor, descrição em duas linhas; o nome do
+  veículo inteiro, quebrando (era cortado). Seguir "Ver" fecha o popover
+  (antes ficava aberto sobre a tela de destino). O `variant="card"` do
+  `TimelineItem` saiu (sem consumidor); a linha do dashboard não mudou.
+- **Popovers com lista** (`HEADER_POPOVER_CLASSNAME`): não passam da altura
+  disponível (variável do Radix, teto de 40rem) — em 320×640 a caixa de
+  entrada passava do fim da tela; cabeçalho e rodapé fixos, só a lista rola,
+  com `overscroll-contain`.
+- **Notificações**: "Não lida" escrito + fio lateral + peso (antes: cor, peso
+  e texto oculto); título, texto e ação primeiro, data relativa (completa no
+  `title`); ações da linha numa coluna de 44px que não encolhe. Resumo sob o
+  título ("3 não lidas" / "Todas lidas" · "as 20 mais recentes" quando a
+  lista chega ao limite). "Marcar todas" em texto neutro (era laranja).
+  Estados por componente (`SkeletonList` com texto, `InlineError` com
+  "Tentar de novo" — antes a falha não tinha nova tentativa). Foco: depois de
+  marcar como lida vai para "Apagar" da mesma linha; depois de apagar ou de
+  "marcar todas", para a lista (antes, `<body>`).
+- **Sino**: agrupado por veículo (nome inteiro), dentro dele a ordem do painel
+  de pendências do dashboard (`sortAlerts`: vencidos, depois o prazo mais
+  próximo). Cada linha: situação + origem com os rótulos do dashboard
+  (`alertSource`) + item + a linha de prazo do `AlertBanner` (`alertDetail`,
+  que separa data de quilometragem). Nenhuma regra nova — as três funções só
+  passaram a ser exportadas. Resumo "5 vencidas · 9 próximas · 3 veículos".
+  A região "Lista de alertas" da etapa 07 continua focável, com contorno,
+  setas e Page Down; o fim dela não rola a página. Sem link, como antes.
+- **Convites** (`InviteResponse`, `MyInvitesPage`): página no padrão comum
+  (`Page`, `PageHeader`, `Panel`, `EmptyState`, `InlineError`, `Alert`).
+  Cartão: quem convidou (texto da notificação; sem ela, "Um administrador do
+  Slow Garage…"), recebido/vale até, "Se você aceitar" / "Se você recusar"
+  (só o que o produto faz: Painel admin no menu e em Configurações; usuários,
+  convites e auditoria com cadastro e contagens — RN-7; convidar e remover
+  administradores; recusar não muda nada; convite novo para aceitar depois;
+  veículos não mudam; quem convidou é avisado) e "Aceitar convite" /
+  "Recusar". Envio: trava em `ref` (dois cliques → uma RPC) e `aria-disabled`
+  com "Aceitando…" (o foco fica no botão; com `disabled` caía no `<body>`).
+  Resultado na tela e com foco ("Convite aceito. Agora você é Administrador
+  Gearhead." + "Ir para o painel"; "Convite recusado…"). Antes o cartão saía
+  da lista de pendentes na hora e não sobrava nada — nem o erro de um
+  convite vencido ou cancelado no meio do caminho; agora o cartão respondido
+  fica e mostra a situação nova (selo + frase). Na notificação, a mesma peça
+  em modo compacto.
+- **"Tentar de novo"** (`hooks/useRetryFocus`): depois de uma nova tentativa
+  com sucesso, o foco vai ao bloco que carregou (antes, `<body>`).
+
+**Medida do "Ver" (antes → depois).** Antes (código da etapa 14): 35×16 em
+320, 390, 768 e 1023; nome "Ver" nos 8 (7 repetidos); 15 dos 49 pontos do
+quadrado de 44 em volta do centro caíam no link. Depois: 44×44 nos 8, em
+todas as larguras; 49/49 pontos do link e do quadrado de 44 no próprio
+`<a>`; nomes diferentes entre si, todos começando por "Ver"; toque no canto
+inferior direito navega; clique 4px fora não navega (não há controle ali).
+
+**Destinos conferidos** (toque, 390, com o handler da tela de destino):
+abastecimento → Abastecimentos; manutenção → Manutenção; gasto com e sem
+título próprio → Gastos; problema → Problemas; documento → Documentos; item
+de projeto com projeto → detalhe; sem projeto → Projetos. Popover fechado e
+foco no gatilho depois de cada um. Nota (editar/excluir; Escape devolve o
+foco ao botão com o popover aberto) e tipo desconhecido (sem ação) como
+antes. Enter no "Ver" pelo teclado: navega, fecha, foco no gatilho.
+
+**Divergências de texto registradas (regra de cálculo preservada).**
+
+- Vencida só pela quilometragem, data ainda por vir ("Rodízio de pneus",
+  87.000 km, data +20 dias): dashboard "Venceu em 02/12/2026 · previsto aos
+  87.000 km (passou 400 km)" — "Venceu" com data futura; sino "Venceu aos
+  87.000 km · data prevista 02/12/2026", Manutenção "Vencida por
+  quilometragem".
+- Vence hoje ("Licenciamento 2026"): dashboard "Vence em 12/11/2026"; sino
+  "Vence hoje"; Documentos usa o selo "Vence hoje" (já na ADR-100).
+
+**Pendências registradas (anteriores, não alteradas).**
+
+- Sino sem link para Manutenção/Documentos (ADR-100) — mantido.
+- Notificações: apagar sem confirmação; só as 20 mais recentes, sem
+  paginação (agora dito no resumo).
+- Aceitar pela notificação não muda o contador de não lidas: a notificação
+  do convite é marcada como lida, mas o aceite gera `admin_role_granted`
+  (gatilho do banco), nova.
+- Tab no popover não sai dele depois do último controle (o `FocusScope` do
+  Radix volta ao primeiro); Escape fecha e devolve o foco — igual a antes.
+- "Ver" leva à lista da tela, não ao registro (ADR-102).
+- "Ver usuário no painel" (visão de admin) repete o texto entre
+  notificações; o título completa o nome via `aria-describedby`.
+- 320×640: em Meus convites, "Aceitar convite" fica a 718px (abaixo da
+  primeira tela) — a explicação vem antes da decisão; 390×844 em diante,
+  na primeira tela.
+- A atividade da lateral (`lg`+) não foi alterada.
+
+**Fora da etapa, a pedido (12/11/2026) — Minha garagem na largura toda.**
+A grade da coleção tinha teto de min(nº de veículos, colunas) × card máximo
+(ADR-095) e a lista, 75rem: em tela larga com poucos veículos a lateral
+direita ficava vazia. A pedido do usuário as duas ocupam a largura toda da
+coleção (os cards crescem e dividem a linha; com muitos, quebram pelo
+`--garage-card-min`). `--garage-card-max`, `--n` e `--cols` saíram. Medido
+(cenário `g15`): 1440, 1920 e 2560 com 1, 2 e 4 veículos, grade e lista —
+sobra à direita 0px, sem rolagem lateral; 1024 e 390 como antes.
+
+**Verificação.** Dados simulados (ferramenta externa
+`redesign-capturas/ferramenta/inspect.mjs`, `inboxHandler` novo, cenários
+153–157 e `g15`, arquivos 253–258, `etapa-15/relatorio.txt`; antes em
+`relatorio-antes.txt`, a mesma sonda no código da etapa 14). Notificações com
+os textos de `private.notify`, convites em todos os estados, RPCs com os
+`hint`s do banco, falhas e atrasos trocados no meio do cenário; rede
+trancada, nenhuma chamada ao Supabase real. Conferido: marcar uma/todas e
+apagar com falha e nova tentativa (contador e selo 3 → 2 → 1 → 0; falha não
+muda), caixa vazia × aba sem mensagens × erro × carregando, 25 notificações
+(20 na lista, selo "9+") com rolagem real até o último item e "Meus
+convites" alcançável em 390×640 e 320×568; sino com 14 alertas de 3
+veículos, Tab até a lista, seta/Page Down, Page Down além do fim sem rolar a
+página, Escape → sino; convite: aceitar (dois cliques → uma RPC), recusar,
+falha de envio + nova tentativa, vencido / cancelado / autor não-admin
+durante a sessão, pela notificação, carregando e falha do convite, nenhum
+pendente, já admin, login no meio (`?redirect=`) e decisão depois. 320, 390,
+768, 1023, 1440, 1920 e 2560, claro e escuro: sem rolagem lateral, nenhum
+alvo menor que 44px, popovers inteiros na tela, axe sem violações em 35
+estados. `npm run lint`, `npx tsc -b` e `npm run build` limpos. Nenhum
+aparelho físico nem leitor de tela real.

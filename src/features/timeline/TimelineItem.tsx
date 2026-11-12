@@ -18,16 +18,18 @@ import { DeleteNoteDialog } from "./DeleteNoteDialog";
 type TimelineItemProps = {
   vehicleId: string;
   event: TimelineEventRow;
-  /**
-   * Etapa 04: `row` é a linha compacta da "Atividade recente" do dashboard —
-   * sem caixa própria (a lista já mora num painel com divisores), título um
-   * passo menor e "Ver" com alvo de 44px e nome completo pro leitor de tela.
-   * O conteúdo e as ações são os mesmos do `card` da tela de Histórico.
-   */
-  variant?: "card" | "row";
 };
 
-export function TimelineItem({ vehicleId, event, variant = "card" }: TimelineItemProps) {
+/**
+ * Etapa 04: a linha compacta da "Atividade recente" do dashboard — sem caixa
+ * própria (a lista já mora num painel com divisores), título um passo menor
+ * e "Ver" com alvo de 44px e nome completo pro leitor de tela.
+ *
+ * Etapa 15: o cartão (`variant="card"`) saiu — o único consumidor era a
+ * "Atividade" do cabeçalho, que agora monta a linha dela
+ * (`HeaderActivityMenu`). A linha do dashboard não mudou.
+ */
+export function TimelineItem({ vehicleId, event }: TimelineItemProps) {
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
 
@@ -42,25 +44,16 @@ export function TimelineItem({ vehicleId, event, variant = "card" }: TimelineIte
   // Etapa 13: a mesma nota (título nulo continua nulo) que o Histórico passa aos diálogos.
   const note = noteFromEvent(event);
   const targetHref = resolveTimelineLink(vehicleId, event);
-  const isRow = variant === "row";
 
   return (
-    <div
-      className={
-        isRow
-          ? "flex items-start gap-3 px-4 py-3"
-          : "flex items-start gap-3 rounded-lg border border-border bg-surface p-4"
-      }
-    >
+    <div className="flex items-start gap-3 px-4 py-3">
       <Icon className="mt-0.5 h-5 w-5 shrink-0 text-text-secondary" aria-hidden="true" />
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-          <p className={isRow ? "text-sm font-medium break-words text-text-primary" : "font-medium text-text-primary"}>
-            {event.title ?? "Sem título"}
-          </p>
-          {/* Na linha compacta, abastecimento já se chama "Abastecimento" na view — não repete o tipo. */}
-          {!(isRow && event.title === typeLabel) && <span className="text-xs text-text-secondary">{typeLabel}</span>}
+          <p className="text-sm font-medium break-words text-text-primary">{event.title ?? "Sem título"}</p>
+          {/* Abastecimento já se chama "Abastecimento" na view — não repete o tipo. */}
+          {event.title !== typeLabel && <span className="text-xs text-text-secondary">{typeLabel}</span>}
         </div>
         <p className="text-xs text-text-secondary">
           {event.occurred_on ? formatDateOnly(event.occurred_on) : "—"}
@@ -71,9 +64,9 @@ export function TimelineItem({ vehicleId, event, variant = "card" }: TimelineIte
         )}
       </div>
 
-      <div className={isRow ? "-my-2.5 flex shrink-0 items-center gap-1" : "flex shrink-0 flex-col items-end gap-2"}>
+      <div className="-my-2.5 flex shrink-0 items-center gap-1">
         {event.amount != null && (
-          <span className={isRow ? "text-sm font-medium whitespace-nowrap text-text-primary" : "font-medium text-text-primary"}>
+          <span className="text-sm font-medium whitespace-nowrap text-text-primary">
             {formatMoney(event.amount)}
           </span>
         )}
@@ -100,14 +93,10 @@ export function TimelineItem({ vehicleId, event, variant = "card" }: TimelineIte
           targetHref && (
             <Link
               to={targetHref}
-              className={
-                isRow
-                  ? "-mr-2 inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-md px-2 text-xs text-accent underline"
-                  : "inline-flex items-center gap-1 text-xs text-accent underline"
-              }
+              className="-mr-2 inline-flex min-h-11 min-w-11 items-center justify-center gap-1 rounded-md px-2 text-xs text-accent underline"
             >
               Ver
-              {isRow && <span className="sr-only"> {event.title ?? "registro"} ({typeLabel})</span>}
+              <span className="sr-only"> {event.title ?? "registro"} ({typeLabel})</span>
               <ExternalLink className="h-3 w-3" aria-hidden="true" />
             </Link>
           )
