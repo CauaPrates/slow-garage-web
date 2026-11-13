@@ -1,5 +1,7 @@
 import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { format, parseISO } from "date-fns";
+import { ptBR } from "date-fns/locale";
 import { RefreshCw } from "lucide-react";
 import { PageHeader } from "@/components/layout/Page";
 import { Button } from "@/components/ui/button";
@@ -19,6 +21,11 @@ import { StatList, type Stat } from "./components/StatList";
 import { useAdminOverview, useAdminSignupsByDay, type AdminOverview, type EntityCounts } from "./useAdmin";
 
 const SIGNUP_PERIODS = [7, 30, 90] as const;
+
+/** "2026-10-15" → "15/10" — o mesmo formato do eixo do `SignupsChart`. */
+function formatDayMonth(isoDate: string): string {
+  return format(parseISO(isoDate), "dd/MM", { locale: ptBR });
+}
 
 type AccountKey = Exclude<keyof AdminOverview["users"], "total" | "admins">;
 
@@ -91,6 +98,15 @@ export function AdminDashboardPage() {
   const stripState: SummaryState = overview ? "ready" : overviewQuery.isError ? "error" : "loading";
   const signups = signupsQuery.data;
   const signupsTotal = signups?.reduce((sum, day) => sum + day.signups, 0) ?? 0;
+  /*
+   * Etapa 17: o período escrito sai da série na tela, não do seletor. Com
+   * `keepPreviousData`, trocar 30 → 90 dias deixava "nos últimos 90 dias" sobre
+   * as barras e a soma de 30 até a resposta chegar. Enquanto a série nova não
+   * chega, o bloco fica `aria-busy` e esmaecido.
+   */
+  const shownDays = signups?.length ?? days;
+  const shownRange = signups?.length ? `${formatDayMonth(signups[0].day)} a ${formatDayMonth(signups[signups.length - 1].day)}` : null;
+  const switchingPeriod = signupsQuery.isPlaceholderData;
 
   return (
     <div className="flex flex-col gap-(--page-gap)">
@@ -149,7 +165,10 @@ export function AdminDashboardPage() {
 
         {(overview || !overviewQuery.isError) && (
           <div className="grid gap-(--page-gap) xl:grid-cols-2 xl:items-start">
-            <Panel title="Contas" description="Todos os usuários do app. Login conta o último acesso de cada um.">
+            <Panel
+              title="Contas"
+              description="Todos os usuários do app. Os períodos de 7 e 30 dias contam de agora para trás; login conta o último acesso de cada um."
+            >
               <StatList stats={accountStats(overview)} loading={!overview} columnsClassName={PANEL_STAT_COLUMNS} />
             </Panel>
             <Panel title="Registros no app" description="Somados de todos os usuários — só a contagem, nunca o conteúdo.">
@@ -161,7 +180,7 @@ export function AdminDashboardPage() {
 
       <Panel
         title="Cadastros por dia"
-        description={`Contas novas por dia nos últimos ${days} dias.`}
+        description="Contas novas por dia do calendário (horário de Brasília), com hoje incluído."
         action={
           <div className="-my-1 flex items-center gap-2">
             <Label htmlFor="admin-signups-days" className="sr-only">
@@ -182,7 +201,15 @@ export function AdminDashboardPage() {
           </div>
         }
       >
-        <div ref={chartRef} tabIndex={-1} className="flex flex-col gap-3 px-(--panel-pad-x) py-4 outline-offset-[-2px]">
+        <div
+          ref={chartRef}
+          tabIndex={-1}
+          aria-busy={switchingPeriod || undefined}
+          className={cn(
+            "flex flex-col gap-3 px-(--panel-pad-x) py-4 outline-offset-[-2px] transition-opacity duration-(--duration-fast)",
+            switchingPeriod && "opacity-60",
+          )}
+        >
           {signupsQuery.isLoading && (
             <div aria-busy="true">
               <span className="sr-only">Carregando cadastros…</span>
@@ -198,15 +225,16 @@ export function AdminDashboardPage() {
             <>
               <p className="text-sm text-text-secondary" aria-live="polite">
                 {signupsTotal === 0 ? (
-                  `Nenhum cadastro nos últimos ${days} dias.`
+                  `Nenhum cadastro nos últimos ${shownDays} dias${shownRange ? ` (${shownRange})` : ""}.`
                 ) : (
                   <>
                     <span className="type-value text-sm text-text-primary">{formatCount(signupsTotal)}</span>{" "}
-                    {signupsTotal === 1 ? "cadastro" : "cadastros"} nos últimos {days} dias.
+                    {signupsTotal === 1 ? "cadastro" : "cadastros"} nos últimos {shownDays} dias
+                    {shownRange && ` (${shownRange})`}.
                   </>
                 )}
               </p>
-              <SignupsChart days={days} data={signups} />
+              <SignupsChart days={shownDays} data={signups} />
             </>
           )}
         </div>
