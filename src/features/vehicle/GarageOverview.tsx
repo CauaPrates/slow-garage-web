@@ -260,18 +260,38 @@ export function GarageOverview({
  * (`GarageOverview`); o painel abre logo abaixo dela, recolhido por padrão.
  * O conteúdo só monta aberto (os gráficos não consultam à toa).
  */
-export function GarageDetails({ vehicles, id, open }: GarageOverviewProps & { id: string; open: boolean }) {
+type GarageDetailsProps = GarageOverviewProps &
+  (
+    | { placement?: "below"; id: string; open: boolean }
+    /** Tela larga: sempre aberto na lateral da coleção (`VehicleListPage`), sem botão. */
+    | { placement: "aside"; id?: undefined; open?: undefined }
+  );
+
+export function GarageDetails({ vehicles, id, open, placement = "below" }: GarageDetailsProps) {
   const titleId = useId();
   const d = useGarageOverviewData(vehicles);
 
   if (!d.isGarage) return null;
+
+  // Na lateral: o mesmo conteúdo, aberto. "Próxima manutenção" não entra — nessa largura ela está na faixa do resumo.
+  if (placement === "aside") {
+    return (
+      <section aria-labelledby={titleId} className="@container flex flex-col gap-4">
+        <h2 id={titleId} className="font-display text-lg leading-tight font-bold tracking-tight text-text-primary">
+          Detalhes e comparativo
+        </h2>
+        <GarageSummary vehicles={vehicles} />
+        <GarageComparisonDashboard vehicles={vehicles} />
+      </section>
+    );
+  }
 
   const nextServiceHint = d.nextService
     ? [d.nextServiceVehicle, d.nextServiceDate].filter(Boolean).join(" · ")
     : undefined;
 
   return (
-    <section id={id} hidden={!open} aria-labelledby={titleId} className="garage-inset flex flex-col gap-4 pt-5">
+    <section id={id} hidden={!open} aria-labelledby={titleId} className="garage-inset @container flex flex-col gap-4 pt-5">
       <h2 id={titleId} className="font-display text-lg leading-tight font-bold tracking-tight text-text-primary">
         Detalhes e comparativo
       </h2>

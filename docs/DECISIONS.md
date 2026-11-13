@@ -4736,14 +4736,46 @@ antes. Enter no "Ver" pelo teclado: navega, fecha, foco no gatilho.
   na primeira tela.
 - A atividade da lateral (`lg`+) não foi alterada.
 
-**Fora da etapa, a pedido (12/11/2026) — Minha garagem na largura toda.**
-A grade da coleção tinha teto de min(nº de veículos, colunas) × card máximo
-(ADR-095) e a lista, 75rem: em tela larga com poucos veículos a lateral
-direita ficava vazia. A pedido do usuário as duas ocupam a largura toda da
-coleção (os cards crescem e dividem a linha; com muitos, quebram pelo
-`--garage-card-min`). `--garage-card-max`, `--n` e `--cols` saíram. Medido
-(cenário `g15`): 1440, 1920 e 2560 com 1, 2 e 4 veículos, grade e lista —
-sobra à direita 0px, sem rolagem lateral; 1024 e 390 como antes.
+**Fora da etapa, a pedido — Minha garagem: a faixa vazia à direita.**
+A grade da coleção tem teto de min(nº de veículos, colunas) × card máximo
+(ADR-095) e a lista, 75rem: em tela larga com poucos veículos sobrava uma
+faixa vazia à direita.
+
+- 12/11/2026: primeira tentativa — grade e lista na largura toda (cards
+  crescendo para dividir a linha). **Desfeita em 13/11/2026**: os cards
+  ficaram grandes demais (510–780px). Teto da ADR-095, `--garage-card-max` e
+  os 75rem da lista voltaram exatamente como eram.
+- 13/11/2026: a faixa ganhou conteúdo — primeiro as pendências da garagem;
+  na revisão do mesmo dia, a pedido, **"Detalhes e comparativo"** (o que
+  ficava atrás do botão do resumo). A partir de 115rem de tela
+  (`GARAGE_ASIDE_QUERY`; a coleção passa de ~94rem) o painel fica **aberto
+  na lateral da coleção** (`GarageDetails placement="aside"`, numa `aside`)
+  e o botão "Detalhes e comparativo" some do resumo; a lateral só monta nessa
+  largura (os gráficos não consultam à toa). Abaixo dela, o botão e o painel
+  embaixo do resumo, como antes. Conteúdo e contas iguais: resumo
+  financeiro, gasto por mês, gasto por categoria e comparativo; "Próxima
+  manutenção" não entra (nessa largura já está na faixa do resumo). As
+  colunas dos totais e dos gráficos passaram de breakpoint de tela
+  (`sm`/`lg`) para container query do próprio painel (`@xl`/`@3xl`): 2
+  totais por linha na lateral de 352px, 3 em 648px; embaixo do resumo, 5
+  totais e 2 gráficos em 1120px (1440) como antes — em 1024 (painel de
+  704px) passam a 3 totais e um gráfico por linha (eram 5, apertados).
+  **Com um veículo só** (sem comparativo — o painel nem existe), a lateral
+  mostra as **pendências da garagem** (`GaragePendingPanel`): o que o resumo
+  só conta, por extenso, com o link para a tela onde se resolve; mesmos
+  dados e textos do sino (`useGarageAlerts`, `alertSource`, `alertDetail`,
+  `sortAlerts`); nada pendente → a próxima manutenção prevista.
+  A coluna da grade tem a largura do teto dela (mesma conta, ou 75rem na
+  lista), limitada ao que sobra; a lateral fica com o resto (mínimo 22rem —
+  com 24 a grade não comportava 3 cards entre 1840 e ~1860) — sem vão entre
+  as duas. Medido (cenário `g15`): 1840, 1920 (claro e escuro, 1, 2 e 4
+  veículos) e 2560; grade e lista: cards no tamanho da ADR-095 (359px a
+  1840, 384 a 1920 com 2 carros, 488 a 2560), sobra à direita 0px, sem
+  rolagem lateral, nada cortado além do nome longo no gráfico de
+  investimento (já era assim), axe sem violações; 1839, 1440, 1024 e 390
+  sem lateral, com o botão, e os detalhes abertos embaixo do resumo sem
+  violações. Em 2560 na lista a lateral fica larga (976px), porque a lista
+  para em 75rem.
 
 **Verificação.** Dados simulados (ferramenta externa
 `redesign-capturas/ferramenta/inspect.mjs`, `inboxHandler` novo, cenários
