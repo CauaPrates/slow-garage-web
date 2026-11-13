@@ -1160,6 +1160,57 @@
     width: 9.5rem;
   }
 }
+/*
+ * Lateral da coleção (13/11/2026, a pedido): com a tela a partir de 115rem
+ * (a coleção passa de ~94rem), a grade para no teto dela (ADR-095) e sobrava
+ * uma faixa vazia à direita. Ali entra "Detalhes e comparativo", aberto
+ * (`GarageDetails` na lateral; com um veículo só, `GaragePendingPanel`). A
+ * mesma largura está em `GARAGE_ASIDE_QUERY` (a lateral só monta nela). Grade
+ * e cards continuam com o tamanho de antes; abaixo dessa largura nada muda.
+ *
+ * A coluna da grade tem a largura do teto da própria grade (a mesma conta de
+ * `.garage-grid`: nº de itens × card máximo, ou 75rem na lista), limitada ao
+ * que sobra depois da lateral; a lateral fica com o resto (mínimo 22rem).
+ * Assim não abre vão entre a grade e a lateral com um veículo só ou em 2560.
+ */
+.garage-aside {
+  display: none;
+}
+.garage-collection__body {
+  --body-n: 99;
+  /* 22rem: com 24 a grade não comportava 3 cards entre 1840 e ~1860 de tela (2 cards largos + a vaga embaixo). */
+  --aside-min: 22rem;
+  --grid-cap: calc(var(--body-n) * (var(--garage-card-max) + var(--garage-gap)) - var(--garage-gap));
+}
+.garage-collection__body:has(.garage-grid > :last-child:nth-child(1)) {
+  --body-n: 1;
+}
+.garage-collection__body:has(.garage-grid > :last-child:nth-child(2)) {
+  --body-n: 2;
+}
+.garage-collection__body:has(.garage-grid > :last-child:nth-child(3)) {
+  --body-n: 3;
+}
+.garage-collection__body:has(.garage-grid > :last-child:nth-child(4)) {
+  --body-n: 4;
+}
+.garage-collection__body:has(.garage-grid[data-view="list"]) {
+  --grid-cap: 75rem;
+}
+@media (min-width: 115rem) {
+  .garage-collection__body {
+    display: grid;
+    grid-template-columns:
+      min(var(--grid-cap), calc(100% - var(--aside-min) - var(--garage-gap)))
+      minmax(var(--aside-min), 1fr);
+    gap: var(--garage-gap);
+    align-items: start;
+  }
+  .garage-aside {
+    display: block;
+  }
+}
+
 .garage-filter-empty {
   display: flex;
   flex-direction: column;

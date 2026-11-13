@@ -7,6 +7,9 @@ import { VehicleCard } from "./VehicleCard";
 import { CreateVehicleDialog } from "./CreateVehicleDialog";
 import { GarageCover } from "./GarageCover";
 import { GarageDetails, GarageOverview } from "./GarageOverview";
+import { GaragePendingPanel } from "./GaragePendingPanel";
+import { GARAGE_ASIDE_QUERY } from "./garageLayout";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { GarageToolbar, type GarageView } from "./GarageToolbar";
 import {
   matchesSearch,
@@ -107,6 +110,9 @@ export function VehicleListPage() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const detailsId = useId();
   const hasVehicles = !isLoading && !isError && vehicles && vehicles.length > 0;
+  // Tela larga: "Detalhes e comparativo" sai do botão e fica aberto na lateral da coleção (só monta lá: os gráficos não consultam à toa).
+  const wideAside = useMediaQuery(GARAGE_ASIDE_QUERY);
+  const detailsInAside = wideAside && (vehicles?.length ?? 0) >= 2;
   const [query, setQuery] = useGarageSearch();
   const [status, setStatus] = useState<StatusFilter>("all");
   const [sort, setSort] = useStoredChoice<SortOption>("slow-garage:garage-sort", ["recent", "oldest", "name", "invested", "odometer"], "recent");
@@ -136,9 +142,13 @@ export function VehicleListPage() {
         <>
           <GarageOverview
             vehicles={vehicles}
-            details={{ open: detailsOpen, onToggle: () => setDetailsOpen((open) => !open), controlsId: detailsId }}
+            details={
+              detailsInAside
+                ? undefined
+                : { open: detailsOpen, onToggle: () => setDetailsOpen((open) => !open), controlsId: detailsId }
+            }
           />
-          <GarageDetails vehicles={vehicles} id={detailsId} open={detailsOpen} />
+          {!detailsInAside && <GarageDetails vehicles={vehicles} id={detailsId} open={detailsOpen} />}
         </>
       )}
 
@@ -202,52 +212,66 @@ export function VehicleListPage() {
               ? `${visible.length} ${visible.length === 1 ? "veículo encontrado" : "veículos encontrados"}`
               : ""}
           </p>
-          {visible.length > 0 ? (
-            <div ref={setGridElement} className="garage-grid" data-view={view}>
-              {visible.map((vehicle) => (
-                <VehicleCard key={vehicle.id} vehicle={vehicle} categories={categories} />
-              ))}
-              {/*
-                "Vaga livre" (ADR-097): o último lugar da grade é o próprio cadastro —
-                o mesmo diálogo do botão da capa, não um card fictício. Só sem
-                busca e sem filtro (no meio de um resultado filtrado não faz sentido).
-                Nome acessível: "Estacionar veículo" (o diálogo é o de cadastro).
-              */}
-              {!filtering && (
-                <CreateVehicleDialog
-                  triggerClassName="garage-slot"
-                  triggerLabel={
-                    <>
-                      <span className="garage-slot__plus" aria-hidden="true">
-                        <Plus className="h-5 w-5" />
-                      </span>
-                      <span className="garage-slot__eyebrow" aria-hidden="true">
-                        Vaga livre
-                      </span>
-                      <span className="garage-slot__title">Estacionar veículo</span>
-                    </>
-                  }
-                />
+          {/*
+            Corpo da coleção: a grade e, em tela larga, a lateral com as pendências
+            (13/11/2026): "Detalhes e comparativo" aberto, onde antes sobrava uma faixa vazia
+            à direita da grade; com um veículo só (sem comparativo), as pendências.
+          */}
+          <div className="garage-collection__body">
+            <div className="min-w-0">
+              {visible.length > 0 ? (
+                <div ref={setGridElement} className="garage-grid" data-view={view}>
+                  {visible.map((vehicle) => (
+                    <VehicleCard key={vehicle.id} vehicle={vehicle} categories={categories} />
+                  ))}
+                  {/*
+                    "Vaga livre" (ADR-097): o último lugar da grade é o próprio cadastro —
+                    o mesmo diálogo do botão da capa, não um card fictício. Só sem
+                    busca e sem filtro (no meio de um resultado filtrado não faz sentido).
+                    Nome acessível: "Estacionar veículo" (o diálogo é o de cadastro).
+                  */}
+                  {!filtering && (
+                    <CreateVehicleDialog
+                      triggerClassName="garage-slot"
+                      triggerLabel={
+                        <>
+                          <span className="garage-slot__plus" aria-hidden="true">
+                            <Plus className="h-5 w-5" />
+                          </span>
+                          <span className="garage-slot__eyebrow" aria-hidden="true">
+                            Vaga livre
+                          </span>
+                          <span className="garage-slot__title">Estacionar veículo</span>
+                        </>
+                      }
+                    />
+                  )}
+                </div>
+              ) : (
+                <div className="garage-filter-empty">
+                  <p className="text-sm text-text-secondary">
+                    {query.trim()
+                      ? `Nenhum veículo encontrado para “${query.trim()}”${status !== "all" ? ` em ${statusTab.label}` : ""}.`
+                      : `${statusTab.empty}.`}
+                  </p>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setQuery("");
+                      setStatus("all");
+                    }}
+                  >
+                    {query.trim() ? "Limpar busca e filtros" : "Ver todos"}
+                  </Button>
+                </div>
               )}
             </div>
-          ) : (
-            <div className="garage-filter-empty">
-              <p className="text-sm text-text-secondary">
-                {query.trim()
-                  ? `Nenhum veículo encontrado para “${query.trim()}”${status !== "all" ? ` em ${statusTab.label}` : ""}.`
-                  : `${statusTab.empty}.`}
-              </p>
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setQuery("");
-                  setStatus("all");
-                }}
-              >
-                {query.trim() ? "Limpar busca e filtros" : "Ver todos"}
-              </Button>
-            </div>
-          )}
+            {wideAside && (
+              <aside aria-label={detailsInAside ? "Detalhes e comparativo" : "Pendências da garagem"} className="garage-aside">
+                {detailsInAside ? <GarageDetails vehicles={vehicles} placement="aside" /> : <GaragePendingPanel vehicles={vehicles} />}
+              </aside>
+            )}
+          </div>
         </section>
       )}
     </div>

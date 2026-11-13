@@ -7,8 +7,13 @@ import { useRef } from "react";
  * (chame no `onOpenAutoFocus`); `onCloseAutoFocus` devolve o foco a ele se ele
  * ainda estiver na tela. Se sumiu (ex.: item de um menu que já fechou), não faz
  * nada e quem abriu o diálogo decide.
+ *
+ * Etapa 16: `visible` devolve o foco com o anel à vista mesmo depois de um
+ * clique em "Cancelar" (`focus({ focusVisible: true })`) — sem ele, o navegador
+ * só mostra o anel se a última interação foi pelo teclado. Opcional: os
+ * diálogos que já usavam o hook continuam como estavam.
  */
-export function useReturnFocus() {
+export function useReturnFocus({ visible = false }: { visible?: boolean } = {}) {
   const returnTo = useRef<HTMLElement | null>(null);
   return {
     capture() {
@@ -20,7 +25,7 @@ export function useReturnFocus() {
       returnTo.current = null;
       if (element?.isConnected) {
         event.preventDefault();
-        element.focus();
+        element.focus(visible ? { focusVisible: true } : undefined);
       }
     },
   };

@@ -41,7 +41,25 @@ export function notificationData(notification: Pick<NotificationRow, "data">): N
   };
 }
 
-const RECENT_LIMIT = 20;
+/**
+ * Etapa 15 (ajuste final) — correção só de apresentação. O título vem pronto
+ * do banco (`private.notify`, gatilho de troca de role) e fica gravado em
+ * cada notificação; "role" não é palavra do produto. Para este tipo, o texto
+ * gravado é trocado na tela — vale para as notificações novas e para as já
+ * gravadas. Qualquer outro título (o banco mudar o texto) aparece como veio.
+ */
+const DISPLAY_TITLES: Partial<Record<NotificationType, Record<string, string>>> = {
+  admin_role_revoked: {
+    "Sua role de administrador foi removida": "Seu acesso de administrador foi removido",
+  },
+};
+
+export function notificationTitle(notification: Pick<NotificationRow, "type" | "title">): string {
+  return DISPLAY_TITLES[notification.type]?.[notification.title] ?? notification.title;
+}
+
+/** A lista do popover traz só as mais recentes; o contador (`useUnreadNotificationsCount`) conta todas no banco. */
+export const RECENT_LIMIT = 20;
 
 export function useNotifications() {
   const { user } = useAuth();

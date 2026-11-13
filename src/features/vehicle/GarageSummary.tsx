@@ -78,7 +78,8 @@ export function GarageSummary({ vehicles }: GarageSummaryProps) {
             .
           </p>
         </div>
-        <GarageTileGrid className="grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+        {/* Colunas pela largura do próprio painel (container query): o mesmo conteúdo mora embaixo do resumo ou na lateral da coleção. */}
+        <GarageTileGrid className="grid-cols-2 @xl:grid-cols-3 @3xl:grid-cols-5">
           {totals.map((item) => (
             <GarageTile
               key={item.label}
@@ -90,7 +91,7 @@ export function GarageSummary({ vehicles }: GarageSummaryProps) {
       </section>
 
       {summaryQuery.isLoading && (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2" aria-hidden="true">
+        <div className="grid grid-cols-1 gap-4 @3xl:grid-cols-2" aria-hidden="true">
           <Skeleton className="h-48 rounded-lg border border-border bg-surface" />
           <Skeleton className="h-48 rounded-lg border border-border bg-surface" />
         </div>
@@ -109,7 +110,7 @@ export function GarageSummary({ vehicles }: GarageSummaryProps) {
       )}
 
       {summaryQuery.data && (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 @3xl:grid-cols-2">
           <ExpensesByMonthChart data={summaryQuery.data.expensesByMonth} />
           <ExpensesByCategoryChart
             data={summaryQuery.data.expensesByCategory}

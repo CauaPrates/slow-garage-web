@@ -68,7 +68,7 @@ export function RecentActivityPanel({ vehicleId, query }: RecentActivityPanelPro
         <ul className="divide-y divide-border">
           {query.events.slice(0, RECENT_TIMELINE_LIMIT).map((event) => (
             <li key={`${event.source_table}-${event.source_id}`}>
-              <TimelineItem vehicleId={vehicleId} event={event} variant="row" />
+              <TimelineItem vehicleId={vehicleId} event={event} />
             </li>
           ))}
         </ul>

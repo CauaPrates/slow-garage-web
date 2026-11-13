@@ -7,7 +7,7 @@ export const ROLE_LABELS: Record<AppRole, string> = {
 
 export const AUDIT_ACTION_LABELS: Record<AuditAction, string> = {
   user_signed_up: "Cadastro",
-  role_changed: "Mudança de role",
+  role_changed: "Mudança de papel",
   admin_invite_created: "Convite enviado",
   admin_invite_accepted: "Convite aceito",
   admin_invite_declined: "Convite recusado",
