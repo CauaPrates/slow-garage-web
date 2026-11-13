@@ -2,10 +2,11 @@ import { useId, useState } from "react";
 import { Link } from "react-router-dom";
 import { AlertCircle, AlertTriangle, CheckCircle2, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatDateOnly, formatKm } from "@/lib/format";
+import { formatDateOnly, formatKm, todayDateOnly } from "@/lib/format";
 import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import { Panel } from "@/components/ui/panel";
+import { alertDetail } from "@/features/maintenance/AlertBanner";
 import type { VehicleAlert } from "./types";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -70,12 +71,35 @@ function kmDetail(dueKm: number | null, currentKm: number | null): string | null
   return `${base} (atingido)`;
 }
 
+/**
+ * Linha de prazo da pendência. Etapa 15 (ajuste final): dois casos seguem o
+ * texto do sino (`alertDetail`, do `AlertBanner`), sem regra nova — a
+ * situação continua sendo a `severity` da view:
+ * - vencida só pela quilometragem (crítica, com km previsto e a data ainda
+ *   por vir ou sem data): "Venceu aos 87.000 km · data prevista 02/12/2026"
+ *   ou só "Venceu aos 87.000 km". Antes: "Venceu em <data futura>";
+ * - vence hoje: "Vence hoje" (antes, "Vence em <hoje>").
+ * Os demais (data passada ou futura) mantêm o texto de antes, com a
+ * distância em km ("faltam"/"passou").
+ */
+function dueDetail(alert: VehicleAlert, currentOdometerKm: number | null): string {
+  const today = todayDateOnly();
+  const critical = alert.severity === "critical";
+  const dateReached = alert.due_on != null && alert.due_on <= today;
+  if (critical && alert.due_odometer_km != null && !dateReached) return alertDetail(alert, today) ?? "";
+  const date = alert.due_on
+    ? alert.due_on === today
+      ? "Vence hoje"
+      : `${critical ? "Venceu em" : "Vence em"} ${formatDateOnly(alert.due_on)}`
+    : null;
+  return [date, kmDetail(alert.due_odometer_km, currentOdometerKm)].filter(Boolean).join(" · ");
+}
+
 function AlertRow({ alert, vehicleId, currentOdometerKm }: { alert: VehicleAlert; vehicleId: string; currentOdometerKm: number | null }) {
   const critical = alert.severity === "critical";
   const Icon = critical ? AlertCircle : AlertTriangle;
   const source = alertSource(vehicleId, alert);
-  const date = alert.due_on ? `${critical ? "Venceu em" : "Vence em"} ${formatDateOnly(alert.due_on)}` : null;
-  const detail = [date, kmDetail(alert.due_odometer_km, currentOdometerKm)].filter(Boolean).join(" · ");
+  const detail = dueDetail(alert, currentOdometerKm);
 
   const content = (
     <>

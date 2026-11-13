@@ -17,41 +17,61 @@ import { notificationData, useNotifications } from "./useNotifications";
 
 type PendingInvite = NonNullable<ReturnType<typeof useMyPendingInvites>["data"]>[number];
 
-/** Quem convidou não é legível pelo convidado (`admin_get_user` é só de admin); o texto da notificação do convite é o único lugar que diz. */
-const INVITER_FALLBACK = "Um administrador do Slow Garage convidou você para ser Administrador Gearhead.";
+/**
+ * Quem convidou não é legível pelo convidado (`admin_get_user` é só de admin);
+ * o texto da notificação do convite é o único lugar que diz. Ele chega pronto
+ * do banco (`private.notify`: "Renata Duarte convidou você para ser
+ * Administrador Gearhead. O convite vale até 19/11/2026.") — daqui sai só o
+ * nome; a validade vem do próprio convite, uma vez só. Texto em outro
+ * formato (ou sem notificação): "Um administrador do Slow Garage".
+ */
+function inviterName(body: string | null | undefined): string | null {
+  // Sem `\b`: depois de "ê" (fora de \w) não há fronteira de palavra para o regex.
+  const match = body?.match(/^(.+?) convidou você(?:\s|$)/);
+  return match ? match[1].trim() : null;
+}
 
 type InviteCardProps = {
   invite: PendingInvite;
-  /** Texto da notificação do convite ("Renata Duarte convidou você…"), quando ela ainda existe. */
-  inviterSentence: string | null;
+  /** Nome de quem convidou, tirado da notificação do convite quando ela ainda existe. */
+  inviter: string | null;
   onRespond: () => void;
   onResolved: (outcome: "accepted" | "declined") => void;
 };
 
 /**
- * Um convite: quem convidou e até quando vale, o que muda em cada resposta e
- * as duas ações. O que muda vem do que o produto faz — aceite promove a
- * `gearhead_admin` e mostra o Painel admin; o painel lista usuários, convites
- * e o log de auditoria só com cadastro e contagens (RN-7); recusar mantém a
- * conta; nos dois casos quem convidou recebe uma notificação.
+ * Um convite. Etapa 15 (ajuste final): resumo → ações → detalhes, na tela e no
+ * Tab. O resumo diz quem convidou e a validade (uma vez só; antes ela vinha no
+ * cabeçalho e de novo no texto da notificação) e a frase curta do que o aceite
+ * dá ("Aceitar dá acesso ao painel administrativo.", do `InviteResponse`); as
+ * ações vêm logo depois — em 320×640 elas estavam a 718px, abaixo da primeira
+ * tela, atrás da explicação inteira. O retorno (sucesso ou erro) aparece no
+ * lugar das ações ou logo abaixo delas.
  *
- * Ordem de leitura e de Tab: quem convidou → o que muda → ações. A partir de
- * `@3xl` (largura do painel) o que muda vai para a coluna da direita e as
- * ações ficam sob o convite.
+ * Os detalhes vêm do que o produto faz — aceite promove a `gearhead_admin` e
+ * mostra o Painel admin; o painel lista usuários, convites e o log de
+ * auditoria só com cadastro e contagens (RN-7); recusar mantém a conta; nos
+ * dois casos quem convidou recebe uma notificação. A partir de `@3xl` (largura
+ * do painel) eles vão para a coluna da direita, como antes.
  */
-function InviteCard({ invite, inviterSentence, onRespond, onResolved }: InviteCardProps) {
+function InviteCard({ invite, inviter, onRespond, onResolved }: InviteCardProps) {
   return (
-    <Panel
-      title="Convite para Administrador Gearhead"
-      description={`Recebido em ${formatDateTime(invite.created_at)} · vale até ${formatDateTime(invite.expires_at)}`}
-    >
+    <Panel title="Convite para Administrador Gearhead" description={`Recebido em ${formatDateTime(invite.created_at)}`}>
       <div className="@container">
-        <div className="grid gap-x-8 gap-y-5 px-(--panel-pad-x) py-4 @3xl:grid-cols-2 @3xl:grid-rows-[auto_1fr]">
-          <p className="text-sm break-words text-text-primary @3xl:col-start-1 @3xl:row-start-1">
-            {inviterSentence ?? INVITER_FALLBACK}
-          </p>
+        <div className="grid gap-x-8 gap-y-4 px-(--panel-pad-x) py-4 @3xl:grid-cols-2 @3xl:grid-rows-[auto_1fr] @3xl:gap-y-5">
+          <div className="flex flex-col gap-0.5 text-sm @3xl:col-start-1 @3xl:row-start-1">
+            <p className="break-words text-text-primary">
+              <span className="font-semibold">{inviter ?? "Um administrador do Slow Garage"}</span> convidou você para
+              ser Administrador Gearhead.
+            </p>
+            <p className="text-text-secondary">Vale até {formatDateTime(invite.expires_at)}.</p>
+          </div>
 
-          <div className="flex flex-col gap-3 text-sm text-text-secondary @3xl:col-start-2 @3xl:row-span-2 @3xl:row-start-1 @3xl:border-l @3xl:border-border @3xl:pl-8">
+          <div className="@3xl:col-start-1 @3xl:row-start-2 @3xl:self-start">
+            <InviteResponse inviteId={invite.id} onRespond={onRespond} onResolved={onResolved} compact />
+          </div>
+
+          <div className="flex flex-col gap-3 border-t border-border pt-4 text-sm text-text-secondary @3xl:col-start-2 @3xl:row-span-2 @3xl:row-start-1 @3xl:border-t-0 @3xl:border-l @3xl:pt-0 @3xl:pl-8">
             <div className="flex flex-col gap-1">
               <h3 className="type-section-title text-text-primary">Se você aceitar</h3>
               <ul className="flex list-disc flex-col gap-1 pl-5">
@@ -65,10 +85,6 @@ function InviteCard({ invite, inviterSentence, onRespond, onResolved }: InviteCa
               <p>Nada muda na sua conta. Para aceitar depois, só com um convite novo.</p>
             </div>
             <p>Nos dois casos seus veículos e registros não mudam, e quem convidou recebe um aviso com a resposta.</p>
-          </div>
-
-          <div className="@3xl:col-start-1 @3xl:row-start-2 @3xl:self-start">
-            <InviteResponse inviteId={invite.id} onRespond={onRespond} onResolved={onResolved} />
           </div>
         </div>
       </div>
@@ -104,11 +120,11 @@ export function MyInvitesPage() {
     b.created_at.localeCompare(a.created_at),
   );
 
-  function inviterSentence(inviteId: string) {
+  function inviterOf(inviteId: string) {
     const notification = notificationsQuery.data?.find(
       (n) => n.type === "admin_invite_received" && notificationData(n).invite_id === inviteId,
     );
-    return notification?.body?.trim() ? notification.body : null;
+    return inviterName(notification?.body);
   }
 
   function keep(invite: PendingInvite) {
@@ -160,7 +176,7 @@ export function MyInvitesPage() {
           <InviteCard
             key={invite.id}
             invite={invite}
-            inviterSentence={inviterSentence(invite.id)}
+            inviter={inviterOf(invite.id)}
             onRespond={() => keep(invite)}
             onResolved={(outcome) => {
               if (outcome === "accepted") setAcceptedHere(true);

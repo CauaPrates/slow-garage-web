@@ -12,6 +12,7 @@ import { useIsAdmin } from "@/features/admin/useIsAdmin";
 import { InviteResponse } from "./InviteResponse";
 import {
   notificationData,
+  notificationTitle,
   useDeleteNotification,
   useMarkNotificationRead,
   type NotificationRow,
@@ -49,6 +50,7 @@ export function NotificationItem({ notification, onNavigate, onDeleted }: Notifi
   const titleId = useId();
   const isUnread = notification.read_at === null;
   const data = notificationData(notification);
+  const title = notificationTitle(notification);
 
   function markReadIfUnread() {
     if (isUnread) markRead.mutate(notification.id);
@@ -128,7 +130,7 @@ export function NotificationItem({ notification, onNavigate, onDeleted }: Notifi
           </time>
         </p>
         <p id={titleId} className={cn("type-item-title text-text-primary", isUnread && "font-semibold")}>
-          {notification.title}
+          {title}
         </p>
         {notification.body && <p className="text-sm break-words text-text-secondary">{notification.body}</p>}
         {action && <div className="mt-1">{action}</div>}
@@ -139,7 +141,7 @@ export function NotificationItem({ notification, onNavigate, onDeleted }: Notifi
           <Button
             variant="ghost"
             size="icon"
-            aria-label={`Marcar "${notification.title}" como lida`}
+            aria-label={`Marcar "${title}" como lida`}
             aria-disabled={markRead.isPending || undefined}
             onClick={() => run("read")}
           >
@@ -150,7 +152,7 @@ export function NotificationItem({ notification, onNavigate, onDeleted }: Notifi
           ref={deleteRef}
           variant="ghost"
           size="icon"
-          aria-label={`Apagar "${notification.title}"`}
+          aria-label={`Apagar "${title}"`}
           aria-disabled={remove.isPending || undefined}
           onClick={() => run("delete")}
         >

@@ -4797,3 +4797,50 @@ pendente, já admin, login no meio (`?redirect=`) e decisão depois. 320, 390,
 alvo menor que 44px, popovers inteiros na tela, axe sem violações em 35
 estados. `npm run lint`, `npx tsc -b` e `npm run build` limpos. Nenhum
 aparelho físico nem leitor de tela real.
+
+**Ajustes finais (13/11/2026).** Três, na mesma branch, sem commit.
+
+1. **Vencimentos no dashboard** (`PendingAlertsPanel`, `dueDetail`): a linha
+   de prazo segue o sino em dois casos, com a função que o sino já usa
+   (`alertDetail`): vencida só pela quilometragem com a data por vir —
+   "Venceu aos 87.000 km · data prevista 03/12/2026" (antes "Venceu em
+   03/12/2026 · previsto aos 87.000 km (passou 400 km)") —, só km — "Venceu
+   aos 86.000 km" —, e "Vence hoje" (antes "Vence em 13/11/2026"). Vencido
+   ou a vencer em outro dia mantém o texto de antes, com "faltam"/"passou".
+   Situação, ordem e contagem iguais ("3 vencidas · 2 próximas", mesma
+   ordem). As duas divergências registradas acima ficam resolvidas no
+   dashboard; o selo "Vence hoje" de Documentos (ADR-100) continua.
+2. **Convite no celular** (`MyInvitesPage`): resumo → ações → detalhes, na
+   tela e no Tab. O resumo diz quem convidou (o nome sai do texto da
+   notificação — `private.notify` grava "X convidou você…"; formato
+   diferente ou sem notificação: "Um administrador do Slow Garage"), a
+   validade uma vez só (antes no cabeçalho e de novo no texto da
+   notificação; o cabeçalho ficou com "Recebido em") e "Aceitar dá acesso ao
+   painel administrativo."; "Aceitar convite" e "Recusar" (135×44 e 89×44)
+   logo depois; permissões e o efeito de recusar embaixo. Desktop como
+   antes (resumo e ações à esquerda, detalhes à direita). Ações: 320×640 a
+   368px (eram 718, abaixo da primeira tela), 390×844 a 331, 1440 a 334.
+   Resolve a pendência de 320×640 registrada acima.
+3. **Título da notificação** (`notificationTitle`, `useNotifications`): o
+   banco grava "Sua role de administrador foi removida" (`private.notify`,
+   gatilho de troca de role) em cada notificação `admin_role_revoked`. A
+   tela mostra "Seu acesso de administrador foi removido" — só para esse
+   tipo e só para esse texto exato; vale para as gravadas e as novas. Os
+   nomes de "Marcar … como lida" e "Apagar …" usam o mesmo título. Leitura,
+   contador e ações iguais. Pendência no backend: o texto gravado continua
+   o antigo (fora deste repositório).
+
+Verificação: cenário `158` (`etapa-15/relatorio-ajustes.txt`, captura
+`259-mobile320-convite-resumo-acoes-dark`). Dashboard × sino (1440 escuro,
+390 claro) com km e data futura, só km, vence hoje, vencido por data e um a
+vencer: textos iguais ao sino nos casos novos, os outros como antes, mesma
+ordem e contagem. Convite em 320×640, 390×844 e 1440: validade 1 vez, ordem
+visual = ordem do documento, Tab "Aceitar convite" → "Recusar", ações na
+primeira tela; toque (320): dois toques com o envio em andamento → uma RPC,
+falha à vista (420–486 de 640) com o foco no botão, nova tentativa → "Convite
+aceito" à vista com o foco; teclado (390): Enter em "Recusar" com falha →
+aviso à vista, foco no botão; de novo → "Convite recusado", foco no retorno.
+Notificação: título novo na caixa de entrada (não lida e, no histórico de 25,
+os 10 antigos desse tipo), nenhum "role" na tela; marcar como lida 3 → 2.
+Axe sem violações nos 8 estados. `npm run lint`, `npx tsc -b` e `npm run
+build` limpos.
