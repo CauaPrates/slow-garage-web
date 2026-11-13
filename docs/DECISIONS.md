@@ -4844,3 +4844,179 @@ Notificação: título novo na caixa de entrada (não lida e, no histórico de 2
 os 10 antigos desse tipo), nenhum "role" na tela; marcar como lida 3 → 2.
 Axe sem violações nos 8 estados. `npm run lint`, `npx tsc -b` e `npm run
 build` limpos.
+
+## ADR-106 — Redesign etapa 16: Administração e o foco ao cancelar "Remover admin"
+
+**Status.** Implementada. **Revisão visual pendente** — não aprovada. Branch
+`feature/049-redesign-etapa-16`, a partir da `feature/048-redesign-etapa-15`
+(árvore limpa na partida, nada pendente a preservar). Sem commit, push nem
+merge. A etapa 17 não começou.
+
+**Inventário confirmado no código.**
+
+| Área | Rota e parâmetros | Entradas | Dados | Ações | Estados |
+|---|---|---|---|---|---|
+| Visão geral | `/admin` | menu do perfil, "Painel admin" da lateral, Configurações, notificações de admin, "Ir para o painel" (convite aceito) | `admin_get_overview` (contagens agregadas) e `admin_signups_by_day` (7/30/90 dias, série com zeros, fuso de Brasília) | Atualizar; período; atalhos Usuários → lista, Convites pendentes → convites | carregando, falha (cada consulta), zeros |
+| Usuários | `/admin/usuarios?busca=&role=&pagina=` | navegação do painel, atalho da visão geral | `admin_list_users`: e-mail/nome (busca), papel, 50 por página, cadastro mais recente primeiro | busca (com espera), filtro de papel, paginação; abrir usuário | carregando, falha, filtro sem resultado, página vazia |
+| Detalhe do usuário | `/admin/usuarios/:userId` | linha da lista, links de pessoa (convites, log, "Promovido por"), notificação "Ver usuário no painel" | `admin_get_user`: conta, papel, quem promoveu, 7 contagens, até 10 convites e 20 eventos (agiu ou foi alvo) | convidar (Edge Function `admin-invite`: convite + notificação + e-mail, 7 dias), cancelar convite pendente (`admin_revoke_invite`), remover admin (`admin_revoke_admin_role`; o banco recusa o último, `last_admin`; remover a si mesmo tira do painel), "Ver tudo no log" | carregando, falha, não encontrado (`user_not_found`) |
+| Convites | `/admin/convites?status=` | navegação, atalho da visão geral | `admin_invites` (RLS: admin vê todos), mais recente primeiro; pendente vencido = expirado (`effectiveInviteStatus`) | filtro de situação; cancelar pendente | carregando, falha, vazio, filtro sem resultado |
+| Auditoria | `/admin/auditoria?acao=&usuario=&pagina=` | navegação, "Ver tudo no log" | `admin_list_audit_logs`, 50 por página, mais recente primeiro | filtro de ação, filtro de usuário (só pela URL), paginação | carregando, falha, filtro sem resultado, página vazia |
+
+Acesso: o `AdminLayout` confere `is_admin()` a cada entrada (sem cache) e leva
+quem não é admin para a garagem com o aviso de rota ("O painel é só para
+administradores." / "Você não tem mais acesso ao painel."); 403 `not_admin` de
+qualquer RPC faz o mesmo (`Providers`). A segurança é do banco. Sem sessão,
+`/entrar?redirect=…`. Nada disso mudou.
+
+**Decisão.**
+
+- **Casca.** `AdminLayout` passou ao `Page` comum (margens e vãos por token),
+  sobrelinha "Painel admin" e navegação das quatro seções: grade 2×2 no celular
+  (todas à vista) e, do `sm` pra cima, abas com o fio laranja embaixo da atual
+  (`aria-current`). Conferindo acesso e falha usam `Skeleton` e `PageError`; a
+  nova tentativa leva o foco ao topo do painel (`useRetryFocus`). Cada tela
+  abre com `PageHeader` (título em caixa-alta, escopo numa frase, uma ação
+  quando há).
+- **Selos e números.** `AdminBadges` deixou de ter classe própria: `RoleBadge`
+  e `InviteStatusBadge` usam o `Badge` comum. Tons: Administrador = `accent`,
+  Gearhead = `neutral`; convite com os tons da etapa 15 (aceito = `success`,
+  recusado = `neutral`, cancelado e expirado = `dashed`) e pendente = `info`
+  (enviado, aguardando — não é acesso). Contagens em `type-stat`/`type-value`
+  (eram mono). Mono não aparece em nenhuma tela do Admin.
+- **Visão geral.** Faixa (`SummaryStrip`) com Usuários, Administradores,
+  Convites pendentes e Veículos — os dois atalhos de antes ficam como "Ver
+  usuários" e "Ver convites", mesmos destinos; dois painéis compactos com o
+  escopo escrito ("Contas": todos os usuários; "Registros no app": somados de
+  todos os usuários, só a contagem); "Cadastros por dia" num painel com o
+  período no cabeçalho e a soma do período escrita (soma da série que o banco
+  devolve, sem regra nova; zero = "Nenhum cadastro nos últimos N dias.").
+  Carregando = bloco pulsante com o rótulo à vista, nunca zero; falha =
+  "Indisponível" na faixa e um aviso com nova tentativa; falha ao atualizar
+  com números na tela diz de quando eles são. "Atualizar" fica `aria-disabled`
+  (com `disabled` o foco caía no `<body>`). `StatList` virou grade com filetes
+  de 1px dentro do painel (antes, cartão dentro de cartão), com `loading`.
+  `SummaryStat` ganhou `action` opcional (o atalho embaixo do valor).
+- **Usuários.** Lista num painel com contagem ("8 contas", "… nesta seleção"),
+  filtros por `FilterField` ("Buscar por nome ou e-mail", "Papel" — era
+  "Role") e linhas com colunas a partir de `lg` (era tabela). Nome (ou "Sem
+  nome de exibição") e e-mail inteiros, e-mail quebrando em qualquer ponto; o
+  selo desce quando não cabe ao lado (em 320 o e-mail longo ficava com 36px de
+  largura na primeira versão desta etapa). Abaixo de `lg`, os metadados um por
+  linha com rótulo. Nome acessível do link = nome + e-mail. Filtro sem
+  resultado escreve a seleção e oferece "Limpar filtros"; página vazia,
+  "Voltar para a primeira página".
+- **Detalhe do usuário.** Voltar para Usuários; cabeçalho com o nome (sem
+  nome, o e-mail) em `type-entity-title`; três painéis separados —
+  **Identificação** (nome de exibição, e-mail, confirmação, cadastro, último
+  login), **Papel atual** (selo; admin desde e quem promoveu, ou a situação do
+  convite) e **Acesso ao painel** (o que a ação faz, a ação e o retorno). Depois
+  Registros (contagens), Convites recebidos e Eventos recentes, com o escopo do
+  banco escrito ("os 10 mais recentes", "os 20 mais recentes em que a pessoa
+  agiu ou foi o alvo") e "Mostrar todos" no rodapé do painel
+  (`aria-expanded`). Não encontrado vira `EmptyState`.
+  O retorno de cada ação (convite enviado, e-mail que não saiu, convite
+  cancelado, removido) aparece **acima** do botão e recebe o foco — o botão
+  usado some. Convidar e cancelar travam em `ref` com `aria-disabled`.
+  Achado no "antes": com a resposta rápida, um clique duplo em "Convidar para
+  admin" convidava e cancelava em seguida (o "Cancelar convite" nascia no
+  mesmo ponto). O retorno acima do botão tira o "Cancelar" de lá; medido:
+  1 chamada.
+- **Convites.** Ação do cabeçalho "Convidar alguém" → lista de usuários
+  Gearhead (`?role=gearhead`; convidar continua no detalhe, como antes). Lista
+  com contagem, filtro "Situação", linhas: destinatário (link), "Enviado em …
+  por …", e-mail enviado ou "e-mail não saiu", selo e a validade pela situação
+  (`invitePresentation.ts`: "Vale até", "Venceu em … sem resposta", "Aceito
+  em", "Recusado em", "Cancelado em" — de `expires_at`/`resolved_at`). O texto
+  do cabeçalho diz que enviar não dá acesso. "Cancelar convite" tem nome
+  acessível com o destinatário; o retorno aparece acima da lista, com o foco.
+- **Auditoria.** Lista com contagem e paginação no rodapé; ação (com o detalhe
+  do `metadata`) · quem fez · alvo · data; no celular a data ao lado da ação e
+  as pessoas uma por linha com rótulo, e-mails quebrando. O filtro de usuário é
+  uma etiqueta com o nome e "Remover filtro de usuário: <nome>"; ao removê-lo,
+  o foco vai para o filtro de ação (antes, `<body>`). Não há dado técnico
+  expandido: o `metadata` continua virando o detalhe da ação. "Mudança de
+  role" virou "Mudança de papel". Alvo nulo = "Conta excluída".
+- **Links de pessoa.** `UserLink` no link em texto comum; dentro de frase,
+  `inline-block` com 14px de respiro devolvidos por margem negativa: alvo de
+  44px sem mudar a linha (antes 65×16). `useUserLabel` dá o nome para nomes
+  acessíveis. `Pagination` foi para o rodapé do painel, com `aria-disabled`.
+
+**Correção — foco ao cancelar "Remover admin"** (pendência da ADR-099).
+`RevokeAdminDialog` usa o `useReturnFocus` dos diálogos das etapas 05–15:
+guarda o controle focado ao abrir e o devolve ao fechar por "Cancelar"
+(clique ou Enter) ou Escape. O hook ganhou `visible` (opcional; os outros
+diálogos não mudaram): `focus({ focusVisible: true })`, para o anel aparecer
+mesmo depois de um clique. Se o controle saiu da tela, `focusFallback` (o
+retorno da ação ou o painel de acesso). "Cancelar" continua o foco inicial.
+Não há "Remover admin" em menu no Admin; se houver um dia, o mesmo
+`focusFallback` cobre o item que fechou.
+
+A confirmação agora mostra o registro no cartão comum (`AlertDialogRecord`:
+nome ou e-mail, "Administrador Gearhead desde …") e o efeito conferido na
+migration: volta a Gearhead na hora, o painel deixa de abrir e sai do menu,
+notificação `admin_role_revoked`, evento no log, veículos e registros não
+mudam, voltar só com convite novo (para si: sai do painel). Envio trava em
+`ref` com `aria-disabled` e "Removendo…"; fechar fica bloqueado durante o
+envio. Achado na verificação: depois do sucesso o React reaproveitava o mesmo
+`<button>` ("Remover admin" virava "Convidar para admin"), o foco voltava a
+ele e um Enter a mais convidaria a pessoa de novo — cada ação ganhou `key`.
+
+| Medida (390 e 1440; 320 só cancelar) | Antes (etapa 15) | Depois |
+|---|---|---|
+| Cancelar por clique | `<body>` | "Remover admin", anel visível |
+| Teclado: gatilho → confirmação → Enter no Cancelar → Tab | Cancelar → `<body>` → "Slow Garage — ir para Minha garagem" | Cancelar → "Remover admin" (anel) → próximo controle ("Cauã Piloto", link do convite) |
+| Escape | `<body>` | "Remover admin" (anel) → Tab → próximo controle |
+| Remoções depois dos três cancelamentos | 0 | 0 |
+| Falha (`last_admin`) | erro no diálogo, foco `<body>` | erro anunciado no diálogo, foco no botão "Remover admin" do diálogo; Escape → gatilho |
+| Dois cliques + Enter durante o envio | 1 RPC, foco `<body>` | 1 RPC, "Removendo…" com o foco no botão; fecha e o foco vai ao retorno "… agora é Gearhead e não acessa mais o painel." |
+| Remover a si mesmo | garagem com o aviso | igual (foco `<body>` — ver pendências) |
+| Caixa em 320×640 com e-mail de 70+ caracteres | 288×367 | 288×539, cabe sem rolar (conteúdo 536 de 544) |
+
+**Componentes compartilhados usados.** `Page`, `PageHeader`, `ActionLabel`,
+`Panel`, `PanelHeader`, `PanelCount`, `PANEL_CLASSNAME`, `PANEL_LINK_CLASSNAME`,
+`ListColumns`, `SummaryStrip`/`SummaryStat` (+ `action`), `Badge`,
+`FilterField`, `Input`, `Select`, `Button`/`buttonVariants`, `Skeleton`,
+`SkeletonList`, `InlineError`, `PageError`, `NoResults`, `EmptyState`, `Alert`,
+`FieldError`, `AlertDialog*` + `AlertDialogRecord`, `textLinkClassName`,
+`UserAvatar`, `useReturnFocus` (+ `visible`), `useRetryFocus`.
+
+**Não mudou.** Rotas e parâmetros, guarda e tratamento de acesso negado,
+hooks, consultas, chaves e invalidações, RPCs e Edge Function, payloads,
+paginação (50), ordem, validade e ciclo de vida dos convites, regras do log,
+contagens. Nenhuma tela fora do Admin mudou; `SummaryStat` e `useReturnFocus`
+só ganharam opções.
+
+**Verificação.** Dados simulados (`redesign-capturas/ferramenta/inspect.mjs`,
+`adminHandler16`, cenário `a16`, `etapa-16/relatorio.txt`; o mesmo roteiro no
+código da etapa 15 em `relatorio-antes.txt`): rede trancada, nenhuma chamada
+ao Supabase real, nenhuma gravação real. As cinco áreas em 320, 390, 768 e
+1440, claro e escuro, mais 1920 e 2560: nenhum alvo menor que 44px (antes:
+links de pessoa dentro de frase com 16–18px de altura em Auditoria, Convites e
+no detalhe, em todas as larguras), nenhuma rolagem
+horizontal, último controle alcançável com rolagem real acima da barra
+inferior, nenhum mono, nenhum selo próprio (antes: 32 estados com mono ou
+selo próprio). Tab nas cinco áreas (390). Estados: carregando, falha com nova
+tentativa (foco no bloco que carregou; antes `<body>`), zeros, vazio, filtro
+sem resultado, página vazia, não encontrado. Sem admin nas cinco rotas (aviso,
+nenhuma RPC `admin_*`), `is_admin` com falha e nova tentativa, sem sessão.
+Navegação entre as áreas e atalhos. Busca, papel e paginação (68 contas; o
+foco fica no botão de página — antes `<body>`). Convidar (sucesso, e-mail que
+não saiu, falha, clique duplo) e cancelar convite (detalhe e lista, sucesso e
+falha; foco no retorno — antes `<body>`). Axe sem violações em 85 estados.
+`npm run lint`, `npx tsc -b` e `npm run build` limpos. Seis capturas
+(260–265). Nenhum aparelho físico nem leitor de tela real.
+
+**Pendências (anteriores, não alteradas).**
+
+- Remover a si mesmo: a garagem abre com o aviso de rota anunciado, mas o
+  foco fica no `<body>` (o `RouteNotice` é compartilhado; fora desta etapa).
+- O voltar do detalhe leva à lista sem os filtros da URL (o voltar do
+  navegador mantém).
+- `useAdminUser` tenta 3 vezes antes de mostrar "não encontrado" (~7s): é a
+  consulta padrão; não foi mudada.
+- Convites: sem paginação (todos de uma vez); `UserLink` faz uma chamada
+  `admin_get_user` por pessoa distinta (ADR-083).
+- `InviteResponse` (etapa 15) e `AdminBadges` mantêm cada um o seu mapa de
+  tons de convite (os mesmos valores).
+- Os outros diálogos com `useReturnFocus` continuam devolvendo o foco sem
+  forçar o anel depois de clique (comportamento de antes).

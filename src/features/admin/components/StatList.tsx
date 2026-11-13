@@ -1,59 +1,75 @@
 import { Link } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { formatCount } from "@/lib/format";
 import { cn } from "@/lib/utils";
 
-export type Stat = { label: string; value: number; href?: string };
+export type Stat = {
+  label: string;
+  value: number;
+  /** Atalho: a célula inteira vira link para a tela que detalha o número. */
+  href?: string;
+  /** Complemento do nome do link ("abrir a lista de usuários"). */
+  linkLabel?: string;
+};
 
 type StatListProps = {
   stats: Stat[];
-  /** Colunas a partir de `sm` — no mobile é sempre uma lista. */
+  /** Carregando: o rótulo fica à vista e o valor é um bloco pulsante — nunca um zero. */
+  loading?: boolean;
+  /** Colunas a partir de `sm` — no celular é sempre uma linha por número. */
   columnsClassName?: string;
 };
 
 /**
- * Contagens do painel. No mobile é uma ficha técnica (uma linha por
- * número, rótulo à esquerda e valor à direita, num card só) — 16 cards
- * empilhados em 2 colunas viravam uma parede. Do `sm` pra cima vira grade
- * de cards. O valor vem primeiro no DOM e a ordem visual muda por
- * `flex-row-reverse`/`flex-col`, sem duplicar marcação.
+ * Contagens do painel, dentro de um `Panel`. Etapa 16: valor no papel de
+ * indicador (`type-stat`, display tabular — era mono) e células com filete de
+ * 1px em vez de cartão dentro de cartão. No celular, uma linha por número
+ * (rótulo à esquerda, valor à direita); do `sm` pra cima, grade com o rótulo
+ * em cima. Os filetes de cima e da esquerda de cada célula ficam por baixo da
+ * borda do painel (margem negativa + `overflow-hidden` do painel), então a
+ * grade não precisa saber quantas colunas tem para desenhá-los.
  */
-export function StatList({ stats, columnsClassName = "sm:grid-cols-3 xl:grid-cols-5" }: StatListProps) {
+export function StatList({ stats, loading = false, columnsClassName = "sm:grid-cols-2 lg:grid-cols-3" }: StatListProps) {
   return (
-    <ul
-      className={cn(
-        "grid grid-cols-1 divide-y divide-border rounded-lg border border-border bg-surface",
-        "sm:gap-3 sm:divide-y-0 sm:rounded-none sm:border-0 sm:bg-transparent",
-        columnsClassName,
-      )}
-    >
-      {stats.map((stat) => {
-        const itemClassName = cn(
-          "flex min-h-11 flex-row-reverse items-center justify-between gap-3 px-4 py-2.5",
-          "sm:h-full sm:flex-col sm:items-start sm:justify-start sm:gap-0.5 sm:rounded-lg sm:border sm:border-border sm:bg-surface sm:p-4",
-        );
-        const content = (
-          <>
-            <span className="font-mono text-base font-medium text-text-primary sm:text-lg">
-              {formatCount(stat.value)}
+    <div aria-busy={loading || undefined}>
+      {loading && <span className="sr-only">Carregando contagens…</span>}
+      <ul className={cn("-mt-px -ml-px grid grid-cols-1", columnsClassName)}>
+        {stats.map((stat) => {
+          const cell =
+            "flex min-h-control items-center justify-between gap-3 border-t border-l border-border px-(--panel-pad-x) py-2.5 sm:h-full sm:flex-col sm:items-start sm:justify-start sm:gap-1 sm:py-3";
+          const label = (
+            <span className="flex items-center gap-1 text-sm text-text-secondary">
+              {stat.label}
+              {stat.href && <ArrowRight className="h-3.5 w-3.5 shrink-0 text-accent" aria-hidden="true" />}
             </span>
-            <span className="text-sm text-text-secondary sm:text-xs">{stat.label}</span>
-          </>
-        );
-        return (
-          <li key={stat.label}>
-            {stat.href ? (
-              <Link
-                to={stat.href}
-                className={cn(itemClassName, "transition-colors duration-150 hover:bg-bg sm:hover:border-accent sm:hover:bg-surface")}
-              >
-                {content}
-              </Link>
-            ) : (
-              <div className={itemClassName}>{content}</div>
-            )}
-          </li>
-        );
-      })}
-    </ul>
+          );
+          const value = loading ? (
+            <Skeleton className="h-6 w-12" />
+          ) : (
+            <span className="type-stat text-text-primary">{formatCount(stat.value)}</span>
+          );
+          return (
+            <li key={stat.label}>
+              {stat.href ? (
+                <Link
+                  to={stat.href}
+                  className={cn(cell, "transition-colors duration-(--duration-fast) hover:bg-state-hover")}
+                >
+                  {label}
+                  {value}
+                  {stat.linkLabel && <span className="sr-only"> — {stat.linkLabel}</span>}
+                </Link>
+              ) : (
+                <div className={cell}>
+                  {label}
+                  {value}
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
