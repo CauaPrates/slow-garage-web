@@ -7,7 +7,7 @@ import type { VehicleWithSummary } from "@/features/vehicle/useVehicles";
 import { cn } from "@/lib/utils";
 import { ActivityFeedPanel } from "./HeaderActivityMenu";
 import { NotificationsPanel } from "./HeaderNotificationsMenu";
-import { HEADER_BADGE_CLASSNAME, HEADER_ICON_BUTTON_CLASSNAME } from "./navStyles";
+import { HEADER_BADGE_CLASSNAME, HEADER_ICON_BUTTON_CLASSNAME, HEADER_POPOVER_CLASSNAME } from "./navStyles";
 
 type HeaderInboxMenuProps = {
   vehicles: VehicleWithSummary[];
@@ -26,6 +26,10 @@ type Tab = "notifications" | "activity";
  * O indicador é o mesmo das notificações (não lidas, no acento); atividade
  * nunca teve contador. Abas no padrão WAI-ARIA: setas trocam de aba, a aba
  * ativa tem fio + peso além da cor.
+ *
+ * Etapa 15: a caixa não passa da altura disponível (abas fixas, só a lista
+ * rola) e seguir um "Ver" da atividade fecha o popover, como os links das
+ * notificações já faziam.
  */
 export function HeaderInboxMenu({ vehicles }: HeaderInboxMenuProps) {
   const [open, setOpen] = useState(false);
@@ -72,11 +76,11 @@ export function HeaderInboxMenu({ vehicles }: HeaderInboxMenuProps) {
           )}
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-96" aria-label={label}>
+      <PopoverContent className={HEADER_POPOVER_CLASSNAME} aria-label={label}>
         <div
           role="tablist"
           aria-label="Caixa de entrada"
-          className="mb-3 flex border-b border-border"
+          className="mb-3 flex shrink-0 border-b border-border"
         >
           {tabs.map((t) => {
             const selected = t.id === current;
@@ -111,11 +115,12 @@ export function HeaderInboxMenu({ vehicles }: HeaderInboxMenuProps) {
           role="tabpanel"
           id={`${baseId}-${current}-panel`}
           aria-labelledby={`${baseId}-${current}-tab`}
+          className="flex min-h-0 flex-1 flex-col"
         >
           {current === "notifications" ? (
             <NotificationsPanel onNavigate={() => setOpen(false)} />
           ) : (
-            <ActivityFeedPanel vehicles={vehicles} />
+            <ActivityFeedPanel vehicles={vehicles} onNavigate={() => setOpen(false)} />
           )}
         </div>
       </PopoverContent>

@@ -77,13 +77,32 @@ export function AlertDialogCancel({
   );
 }
 
+/**
+ * Etapa 17: `disabled` vira `aria-disabled` + clique bloqueado. Com o
+ * `disabled` nativo, o botão perdia o foco no meio do envio ("Excluindo…") e o
+ * foco caía no `<body>` até a resposta — medido na exclusão de gasto e igual
+ * nas 14 confirmações de exclusão. Assim o foco fica no botão (anunciado como
+ * indisponível) e um segundo clique ou Enter não chega ao `onClick`; na falha
+ * a pessoa continua no contexto com o erro. O mesmo padrão que a etapa 16 pôs
+ * à mão em "Remover admin".
+ */
 export function AlertDialogAction({
   className,
+  disabled,
+  onClick,
   ...props
 }: React.ComponentProps<typeof AlertDialogPrimitive.Action>) {
   return (
     <AlertDialogPrimitive.Action
       className={cn(buttonVariants({ variant: "destructive" }), className)}
+      aria-disabled={disabled || props["aria-disabled"] || undefined}
+      onClick={(event) => {
+        if (disabled) {
+          event.preventDefault();
+          return;
+        }
+        onClick?.(event);
+      }}
       {...props}
     />
   );

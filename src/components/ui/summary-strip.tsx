@@ -28,6 +28,8 @@ type SummaryStatProps = {
   state: SummaryState;
   /** Linha de apoio só no celular (ex.: a contagem que lá não tem célula própria). */
   mobileHint?: ReactNode;
+  /** Etapa 16: atalho curto embaixo do valor ("Ver usuários"), só com o valor carregado. */
+  action?: ReactNode;
   className?: string;
 };
 
@@ -36,7 +38,7 @@ type SummaryStatProps = {
  * "Indisponível" — a explicação e o "Tentar de novo" ficam na legenda da
  * faixa, uma vez só.
  */
-export function SummaryStat({ label, value, state, mobileHint, className }: SummaryStatProps) {
+export function SummaryStat({ label, value, state, mobileHint, action, className }: SummaryStatProps) {
   return (
     <div className={cn("flex min-w-0 flex-col gap-0.5 px-(--page-gutter) py-2.5 sm:gap-1 sm:py-3", className)}>
       <dt className="type-overline text-text-secondary">{label}</dt>
@@ -52,6 +54,7 @@ export function SummaryStat({ label, value, state, mobileHint, className }: Summ
           <>
             <span className="type-stat break-words text-text-primary">{value}</span>
             {mobileHint && <span className="type-caption block text-text-secondary sm:hidden">{mobileHint}</span>}
+            {action && <div className="mt-1 flex">{action}</div>}
           </>
         )}
       </dd>

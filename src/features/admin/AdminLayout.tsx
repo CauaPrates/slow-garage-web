@@ -1,8 +1,10 @@
 import { useEffect, useRef } from "react";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
-import { AlertCircle } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Page } from "@/components/layout/Page";
 import type { RouteNoticeState } from "@/components/layout/RouteNotice";
+import { PageError } from "@/components/ui/feedback";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useRetryFocus } from "@/hooks/useRetryFocus";
 import { ROUTES } from "@/lib/routes";
 import { cn } from "@/lib/utils";
 import { useIsAdmin } from "./useIsAdmin";
@@ -23,12 +25,22 @@ const ADMIN_TABS = [
  *
  * Isso é UX. A segurança é do banco: toda RPC admin recusa quem não é
  * admin, com ou sem esta tela.
+ *
+ * Etapa 16: a casca comum das telas de gestão (`Page`, margens e vãos por
+ * token); sobrelinha "Painel admin" e as quatro seções como navegação —
+ * grade 2×2 no celular (as quatro à vista, nenhuma cortada) e, do `sm` pra
+ * cima, abas com o fio laranja embaixo da atual (`aria-current="page"`,
+ * posto pelo `NavLink`). Conferindo acesso e falha usam `Skeleton` e
+ * `PageError` comuns.
  */
 export function AdminLayout() {
   const isAdminQuery = useIsAdmin();
   const navigate = useNavigate();
   const wasAdmin = useRef(false);
   const isAdmin = isAdminQuery.data;
+  // Depois de "Tentar de novo" com sucesso, o foco vai para o topo do painel (antes caía no <body>).
+  const topRef = useRef<HTMLDivElement>(null);
+  const retry = useRetryFocus(isAdminQuery.dataUpdatedAt, topRef);
 
   useEffect(() => {
     if (isAdmin === true) {
@@ -47,23 +59,20 @@ export function AdminLayout() {
 
   if (isAdminQuery.isError && isAdmin === undefined) {
     return (
-      <div className="flex flex-col items-center gap-3 p-12 text-center">
-        <AlertCircle className="h-6 w-6 text-error" aria-hidden="true" />
-        <p className="text-sm text-text-secondary">Não foi possível confirmar seu acesso ao painel.</p>
-        <Button variant="ghost" onClick={() => isAdminQuery.refetch()}>
-          Tentar de novo
-        </Button>
-      </div>
+      <Page>
+        <PageError message="Não foi possível confirmar seu acesso ao painel." onRetry={() => retry(isAdminQuery.refetch)} />
+      </Page>
     );
   }
 
   if (isAdmin !== true) {
     return (
-      <div className="flex flex-col gap-4 p-6" aria-busy="true">
+      <Page aria-busy="true">
         <span className="sr-only">Conferindo acesso ao painel…</span>
-        <div className="h-8 w-48 animate-pulse rounded-md bg-surface" />
-        <div className="h-24 animate-pulse rounded-lg border border-border bg-surface" />
-      </div>
+        <Skeleton className="h-4 w-28" />
+        <Skeleton className="h-11 w-full max-w-xl" />
+        <Skeleton className="h-40" />
+      </Page>
     );
   }
 
@@ -71,31 +80,34 @@ export function AdminLayout() {
     // `relative`: todo `sr-only` (absoluto) do painel fica preso aqui dentro.
     // Sem ancestral posicionado ele escapava do <main> e fazia a página
     // inteira rolar no desktop, levando o header junto.
-    <div className="relative flex flex-col gap-6 p-4 sm:p-6">
-      <div className="flex flex-col gap-3">
-        <p className="text-xs tracking-wide text-text-secondary uppercase">Painel admin</p>
-        {/* Mobile: grade 2×2 com as 4 seções visíveis — a fileira com rolagem lateral cortava "Log de auditoria" e parecia quebrada. */}
-        <nav aria-label="Seções do painel" className="grid grid-cols-2 gap-2 sm:flex sm:gap-1">
-          {ADMIN_TABS.map((tab) => (
-            <NavLink
-              key={tab.to}
-              to={tab.to}
-              end={tab.end}
-              className={({ isActive }) =>
-                cn(
-                  "flex min-h-11 items-center justify-center rounded-md border px-3 text-sm whitespace-nowrap transition-colors duration-150 sm:shrink-0",
-                  isActive
-                    ? "border-accent/40 bg-accent/10 font-medium text-accent"
-                    : "border-border text-text-secondary hover:text-text-primary",
-                )
-              }
-            >
-              {tab.label}
-            </NavLink>
-          ))}
+    <Page className="relative">
+      <div ref={topRef} tabIndex={-1} className="flex flex-col gap-2 rounded-md outline-offset-4">
+        <p className="type-overline text-text-secondary">Painel admin</p>
+        <nav aria-label="Seções do painel">
+          <ul className="grid grid-cols-2 gap-2 sm:flex sm:gap-1 sm:border-b sm:border-border">
+            {ADMIN_TABS.map((tab) => (
+              <li key={tab.to}>
+                <NavLink
+                  to={tab.to}
+                  end={tab.end}
+                  className={({ isActive }) =>
+                    cn(
+                      "flex min-h-control items-center justify-center rounded-md border px-3 text-sm whitespace-nowrap transition-colors duration-(--duration-fast)",
+                      "sm:-mb-px sm:rounded-none sm:rounded-t-md sm:border-0 sm:border-b-2 sm:px-3",
+                      isActive
+                        ? "border-accent/50 bg-accent/10 font-semibold text-text-primary sm:border-accent sm:bg-transparent"
+                        : "border-border text-text-secondary hover:bg-state-hover hover:text-text-primary sm:border-transparent",
+                    )
+                  }
+                >
+                  {tab.label}
+                </NavLink>
+              </li>
+            ))}
+          </ul>
         </nav>
       </div>
       <Outlet />
-    </div>
+    </Page>
   );
 }
